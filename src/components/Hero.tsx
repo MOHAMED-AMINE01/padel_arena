@@ -1,0 +1,117 @@
+import React, { useState } from 'react';
+import { motion, useScroll, useTransform } from 'motion/react';
+import { Mail, Phone, ChevronDown, Volume2, VolumeX } from 'lucide-react';
+import { cn } from '../lib/utils';
+
+export const Hero = () => {
+  const { scrollY } = useScroll();
+  const y = useTransform(scrollY, [0, 500], [0, 150]);
+  const opacity = useTransform(scrollY, [0, 300], [1, 0]);
+  const [isMuted, setIsMuted] = useState(true);
+
+  return (
+    <section className="relative h-screen w-full overflow-hidden bg-[#050505]">
+      {/* Background Image with Parallax & Pro Overlay */}
+      <div className="absolute inset-0 z-0">
+        <div className="absolute inset-0 bg-black/50 z-10" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black via-black/20 to-transparent z-10" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent z-10" />
+        <motion.img
+          style={{ y, scale: 1.05 }}
+          src="/IMAGES/Image de présentation.png"
+          alt="Padel Arena"
+          className="w-full h-full object-cover grayscale-[20%]"
+        />
+      </div>
+
+      {/* Grid Lines - Subtle structure */}
+      <div className="absolute inset-0 z-10 pointer-events-none opacity-[0.03]">
+        <div className="max-w-[1600px] mx-auto h-full w-full flex justify-between border-x border-white">
+          <div className="w-[1px] h-full bg-white ml-[20%]" />
+          <div className="w-[1px] h-full bg-white" />
+          <div className="w-[1px] h-full bg-white mr-[20%]" />
+        </div>
+      </div>
+
+      {/* Left Vertical Section (Scroll Down) */}
+      <div className="absolute left-6 bottom-10 z-30 hidden lg:flex flex-col items-start gap-4 h-32">
+        <motion.div
+          animate={{ y: [0, 8, 0] }}
+          transition={{ duration: 2, repeat: Infinity }}
+          className="flex items-center gap-3 origin-left -rotate-90 translate-y-[-60px]"
+        >
+          <ChevronDown size={14} className="text-padel-yellow rotate-90" />
+          <span className="text-[9px] font-black uppercase tracking-[0.4em] text-white/40">
+            SCROLL DOWN
+          </span>
+        </motion.div>
+      </div>
+
+      {/* Right Vertical Socials */}
+      <div className="absolute right-6 top-1/2 -translate-y-1/2 z-30 hidden xl:flex flex-col items-center gap-24">
+        {['FACEBOOK', 'TWITTER', 'INSTAGRAM'].map((social) => (
+          <a
+            key={social}
+            href="#"
+            className="text-[9px] font-black uppercase tracking-[0.5em] text-white/80 hover:text-padel-blue transition-all rotate-90 origin-center py-4"
+          >
+            {social}
+          </a>
+        ))}
+      </div>
+
+      {/* Main Content Area */}
+      <div className="relative z-20 h-full max-w-[1500px] mx-auto px-8 md:px-12 flex flex-col justify-center">
+        <motion.div
+          style={{ opacity }}
+          initial={{ opacity: 0, x: -30 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 1, ease: [0.23, 1, 0.32, 1] }}
+          className="max-w-5xl"
+        >
+          {/* Headline - Compact & Powerful */}
+          <h1 className="text-5xl md:text-7xl lg:text-[6.5rem] xl:text-[7rem] font-display font-black leading-[0.82] tracking-tighter text-white mb-8">
+            VIVEZ <br />
+            <span className="text-padel-blue italic">LA PASSION</span> <br />
+            DU PADEL
+          </h1>
+
+          {/* Subtext */}
+          <p className="text-sm md:text-base text-white/70 font-medium max-w-lg mb-12 md:mb-16 leading-relaxed">
+            Un centre moderne pensé pour les passionnés de sport, combinant infrastructures premium, coaching professionnel et une plateforme digitale intelligente.
+          </p>
+
+          {/* Utility Contact Grid */}
+          <div className="flex flex-wrap gap-10 md:gap-16">
+            <div className="group">
+              <p className="text-padel-yellow text-[9px] font-black uppercase tracking-[0.3em] mb-4">MAIL US</p>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-padel-blue/20 group-hover:border-padel-blue transition-colors">
+                  <Mail size={16} className="text-white/40 group-hover:text-white" />
+                </div>
+                <span className="text-sm md:text-base font-bold text-white transition-colors">
+                  contact@padelarena.fr
+                </span>
+              </div>
+            </div>
+
+            <div className="group">
+              <p className="text-padel-yellow text-[9px] font-black uppercase tracking-[0.3em] mb-4">CALL US</p>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-padel-blue/20 group-hover:border-padel-blue transition-colors">
+                  <Phone size={16} className="text-white/40 group-hover:text-white" />
+                </div>
+                <span className="text-sm md:text-base font-bold text-white transition-colors">
+                  +33 2 00 00 00 00
+                </span>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
+
+
+      </div>
+    </section>
+  );
+};
