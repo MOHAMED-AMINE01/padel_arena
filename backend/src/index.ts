@@ -22,41 +22,35 @@ dotenv.config();
 const app: Express = express();
 const PORT = process.env.PORT || 5000;
 
-// Security Middlewares - Simplified Helmet to avoid blocking cross-domain assets
-app.use(helmet({
-    crossOriginResourcePolicy: { policy: "cross-origin" },
-    crossOriginOpenerPolicy: { policy: "same-origin-allow-popups" }
-}));
+// CORS headers set manually FIRST for maximum compatibility
+app.use((req, res, next) => {
+    const allowedOrigins = [
+        'http://localhost:3000',
+        'http://localhost:5173',
+        'https://padelarena-topaz.vercel.app'
+    ];
+    const origin = req.headers.origin;
+    if (origin && allowedOrigins.includes(origin)) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+    }
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin');
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    
+    // Handle preflight
+    if (req.method === 'OPTIONS') {
+        return res.status(200).end();
+    }
+    next();
+});
 
-// CORS configuration - dynamic via environment variable
-const allowedOrigins = [
-    'http://localhost:3000',
-    'http://localhost:5173',
-    ...(process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : [])
-].map(origin => origin.trim().replace(/\/$/, "")).filter(Boolean);
+// Helmet disabled temporarily to debug CORS issues
+// app.use(helmet());
 
-app.use(cors({
-    origin: (origin, callback) => {
-        if (!origin) return callback(null, true);
-        const normalizedOrigin = origin.replace(/\/$/, "");
-        if (allowedOrigins.includes(normalizedOrigin)) {
-            callback(null, true);
-        } else {
-            console.log('CORS blocked origin:', origin);
-            callback(new Error('Not allowed by CORS'));
-        }
-    },
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin']
-}));
-
-app.use(cookieParser()); // Moved BEFORE other middlewares for safe access
+// Cookie parser and JSON body
+app.use(cookieParser());
 app.use(express.json({ limit: '10kb' })); 
 app.use(morgan('dev')); 
-
-// Handle preflight OPTIONS requests explicitly for all routes
-app.options('*', cors());
 
 // Debug endpoint to verify environment and headers (remove in final production)
 app.get('/api/debug/health', (req, res) => {
