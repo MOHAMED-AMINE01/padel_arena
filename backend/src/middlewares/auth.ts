@@ -10,22 +10,28 @@ interface JwtPayload {
 export const protect = asyncHandler(async (req: any, res: Response, next: NextFunction) => {
     let token;
 
-    if (req.cookies.token) {
+    if (req.cookies && req.cookies.token) {
         token = req.cookies.token;
-    } else if (req.headers.authorization?.startsWith('Bearer')) {
+    } else if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
         token = req.headers.authorization.split(' ')[1];
     }
 
     if (!token) {
-        return res.status(401).json({ message: 'Not authorized to access this route' });
+        return res.status(401).json({ success: false, message: 'Not authorized to access this route' });
     }
 
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET!) as JwtPayload;
+        const secret = process.env.JWT_SECRET || 'secret';
+        const decoded = jwt.verify(token, secret) as JwtPayload;
         req.user = await User.findById(decoded.id);
+        
+        if (!req.user) {
+            return res.status(401).json({ success: false, message: 'User not found' });
+        }
+        
         next();
     } catch (err) {
-        return res.status(401).json({ message: 'Not authorized to access this route' });
+        return res.status(401).json({ success: false, message: 'Invalid or expired token' });
     }
 });
 
