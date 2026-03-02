@@ -48,6 +48,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         try {
             const res = await api.post('/auth/login', credentials);
             if (res.data.success) {
+                if (res.data.token) {
+                    localStorage.setItem('token', res.data.token);
+                }
                 setUser(res.data.data);
                 return res.data.data;
             }
@@ -60,6 +63,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         try {
             const res = await api.post('/auth/register', userData);
             if (res.data.success) {
+                if (res.data.token) {
+                    localStorage.setItem('token', res.data.token);
+                }
                 setUser(res.data.data);
                 return res.data.data;
             }
@@ -72,6 +78,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         try {
             const res = await api.post('/auth/google', { token });
             if (res.data.success) {
+                if (res.data.token) {
+                    localStorage.setItem('token', res.data.token);
+                }
                 setUser(res.data.data);
                 return res.data.data;
             }
@@ -83,11 +92,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const logout = async () => {
         try {
             await api.get('/auth/logout');
+            localStorage.removeItem('token');
             setUser(null);
             // Use replace to ensure user can't go back to protected page
             window.location.replace('/auth'); 
         } catch (err) {
             console.error('Logout failed', err);
+            localStorage.removeItem('token');
             setUser(null);
             window.location.replace('/auth'); 
         }
