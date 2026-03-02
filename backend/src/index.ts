@@ -55,6 +55,21 @@ app.use(cookieParser()); // Moved BEFORE other middlewares for safe access
 app.use(express.json({ limit: '10kb' })); 
 app.use(morgan('dev')); 
 
+// Handle preflight OPTIONS requests explicitly for all routes
+app.options('*', cors());
+
+// Debug endpoint to verify environment and headers (remove in final production)
+app.get('/api/debug/health', (req, res) => {
+    res.json({
+        status: 'ok',
+        env: process.env.NODE_ENV,
+        hasJwtSecret: !!process.env.JWT_SECRET,
+        allowedOrigins: process.env.ALLOWED_ORIGINS,
+        receivedOrigin: req.headers.origin,
+        hasAuthHeader: !!req.headers.authorization
+    });
+});
+
 // Data Sanitization against NoSQL query injection
 app.use((req: Request, res: Response, next: NextFunction) => {
     if (req.body) req.body = mongoSanitize(req.body);

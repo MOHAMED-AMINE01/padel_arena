@@ -8,30 +8,50 @@ interface JwtPayload {
 }
 
 export const protect = asyncHandler(async (req: any, res: Response, next: NextFunction) => {
-    let token;
+    let token: string | undefined;
 
-    if (req.cookies && req.cookies.token) {
+    // 1. Check cookies first
+    if (req.cookies?.token) {
         token = req.cookies.token;
-    } else if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
-        token = req.headers.authorization.split(' ')[1];
+    }
+    
+    // 2. Check Authorization header (case-insensitive for Vercel/Serverless compatibility)
+    if (!token) {
+        const authHeader = req.headers.authorization || req.headers['Authorization'];
+        if (authHeader && typeof authHeader === 'string' && authHeader.startsWith('Bearer ')) {
+            token = authHeader.substring(7); // Remove 'Bearer ' prefix
+        }
     }
 
+    // 3. No token found anywhere
     if (!token) {
-        return res.status(401).json({ success: false, message: 'Not authorized to access this route' });
+        return res.status(401).json({ 
+            success: false, 
+            message: 'Authentication required. Please log in.' 
+        });
     }
 
     try {
-        const secret = process.env.JWT_SECRET || 'secret';
-        const decoded = jwt.verify(token, secret) as JwtPayload;
-        req.user = await User.findById(decoded.id);
-        
-        if (!req.user) {
-            return res.status(401).json({ success: false, message: 'User not found' });
+        const secret = process.env.JWT_SECRET;
+        if (!secret) {
+            console.error('JWT_SECRET is not defined in environment variables!');
+            return res.status(500).json({ success: false, message: 'Server configuration error' });
         }
         
+        const decoded = jwt.verify(token, secret) as JwtPayload;
+        const user = await User.findById(decoded.id);
+        
+        if (!user) {
+            return res.status(401).json({ success: false, message: 'User associated with this token no longer exists' });
+        }
+        
+        req.user = user;
         next();
-    } catch (err) {
-        return res.status(401).json({ success: false, message: 'Invalid or expired token' });
+    } catch (err: any) {
+        if (err.name === 'TokenExpiredError') {
+            return res.status(401).json({ success: false, message: 'Session expired. Please log in again.' });
+        }
+        return res.status(401).json({ success: false, message: 'Invalid authentication token' });
     }
 });
 
