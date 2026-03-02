@@ -84,10 +84,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         try {
             await api.get('/auth/logout');
             setUser(null);
-            window.location.href = '/auth'; // Hard redirect on logout for safety
+            // Use replace to ensure user can't go back to protected page
+            window.location.replace('/auth'); 
         } catch (err) {
             console.error('Logout failed', err);
             setUser(null);
+            window.location.replace('/auth'); 
         }
     };
 

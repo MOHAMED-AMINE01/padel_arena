@@ -44,8 +44,9 @@ export function PlayerNavbar() {
     ];
 
     const handleLogout = async () => {
+        setIsOpen(false);
+        setShowProfileMenu(false);
         await logout();
-        navigate('/auth');
     };
 
     return (

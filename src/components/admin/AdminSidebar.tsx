@@ -98,7 +98,10 @@ export const AdminSidebar = ({ collapsed, setCollapsed, mobileOpen, setMobileOpe
         { icon: Settings, label: 'Configuration', href: '/admin/settings' },
     ];
 
-    const menuItems = managerMenu;
+    const handleLogout = async () => {
+        if (setMobileOpen) setMobileOpen(false);
+        await logout();
+    };
 
     const renderSidebarContent = (isMobile: boolean = false) => (
         <div className="flex flex-col h-full py-10 px-0">
@@ -186,7 +189,7 @@ export const AdminSidebar = ({ collapsed, setCollapsed, mobileOpen, setMobileOpe
 
                 {/* Logout Button */}
                 <button
-                    onClick={logout}
+                    onClick={handleLogout}
                     className={cn(
                         "w-full flex items-center gap-4 px-6 py-4 rounded-2xl transition-all duration-500 group relative overflow-hidden",
                         (collapsed && !isMobile) ? "justify-center" : "hover:bg-red-500/10"
