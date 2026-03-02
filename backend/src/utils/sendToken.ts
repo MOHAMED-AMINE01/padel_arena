@@ -18,7 +18,8 @@ export const sendTokenResponse = (user: any, statusCode: number, res: Response) 
         expires: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
         httpOnly: true,
         secure: true,
-        sameSite: 'none' as const
+        sameSite: 'none' as const,
+        path: '/'
     };
 
     user.password = undefined;

@@ -94,18 +94,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     const logout = async () => {
+        console.log('[AuthContext] Starting logout...');
         try {
             await api.get('/auth/logout');
-            localStorage.removeItem('token');
-            setUser(null);
-            // Use replace to ensure user can't go back to protected page
-            window.location.replace('/auth'); 
+            console.log('[AuthContext] Backend logout successful');
         } catch (err) {
-            console.error('Logout failed', err);
-            localStorage.removeItem('token');
-            setUser(null);
-            window.location.replace('/auth'); 
+            console.error('[AuthContext] Backend logout failed:', err);
         }
+        // Always clear local state regardless of backend response
+        localStorage.removeItem('token');
+        setUser(null);
+        console.log('[AuthContext] Local state cleared, redirecting...');
+        // Force full page reload to clear all state
+        window.location.href = '/auth';
     };
 
     const refreshUser = async () => {
