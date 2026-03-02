@@ -29,21 +29,27 @@ app.use(helmet()); // Secure HTTP headers
 const allowedOrigins = [
     'http://localhost:3000',
     'http://localhost:5173',
-    process.env.CLIENT_URL
-].filter(Boolean);
+    ...(process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : [])
+].map(origin => origin.trim()).filter(Boolean);
 
 app.use(cors({
     origin: (origin, callback) => {
-        // Allow requests with no origin (mobile apps, Postman, etc.)
+        // Allow requests with no origin (mobile apps, Postman)
         if (!origin) return callback(null, true);
         
-        if (allowedOrigins.includes(origin)) {
+        // Remove trailing slash if present for comparison
+        const normalizedOrigin = origin.replace(/\/$/, "");
+        
+        if (allowedOrigins.some(o => o?.replace(/\/$/, "") === normalizedOrigin)) {
             callback(null, true);
         } else {
+            console.log('Origin not allowed:', origin);
             callback(new Error('Not allowed by CORS'));
         }
     },
-    credentials: true
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept']
 }));
 app.use(express.json({ limit: '10kb' })); // Body parser, limit size to prevent DOS
 app.use(cookieParser());
