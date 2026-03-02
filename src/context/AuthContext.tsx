@@ -27,17 +27,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // Check if user is already logged in (using cookie)
+        // Check if user is already logged in
         const checkLoggedIn = async () => {
             console.log('[AuthContext] Checking if user is logged in...');
+            
+            // First check if we have a token in localStorage
+            const token = localStorage.getItem('token');
+            if (!token) {
+                console.log('[AuthContext] No token in localStorage, user is not logged in');
+                setUser(null);
+                setLoading(false);
+                return;
+            }
+            
             try {
                 const res = await api.get('/auth/me');
                 console.log('[AuthContext] Response:', res.data);
                 if (res.data.success) {
                     setUser(res.data.data);
+                } else {
+                    localStorage.removeItem('token');
+                    setUser(null);
                 }
             } catch (err) {
                 console.log('[AuthContext] Error or not logged in:', err);
+                localStorage.removeItem('token');
                 setUser(null);
             } finally {
                 console.log('[AuthContext] Setting loading to false');
@@ -95,17 +109,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const logout = async () => {
         console.log('[AuthContext] Starting logout...');
-        try {
-            await api.get('/auth/logout');
-            console.log('[AuthContext] Backend logout successful');
-        } catch (err) {
-            console.error('[AuthContext] Backend logout failed:', err);
-        }
-        // Always clear local state regardless of backend response
+        // Clear local storage FIRST
         localStorage.removeItem('token');
+        // Clear user state
         setUser(null);
-        console.log('[AuthContext] Local state cleared, redirecting...');
-        // Force full page reload to clear all state
+        
+        // Try to call backend logout (but don't wait or care about result)
+        try {
+            api.get('/auth/logout').catch(() => {});
+        } catch (e) {}
+        
+        console.log('[AuthContext] Token removed, redirecting...');
+        // Force full page reload to clear all React state and cached data
         window.location.href = '/auth';
     };
 
