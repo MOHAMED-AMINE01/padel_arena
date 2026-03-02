@@ -15,7 +15,7 @@ export const IntroExperience: React.FC<IntroExperienceProps> = ({ onEnter }) => 
   useEffect(() => {
     let timer: NodeJS.Timeout;
     if (isPressing && !isDone) {
-      const duration = 1500; // 1.5 seconds for long press
+      const duration = 800; // 0.8 seconds for long press
       const interval = 10;
       const step = 100 / (duration / interval);
 
@@ -110,8 +110,12 @@ export const IntroExperience: React.FC<IntroExperienceProps> = ({ onEnter }) => 
             onMouseDown={() => setIsPressing(true)}
             onMouseUp={() => setIsPressing(false)}
             onMouseLeave={() => setIsPressing(false)}
-            onTouchStart={() => setIsPressing(true)}
+            onTouchStart={(e) => {
+              // Prevent default browser behaviors like context menus on Safari mobile
+              setIsPressing(true);
+            }}
             onTouchEnd={() => setIsPressing(false)}
+            onContextMenu={(e) => e.preventDefault()} // Disable context menu on long press
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{
               opacity: 1,
@@ -119,12 +123,18 @@ export const IntroExperience: React.FC<IntroExperienceProps> = ({ onEnter }) => 
               rotate: isPressing ? 2 : 0
             }}
             transition={{ duration: 0.5, type: "spring", stiffness: 300 }}
-            className="relative w-48 h-48 md:w-64 md:h-64 rounded-full border-2 border-white/10 bg-white/5 backdrop-blur-sm flex items-center justify-center overflow-hidden z-20 transition-all duration-300"
+            style={{
+              WebkitTouchCallout: 'none',
+              WebkitTapHighlightColor: 'transparent',
+              userSelect: 'none'
+            }}
+            className="relative w-48 h-48 md:w-64 md:h-64 rounded-full border-2 border-white/10 bg-white/5 backdrop-blur-sm flex items-center justify-center overflow-hidden z-20 transition-all duration-300 select-none outline-none"
           >
             <img
               src="/IMAGES/Logo Padel Arena Vendôme.png"
               alt="Logo"
-              className="w-[85%] h-[85%] object-contain drop-shadow-[0_0_20px_rgba(255,255,255,0.3)] rounded-full"
+              className="w-[85%] h-[85%] object-contain drop-shadow-[0_0_20px_rgba(255,255,255,0.3)] rounded-full select-none"
+              style={{ pointerEvents: 'none' }}
             />
 
             {/* Overlay feedback */}
@@ -134,7 +144,7 @@ export const IntroExperience: React.FC<IntroExperienceProps> = ({ onEnter }) => 
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  className="absolute inset-0 bg-padel-blue/20 backdrop-invert-[0.1] active:backdrop-invert-[0.2]"
+                  className="absolute inset-0 bg-padel-blue/10 backdrop-blur-sm"
                 />
               )}
             </AnimatePresence>

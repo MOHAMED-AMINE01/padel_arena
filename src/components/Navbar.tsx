@@ -72,7 +72,11 @@ const menuStructure = [
   },
 ];
 
+import { useAuth } from '../context/AuthContext';
+import { LogOut } from 'lucide-react';
+
 export const Navbar = () => {
+  const { user, logout } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
@@ -87,6 +91,8 @@ export const Navbar = () => {
   useEffect(() => {
     setIsOpen(false);
   }, [location.pathname]);
+
+  const dashboardPath = user?.role === 'ADMIN' ? '/admin' : '/dashboard';
 
   return (
     <>
@@ -216,15 +222,46 @@ export const Navbar = () => {
 
           {/* Right Action Section */}
           <div className="flex items-center gap-4">
-            <motion.button
-              whileHover={{ scale: 1.1, background: "rgba(255, 255, 255, 0.08)" }}
-              className={cn(
-                "hidden lg:flex w-11 h-11 rounded-full border items-center justify-center text-white/40 hover:text-white transition-all duration-300",
-                scrolled ? "bg-white/5 border-white/10 shadow-inner" : "bg-transparent border-white/5"
-              )}
-            >
-              <User size={20} />
-            </motion.button>
+            {user ? (
+              <div className="flex items-center gap-2">
+                <Link to={dashboardPath}>
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    className={cn(
+                      "hidden lg:flex items-center gap-3 px-4 py-2 rounded-full border border-white/10 transition-all",
+                      scrolled ? "bg-white/5" : "bg-transparent"
+                    )}
+                  >
+                    <div className="w-8 h-8 rounded-full bg-padel-blue flex items-center justify-center text-[10px] font-black uppercase text-white shadow-[0_0_15px_rgba(19,73,211,0.5)]">
+                      {user.name.charAt(0)}
+                    </div>
+                    <span className="text-[10px] text-white font-black uppercase tracking-widest hidden xl:block">
+                      {user.name.split(' ')[0]}
+                    </span>
+                  </motion.button>
+                </Link>
+                <motion.button
+                  whileHover={{ scale: 1.1, color: '#ef4444' }}
+                  onClick={logout}
+                  className="hidden lg:flex w-10 h-10 items-center justify-center text-white/20 hover:text-red-500 transition-colors"
+                >
+                  <LogOut size={18} />
+                </motion.button>
+              </div>
+            ) : (
+              <Link to="/auth">
+                <motion.button
+                  whileHover={{ scale: 1.1, background: "rgba(255, 255, 255, 0.08)" }}
+                  className={cn(
+                    "hidden lg:flex w-11 h-11 rounded-full border items-center justify-center text-white/40 hover:text-white transition-all duration-300",
+                    scrolled ? "bg-white/5 border-white/10 shadow-inner" : "bg-transparent border-white/5"
+                  )}
+                >
+                  <User size={20} />
+                </motion.button>
+              </Link>
+            )}
+
             <Link to="/reservation">
               <motion.button
                 whileHover={{
@@ -313,13 +350,24 @@ export const Navbar = () => {
               ))}
             </div>
 
+            <div className="flex justify-center gap-3 mb-6">
+              {user ? (
+                <Link to={dashboardPath} onClick={() => setIsOpen(false)}>
+                  <button className="w-14 h-14 border border-white/10 bg-padel-blue text-white font-display font-black text-lg uppercase rounded-full flex items-center justify-center">
+                    {user.name.charAt(0)}
+                  </button>
+                </Link>
+              ) : (
+                <Link to="/auth" onClick={() => setIsOpen(false)}>
+                  <button className="w-14 h-14 py-4 border border-white/10 bg-white/5 text-white font-display font-black text-[10px] uppercase tracking-[0.2em] rounded-full flex items-center justify-center gap-2">
+                    <User size={14} />
+                  </button>
+                </Link>
+              )}
+            </div>
+
             {/* Minimal Footer CTA */}
-            <div className="p-6 border-t border-white/5">
-              <Link to="/reservation" onClick={() => setIsOpen(false)}>
-                <button className="w-full py-4 bg-padel-blue text-white font-display font-black text-sm rounded-xl mb-6">
-                  RÉSERVER MAINTENANT
-                </button>
-              </Link>
+            <div className="p-6 border-t border-white/5 bg-black/20">
               <div className="flex justify-center gap-8 text-[9px] font-black uppercase tracking-[0.2em] text-white/20">
                 <span>Instagram</span>
                 <span>Facebook</span>

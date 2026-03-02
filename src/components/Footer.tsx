@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'motion/react';
+import { Link } from 'react-router-dom';
 import { MapPin, Phone, Mail, Instagram, Facebook, Twitter, ArrowUpRight, Globe } from 'lucide-react';
 import { cn } from '../lib/utils';
 
@@ -56,12 +57,18 @@ export const Footer = () => {
             <div className="space-y-8 flex flex-col items-center md:items-start text-center md:text-left">
               <h4 className="text-[10px] font-black text-white uppercase tracking-[0.4em]">LE CLUB</h4>
               <ul className="space-y-4">
-                {['PRÉSENTATION', 'VISION', 'L\'ÉQUIPE', 'HÉBERGEMENT', 'ACCÈS'].map((link) => (
-                  <li key={link}>
-                    <a href="#" className="text-white/50 hover:text-white transition-colors text-[11px] font-black tracking-widest uppercase flex items-center justify-center md:justify-start gap-2 group">
+                {[
+                  { name: 'PRÉSENTATION', href: '/le-club#presentation' },
+                  { name: 'VISION', href: '/le-club#vision' },
+                  { name: 'L\'ÉQUIPE', href: '/le-club#equipe' },
+                  { name: 'ACTIVITÉS', href: '/activites' },
+                  { name: 'CONTACT', href: '/contact' }
+                ].map((link) => (
+                  <li key={link.name}>
+                    <Link to={link.href} className="text-white/50 hover:text-white transition-colors text-[11px] font-black tracking-widest uppercase flex items-center justify-center md:justify-start gap-2 group">
                       <span className="hidden md:block w-0 group-hover:w-3 h-[1px] bg-padel-blue transition-all duration-300" />
-                      {link}
-                    </a>
+                      {link.name}
+                    </Link>
                   </li>
                 ))}
               </ul>
@@ -71,12 +78,18 @@ export const Footer = () => {
             <div className="space-y-8 flex flex-col items-center md:items-start text-center md:text-left">
               <h4 className="text-[10px] font-black text-white uppercase tracking-[0.4em]">DÉCOUVRIR</h4>
               <ul className="space-y-4">
-                {['TERRAINS', 'ACTIVITÉS', 'TOURNOIS', 'PLANNING', 'TARIFS'].map((link) => (
-                  <li key={link}>
-                    <a href="#" className="text-white/50 hover:text-white transition-colors text-[11px] font-black tracking-widest uppercase flex items-center justify-center md:justify-start gap-2 group">
+                {[
+                  { name: 'TERRAINS', href: '/activites#installations' },
+                  { name: 'ACTIVITÉS', href: '/activites' },
+                  { name: 'TOURNOIS', href: '/activites#tournois' },
+                  { name: 'RÉSERVATION', href: '/reservation' },
+                  { name: 'TARIFS', href: '/tarifs' }
+                ].map((link) => (
+                  <li key={link.name}>
+                    <Link to={link.href} className="text-white/50 hover:text-white transition-colors text-[11px] font-black tracking-widest uppercase flex items-center justify-center md:justify-start gap-2 group">
                       <span className="hidden md:block w-0 group-hover:w-3 h-[1px] bg-padel-yellow transition-all duration-300" />
-                      {link}
-                    </a>
+                      {link.name}
+                    </Link>
                   </li>
                 ))}
               </ul>

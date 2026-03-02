@@ -1,25 +1,61 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from 'motion/react';
-import { Calendar as CalendarIcon, Clock, LayoutGrid, Users, CreditCard, CheckCircle2, ChevronRight, ChevronLeft, Info, ArrowUpRight, ShieldCheck, Zap, Target, Gauge, MousePointer2 } from 'lucide-react';
+import { Calendar as CalendarIcon, Clock, LayoutGrid, Users, CreditCard, CheckCircle2, ChevronRight, ChevronLeft, Info, ArrowUpRight, ShieldCheck, Zap, Target, Gauge, MousePointer2, Timer, Loader2 } from 'lucide-react';
 import { cn } from '../../lib/utils';
+import api from '../../lib/api';
+
+// Interface pour les terrains de l'API
+interface Court {
+  _id: string;
+  name: string;
+  type: string;
+  sport: 'Padel' | 'Pickleball' | 'Badminton';
+  pricePerHour: number;
+  description?: string;
+  isActive: boolean;
+  image?: string;
+}
+
+// Interface pour les réservations existantes
+interface ExistingBooking {
+  _id: string;
+  date: string;
+  startTime: string;
+  endTime: string;
+  duration: number;
+  court: { _id: string } | string;
+}
 
 const steps = [
   { id: 'date', title: 'CHRONOS', icon: <CalendarIcon size={16} />, desc: "CALIBRAGE TEMPOREL" },
   { id: 'time', title: 'CRÉNEAU', icon: <Clock size={16} />, desc: "SYNCHRONISATION SLOT" },
+  { id: 'duration', title: 'DURÉE', icon: <Timer size={16} />, desc: "TEMPS DE JEU" },
   { id: 'court', title: 'ARENA', icon: <LayoutGrid size={16} />, desc: "ZONE D'OPÉRATION" },
   { id: 'players', title: 'SQUAD', icon: <Users size={16} />, desc: "UNITÉ DE COMBAT" },
   { id: 'payment', title: 'FINANCE', icon: <CreditCard size={16} />, desc: "VALIDATION ORDRE" },
 ];
 
-const courts = [
-  { id: 1, name: "ARENA #1", type: "INDOOR PANORAMIQUE", price: 40, image: "/IMAGES/ACTIVITIES - COACHING/pexels-atbo-245208.jpg", label: "PREMIUM", stats: { surface: "WPT PRO", light: "LED 800LX" } },
-  { id: 2, name: "ARENA #2", type: "OUTDOOR ELITE", price: 32, image: "/IMAGES/INFRASTRUCTURES/pexels-atbo-245208.jpg", label: "OUTDOOR", stats: { surface: "BLUE TURF", light: "EXTERIOR" } },
-  { id: 3, name: "ARENA #3", type: "PRO COMPETITION", price: 45, image: "/IMAGES/INFRASTRUCTURES/pexels-atbo-245208.jpg", label: "PRO", stats: { surface: "SUPERCOURT", light: "LED HD+" } },
+// Générer les créneaux toutes les 30 min de 08:00 à 22:00
+const generateAllTimeSlots = () => {
+  const slots: string[] = [];
+  for (let h = 8; h <= 21; h++) {
+    slots.push(`${h.toString().padStart(2, '0')}:00`);
+    if (h < 21) slots.push(`${h.toString().padStart(2, '0')}:30`);
+  }
+  return slots;
+};
+
+const allTimeSlots = generateAllTimeSlots();
+
+// Durées disponibles en minutes
+const durations = [
+  { value: 60, label: '1H', desc: 'SESSION STANDARD' },
+  { value: 90, label: '1H30', desc: 'SESSION CONFORT' },
+  { value: 120, label: '2H', desc: 'SESSION INTENSE' },
 ];
 
-const timeSlots = [
-  "08:00", "09:30", "11:00", "12:30", "14:00", "15:30", "17:00", "18:30", "20:00", "21:30"
-];
+// Heure de fermeture du club
+const CLOSING_TIME = '22:00';
 
 const NoiseOverlay = () => (
   <div className="absolute inset-0 pointer-events-none z-50 opacity-[0.05] mix-blend-overlay" style={{ backgroundImage: 'url("https://grainy-gradients.vercel.app/noise.svg")' }} />
@@ -63,13 +99,110 @@ const PerspectiveCard = ({ children, onClick, selected }: any) => {
 
 export const CourtBooking = () => {
   const [currentStep, setCurrentStep] = useState(0);
+  const [courts, setCourts] = useState<Court[]>([]);
+  const [existingBookings, setExistingBookings] = useState<ExistingBooking[]>([]);
+  const [loadingCourts, setLoadingCourts] = useState(true);
   const [bookingData, setBookingData] = useState({
     date: new Date().toISOString().split('T')[0],
     time: '',
-    courtId: null as number | null,
+    duration: 0, // en minutes
+    courtId: null as string | null,
     players: 4,
     options: [] as string[],
   });
+
+  // Charger les terrains et réservations depuis l'API
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [courtsRes, bookingsRes] = await Promise.all([
+          api.get('/courts'),
+          api.get('/bookings')
+        ]);
+        
+        // Filtrer seulement les terrains actifs
+        const activeCourts = (courtsRes.data.data || []).filter((c: Court) => c.isActive);
+        setCourts(activeCourts);
+        
+        // Récupérer les réservations
+        const allBookings = bookingsRes.data.data || [];
+        setExistingBookings(allBookings);
+      } catch (err) {
+        console.error('Erreur chargement données:', err);
+      } finally {
+        setLoadingCourts(false);
+      }
+    };
+    fetchData();
+  }, []);
+
+  // Calcule l'heure de fin en fonction du créneau et de la durée
+  const getEndTime = (startTime: string, durationMinutes: number): string => {
+    const [hours, minutes] = startTime.split(':').map(Number);
+    const totalMinutes = hours * 60 + minutes + durationMinutes;
+    const endHours = Math.floor(totalMinutes / 60);
+    const endMinutes = totalMinutes % 60;
+    return `${endHours.toString().padStart(2, '0')}:${endMinutes.toString().padStart(2, '0')}`;
+  };
+
+  // Vérifie si un créneau est dans le passé (pour aujourd'hui uniquement)
+  const isSlotInPast = (time: string, date: string): boolean => {
+    const today = new Date().toISOString().split('T')[0];
+    if (date !== today) return false;
+    
+    const now = new Date();
+    const [hours, minutes] = time.split(':').map(Number);
+    const slotTime = new Date();
+    slotTime.setHours(hours, minutes, 0, 0);
+    
+    // Ajouter 30 min de marge pour permettre aux utilisateurs de réserver
+    return slotTime.getTime() <= now.getTime() + 30 * 60 * 1000;
+  };
+
+  // Filtre les créneaux disponibles selon la date et l'heure actuelle
+  const availableTimeSlots = useMemo(() => {
+    return allTimeSlots.filter(slot => !isSlotInPast(slot, bookingData.date));
+  }, [bookingData.date]);
+
+  // Vérifie si une durée est disponible pour le créneau sélectionné
+  const isDurationAvailable = (durationMinutes: number): { available: boolean; reason?: string } => {
+    if (!bookingData.time) return { available: false, reason: 'Sélectionnez un créneau' };
+
+    const endTime = getEndTime(bookingData.time, durationMinutes);
+    
+    // Vérifier si la durée dépasse l'heure de fermeture
+    if (endTime > CLOSING_TIME) {
+      return { available: false, reason: `Dépasse l'heure de fermeture (${CLOSING_TIME})` };
+    }
+
+    // Vérifier les conflits avec les réservations existantes
+    const hasConflict = existingBookings.some(booking => {
+      const bookingDateStr = new Date(booking.date).toISOString().split('T')[0];
+      if (bookingDateStr !== bookingData.date) return false;
+      
+      const bookingStart = booking.startTime;
+      const bookingEnd = booking.endTime;
+      const selectedStart = bookingData.time;
+      const selectedEnd = endTime;
+
+      // Vérifie le chevauchement
+      return (selectedStart < bookingEnd && selectedEnd > bookingStart);
+    });
+
+    if (hasConflict) {
+      return { available: false, reason: 'Conflit avec une réservation existante' };
+    }
+
+    return { available: true };
+  };
+
+  // Durées filtrées (seulement celles disponibles)
+  const availableDurations = useMemo(() => {
+    return durations.map(d => ({
+      ...d,
+      ...isDurationAvailable(d.value)
+    }));
+  }, [bookingData.time, bookingData.date]);
 
   const nextStep = () => {
     if (currentStep < steps.length) {
@@ -82,15 +215,22 @@ export const CourtBooking = () => {
   const isStepComplete = (stepIdx: number) => {
     if (stepIdx === 0) return !!bookingData.date;
     if (stepIdx === 1) return !!bookingData.time;
-    if (stepIdx === 2) return !!bookingData.courtId;
-    if (stepIdx === 3) return true;
+    if (stepIdx === 2) return bookingData.duration > 0;
+    if (stepIdx === 3) return !!bookingData.courtId;
+    if (stepIdx === 4) return true;
     return false;
   };
 
   const calculateTotal = () => {
-    const courtPrice = courts.find(c => c.id === bookingData.courtId)?.price || 0;
+    const court = courts.find(c => c._id === bookingData.courtId);
+    if (!court || !bookingData.duration) return '0.00';
+    
+    const hourlyRate = court.pricePerHour;
+    const durationHours = bookingData.duration / 60;
+    const basePrice = hourlyRate * durationHours;
     const optionsPrice = bookingData.options.length * 5;
-    return (courtPrice + optionsPrice).toFixed(2);
+    
+    return (basePrice + optionsPrice).toFixed(2);
   };
 
   return (
@@ -179,15 +319,34 @@ export const CourtBooking = () => {
 
                 {currentStep === 1 && (
                   <motion.div key="s1" initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.98 }} className="space-y-10">
-                    <h2 className="text-2xl md:text-4xl font-display font-black uppercase tracking-tight">CRÉNEAU <span className="text-padel-blue italic">DÉTAILLÉ</span></h2>
-                    <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
-                      {timeSlots.map(t => (
-                        <button key={t} onClick={() => setBookingData({ ...bookingData, time: t })} className={cn("p-8 rounded-[2rem] border transition-all text-center group relative overflow-hidden", bookingData.time === t ? "bg-padel-blue border-padel-blue text-white shadow-xl" : "bg-white/[0.02] border-white/5 text-white/40")}>
-                          <span className="text-2xl font-display font-black">{t}</span>
-                          <span className="absolute top-2 right-4 text-[7px] font-black opacity-20 group-hover:opacity-100 transition-opacity">90M</span>
-                        </button>
-                      ))}
+                    <div>
+                      <h2 className="text-2xl md:text-4xl font-display font-black uppercase tracking-tight mb-2">CRÉNEAU <span className="text-padel-blue italic">DÉTAILLÉ</span></h2>
+                      <p className="text-white/20 text-[9px] font-black uppercase tracking-[0.3em]">SÉLECTIONNEZ VOTRE HEURE DE DÉBUT</p>
                     </div>
+                    {availableTimeSlots.length === 0 ? (
+                      <div className="flex flex-col items-center justify-center py-16 text-center">
+                        <Clock size={48} className="text-white/10 mb-4" />
+                        <p className="text-white/30 text-sm font-bold uppercase tracking-widest">Aucun créneau disponible pour cette date</p>
+                        <p className="text-white/15 text-xs mt-2">Veuillez sélectionner une autre date</p>
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+                        {availableTimeSlots.map(t => (
+                          <button 
+                            key={t} 
+                            onClick={() => setBookingData({ ...bookingData, time: t, duration: 0 })} 
+                            className={cn(
+                              "p-5 md:p-6 rounded-2xl border transition-all text-center group relative overflow-hidden", 
+                              bookingData.time === t 
+                                ? "bg-padel-blue border-padel-blue text-white shadow-xl" 
+                                : "bg-white/[0.02] border-white/5 text-white/40 hover:border-white/15 hover:bg-white/[0.04]"
+                            )}
+                          >
+                            <span className="text-lg md:text-xl font-display font-black">{t}</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
                     <div className="flex items-center gap-6 p-6 glass rounded-3xl border-padel-blue/20 bg-padel-blue/5">
                       <Zap size={22} className="text-padel-blue animate-pulse" />
                       <p className="text-[10px] text-white/40 font-bold uppercase tracking-widest leading-relaxed">OFFRE HEURES CREUSES ACTIVE : -20% AVANT 17:00.</p>
@@ -196,29 +355,91 @@ export const CourtBooking = () => {
                 )}
 
                 {currentStep === 2 && (
-                  <motion.div key="s2" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="space-y-10">
-                    <h2 className="text-2xl md:text-4xl font-display font-black uppercase tracking-tight">VOTRE <span className="text-padel-blue italic">ARENA</span></h2>
+                  <motion.div key="s2" initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.98 }} className="space-y-10">
+                    <div>
+                      <h2 className="text-2xl md:text-4xl font-display font-black uppercase tracking-tight mb-2">DURÉE <span className="text-padel-blue italic">DE JEU</span></h2>
+                      <p className="text-white/20 text-[9px] font-black uppercase tracking-[0.3em]">
+                        CRÉNEAU SÉLECTIONNÉ : <span className="text-padel-blue">{bookingData.time}</span> 
+                        {bookingData.duration > 0 && <span className="text-emerald-500"> → {getEndTime(bookingData.time, bookingData.duration)}</span>}
+                      </p>
+                    </div>
                     <div className="grid md:grid-cols-3 gap-6">
-                      {courts.map(c => (
-                        <PerspectiveCard key={c.id} onClick={() => setBookingData({ ...bookingData, courtId: c.id })}>
-                          <div className={cn("rounded-[2.5rem] overflow-hidden border transition-all duration-700 bg-[#0F0F0F] relative", bookingData.courtId === c.id ? "border-padel-blue ring-4 ring-padel-blue/10" : "border-white/5")}>
-                            <div className="aspect-[4/5] relative">
-                              <img src={c.image} alt={c.name} className="w-full h-full object-cover grayscale-[40%] group-hover:grayscale-0 transition-transform duration-700" />
-                              <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
-                              <div className="absolute bottom-6 left-6">
-                                <h4 className="text-xl font-display font-black text-white">{c.name}</h4>
-                                <p className="text-[8px] font-black text-white/30 uppercase tracking-widest mt-1">{c.type} // {c.price}€</p>
-                              </div>
+                      {availableDurations.map(d => (
+                        <button
+                          key={d.value}
+                          onClick={() => d.available && setBookingData({ ...bookingData, duration: d.value })}
+                          disabled={!d.available}
+                          className={cn(
+                            "relative p-8 md:p-10 rounded-[2rem] border transition-all text-center group overflow-hidden",
+                            !d.available && "opacity-30 cursor-not-allowed grayscale",
+                            bookingData.duration === d.value
+                              ? "bg-padel-blue border-padel-blue text-white shadow-xl shadow-padel-blue/20"
+                              : d.available 
+                                ? "bg-white/[0.02] border-white/5 text-white/40 hover:border-white/15 hover:bg-white/[0.04]"
+                                : "bg-white/[0.01] border-white/5 text-white/20"
+                          )}
+                        >
+                          <span className="text-4xl md:text-5xl font-display font-black block mb-2">{d.label}</span>
+                          <span className="text-[8px] font-black uppercase tracking-[0.2em] opacity-50">{d.desc}</span>
+                          {!d.available && d.reason && (
+                            <div className="absolute inset-x-0 bottom-4 text-[7px] font-bold text-red-400 uppercase tracking-widest px-4">
+                              {d.reason}
                             </div>
-                          </div>
-                        </PerspectiveCard>
+                          )}
+                          {bookingData.duration === d.value && (
+                            <div className="absolute top-4 right-4">
+                              <CheckCircle2 size={20} className="text-white" />
+                            </div>
+                          )}
+                        </button>
                       ))}
                     </div>
+                    {bookingData.duration > 0 && (
+                      <div className="flex items-center gap-6 p-6 glass rounded-3xl border-emerald-500/20 bg-emerald-500/5">
+                        <CheckCircle2 size={22} className="text-emerald-500" />
+                        <p className="text-[10px] text-white/40 font-bold uppercase tracking-widest leading-relaxed">
+                          SESSION DE {bookingData.time} À {getEndTime(bookingData.time, bookingData.duration)} • DURÉE {bookingData.duration} MIN
+                        </p>
+                      </div>
+                    )}
                   </motion.div>
                 )}
 
                 {currentStep === 3 && (
-                  <motion.div key="s3" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-10">
+                  <motion.div key="s3" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="space-y-10">
+                    <h2 className="text-2xl md:text-4xl font-display font-black uppercase tracking-tight">VOTRE <span className="text-padel-blue italic">ARENA</span></h2>
+                    {loadingCourts ? (
+                      <div className="flex items-center justify-center py-20">
+                        <Loader2 className="w-8 h-8 animate-spin text-padel-blue" />
+                      </div>
+                    ) : courts.length === 0 ? (
+                      <div className="text-center py-20 text-white/40">Aucun terrain disponible</div>
+                    ) : (
+                      <div className="grid md:grid-cols-3 gap-6">
+                        {courts.map(c => (
+                          <PerspectiveCard key={c._id} onClick={() => setBookingData({ ...bookingData, courtId: c._id })}>
+                            <div className={cn("rounded-[2.5rem] overflow-hidden border transition-all duration-700 bg-[#0F0F0F] relative", bookingData.courtId === c._id ? "border-padel-blue ring-4 ring-padel-blue/10" : "border-white/5")}>
+                              <div className="aspect-[4/5] relative">
+                                <img src={c.image || '/IMAGES/INFRASTRUCTURES/pexels-atbo-245208.jpg'} alt={c.name} className="w-full h-full object-cover grayscale-[40%] group-hover:grayscale-0 transition-transform duration-700" />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
+                                <div className="absolute top-4 right-4">
+                                  <span className="text-[8px] font-black uppercase tracking-wider bg-padel-blue/80 text-white px-3 py-1 rounded-full">{c.sport}</span>
+                                </div>
+                                <div className="absolute bottom-6 left-6">
+                                  <h4 className="text-xl font-display font-black text-white">{c.name}</h4>
+                                  <p className="text-[8px] font-black text-white/30 uppercase tracking-widest mt-1">{c.type} // {c.pricePerHour}€/h</p>
+                                </div>
+                              </div>
+                            </div>
+                          </PerspectiveCard>
+                        ))}
+                      </div>
+                    )}
+                  </motion.div>
+                )}
+
+                {currentStep === 4 && (
+                  <motion.div key="s4" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-10">
                     <h2 className="text-2xl md:text-4xl font-display font-black uppercase tracking-tight">FORMATION <span className="text-padel-blue italic">SQUAD</span></h2>
                     <div className="grid md:grid-cols-2 gap-10">
                       <div className="space-y-6">
@@ -244,15 +465,31 @@ export const CourtBooking = () => {
                   </motion.div>
                 )}
 
-                {currentStep === 4 && (
-                  <motion.div key="s4" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="flex flex-col items-center justify-center py-6">
-                    <div className="glass p-10 rounded-[3rem] border-white/10 bg-gradient-to-br from-padel-blue/10 to-transparent w-full max-w-sm text-center">
+                {currentStep === 5 && (
+                  <motion.div key="s5" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="flex flex-col items-center justify-center py-6">
+                    <div className="glass p-10 rounded-[3rem] border-white/10 bg-gradient-to-br from-padel-blue/10 to-transparent w-full max-w-md text-center">
                       <CreditCard size={40} className="mx-auto text-padel-blue mb-6 opacity-40" />
                       <h3 className="text-lg font-display font-black uppercase tracking-widest mb-6">RÉCAPITULATIF</h3>
-                      <div className="space-y-4 border-t border-white/5 pt-6 mb-8">
+                      <div className="space-y-3 border-t border-white/5 pt-6 mb-8 text-left">
                         <div className="flex justify-between text-[10px] font-black text-white/30 uppercase tracking-widest">
-                          <span>SESSION ARENA</span>
-                          <span className="text-white">{calculateTotal()}€</span>
+                          <span>DATE</span>
+                          <span className="text-white">{new Date(bookingData.date).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}</span>
+                        </div>
+                        <div className="flex justify-between text-[10px] font-black text-white/30 uppercase tracking-widest">
+                          <span>HORAIRE</span>
+                          <span className="text-white">{bookingData.time} - {getEndTime(bookingData.time, bookingData.duration)}</span>
+                        </div>
+                        <div className="flex justify-between text-[10px] font-black text-white/30 uppercase tracking-widest">
+                          <span>DURÉE</span>
+                          <span className="text-white">{bookingData.duration} min</span>
+                        </div>
+                        <div className="flex justify-between text-[10px] font-black text-white/30 uppercase tracking-widest">
+                          <span>TERRAIN</span>
+                          <span className="text-white">{courts.find(c => c._id === bookingData.courtId)?.name}</span>
+                        </div>
+                        <div className="flex justify-between text-[10px] font-black text-white/30 uppercase tracking-widest pt-3 border-t border-white/5">
+                          <span>TOTAL</span>
+                          <span className="text-padel-blue text-lg">{calculateTotal()}€</span>
                         </div>
                       </div>
                       <div className="flex items-center justify-center gap-3 p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
@@ -263,8 +500,8 @@ export const CourtBooking = () => {
                   </motion.div>
                 )}
 
-                {currentStep === 5 && (
-                  <motion.div key="s5" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="flex flex-col items-center justify-center text-center py-10">
+                {currentStep === 6 && (
+                  <motion.div key="s6" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="flex flex-col items-center justify-center text-center py-10">
                     <div className="w-20 h-20 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-500 mb-6 border border-emerald-500/20 shadow-lg shadow-emerald-500/20">
                       <CheckCircle2 size={36} className="animate-pulse" />
                     </div>
@@ -277,7 +514,7 @@ export const CourtBooking = () => {
             </div>
 
             {/* NAVIGATION CONTROLS */}
-            {currentStep < 5 && (
+            {currentStep < 6 && (
               <div className="mt-12 flex justify-between items-center pt-8 border-t border-white/5 relative z-10">
                 <button onClick={prevStep} disabled={currentStep === 0} className={cn("flex items-center gap-3 text-[10px] font-black uppercase tracking-widest transition-all", currentStep === 0 ? "opacity-0" : "text-white/20 hover:text-white")}>
                   <div className="w-10 h-10 rounded-full glass border border-white/10 flex items-center justify-center group-hover:bg-white/5"><ChevronLeft size={18} /></div>
@@ -285,7 +522,7 @@ export const CourtBooking = () => {
                 </button>
                 <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={nextStep} disabled={!isStepComplete(currentStep)} className={cn("px-14 py-5 rounded-full font-black text-[10px] tracking-[0.3em] uppercase transition-all duration-500 relative overflow-hidden group/btn", isStepComplete(currentStep) ? "bg-padel-blue text-white shadow-2xl shadow-padel-blue/20" : "bg-white/5 text-white/10 cursor-not-allowed border border-white/5")}>
                   <span className="relative z-10 flex items-center gap-4 group-hover/btn:text-padel-blue transition-colors">
-                    {currentStep === 4 ? "VALIDER ORDRE" : "SUIVANT"}
+                    {currentStep === 5 ? "VALIDER ORDRE" : "SUIVANT"}
                     <ArrowUpRight size={18} />
                   </span>
                   {isStepComplete(currentStep) && <div className="absolute inset-0 bg-padel-yellow translate-y-full group-hover/btn:translate-y-0 transition-transform duration-500" />}
@@ -294,9 +531,9 @@ export const CourtBooking = () => {
             )}
 
             {/* PROGRESS BAR BOTTOM */}
-            {currentStep < 5 && (
+            {currentStep < 6 && (
               <div className="absolute bottom-0 left-0 w-full h-[2px] bg-white/[0.03]">
-                <motion.div className="h-full bg-padel-blue shadow-[0_0_15px_rgba(19,73,211,1)]" initial={{ width: 0 }} animate={{ width: `${(currentStep / 4) * 100}%` }} transition={{ duration: 1 }} />
+                <motion.div className="h-full bg-padel-blue shadow-[0_0_15px_rgba(19,73,211,1)]" initial={{ width: 0 }} animate={{ width: `${(currentStep / 5) * 100}%` }} transition={{ duration: 1 }} />
               </div>
             )}
           </div>

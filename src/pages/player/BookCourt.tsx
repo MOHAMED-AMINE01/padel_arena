@@ -1,0 +1,1141 @@
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
+import {
+    Calendar as CalendarIcon,
+    MapPin,
+    Clock,
+    ChevronRight,
+    ArrowRight,
+    CheckCircle2,
+    Sparkles,
+    Zap,
+    CreditCard,
+    Building2,
+    X,
+    ChevronLeft,
+    Gamepad2,
+    Users,
+    Flame,
+    Loader2,
+    AlertCircle,
+    ShieldCheck,
+    History,
+    Star,
+    Wifi,
+    Trophy,
+    Timer
+} from 'lucide-react';
+import { cn } from '../../lib/utils';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
+import api from '../../lib/api';
+
+// ─── Types ───────────────────────────────────────────────────────────────────
+interface Court {
+    _id: string;
+    name: string;
+    type: string;
+    sport: string;
+    surface: string;
+    pricePerHour: number;
+    description: string;
+}
+
+interface Slot {
+    time: string;
+    available: boolean;
+    price: number;
+}
+
+interface CourtSlots {
+    courtId: string;
+    courtName: string;
+    type: string;
+    slots: Slot[];
+}
+
+// ─── Constants ────────────────────────────────────────────────────────────────
+const SPORTS_META: Record<string, {
+    color: string;
+    gradient: string;
+    tags: string[];
+    longDesc: string;
+    icon: React.ReactNode;
+    players: string;
+    features: string[];
+}> = {
+    Padel: {
+        color: '#1349D3',
+        gradient: 'from-blue-600/20 to-blue-900/5',
+        tags: ['Populaire', 'Tactique'],
+        longDesc: 'Découvrez le sport qui passionne le monde entier. Tactique et accessible.',
+        icon: <Gamepad2 size={32} />,
+        players: '4 joueurs',
+        features: ['Filets inclus', 'Murs vitrés', 'Éclairage LED'],
+    },
+    Pickleball: {
+        color: '#FFD21F',
+        gradient: 'from-yellow-500/20 to-yellow-900/5',
+        tags: ['Tendance', 'Fun'],
+        longDesc: 'Un mélange de tennis et de ping-pong, parfait pour tous les âges.',
+        icon: <Zap size={32} />,
+        players: '2–4 joueurs',
+        features: ['Raquettes incluses', 'Balles fournies', 'Court panoramique'],
+    },
+    Badminton: {
+        color: '#ffffff',
+        gradient: 'from-white/10 to-white/0',
+        tags: ['Réflexes', 'Cardio'],
+        longDesc: 'Le sport de raquette le plus rapide au monde. Défoulez-vous.',
+        icon: <Trophy size={32} />,
+        players: '2–4 joueurs',
+        features: ['Volants fournis', 'Salle climatisée', 'Parquet pro'],
+    },
+};
+
+// Fallback sports if no courts exist yet in DB
+const FALLBACK_SPORTS = ['Padel', 'Pickleball', 'Badminton'];
+
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+function generateDateRange(count = 8) {
+    const days: Date[] = [];
+    const today = new Date();
+    for (let i = 0; i < count; i++) {
+        const d = new Date(today);
+        d.setDate(today.getDate() + i);
+        days.push(d);
+    }
+    return days;
+}
+
+function formatDateLabel(date: Date) {
+    return date.toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric' });
+}
+
+function formatDateAPI(date: Date) {
+    return date.toISOString().split('T')[0]; // YYYY-MM-DD
+}
+
+function isPeakHour(time: string) {
+    const [h] = time.split(':').map(Number);
+    return h >= 12 && h <= 22;
+}
+
+// ─── Step Labels ─────────────────────────────────────────────────────────────
+const STEPS = [
+    { label: 'Sport', sub: 'Choisissez votre discipline' },
+    { label: 'Créneau', sub: 'Date & heure disponibles' },
+    { label: 'Durée', sub: 'Temps de jeu souhaité' },
+    { label: 'Terrain', sub: 'Sélectionnez le court' },
+    { label: 'Validation', sub: 'Confirmez & payez' },
+];
+
+// Constants
+const CLOSING_TIME = '22:00';
+const DURATION_OPTIONS = [
+    { value: 60, label: '1h', desc: 'Match rapide' },
+    { value: 90, label: '1h30', desc: 'Standard' },
+    { value: 120, label: '2h', desc: 'Session longue' },
+];
+
+// ─── Component ────────────────────────────────────────────────────────────────
+export function PlayerBook() {
+    const { user } = useAuth();
+    const navigate = useNavigate();
+
+    // ── Stepper
+    const [step, setStep] = useState(1);
+    const [isConfirmed, setIsConfirmed] = useState(false);
+    const [bookingRef, setBookingRef] = useState<string | null>(null);
+
+    // ── Selections
+    const [selectedSport, setSelectedSport] = useState<string | null>(null);
+    const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+    const [selectedTime, setSelectedTime] = useState<string | null>(null);
+    const [selectedDuration, setSelectedDuration] = useState<number>(60); // minutes
+    const [selectedCourt, setSelectedCourt] = useState<CourtSlots | null>(null);
+    const [paymentMethod, setPaymentMethod] = useState<'online' | 'club'>('online');
+
+    // ── Data — Sports are always fixed for this venue: Padel, Pickleball, Badminton
+    const [dates] = useState<Date[]>(generateDateRange(8));
+    const [courtSlots, setCourtSlots] = useState<CourtSlots[]>([]);
+
+    // ── Loading / Errors
+    const [loadingSlots, setLoadingSlots] = useState(false);
+    const [loadingBook, setLoadingBook] = useState(false);
+    const [slotsError, setSlotsError] = useState<string | null>(null);
+    const [bookError, setBookError] = useState<string | null>(null);
+
+
+    // ── Fetch slots when sport or date changes (step 2)
+    const fetchSlots = useCallback(async () => {
+        if (!selectedSport) return;
+        setLoadingSlots(true);
+        setSlotsError(null);
+        try {
+            const dateStr = formatDateAPI(selectedDate);
+            const res = await api.get(`/bookings/available-slots?sport=${selectedSport}&date=${dateStr}`);
+            setCourtSlots(res.data.data || []);
+        } catch {
+            setSlotsError('Impossible de charger les créneaux. Réessayez.');
+            setCourtSlots([]);
+        } finally {
+            setLoadingSlots(false);
+        }
+    }, [selectedSport, selectedDate]);
+
+    useEffect(() => {
+        if (step === 2) fetchSlots();
+    }, [step, fetchSlots]);
+
+    // ── Flat all slots across all courts for step 2 display
+    // We show merged slot availability: a slot is available if at least one court has it free
+    const mergedSlots = React.useMemo(() => {
+        if (courtSlots.length === 0) return [];
+        const timeMap: Record<string, { available: boolean; price: number }> = {};
+        courtSlots.forEach(c => {
+            c.slots.forEach(s => {
+                if (!timeMap[s.time]) {
+                    timeMap[s.time] = { available: s.available, price: s.price };
+                } else {
+                    // If any court has it available, mark it available
+                    if (s.available) timeMap[s.time].available = true;
+                    // Use min price
+                    if (s.price < timeMap[s.time].price) timeMap[s.time].price = s.price;
+                }
+            });
+        });
+        return Object.entries(timeMap).map(([time, v]) => ({ time, ...v })).sort((a, b) => a.time.localeCompare(b.time));
+    }, [courtSlots]);
+
+    // Slots for selected court in step 3
+    const selectedCourtSlots = React.useMemo(() => {
+        if (!selectedCourt) return [];
+        return selectedCourt.slots.filter(s => s.time === selectedTime);
+    }, [selectedCourt, selectedTime]);
+
+    // Courts that have the selected time available
+    const availableCourts = React.useMemo(() => {
+        if (!selectedTime) return [];
+        return courtSlots.filter(c => c.slots.some(s => s.time === selectedTime && s.available));
+    }, [courtSlots, selectedTime]);
+
+    // Helper to calculate end time
+    const getEndTime = useCallback((startTime: string, durationMinutes: number): string => {
+        const [h, m] = startTime.split(':').map(Number);
+        const totalMinutes = h * 60 + m + durationMinutes;
+        const endH = Math.floor(totalMinutes / 60);
+        const endM = totalMinutes % 60;
+        return `${String(endH).padStart(2, '0')}:${String(endM).padStart(2, '0')}`;
+    }, []);
+
+    // Check if a duration is available for the selected time
+    const isDurationAvailable = useCallback((durationMinutes: number): { available: boolean; reason?: string } => {
+        if (!selectedTime) return { available: false, reason: 'Sélectionnez un créneau' };
+
+        const endTime = getEndTime(selectedTime, durationMinutes);
+        
+        // Check if duration exceeds closing time
+        if (endTime > CLOSING_TIME) {
+            return { available: false, reason: `Dépasse l'heure de fermeture (${CLOSING_TIME})` };
+        }
+
+        // Check conflicts with existing bookings for available courts
+        // A duration is available if at least one court has the full slot free
+        const hasAvailableCourt = courtSlots.some(court => {
+            // Check all slots that would be occupied by this duration
+            const startMinutes = parseInt(selectedTime.split(':')[0]) * 60 + parseInt(selectedTime.split(':')[1]);
+            const endMinutes = parseInt(endTime.split(':')[0]) * 60 + parseInt(endTime.split(':')[1]);
+            
+            // Check each 30-min interval within the duration
+            for (let t = startMinutes; t < endMinutes; t += 30) {
+                const timeStr = `${String(Math.floor(t / 60)).padStart(2, '0')}:${String(t % 60).padStart(2, '0')}`;
+                const slot = court.slots.find(s => s.time === timeStr);
+                if (!slot || !slot.available) return false;
+            }
+            return true;
+        });
+
+        if (!hasAvailableCourt) {
+            return { available: false, reason: 'Conflit avec une réservation existante' };
+        }
+
+        return { available: true };
+    }, [selectedTime, courtSlots, getEndTime]);
+
+    // ── Book
+    const handleBook = async () => {
+        if (!selectedCourt || !selectedTime || !selectedDate) return;
+        setLoadingBook(true);
+        setBookError(null);
+
+        try {
+            // Build startTime & endTime
+            const [h, m] = selectedTime.split(':').map(Number);
+            const start = new Date(selectedDate);
+            start.setHours(h, m, 0, 0);
+            const end = new Date(start);
+            end.setMinutes(end.getMinutes() + selectedDuration);
+
+            const res = await api.post('/bookings', {
+                courtId: selectedCourt.courtId,
+                startTime: start.toISOString(),
+                endTime: end.toISOString(),
+            });
+
+            setBookingRef(res.data.data._id?.toString().slice(-6).toUpperCase() || 'OK');
+            setIsConfirmed(true);
+        } catch (err: any) {
+            setBookError(err?.response?.data?.message || 'Erreur lors de la réservation. Réessayez.');
+        } finally {
+            setLoadingBook(false);
+        }
+    };
+
+    // Calculate total price based on hourly rate and selected duration
+    const hourlyPrice = selectedCourt?.slots.find(s => s.time === selectedTime)?.price ?? 0;
+    const totalPrice = (hourlyPrice * selectedDuration / 60).toFixed(0);
+
+    // ── Render ────────────────────────────────────────────────────────────────
+    return (
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 pb-24 md:pb-32 pt-4 md:pt-8">
+
+            {/* ── Header ── */}
+            {!isConfirmed && (
+                <motion.div
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mb-14"
+                >
+                    <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4 sm:gap-6 lg:gap-8">
+                        {/* Title */}
+                        <div className="space-y-3 sm:space-y-4">
+                            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                                <div className="px-2.5 sm:px-3 py-1 rounded-full bg-padel-blue/10 border border-padel-blue/20 text-padel-blue text-[8px] sm:text-[10px] font-black uppercase tracking-[0.2em] sm:tracking-[0.3em] flex items-center gap-1.5 sm:gap-2">
+                                    <Sparkles size={10} className="sm:w-3 sm:h-3" /> Arène
+                                </div>
+                                {selectedSport && (
+                                    <div
+                                        className="px-2.5 sm:px-3 py-1 rounded-full text-[8px] sm:text-[9px] font-black uppercase tracking-widest border"
+                                        style={{
+                                            backgroundColor: `${SPORTS_META[selectedSport]?.color || '#fff'}15`,
+                                            borderColor: `${SPORTS_META[selectedSport]?.color || '#fff'}30`,
+                                            color: SPORTS_META[selectedSport]?.color || '#fff',
+                                        }}
+                                    >
+                                        {selectedSport}
+                                    </div>
+                                )}
+                            </div>
+                            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-display font-black text-white italic uppercase tracking-tighter leading-none">
+                                RÉSERVER<br />
+                                <span className="text-padel-blue drop-shadow-[0_0_30px_rgba(19,73,211,0.3)]">UN MATCH</span>
+                            </h1>
+                        </div>
+
+                        {/* Stepper */}
+                        <div className="flex items-center gap-1.5 sm:gap-2 md:gap-3 bg-white/[0.03] border border-white/8 p-2 sm:p-3 md:p-4 rounded-2xl md:rounded-[2rem] backdrop-blur-xl self-start lg:self-auto shrink-0 overflow-x-auto">
+                            {STEPS.map((s, idx) => {
+                                const i = idx + 1;
+                                const done = step > i;
+                                const active = step === i;
+                                return (
+                                    <div key={i} className="flex items-center gap-1.5 sm:gap-2 md:gap-3">
+                                        <div className="flex flex-col items-center gap-1">
+                                            <motion.div
+                                                animate={active ? { scale: [1, 1.1, 1] } : {}}
+                                                transition={{ repeat: Infinity, duration: 2 }}
+                                                className={cn(
+                                                    'w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 rounded-lg md:rounded-xl flex items-center justify-center text-[10px] sm:text-[11px] font-black transition-all duration-500 relative overflow-hidden',
+                                                    done ? 'bg-green-500/20 text-green-400 border border-green-500/20'
+                                                        : active ? 'bg-padel-blue text-white shadow-[0_0_24px_rgba(19,73,211,0.5)]'
+                                                            : 'bg-white/5 text-white/20 border border-white/5'
+                                                )}
+                                            >
+                                                {done ? <CheckCircle2 size={16} className="sm:w-[18px] sm:h-[18px]" /> : i}
+                                                {active && (
+                                                    <div className="absolute inset-0 bg-white/10 animate-ping rounded-lg md:rounded-xl opacity-30" />
+                                                )}
+                                            </motion.div>
+                                            <p className={cn(
+                                                'hidden md:block text-[7px] md:text-[8px] font-black uppercase tracking-widest leading-none',
+                                                active ? 'text-white' : done ? 'text-green-500/60' : 'text-white/20'
+                                            )}>{s.label}</p>
+                                        </div>
+                                        {i < STEPS.length && (
+                                            <div className={cn(
+                                                'w-3 sm:w-4 md:w-6 h-[2px] rounded-full transition-all duration-700',
+                                                done ? 'bg-green-500/50' : step > i ? 'bg-padel-blue' : 'bg-white/8'
+                                            )} />
+                                        )}
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+
+                    {/* Step sub-label */}
+                    <div className="mt-6 flex items-center gap-4">
+                        <div className="w-8 h-[2px] bg-padel-blue rounded-full" />
+                        <p className="text-[11px] font-black uppercase tracking-[0.3em] text-white/30 italic">
+                            Étape {step} — {STEPS[step - 1]?.sub}
+                        </p>
+                    </div>
+                </motion.div>
+            )}
+
+            {/* ── Content ── */}
+            <AnimatePresence mode="wait">
+
+                {/* ─── CONFIRMED ─── */}
+                {isConfirmed && (
+                    <motion.div
+                        key="confirmed"
+                        initial={{ opacity: 0, scale: 0.9, y: 40 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        transition={{ type: 'spring', damping: 18, stiffness: 120 }}
+                        className="max-w-2xl mx-auto px-2 sm:px-0"
+                    >
+                        <div className="bg-[#151518]/80 backdrop-blur-2xl border border-white/10 rounded-3xl sm:rounded-[3.5rem] p-6 sm:p-10 md:p-12 text-center relative overflow-hidden shadow-2xl">
+                            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-96 h-96 bg-green-500/10 rounded-full blur-[120px] pointer-events-none" />
+                            <div className="absolute top-0 right-0 p-6 opacity-[0.03]"><Trophy size={200} /></div>
+
+                            <motion.div
+                                initial={{ scale: 0, rotate: -30 }}
+                                animate={{ scale: 1, rotate: 0 }}
+                                transition={{ type: 'spring', damping: 10, stiffness: 100, delay: 0.2 }}
+                                className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 bg-green-500/15 text-green-400 rounded-2xl sm:rounded-[2rem] md:rounded-[2.5rem] flex items-center justify-center mx-auto mb-6 sm:mb-8 md:mb-10 border border-green-500/20 shadow-[0_0_60px_rgba(34,197,94,0.2)]"
+                            >
+                                <CheckCircle2 className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14" />
+                            </motion.div>
+
+                            <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.4 }}
+                            >
+                                <p className="text-[9px] font-black uppercase tracking-[0.5em] text-green-500/60 mb-3 italic">
+                                    Réservation validée
+                                </p>
+                                <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-display font-black text-white italic uppercase tracking-tighter mb-2 leading-none">
+                                    MATCH CONFIRMÉ !
+                                </h2>
+                                {bookingRef && (
+                                    <p className="text-[10px] font-black uppercase tracking-[0.4em] text-padel-blue mt-2">
+                                        Réf. #{bookingRef}
+                                    </p>
+                                )}
+                                <p className="text-white/30 text-[11px] font-black uppercase tracking-[0.25em] mt-4 mb-12 italic">
+                                    Prépare ton sac, l'arène t'attend. 🎉
+                                </p>
+
+                                {/* Booking Summary */}
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-8 sm:mb-10 text-left">
+                                    {[
+                                        { icon: <Zap size={18} />, label: 'Sport', value: selectedSport || '–' },
+                                        { icon: <MapPin size={18} />, label: 'Terrain', value: selectedCourt?.courtName || '–' },
+                                        { icon: <CalendarIcon size={18} />, label: 'Date', value: selectedDate.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' }) },
+                                        { icon: <Clock size={18} />, label: 'Heure', value: `${selectedTime} — ${selectedDuration >= 60 ? Math.floor(selectedDuration / 60) + 'h' : ''}${selectedDuration % 60 > 0 ? (selectedDuration % 60) : ''}` },
+                                    ].map((item, i) => (
+                                        <motion.div
+                                            key={i}
+                                            initial={{ opacity: 0, y: 10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ delay: 0.5 + i * 0.1 }}
+                                            className="p-5 rounded-2xl bg-white/[0.03] border border-white/5"
+                                        >
+                                            <div className="flex items-center gap-3 mb-2">
+                                                <div className="text-padel-blue">{item.icon}</div>
+                                                <p className="text-[9px] font-black text-white/20 uppercase tracking-widest">{item.label}</p>
+                                            </div>
+                                            <p className="text-sm font-black text-white italic uppercase tracking-tight leading-tight">{item.value}</p>
+                                        </motion.div>
+                                    ))}
+                                </div>
+
+                                <div className="flex flex-col sm:flex-row gap-4">
+                                    <Link
+                                        to="/dashboard"
+                                        className="flex-1 px-8 py-5 rounded-2xl bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-widest text-white hover:bg-white/10 transition-all flex items-center justify-center gap-2"
+                                    >
+                                        Tableau de bord
+                                    </Link>
+                                    <Link
+                                        to="/my-reservations"
+                                        className="flex-1 px-8 py-5 rounded-2xl bg-padel-blue text-white text-[10px] font-black uppercase tracking-widest shadow-xl shadow-padel-blue/30 hover:scale-105 transition-all flex items-center justify-center gap-3"
+                                    >
+                                        <History size={16} /> Mes réservations
+                                    </Link>
+                                </div>
+                            </motion.div>
+                        </div>
+                    </motion.div>
+                )}
+
+                {/* ─── STEP 1 : Sport ─── */}
+                {!isConfirmed && step === 1 && (
+                    <motion.div
+                        key="step1"
+                        initial={{ opacity: 0, x: 40 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -40 }}
+                        transition={{ type: 'spring', damping: 20 }}
+                        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8"
+                    >
+                        {FALLBACK_SPORTS.map((sport, idx) => {
+                            const meta = SPORTS_META[sport] || { color: '#1349D3', gradient: 'from-blue-600/20 to-transparent', tags: [], longDesc: '', icon: <Zap size={32} />, players: '4 joueurs', features: [] };
+                            return (
+                                <motion.div
+                                    key={sport}
+                                    initial={{ opacity: 0, y: 30 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: idx * 0.12 }}
+                                    whileHover={{ y: -12, scale: 1.01 }}
+                                    className="group relative cursor-pointer"
+                                    onClick={() => { setSelectedSport(sport); setStep(2); }}
+                                >
+                                    <div className={cn(
+                                        "bg-[#151518]/70 backdrop-blur-xl border border-white/8 p-6 sm:p-8 md:p-10 rounded-2xl sm:rounded-[2.5rem] md:rounded-[3rem] relative overflow-hidden transition-all duration-700 h-full",
+                                        "hover:border-[2px] group-hover:shadow-2xl"
+                                    )}
+                                        style={{ '--tw-shadow-color': `${meta.color}40` } as any}
+                                    >
+                                        {/* BG Glow */}
+                                        <div
+                                            className="absolute top-0 right-0 w-48 h-48 rounded-full blur-[80px] -mr-24 -mt-24 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"
+                                            style={{ backgroundColor: `${meta.color}20` }}
+                                        />
+                                        {/* Large bg icon */}
+                                        <div className="absolute -bottom-6 -right-6 opacity-[0.03] group-hover:opacity-[0.07] transition-opacity duration-700 rotate-12">
+                                            <div style={{ color: meta.color }}>
+                                                {sport === 'Padel' ? <Gamepad2 size={160} /> : sport === 'Pickleball' ? <Zap size={160} /> : <Trophy size={160} />}
+                                            </div>
+                                        </div>
+
+                                        <div className="relative z-10 h-full flex flex-col">
+                                            {/* Icon */}
+                                            <div
+                                                className="w-14 h-14 sm:w-16 sm:h-16 md:w-[72px] md:h-[72px] rounded-xl sm:rounded-2xl md:rounded-[1.5rem] flex items-center justify-center mb-4 sm:mb-6 md:mb-8 border border-white/10 group-hover:scale-110 group-hover:rotate-6 transition-all duration-700 shadow-2xl"
+                                                style={{ backgroundColor: `${meta.color}18`, color: meta.color }}
+                                            >
+                                                <div className="scale-75 sm:scale-90 md:scale-100">{meta.icon}</div>
+                                            </div>
+
+                                            {/* Tags */}
+                                            <div className="flex gap-2 flex-wrap mb-4">
+                                                {meta.tags.map(tag => (
+                                                    <span key={tag} className="text-[8px] font-black uppercase tracking-[0.2em] px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-white/40">
+                                                        {tag}
+                                                    </span>
+                                                ))}
+                                            </div>
+
+                                            {/* Name & Desc */}
+                                            <h3
+                                                className="text-2xl sm:text-3xl md:text-4xl font-display font-black italic uppercase tracking-tighter mb-2 sm:mb-3 leading-none group-hover:drop-shadow-[0_0_20px_currentColor] transition-all"
+                                                style={{ color: idx === 0 ? meta.color : 'white' }}
+                                            >
+                                                {sport}
+                                            </h3>
+                                            <p className="text-white/40 text-[11px] sm:text-xs leading-relaxed mb-4 sm:mb-6 flex-1">{meta.longDesc}</p>
+
+                                            {/* Features */}
+                                            <div className="space-y-1.5 sm:space-y-2 mb-6 sm:mb-8 hidden sm:block">
+                                                {meta.features.map(f => (
+                                                    <div key={f} className="flex items-center gap-2 text-[10px] font-black text-white/20 uppercase tracking-widest">
+                                                        <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: meta.color }} />
+                                                        {f}
+                                                    </div>
+                                                ))}
+                                            </div>
+
+                                            {/* Footer */}
+                                            <div className="flex items-center justify-between mt-auto pt-6 border-t border-white/5">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="flex -space-x-1.5">
+                                                        {[1, 2, 3].map(i => (
+                                                            <div key={i} className="w-6 h-6 rounded-full border-2 border-[#151518] bg-white/10" />
+                                                        ))}
+                                                    </div>
+                                                    <span className="text-[9px] font-black text-white/20 uppercase tracking-widest italic">{meta.players}</span>
+                                                </div>
+                                                <motion.div
+                                                    className="w-10 h-10 rounded-xl flex items-center justify-center text-white"
+                                                    style={{ backgroundColor: meta.color }}
+                                                    initial={{ opacity: 0, scale: 0.5 }}
+                                                    whileInView={{ opacity: 1, scale: 1 }}
+                                                    whileHover={{ rotate: 15 }}
+                                                >
+                                                    <ArrowRight size={18} />
+                                                </motion.div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </motion.div>
+                            );
+                        })}
+                    </motion.div>
+                )}
+
+                {/* ─── STEP 2 : Date & Créneau ─── */}
+                {!isConfirmed && step === 2 && (
+                    <motion.div
+                        key="step2"
+                        initial={{ opacity: 0, x: 40 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -40 }}
+                        transition={{ type: 'spring', damping: 20 }}
+                        className="space-y-10"
+                    >
+                        {/* Back */}
+                        <button
+                            onClick={() => setStep(1)}
+                            className="group flex items-center gap-3 text-[10px] font-black text-white/30 hover:text-white uppercase tracking-widest transition-all"
+                        >
+                            <div className="w-9 h-9 rounded-xl bg-white/5 flex items-center justify-center group-hover:bg-white/10 transition-all border border-white/5">
+                                <ChevronLeft size={16} />
+                            </div>
+                            Changer de sport
+                        </button>
+
+                        {/* Section title */}
+                        <div className="flex items-center gap-4">
+                            <div className="w-2 h-2 rounded-full bg-padel-blue animate-pulse" />
+                            <h3 className="text-sm font-display font-black text-white italic uppercase tracking-widest">
+                                Planning <span className="text-padel-blue">{selectedSport}</span>
+                            </h3>
+                        </div>
+
+                        {/* Date Picker */}
+                        <div className="space-y-3 sm:space-y-4">
+                            <p className="text-[8px] sm:text-[9px] font-black uppercase tracking-[0.4em] text-white/20 italic pl-1">Sélectionnez une date</p>
+                            <div className="flex gap-2 sm:gap-3 overflow-x-auto pb-4 snap-x scrollbar-hide" style={{ scrollbarWidth: 'none' }}>
+                                {dates.map((date, i) => {
+                                    const label = formatDateLabel(date);
+                                    const [weekday, dayNum] = label.split(' ');
+                                    const isToday = i === 0;
+                                    const selected = formatDateAPI(date) === formatDateAPI(selectedDate);
+                                    return (
+                                        <motion.button
+                                            key={i}
+                                            whileHover={{ y: -4 }}
+                                            whileTap={{ scale: 0.95 }}
+                                            onClick={() => setSelectedDate(date)}
+                                            className={cn(
+                                                'flex-shrink-0 w-[70px] sm:w-[85px] md:w-[100px] px-2 sm:px-3 md:px-4 py-4 sm:py-5 md:py-6 rounded-xl sm:rounded-2xl md:rounded-[2rem] border transition-all duration-500 snap-center flex flex-col items-center gap-1.5 sm:gap-2',
+                                                selected
+                                                    ? 'bg-padel-blue border-padel-blue shadow-[0_15px_40px_rgba(19,73,211,0.4)]'
+                                                    : 'bg-[#151518]/60 border-white/8 hover:bg-white/5 hover:border-white/20'
+                                            )}
+                                        >
+                                            <p className={cn('text-[8px] sm:text-[9px] font-black uppercase tracking-[0.2em]', selected ? 'text-white/70' : 'text-white/25')}>
+                                                {isToday ? "Auj." : weekday}
+                                            </p>
+                                            <p className={cn('text-lg sm:text-xl md:text-2xl font-display font-black italic leading-none', selected ? 'text-white' : 'text-white/60')}>
+                                                {dayNum}
+                                            </p>
+                                            <div className={cn(
+                                                'w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full transition-all',
+                                                selected ? 'bg-white scale-150 shadow-[0_0_8px_white]' : 'bg-white/10'
+                                            )} />
+                                        </motion.button>
+                                    );
+                                })}
+                            </div>
+                        </div>
+
+                        {/* Slot Grid */}
+                        <div className="space-y-4 sm:space-y-6">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4">
+                                <p className="text-[8px] sm:text-[9px] font-black uppercase tracking-[0.3em] sm:tracking-[0.4em] text-white/20 italic">
+                                    <Clock size={12} className="inline mr-2 text-padel-blue" />
+                                    Créneaux disponibles
+                                </p>
+                                <div className="flex items-center gap-2 sm:gap-4 text-[7px] sm:text-[8px] font-black uppercase tracking-widest">
+                                    <span className="flex items-center gap-1 sm:gap-1.5 text-green-500/60"><div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-green-500/50" />Libre</span>
+                                    <span className="flex items-center gap-1 sm:gap-1.5 text-padel-yellow/60"><Flame size={10} />Pointe</span>
+                                    <span className="flex items-center gap-1 sm:gap-1.5 text-white/20"><X size={10} />Indispo</span>
+                                </div>
+                            </div>
+
+                            {loadingSlots ? (
+                                <div className="flex flex-col items-center justify-center py-24 gap-5">
+                                    <motion.div
+                                        animate={{ rotate: 360 }}
+                                        transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
+                                    >
+                                        <Loader2 size={40} className="text-padel-blue" />
+                                    </motion.div>
+                                    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-white/20 italic animate-pulse">Chargement des créneaux...</p>
+                                </div>
+                            ) : slotsError ? (
+                                <div className="flex flex-col items-center justify-center py-20 gap-5 bg-red-500/5 border border-red-500/10 rounded-[2.5rem]">
+                                    <AlertCircle size={40} className="text-red-500/50" />
+                                    <p className="text-[11px] font-black uppercase tracking-widest text-red-500/50">{slotsError}</p>
+                                    <button onClick={fetchSlots} className="px-6 py-3 rounded-xl bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-widest text-white/60 hover:text-white transition-all">
+                                        Réessayer
+                                    </button>
+                                </div>
+                            ) : mergedSlots.length === 0 ? (
+                                <div className="flex flex-col items-center gap-5 py-20 bg-white/[0.02] border border-white/5 rounded-[2.5rem]">
+                                    <CalendarIcon size={40} className="text-white/10" />
+                                    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-white/20 italic">Aucun terrain disponible pour ce sport ce jour-là.</p>
+                                </div>
+                            ) : (
+                                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-2 sm:gap-3">
+                                    {mergedSlots.map((slot, i) => {
+                                        const peak = isPeakHour(slot.time);
+                                        return (
+                                            <motion.button
+                                                key={slot.time}
+                                                initial={{ opacity: 0, scale: 0.8 }}
+                                                animate={{ opacity: 1, scale: 1 }}
+                                                transition={{ delay: i * 0.025 }}
+                                                whileHover={slot.available ? { y: -6, scale: 1.05 } : {}}
+                                                whileTap={slot.available ? { scale: 0.95 } : {}}
+                                                disabled={!slot.available}
+                                                onClick={() => {
+                                                    if (!slot.available) return;
+                                                    setSelectedTime(slot.time);
+                                                    setStep(3); // Go to duration step
+                                                }}
+                                                className={cn(
+                                                    'relative p-3 sm:p-4 md:p-5 rounded-xl sm:rounded-2xl md:rounded-[1.75rem] border flex flex-col items-center gap-1.5 sm:gap-2 md:gap-2.5 transition-all duration-500 group overflow-hidden',
+                                                    !slot.available
+                                                        ? 'bg-white/[0.01] border-white/5 opacity-20 cursor-not-allowed'
+                                                        : peak
+                                                            ? 'bg-[#151518]/60 border-white/8 hover:bg-padel-yellow/10 hover:border-padel-yellow/40 shadow-lg cursor-pointer'
+                                                            : 'bg-[#151518]/60 border-white/8 hover:bg-padel-blue/10 hover:border-padel-blue/40 shadow-lg cursor-pointer'
+                                                )}
+                                            >
+                                                {slot.available && peak && (
+                                                    <div className="absolute top-2 right-2">
+                                                        <Flame size={10} className="text-padel-yellow animate-pulse" />
+                                                    </div>
+                                                )}
+                                                <span className="text-base sm:text-lg md:text-xl font-display font-black text-white italic tracking-tighter leading-none group-hover:scale-110 transition-transform">
+                                                    {slot.time}
+                                                </span>
+                                                <span className={cn(
+                                                    'text-[8px] sm:text-[9px] font-black uppercase tracking-widest',
+                                                    peak ? 'text-padel-yellow' : 'text-green-500'
+                                                )}>
+                                                    {slot.price.toFixed(0)}€
+                                                </span>
+                                                {!slot.available && (
+                                                    <div className="absolute inset-0 flex items-center justify-center">
+                                                        <X size={18} className="text-white/20" />
+                                                    </div>
+                                                )}
+                                            </motion.button>
+                                        );
+                                    })}
+                                </div>
+                            )}
+                        </div>
+                    </motion.div>
+                )}
+
+                {/* ─── STEP 3 : Duration Selection ─── */}
+                {!isConfirmed && step === 3 && (
+                    <motion.div
+                        key="step3-duration"
+                        initial={{ opacity: 0, x: 40 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -40 }}
+                        transition={{ type: 'spring', damping: 20 }}
+                        className="space-y-10"
+                    >
+                        <button
+                            onClick={() => { setStep(2); setSelectedTime(null); }}
+                            className="group flex items-center gap-3 text-[10px] font-black text-white/30 hover:text-white uppercase tracking-widest transition-all"
+                        >
+                            <div className="w-9 h-9 rounded-xl bg-white/5 flex items-center justify-center group-hover:bg-white/10 transition-all border border-white/5">
+                                <ChevronLeft size={16} />
+                            </div>
+                            Modifier le créneau
+                        </button>
+
+                        <div className="flex items-center gap-2 sm:gap-4">
+                            <div className="w-2 h-2 rounded-full bg-padel-blue animate-pulse" />
+                            <h3 className="text-xs sm:text-sm font-display font-black text-white italic uppercase tracking-wider sm:tracking-widest">
+                                Créneau <span className="text-padel-blue">{selectedTime}</span> — Choisissez votre durée
+                            </h3>
+                        </div>
+
+                        {/* Duration Options */}
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
+                            {DURATION_OPTIONS.map((option, idx) => {
+                                const availability = isDurationAvailable(option.value);
+                                const isSelected = selectedDuration === option.value;
+                                return (
+                                    <motion.button
+                                        key={option.value}
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: idx * 0.1 }}
+                                        whileHover={availability.available ? { y: -6, scale: 1.02 } : {}}
+                                        whileTap={availability.available ? { scale: 0.98 } : {}}
+                                        disabled={!availability.available}
+                                        onClick={() => availability.available && setSelectedDuration(option.value)}
+                                        className={cn(
+                                            'relative text-center p-6 sm:p-8 md:p-10 rounded-2xl sm:rounded-[2rem] md:rounded-[2.5rem] border transition-all duration-500 overflow-hidden group',
+                                            !availability.available
+                                                ? 'bg-white/[0.01] border-white/5 opacity-30 cursor-not-allowed'
+                                                : isSelected
+                                                    ? 'border-padel-blue bg-padel-blue/10 shadow-[0_0_40px_rgba(19,73,211,0.3)]'
+                                                    : 'bg-[#151518]/60 border-white/8 hover:border-padel-blue/40 hover:bg-padel-blue/5'
+                                        )}
+                                    >
+                                        {isSelected && (
+                                            <div className="absolute top-3 right-3 sm:top-4 sm:right-4">
+                                                <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-padel-blue flex items-center justify-center">
+                                                    <CheckCircle2 size={12} className="sm:w-[14px] sm:h-[14px] text-white" />
+                                                </div>
+                                            </div>
+                                        )}
+                                        
+                                        <Timer className="w-6 h-6 sm:w-8 sm:h-8 md:w-8 md:h-8 mx-auto mb-2 sm:mb-4 transition-colors" style={{ color: isSelected ? '#1349D3' : 'rgba(255,255,255,0.2)' }} />
+                                        
+                                        <span className={cn(
+                                            'text-3xl sm:text-4xl md:text-5xl font-display font-black italic tracking-tighter block mb-1 sm:mb-2',
+                                            isSelected ? 'text-white' : 'text-white/60'
+                                        )}>
+                                            {option.label}
+                                        </span>
+                                        
+                                        <span className={cn(
+                                            'text-[10px] font-black uppercase tracking-widest block mb-4',
+                                            isSelected ? 'text-padel-blue' : 'text-white/30'
+                                        )}>
+                                            {option.desc}
+                                        </span>
+
+                                        {/* End time preview */}
+                                        <div className={cn(
+                                            'text-[9px] font-black uppercase tracking-widest',
+                                            isSelected ? 'text-white/50' : 'text-white/20'
+                                        )}>
+                                            {selectedTime} → {getEndTime(selectedTime || '08:00', option.value)}
+                                        </div>
+
+                                        {!availability.available && (
+                                            <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                                                <div className="text-center px-4">
+                                                    <X size={24} className="text-white/30 mx-auto mb-2" />
+                                                    <span className="text-[9px] font-black uppercase tracking-wide text-white/40 block">
+                                                        {availability.reason}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </motion.button>
+                                );
+                            })}
+                        </div>
+
+                        {/* CTA Next Step */}
+                        {selectedDuration && isDurationAvailable(selectedDuration).available && (
+                            <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                className="flex justify-center sm:justify-end"
+                            >
+                                <button
+                                    onClick={() => {
+                                        // If only one court available, pre-select it
+                                        if (availableCourts.length === 1) setSelectedCourt(availableCourts[0]);
+                                        setStep(4);
+                                    }}
+                                    className="w-full sm:w-auto flex items-center justify-center gap-3 sm:gap-4 px-8 sm:px-12 py-4 sm:py-5 rounded-xl sm:rounded-2xl bg-padel-blue text-white text-[9px] sm:text-[10px] font-black uppercase tracking-widest shadow-2xl shadow-padel-blue/40 hover:scale-105 transition-all"
+                                >
+                                    Choisir le terrain <ChevronRight size={18} />
+                                </button>
+                            </motion.div>
+                        )}
+                    </motion.div>
+                )}
+
+                {/* STEP 4 : Court Selection */}
+                {!isConfirmed && step === 4 && (
+                    <motion.div
+                        key="step4"
+                        initial={{ opacity: 0, x: 40 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -40 }}
+                        transition={{ type: 'spring', damping: 20 }}
+                        className="space-y-6 sm:space-y-8 md:space-y-10"
+                    >
+                        <button
+                            onClick={() => { setStep(3); setSelectedCourt(null); }}
+                            className="group flex items-center gap-2 sm:gap-3 text-[9px] sm:text-[10px] font-black text-white/30 hover:text-white uppercase tracking-widest transition-all"
+                        >
+                            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl bg-white/5 flex items-center justify-center group-hover:bg-white/10 transition-all border border-white/5">
+                                <ChevronLeft size={14} className="sm:w-4 sm:h-4" />
+                            </div>
+                            Modifier la durée
+                        </button>
+
+                        <div className="flex items-center gap-2 sm:gap-4">
+                            <div className="w-2 h-2 rounded-full bg-padel-blue animate-pulse" />
+                            <h3 className="text-xs sm:text-sm font-display font-black text-white italic uppercase tracking-wider sm:tracking-widest">
+                                <span className="text-padel-blue">{selectedTime}</span> • {selectedDuration >= 60 ? Math.floor(selectedDuration / 60) + 'h' : ''}{selectedDuration % 60 > 0 ? (selectedDuration % 60) : ''} — Choisissez votre terrain
+                            </h3>
+                        </div>
+
+                        {/* Courts */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6">
+                            {availableCourts.length === 0 ? (
+                                <div className="col-span-full flex flex-col items-center py-20 gap-5 bg-white/[0.02] border border-white/5 rounded-[2.5rem]">
+                                    <AlertCircle size={40} className="text-white/10" />
+                                    <p className="text-[11px] font-black uppercase tracking-widest text-white/20">Aucun terrain libre à cette heure.</p>
+                                    <button onClick={() => setStep(3)} className="px-6 py-3 rounded-xl bg-padel-blue text-white text-[10px] font-black uppercase tracking-widest">
+                                        Modifier la durée
+                                    </button>
+                                </div>
+                            ) : (
+                                availableCourts.map((court, idx) => {
+                                    const courtSlot = court.slots.find(s => s.time === selectedTime);
+                                    const isSelected = selectedCourt?.courtId === court.courtId;
+                                    const peak = isPeakHour(selectedTime || '');
+                                    return (
+                                        <motion.button
+                                            key={court.courtId}
+                                            initial={{ opacity: 0, y: 20 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ delay: idx * 0.1 }}
+                                            whileHover={{ y: -6 }}
+                                            onClick={() => setSelectedCourt(court)}
+                                            className={cn(
+                                                'relative text-left p-5 sm:p-6 md:p-8 rounded-2xl sm:rounded-[2rem] md:rounded-[2.5rem] border transition-all duration-500 overflow-hidden group',
+                                                isSelected
+                                                    ? 'border-padel-blue bg-padel-blue/10 shadow-[0_0_40px_rgba(19,73,211,0.3)]'
+                                                    : 'border-white/8 bg-[#151518]/60 hover:border-padel-blue/40 hover:bg-padel-blue/5'
+                                            )}
+                                        >
+                                            {/* Glow */}
+                                            <div className="absolute top-0 right-0 w-32 sm:w-40 h-32 sm:h-40 bg-padel-blue/5 rounded-full blur-[60px] -mr-16 sm:-mr-20 -mt-16 sm:-mt-20 pointer-events-none group-hover:bg-padel-blue/15 transition-all" />
+
+                                            {isSelected && (
+                                                <div className="absolute top-3 right-3 sm:top-4 sm:right-4">
+                                                    <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-lg bg-padel-blue flex items-center justify-center">
+                                                        <CheckCircle2 size={14} className="sm:w-4 sm:h-4 text-white" />
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-xl sm:rounded-2xl bg-padel-blue/10 flex items-center justify-center text-padel-blue mb-4 sm:mb-5 md:mb-6 border border-padel-blue/10 group-hover:scale-110 transition-transform">
+                                                <MapPin className="w-5 h-5 sm:w-6 sm:h-6" />
+                                            </div>
+
+                                            <p className="text-[8px] sm:text-[9px] font-black uppercase tracking-[0.3em] text-padel-blue/60 mb-1 sm:mb-2 italic">Terrain</p>
+                                            <h4 className="text-xl sm:text-2xl font-display font-black text-white italic uppercase tracking-tighter mb-1 leading-none">{court.courtName}</h4>
+                                            <p className="text-[9px] sm:text-[10px] text-white/30 font-black uppercase tracking-widest mb-4 sm:mb-6">{court.type}</p>
+
+                                            <div className="flex items-center justify-between">
+                                                <div>
+                                                    <p className={cn('text-xl sm:text-2xl font-display font-black italic leading-none', peak ? 'text-padel-yellow' : 'text-white')}>
+                                                        {courtSlot?.price.toFixed(0)}€
+                                                    </p>
+                                                    <p className="text-[7px] sm:text-[8px] font-black text-white/20 uppercase tracking-widest mt-1">{selectedDuration >= 60 ? Math.floor(selectedDuration / 60) + 'h' : ''}{selectedDuration % 60 > 0 ? (selectedDuration % 60) : ''} de jeu</p>
+                                                </div>
+                                                {peak && <Flame size={16} className="sm:w-[18px] sm:h-[18px] text-padel-yellow animate-pulse" />}
+                                            </div>
+
+                                            {/* Select CTA */}
+                                            {!isSelected && (
+                                                <div className="mt-4 sm:mt-6 py-2.5 sm:py-3 rounded-lg sm:rounded-xl bg-white/5 border border-white/5 text-center">
+                                                    <span className="text-[8px] sm:text-[9px] font-black uppercase tracking-widest text-white/30">Sélectionner</span>
+                                                </div>
+                                            )}
+                                            {isSelected && (
+                                                <motion.div
+                                                    initial={{ opacity: 0 }}
+                                                    animate={{ opacity: 1 }}
+                                                    className="mt-4 sm:mt-6 py-2.5 sm:py-3 rounded-lg sm:rounded-xl bg-padel-blue text-center"
+                                                >
+                                                    <span className="text-[8px] sm:text-[9px] font-black uppercase tracking-widest text-white">Court choisi ✓</span>
+                                                </motion.div>
+                                            )}
+                                        </motion.button>
+                                    );
+                                })
+                            )}
+                        </div>
+
+                        {/* CTA Next Step */}
+                        {selectedCourt && (
+                            <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                className="flex justify-center sm:justify-end"
+                            >
+                                <button
+                                    onClick={() => setStep(5)}
+                                    className="w-full sm:w-auto flex items-center justify-center gap-3 sm:gap-4 px-8 sm:px-12 py-4 sm:py-5 rounded-xl sm:rounded-2xl bg-padel-blue text-white text-[9px] sm:text-[10px] font-black uppercase tracking-widest shadow-2xl shadow-padel-blue/40 hover:scale-105 transition-all"
+                                >
+                                    Continuer <ChevronRight size={18} />
+                                </button>
+                            </motion.div>
+                        )}
+                    </motion.div>
+                )}
+
+                {/* STEP 5 : Validation */}
+                {!isConfirmed && step === 5 && (
+                    <motion.div
+                        key="step5"
+                        initial={{ opacity: 0, x: 40 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -40 }}
+                        transition={{ type: 'spring', damping: 20 }}
+                    >
+                        <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 sm:gap-6 lg:gap-8">
+                            {/* Left: Recap */}
+                            <div className="lg:col-span-3 bg-[#151518]/60 backdrop-blur-2xl border border-white/10 rounded-2xl sm:rounded-[2.5rem] lg:rounded-[3rem] p-5 sm:p-8 md:p-10 lg:p-14 relative overflow-hidden">
+                                <div className="absolute top-0 right-0 w-48 sm:w-64 h-48 sm:h-64 bg-padel-blue/5 rounded-full blur-[80px] pointer-events-none" />
+
+                                <button
+                                    onClick={() => setStep(4)}
+                                    className="group flex items-center gap-2 sm:gap-3 text-[9px] sm:text-[10px] font-black text-white/30 hover:text-white uppercase tracking-widest transition-all mb-6 sm:mb-10 lg:mb-12"
+                                >
+                                    <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-white/10 transition-all">
+                                        <ChevronLeft size={14} className="sm:w-4 sm:h-4" />
+                                    </div>
+                                    Modifier le terrain
+                                </button>
+
+                                <div className="mb-6 sm:mb-8 lg:mb-10">
+                                    <p className="text-[8px] sm:text-[9px] font-black uppercase tracking-[0.4em] sm:tracking-[0.5em] text-padel-blue/60 mb-1 sm:mb-2 italic">Étape finale</p>
+                                    <h2 className="text-2xl sm:text-3xl md:text-4xl font-display font-black text-white italic uppercase tracking-tighter">RÉCAPITULATIF</h2>
+                                </div>
+
+                                {/* Details */}
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 lg:gap-5 mb-6 sm:mb-8 lg:mb-10">
+                                    {[
+                                        { icon: <Building2 size={20} />, label: 'Lieu', value: 'Padel Arena Vendôme' },
+                                        { icon: <Zap size={20} />, label: 'Discipline', value: `${selectedSport} • ${selectedCourt?.courtName}` },
+                                        { icon: <CalendarIcon size={20} />, label: 'Date', value: selectedDate.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) },
+                                        { icon: <Clock size={20} />, label: 'Heure', value: `${selectedTime} → ${selectedDuration >= 60 ? Math.floor(selectedDuration / 60) + 'h' : ''}${selectedDuration % 60 > 0 ? (selectedDuration % 60) : ''} de jeu` },
+                                        { icon: <Users size={20} />, label: 'Joueurs', value: 'Maximum 4 joueurs' },
+                                        { icon: <ShieldCheck size={20} />, label: 'Équipement', value: 'Raquettes & Balles incluses' },
+                                    ].map((item, i) => (
+                                        <motion.div
+                                            key={i}
+                                            initial={{ opacity: 0, x: -10 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: i * 0.06 }}
+                                            className="flex gap-3 sm:gap-4 p-3 sm:p-4 lg:p-5 rounded-xl sm:rounded-2xl bg-white/[0.02] border border-white/5"
+                                        >
+                                            <div className="shrink-0 w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-padel-blue/10 flex items-center justify-center text-padel-blue border border-padel-blue/10">
+                                                <div className="scale-75 sm:scale-100">{item.icon}</div>
+                                            </div>
+                                            <div>
+                                                <p className="text-[7px] sm:text-[8px] font-black text-white/20 uppercase tracking-[0.2em] mb-0.5 sm:mb-1 leading-none">{item.label}</p>
+                                                <p className="text-xs sm:text-sm font-black text-white uppercase italic leading-tight">{item.value}</p>
+                                            </div>
+                                        </motion.div>
+                                    ))}
+                                </div>
+
+                                {/* Info box */}
+                                <div className="flex items-start gap-3 sm:gap-4 p-4 sm:p-5 lg:p-6 rounded-xl sm:rounded-2xl bg-padel-blue/5 border border-padel-blue/10">
+                                    <Sparkles size={16} className="sm:w-[18px] sm:h-[18px] text-padel-blue shrink-0 mt-0.5 sm:mt-1" />
+                                    <p className="text-[9px] sm:text-[10px] font-bold text-white/30 leading-relaxed uppercase tracking-wider italic">
+                                        Présentez-vous 15 min avant le début de votre séance. Annulation possible jusqu'à 24h avant.
+                                    </p>
+                                </div>
+                            </div>
+
+                            {/* Right: Payment */}
+                            <div className="lg:col-span-2 flex flex-col gap-4 sm:gap-6">
+                                {/* Price Card */}
+                                <div className="bg-padel-blue rounded-2xl sm:rounded-[2.5rem] lg:rounded-[3rem] p-6 sm:p-8 lg:p-10 text-white relative overflow-hidden shadow-2xl shadow-padel-blue/50 flex-1">
+                                    <div className="absolute -top-16 -right-16 w-48 h-48 bg-white/10 rounded-full blur-[60px] pointer-events-none" />
+                                    <div className="absolute -bottom-8 -left-8 w-32 h-32 bg-padel-yellow/20 rounded-full blur-3xl pointer-events-none" />
+
+                                    <p className="text-[8px] sm:text-[9px] font-black uppercase tracking-[0.4em] sm:tracking-[0.5em] mb-2 sm:mb-3 opacity-60 italic relative z-10">Montant Total</p>
+                                    <div className="flex items-baseline gap-1.5 sm:gap-2 mb-2 sm:mb-3 relative z-10">
+                                        <span className="text-5xl sm:text-6xl lg:text-7xl font-display font-black italic tracking-tighter leading-none">
+                                            {totalPrice}
+                                        </span>
+                                        <span className="text-lg sm:text-xl font-black">€</span>
+                                        <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest opacity-50 ml-1">TTC</span>
+                                    </div>
+                                    <p className="text-[8px] sm:text-[9px] font-black uppercase tracking-widest opacity-40 mb-5 sm:mb-6 lg:mb-8 relative z-10">{selectedDuration >= 60 ? Math.floor(selectedDuration / 60) + 'h' : ''}{selectedDuration % 60 > 0 ? (selectedDuration % 60) : ''} • {selectedSport} • {selectedCourt?.courtName}</p>
+
+                                    {/* Payment method toggle */}
+                                    <div className="flex gap-1.5 sm:gap-2 mb-4 sm:mb-6 bg-white/10 p-1 sm:p-1.5 rounded-xl sm:rounded-2xl relative z-10">
+                                        <button
+                                            onClick={() => setPaymentMethod('online')}
+                                            className={cn(
+                                                'flex-1 py-2.5 sm:py-3 rounded-lg sm:rounded-xl text-[8px] sm:text-[9px] font-black uppercase tracking-widest transition-all',
+                                                paymentMethod === 'online' ? 'bg-white text-padel-blue shadow-lg' : 'text-white/50 hover:text-white'
+                                            )}
+                                        >
+                                            En ligne
+                                        </button>
+                                        <button
+                                            onClick={() => setPaymentMethod('club')}
+                                            className={cn(
+                                                'flex-1 py-2.5 sm:py-3 rounded-lg sm:rounded-xl text-[8px] sm:text-[9px] font-black uppercase tracking-widest transition-all',
+                                                paymentMethod === 'club' ? 'bg-white text-padel-blue shadow-lg' : 'text-white/50 hover:text-white'
+                                            )}
+                                        >
+                                            Au club
+                                        </button>
+                                    </div>
+
+                                    {/* Book Button */}
+                                    {bookError && (
+                                        <div className="mb-3 sm:mb-4 p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center gap-2 sm:gap-3 relative z-10">
+                                            <AlertCircle size={14} className="sm:w-4 sm:h-4 text-red-400 shrink-0" />
+                                            <p className="text-[9px] sm:text-[10px] font-black text-red-400 uppercase tracking-wider">{bookError}</p>
+                                        </div>
+                                    )}
+
+                                    <motion.button
+                                        whileHover={{ scale: 1.03 }}
+                                        whileTap={{ scale: 0.97 }}
+                                        onClick={handleBook}
+                                        disabled={loadingBook}
+                                        className="w-full flex items-center justify-center gap-2 sm:gap-3 py-4 sm:py-5 rounded-xl sm:rounded-2xl bg-white text-padel-blue text-[9px] sm:text-[10px] font-black uppercase tracking-widest shadow-xl hover:shadow-2xl transition-all relative z-10 disabled:opacity-60 disabled:cursor-not-allowed"
+                                    >
+                                        {loadingBook ? (
+                                            <>
+                                                <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 0.8, ease: 'linear' }}>
+                                                    <Loader2 size={16} className="sm:w-[18px] sm:h-[18px]" />
+                                                </motion.div>
+                                                <span className="hidden sm:inline">Réservation en cours...</span>
+                                                <span className="sm:hidden">En cours...</span>
+                                            </>
+                                        ) : paymentMethod === 'online' ? (
+                                            <><CreditCard size={16} className="sm:w-[18px] sm:h-[18px]" /> Confirmer & Payer</>
+                                        ) : (
+                                            <><ShieldCheck size={16} className="sm:w-[18px] sm:h-[18px]" /> <span className="hidden sm:inline">Réserver (Payer au club)</span><span className="sm:hidden">Réserver</span></>
+                                        )}
+                                    </motion.button>
+                                </div>
+
+                                {/* Trust badges */}
+                                <div className="bg-white/[0.03] border border-white/5 rounded-xl sm:rounded-2xl lg:rounded-[2rem] p-4 sm:p-5 lg:p-6 space-y-3 sm:space-y-4">
+                                    {[
+                                        { icon: <ShieldCheck size={14} className="sm:w-4 sm:h-4 text-green-500" />, text: 'Réservation 100% sécurisée' },
+                                        { icon: <Star size={14} className="sm:w-4 sm:h-4 text-padel-yellow" />, text: 'Satisfaction garantie' },
+                                        { icon: <Wifi size={14} className="sm:w-4 sm:h-4 text-padel-blue" />, text: 'Confirmation par email' },
+                                    ].map((item, i) => (
+                                        <div key={i} className="flex items-center gap-2 sm:gap-3">
+                                            {item.icon}
+                                            <p className="text-[8px] sm:text-[9px] font-black text-white/30 uppercase tracking-widest italic">{item.text}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    </motion.div>
+                )}
+
+            </AnimatePresence>
+        </div>
+    );
+}

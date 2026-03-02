@@ -1,74 +1,186 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
-@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap');
+@import "tailwindcss" source("../src");
+
+/* Garet Font - place font files in public/fonts/ if available */
+@font-face {
+  font-family: 'Garet';
+  src: url('/fonts/Garet-Book.woff2') format('woff2'),
+       url('/fonts/Garet-Book.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Garet';
+  src: url('/fonts/Garet-Medium.woff2') format('woff2'),
+       url('/fonts/Garet-Medium.woff') format('woff');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Garet';
+  src: url('/fonts/Garet-Bold.woff2') format('woff2'),
+       url('/fonts/Garet-Bold.woff') format('woff');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Garet';
+  src: url('/fonts/Garet-Heavy.woff2') format('woff2'),
+       url('/fonts/Garet-Heavy.woff') format('woff');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
 
 @theme {
   --color-padel-blue: #1349d3;
   --color-padel-yellow: #ffd21f;
   --color-neon-green: #39FF14;
-  --color-dark-bg: #050505;
-  --font-display: "Space Grotesk", sans-serif;
-  --font-body: "Inter", sans-serif;
+  --color-dark-bg: #0E0E11;
+  --font-display: "Garet", "Inter", sans-serif;
+  --font-body: "Garet", "Inter", sans-serif;
 }
 
 @layer base {
-  body {
-    @apply bg-dark-bg text-white font-body antialiased selection:bg-padel-yellow selection:text-black;
-    font-size: clamp(0.875rem, 0.85rem + 0.15vw, 1.125rem);
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+    border-color: rgba(255, 255, 255, 0.05);
   }
 
-  h1, h2, h3, h4, h5, h6 {
+  html {
+    overflow-x: hidden;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-dark-bg text-white font-body antialiased selection:bg-padel-yellow selection:text-padel-blue;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    position: relative;
+    font-size: clamp(0.7rem, 0.65rem + 0.15vw, 0.875rem);
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  #root {
+    width: 100%;
+    overflow-x: hidden;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     @apply font-display font-bold tracking-tighter;
+  }
+
+  /* Responsive typography */
+  h1 {
+    font-size: clamp(1.25rem, 1rem + 1.5vw, 2.5rem);
+  }
+  h2 {
+    font-size: clamp(1rem, 0.85rem + 1vw, 1.75rem);
+  }
+  h3 {
+    font-size: clamp(0.9rem, 0.75rem + 0.75vw, 1.4rem);
+  }
+  h4 {
+    font-size: clamp(0.8rem, 0.7rem + 0.5vw, 1.2rem);
+  }
+  p, span, div {
+    font-size: inherit;
   }
 }
 
 @layer utilities {
-  .glass {
-    @apply bg-white/5 backdrop-blur-xl border border-white/10;
+  .glass-card {
+    @apply bg-white/[0.03] backdrop-blur-2xl border border-white/10 shadow-2xl;
   }
 
-  @keyframes pulse-slow {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.8; transform: scale(1.02); }
+  .glass-pill {
+    @apply bg-white/5 backdrop-blur-md border border-white/10 rounded-full;
   }
 
-  .animate-pulse-slow {
-    animation: pulse-slow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  .mesh-gradient {
+    background-image:
+      radial-gradient(at 0% 0%, rgba(19, 73, 211, 0.15) 0px, transparent 50%),
+      radial-gradient(at 100% 0%, rgba(255, 210, 31, 0.05) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, rgba(19, 73, 211, 0.1) 0px, transparent 50%),
+      radial-gradient(at 0% 100%, rgba(255, 210, 31, 0.05) 0px, transparent 50%);
   }
-  
+
+  @keyframes float {
+
+    0%,
+    100% {
+      transform: translateY(0px);
+    }
+
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+
   .glow-blue {
-    box-shadow: 0 0 30px rgba(19, 73, 211, 0.4);
+    box-shadow: 0 0 40px rgba(19, 73, 211, 0.3);
   }
 
   .glow-yellow {
-    box-shadow: 0 0 30px rgba(255, 210, 31, 0.4);
+    box-shadow: 0 0 40px rgba(255, 210, 31, 0.3);
   }
 
-  .text-glow {
-    text-shadow: 0 0 20px currentColor;
+  .text-shadow-premium {
+    text-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
   }
 
-  .text-stroke {
-    -webkit-text-stroke: 1px rgba(255, 255, 255, 0.1);
+  .text-stroke-premium {
+    -webkit-text-stroke: 1px rgba(255, 255, 255, 0.15);
     color: transparent;
   }
 
-  .mask-radial {
-    mask-image: radial-gradient(circle, black, transparent 70%);
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
   }
 }
 
-/* Custom Scrollbar */
+/* Custom Scrollbar Elite */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 10px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #0a0a0a;
+  background: #0E0E11;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #1349d3;
-  border-radius: 10px;
+  background: linear-gradient(to bottom, #1349d3, #0a2b7a);
+  border-radius: 20px;
+  border: 3px solid #0E0E11;
 }
 
 ::-webkit-scrollbar-thumb:hover {

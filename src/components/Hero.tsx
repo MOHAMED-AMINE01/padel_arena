@@ -48,8 +48,8 @@ export const Hero = () => {
       </div>
 
       {/* Right Vertical Socials */}
-      <div className="absolute right-6 top-1/2 -translate-y-1/2 z-30 hidden xl:flex flex-col items-center gap-24">
-        {['FACEBOOK', 'TWITTER', 'INSTAGRAM'].map((social) => (
+      {/* <div className="absolute right-6 top-1/2 -translate-y-1/2 z-30 hidden xl:flex flex-col items-center gap-24">
+        {['FACEBOOK', 'INSTAGRAM'].map((social) => (
           <a
             key={social}
             href="#"
@@ -58,7 +58,7 @@ export const Hero = () => {
             {social}
           </a>
         ))}
-      </div>
+      </div> */}
 
       {/* Main Content Area */}
       <div className="relative z-20 h-full max-w-[1500px] mx-auto px-8 md:px-12 flex flex-col justify-center">
