@@ -12,8 +12,9 @@ export const ProtectedRoute = ({ allowedRoles }: ProtectedRouteProps) => {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-dark-bg flex items-center justify-center">
+            <div className="min-h-screen bg-[#020617] flex flex-col items-center justify-center gap-4">
                 <Loader2 className="animate-spin text-padel-blue w-12 h-12" />
+                <p className="text-white/50 text-sm animate-pulse">Vérification de la session...</p>
             </div>
         );
     }
@@ -35,8 +36,9 @@ export const PublicRoute = () => {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-dark-bg flex items-center justify-center">
+            <div className="min-h-screen bg-[#020617] flex flex-col items-center justify-center gap-4">
                 <Loader2 className="animate-spin text-padel-blue w-12 h-12" />
+                <p className="text-white/50 text-sm animate-pulse">Connexion au serveur...</p>
             </div>
         );
     }

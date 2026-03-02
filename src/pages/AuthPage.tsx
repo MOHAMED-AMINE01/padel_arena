@@ -97,11 +97,11 @@ export function AuthPage() {
     };
 
     return (
-        <div className="bg-dark-bg min-h-screen flex flex-col">
+        <div className="bg-[#020617] min-h-screen flex flex-col">
             <Navbar />
 
-            <main className="flex-grow relative flex items-center justify-center lg:justify-end overflow-hidden pt-20 bg-[#020617]">
-                {/* SECTION ANIMATION : Fond complet et bloqué (pas d'interaction) */}
+            <main className="flex-grow relative flex items-center justify-center lg:justify-end overflow-hidden pt-20">
+                {/* SECTION ANIMATION : Spline restauré avec fond de secours stable */}
                 <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden bg-[#020617]">
                     <div className="w-full h-full scale-[1.25] lg:scale-[1.3] translate-y-[3%] translate-x-[-10%] lg:translate-x-[-15%]">
                         <Spline
@@ -127,8 +127,15 @@ export function AuthPage() {
                                 <motion.img
                                     src="/IMAGES/logo_tr.png"
                                     alt="Logo"
-                                    className="h-18 drop-shadow-[0_0_20px_rgba(19,73,211,0.2)]"
-                                    whileHover={{ scale: 1.05 }}
+                                    className="h-28 md:h-36 drop-shadow-[0_0_40px_rgba(19,73,211,0.4)] object-contain"
+                                    initial={{ scale: 0.5, opacity: 0 }}
+                                    animate={{ scale: 1, opacity: 1 }}
+                                    whileHover={{ scale: 1.1, rotate: -2 }}
+                                    transition={{ 
+                                        type: "spring",
+                                        stiffness: 300,
+                                        damping: 15 
+                                    }}
                                 />
                             </Link>
                         </div>
