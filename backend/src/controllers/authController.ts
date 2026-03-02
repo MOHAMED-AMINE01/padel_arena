@@ -73,9 +73,12 @@ export const getMe = asyncHandler(async (req: any, res: Response) => {
 // @route   GET /api/auth/logout
 // @access  Private
 export const logout = asyncHandler(async (req: Request, res: Response) => {
-    res.cookie('token', 'none', {
-        expires: new Date(Date.now() + 10 * 1000),
-        httpOnly: true
+    // Clear cookie with the SAME options used when setting it (required for cross-domain)
+    res.cookie('token', '', {
+        expires: new Date(0), // Expire immediately
+        httpOnly: true,
+        secure: true,
+        sameSite: 'none'
     });
 
     res.status(200).json({ success: true, message: 'Logged out successfully' });
