@@ -22,38 +22,38 @@ dotenv.config();
 const app: Express = express();
 const PORT = process.env.PORT || 5000;
 
-// Security Middlewares
-app.use(helmet()); // Secure HTTP headers
+// Security Middlewares - Simplified Helmet to avoid blocking cross-domain assets
+app.use(helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+    crossOriginOpenerPolicy: { policy: "same-origin-allow-popups" }
+}));
 
-// CORS configuration - allow multiple origins in development
+// CORS configuration - dynamic via environment variable
 const allowedOrigins = [
     'http://localhost:3000',
     'http://localhost:5173',
     ...(process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : [])
-].map(origin => origin.trim()).filter(Boolean);
+].map(origin => origin.trim().replace(/\/$/, "")).filter(Boolean);
 
 app.use(cors({
     origin: (origin, callback) => {
-        // Allow requests with no origin (mobile apps, Postman)
         if (!origin) return callback(null, true);
-        
-        // Remove trailing slash if present for comparison
         const normalizedOrigin = origin.replace(/\/$/, "");
-        
-        if (allowedOrigins.some(o => o?.replace(/\/$/, "") === normalizedOrigin)) {
+        if (allowedOrigins.includes(normalizedOrigin)) {
             callback(null, true);
         } else {
-            console.log('Origin not allowed:', origin);
+            console.log('CORS blocked origin:', origin);
             callback(new Error('Not allowed by CORS'));
         }
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept']
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin']
 }));
-app.use(express.json({ limit: '10kb' })); // Body parser, limit size to prevent DOS
-app.use(cookieParser());
-app.use(morgan('dev')); // Logging
+
+app.use(cookieParser()); // Moved BEFORE other middlewares for safe access
+app.use(express.json({ limit: '10kb' })); 
+app.use(morgan('dev')); 
 
 // Data Sanitization against NoSQL query injection
 app.use((req: Request, res: Response, next: NextFunction) => {

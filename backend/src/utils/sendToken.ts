@@ -12,8 +12,8 @@ export const sendTokenResponse = (user: any, statusCode: number, res: Response) 
     const cookieOptions = {
         expires: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: process.env.NODE_ENV === 'production' ? 'none' as const : 'lax' as const
+        secure: true, // Force true to satisfy Vercel/Chrome SameSite:None requirement
+        sameSite: 'none' as const
     };
 
     user.password = undefined; // Ensure password isn't sent in response
@@ -23,7 +23,7 @@ export const sendTokenResponse = (user: any, statusCode: number, res: Response) 
         .cookie('token', token, cookieOptions)
         .json({
             success: true,
-            token,
+            token, // Returning token for Frontend localStorage sync
             data: user
         });
 };
