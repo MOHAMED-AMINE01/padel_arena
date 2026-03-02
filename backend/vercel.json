@@ -2,24 +2,20 @@
     "version": 2,
     "builds": [
         {
-            "src": "dist/index.js",
+            "src": "src/index.ts",
             "use": "@vercel/node"
         }
     ],
     "routes": [
         {
-            "src": "/api/(.*)",
-            "dest": "dist/index.js",
+            "src": "/(.*)",
+            "dest": "src/index.ts",
             "headers": {
                 "Access-Control-Allow-Origin": "https://padelarena-topaz.vercel.app",
                 "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, PATCH, OPTIONS",
                 "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Requested-With, Accept, Origin",
                 "Access-Control-Allow-Credentials": "true"
             }
-        },
-        {
-            "src": "/(.*)",
-            "dest": "dist/index.js"
         }
     ]
 }
