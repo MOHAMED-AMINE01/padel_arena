@@ -2,6 +2,8 @@ import mongoose, { Schema, Document } from 'mongoose';
 import bcrypt from 'bcryptjs';
 
 export interface IUser extends Document {
+    createdAt: Date;
+    updatedAt: Date;
     name: string;
     email: string;
     password?: string;
