@@ -10,11 +10,14 @@ interface ProtectedRouteProps {
 export const ProtectedRoute = ({ allowedRoles }: ProtectedRouteProps) => {
     const { user, loading } = useAuth();
 
+    // Debug log
+    console.log('[ProtectedRoute] loading:', loading, 'user:', user);
+
     if (loading) {
         return (
-            <div className="min-h-screen bg-[#020617] flex flex-col items-center justify-center gap-4">
-                <Loader2 className="animate-spin text-padel-blue w-12 h-12" />
-                <p className="text-white/50 text-sm animate-pulse">Vérification de la session...</p>
+            <div className="min-h-screen bg-[#0E0E11] flex flex-col items-center justify-center gap-4">
+                <Loader2 className="animate-spin text-white w-12 h-12" />
+                <p className="text-white text-sm animate-pulse">Vérification de la session...</p>
             </div>
         );
     }
@@ -34,11 +37,14 @@ export const ProtectedRoute = ({ allowedRoles }: ProtectedRouteProps) => {
 export const PublicRoute = () => {
     const { user, loading } = useAuth();
 
+    // Debug log
+    console.log('[PublicRoute] loading:', loading, 'user:', user);
+
     if (loading) {
         return (
-            <div className="min-h-screen bg-[#020617] flex flex-col items-center justify-center gap-4">
-                <Loader2 className="animate-spin text-padel-blue w-12 h-12" />
-                <p className="text-white/50 text-sm animate-pulse">Connexion au serveur...</p>
+            <div className="min-h-screen bg-[#0E0E11] flex flex-col items-center justify-center gap-4">
+                <Loader2 className="animate-spin text-white w-12 h-12" />
+                <p className="text-white text-sm animate-pulse">Connexion au serveur...</p>
             </div>
         );
     }

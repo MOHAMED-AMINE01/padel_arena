@@ -29,14 +29,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     useEffect(() => {
         // Check if user is already logged in (using cookie)
         const checkLoggedIn = async () => {
+            console.log('[AuthContext] Checking if user is logged in...');
             try {
                 const res = await api.get('/auth/me');
+                console.log('[AuthContext] Response:', res.data);
                 if (res.data.success) {
                     setUser(res.data.data);
                 }
             } catch (err) {
+                console.log('[AuthContext] Error or not logged in:', err);
                 setUser(null);
             } finally {
+                console.log('[AuthContext] Setting loading to false');
                 setLoading(false);
             }
         };

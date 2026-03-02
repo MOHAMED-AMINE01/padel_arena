@@ -142,7 +142,7 @@ export const AdminSidebar = ({ collapsed, setCollapsed, mobileOpen, setMobileOpe
 
             {/* Menu Items */}
             <div className="flex-1 px-4 space-y-2 overflow-y-auto custom-scrollbar">
-                {menuItems.map((item) => (
+                {managerMenu.map((item) => (
                     <SidebarItem
                         key={item.label}
                         icon={item.icon}
