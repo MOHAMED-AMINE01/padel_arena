@@ -100,9 +100,9 @@ export function AuthPage() {
         <div className="bg-dark-bg min-h-screen flex flex-col">
             <Navbar />
 
-            <main className="flex-grow relative flex items-center justify-center lg:justify-end overflow-hidden pt-20">
+            <main className="flex-grow relative flex items-center justify-center lg:justify-end overflow-hidden pt-20 bg-[#020617]">
                 {/* SECTION ANIMATION : Fond complet et bloqué (pas d'interaction) */}
-                <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+                <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden bg-[#020617]">
                     <div className="w-full h-full scale-[1.25] lg:scale-[1.3] translate-y-[3%] translate-x-[-10%] lg:translate-x-[-15%]">
                         <Spline
                             scene="https://prod.spline.design/Y6Vw5mezHebP93rh/scene.splinecode"
