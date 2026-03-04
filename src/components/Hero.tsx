@@ -10,7 +10,7 @@ export const Hero = () => {
   const [isMuted, setIsMuted] = useState(true);
 
   return (
-    <section className="relative h-screen w-full overflow-hidden bg-[#050505]">
+    <section className="relative h-screen w-full overflow-hidden bg-[#050505] pt-12 md:pt-20">
       {/* Background Image with Parallax & Pro Overlay */}
       <div className="absolute inset-0 z-0">
         <div className="absolute inset-0 bg-black/50 z-10" />
@@ -42,7 +42,7 @@ export const Hero = () => {
         >
           <ChevronDown size={14} className="text-padel-yellow rotate-90" />
           <span className="text-[9px] font-black uppercase tracking-[0.4em] text-white/40">
-            SCROLL DOWN
+            Défiler vers le bas
           </span>
         </motion.div>
       </div>
@@ -70,21 +70,21 @@ export const Hero = () => {
           className="max-w-5xl"
         >
           {/* Headline - Compact & Powerful */}
-          <h1 className="text-5xl md:text-7xl lg:text-[6.5rem] xl:text-[7rem] font-display font-black leading-[0.82] tracking-tighter text-white mb-8">
+          <h1 className="text-5xl md:text-7xl lg:text-[6.5rem] xl:text-[7rem] font-display font-black leading-[0.95] tracking-tighter text-white mb-8">
             VIVEZ <br />
-            <span className="text-padel-blue italic">LA PASSION</span> <br />
-            DU PADEL
+            <span className="text-padel-blue italic">L'EXPÉRIENCE</span> <br />
+            <span className="notranslate" translate="no">PADEL ARENA</span>
           </h1>
 
           {/* Subtext */}
           <p className="text-sm md:text-base text-white/70 font-medium max-w-lg mb-12 md:mb-16 leading-relaxed">
-            Un centre moderne pensé pour les passionnés de sport, combinant infrastructures premium, coaching professionnel et une plateforme digitale intelligente.
+            Entrez dans l'arène. Un lieu de vie hybride entre technicité et convivialité. 1600 m² de sport et de performance à Vendôme. Padel, Golf Indoor et Pickleball : repoussez vos limites dans un complexe conçu pour l'impact.
           </p>
 
           {/* Utility Contact Grid */}
           <div className="flex flex-wrap gap-10 md:gap-16">
             <div className="group">
-              <p className="text-padel-yellow text-[9px] font-black uppercase tracking-[0.3em] mb-4">MAIL US</p>
+              <p className="text-padel-yellow text-[9px] font-black uppercase tracking-[0.3em] mb-4">écrivez-nous</p>
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-padel-blue/20 group-hover:border-padel-blue transition-colors">
                   <Mail size={16} className="text-white/40 group-hover:text-white" />
@@ -96,7 +96,7 @@ export const Hero = () => {
             </div>
 
             <div className="group">
-              <p className="text-padel-yellow text-[9px] font-black uppercase tracking-[0.3em] mb-4">CALL US</p>
+              <p className="text-padel-yellow text-[9px] font-black uppercase tracking-[0.3em] mb-4">appelez-nous</p>
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-padel-blue/20 group-hover:border-padel-blue transition-colors">
                   <Phone size={16} className="text-white/40 group-hover:text-white" />

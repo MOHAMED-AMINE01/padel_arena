@@ -12,7 +12,6 @@ const menuStructure = [
     icon: Info,
     dropdown: [
       { name: 'Présentation', href: '/le-club#presentation', desc: 'Notre vision du padel moderne.', icon: Rocket },
-      { name: 'Nos Installations', href: '/le-club#installations', desc: 'Des terrains de dernière génération.', icon: Target },
       { name: 'L’Équipe', href: '/le-club#equipe', desc: 'Des experts à votre service.', icon: Users },
     ]
   },
@@ -24,17 +23,18 @@ const menuStructure = [
     isMega: true,
     megaMenu: [
       {
-        title: 'Formation',
+        title: 'Sports de raquette',
         links: [
-          { name: 'Cours & Coaching', href: '/activites#coaching', desc: 'Progressez avec nos coachs certifiés.', icon: GraduationCap },
-          { name: 'Stages & Académie', href: '/activites#academy', desc: 'Immersion totale pour tous niveaux.', icon: Star },
+          { name: 'Padel', href: '/activites#coaching', desc: '3 terrains dernière génération.', icon: Target },
+          { name: 'Pickleball', href: '/activites#coaching', desc: 'Terrain polyvalent adapté.', icon: Activity },
+          { name: 'Badminton', href: '/activites#coaching', desc: 'Cours réguliers pour tous.', icon: Users },
         ]
       },
       {
-        title: 'Compétition',
+        title: 'Loisirs & Événements',
         links: [
-          { name: 'Tournois', href: '/activites#tournois', desc: 'Rejoignez la compétition officielle.', icon: Trophy },
-          { name: 'Classements', href: '/activites#stats', desc: 'Suivez vos performances en direct.', icon: Target },
+          { name: 'Simulateur de Golf', href: '/activites#coaching', desc: 'Expérience ultra réaliste.', icon: Star },
+          { name: 'Tournois & Événements', href: '/activites#tournois', desc: 'Compétitions toute l\'année.', icon: Trophy },
         ]
       },
     ]
@@ -111,7 +111,7 @@ export const Navbar = () => {
               alt="Logo"
               className={cn(
                 "transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] drop-shadow-[0_0_25px_rgba(19,73,211,0.25)]",
-                scrolled ? "h-20 md:h-24" : "h-20 md:h-24"
+                scrolled ? "h-20 md:h-28" : "h-28 md:h-38 lg:h-42 xl:h-38"
               )}
             />
           </Link>
@@ -120,8 +120,8 @@ export const Navbar = () => {
           <div className={cn(
             "hidden lg:flex items-center gap-1 transition-all duration-700 px-2 py-1.5 rounded-full relative",
             scrolled
-              ? "bg-[#0a0a0a]/80 backdrop-blur-3xl border border-white/5 shadow-[0_20px_50px_rgba(0,0,0,0.5)]"
-              : "bg-white/0 backdrop-blur-md border border-white/10"
+              ? "bg-transparent backdrop-blur-sm border border-white/5"
+              : "bg-transparent border border-white/10"
           )}>
             {menuStructure.map((item) => (
               <div
@@ -272,7 +272,7 @@ export const Navbar = () => {
                 whileTap={{ scale: 0.98 }}
                 className="px-10 py-4 bg-padel-yellow text-padel-blue font-display font-black text-xs rounded-full uppercase tracking-[0.25em] shadow-xl border-none transition-all duration-300"
               >
-                RÉSERVER
+                <span className="notranslate" translate="no">RÉSERVER</span>
               </motion.button>
             </Link>
 

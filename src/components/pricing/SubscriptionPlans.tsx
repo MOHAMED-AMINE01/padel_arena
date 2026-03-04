@@ -83,7 +83,6 @@ export const SubscriptionPlans = () => {
         <div className="flex flex-col lg:flex-row items-center lg:items-end justify-between gap-12 mb-20 md:mb-32">
           <div className="max-w-3xl text-center lg:text-left">
             <div className="inline-flex items-center gap-4 mb-8">
-              <div className="w-12 h-[1px] bg-padel-yellow" />
               <span className="text-[10px] font-black tracking-[0.4em] text-padel-yellow uppercase">ABONNEMENTS EXCLUSIFS</span>
             </div>
             <h3 className="text-4xl sm:text-5xl md:text-8xl font-display font-black tracking-tighter leading-[0.9] uppercase">
@@ -216,7 +215,6 @@ export const SubscriptionPlans = () => {
         <div className="grid lg:grid-cols-2 gap-16 lg:gap-32 items-center px-6 md:px-16 py-16 md:py-24 glass rounded-[4rem] border-white/5 pb-32 md:pb-24">
           <div>
             <div className="inline-flex items-center gap-4 mb-8">
-              <div className="w-12 h-[1px] bg-padel-yellow" />
               <span className="text-[10px] font-black tracking-[0.4em] text-padel-yellow uppercase">ROI ANALYTICS</span>
             </div>
             <h4 className="text-3xl md:text-5xl font-display font-black text-white uppercase tracking-tighter leading-none mb-10">

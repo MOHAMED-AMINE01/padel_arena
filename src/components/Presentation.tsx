@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion, useScroll, useTransform } from 'motion/react';
 import { Heart, Shield, Lightbulb, Coffee, Award, ArrowRight, Target, Users } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { cn } from '../lib/utils';
 
 export const Presentation = () => {
@@ -10,24 +11,24 @@ export const Presentation = () => {
 
   const values = [
     {
-      icon: <Heart className="text-white" size={24} />,
-      title: "Passion du sport",
-      desc: "L'amour du jeu est au cœur de tout ce que nous faisons au quotidien."
+      icon: <Target className="text-white" size={24} />,
+      title: "1600 m² d'espace multisport",
+      desc: "Un lieu de vie dédié à l'activité et à la détente."
     },
     {
-      icon: <Target className="text-white" size={24} />,
-      title: "Excellence",
-      desc: "Nous visons la perfection dans nos infrastructures et nos services."
+      icon: <Heart className="text-white" size={24} />,
+      title: "3 terrains de Padel & Golf Indoor",
+      desc: "Des équipements premium accessibles à tous."
     },
     {
       icon: <Users className="text-white" size={24} />,
-      title: "Convivialité",
-      desc: "Un véritable lieu de vie pour partager des moments après l'effort."
+      title: "1 Club-house 100% convivial",
+      desc: "Un bar central pensé pour prolonger l'instant et refaire le match."
     },
     {
       icon: <Shield className="text-white" size={24} />,
-      title: "Respect",
-      desc: "Une ambiance saine où chaque joueur est respecté sur et hors du terrain."
+      title: "7/7 Jours de sport et de détente",
+      desc: "Un lieu de vie hybride où l'on vient pour le jeu, on reste pour l'ambiance."
     }
   ];
 
@@ -45,7 +46,7 @@ export const Presentation = () => {
       <div className="absolute top-1/2 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-white/5 to-transparent" />
 
       <div className="max-w-[1400px] mx-auto relative z-10">
-        <div className="grid lg:grid-cols-12 gap-16 lg:gap-24 items-start">
+        <div className="grid lg:grid-cols-12 gap-16 lg:gap-24 items-center">
 
           {/* Text Content - Left Side (7 cols) */}
           <motion.div
@@ -56,20 +57,19 @@ export const Presentation = () => {
             className="lg:col-span-7 order-2 lg:order-1"
           >
             <div className="inline-flex items-center gap-4 mb-10 group">
-              <div className="w-12 h-[1px] bg-padel-blue group-hover:w-20 transition-all duration-700" />
               <span className="text-[10px] font-black tracking-[0.4em] text-padel-blue uppercase">
-                L'ESSENCE DU CLUB
+                BIENVENUE CHEZ NOUS
               </span>
             </div>
 
             <h2 className="text-4xl md:text-6xl xl:text-7xl font-display font-black mb-10 leading-[0.95] tracking-tighter uppercase">
-              BIEN PLUS QU'UN CLUB, <br />
-              <span className="text-padel-blue italic">UNE DESTINATION</span> <br />
-              SPORTIVE COMPLÈTE
+              LE SPORT, <br />
+              <span className="text-padel-blue italic">LE PARTAGE,</span> <br />
+              L'ARENA.
             </h2>
 
             <p className="text-base md:text-lg text-white/50 mb-16 font-medium leading-relaxed max-w-2xl">
-              Notre centre de padel a été imaginé comme un véritable sanctuaire du sport, où la performance brute rencontre le raffinement. Chaque centimètre carré a été conçu pour stimuler vos sens et sublimer votre jeu.
+              Trois terrains de Padel, un espace multisport et un bar convivial à Saint-Ouen. On vient pour le match, on reste pour l'ambiance. Le complexe idéal pour déconnecter et profiter entre amis.
             </p>
 
             <div className="grid sm:grid-cols-2 gap-x-12 gap-y-12 mb-20">
@@ -101,12 +101,18 @@ export const Presentation = () => {
               viewport={{ once: true }}
               transition={{ delay: 0.6 }}
             >
-              <button className="group relative pr-16 py-4 text-white font-black text-xs uppercase tracking-[0.3em] overflow-hidden">
-                <span className="relative z-10 transition-colors group-hover:text-padel-yellow">Découvrir notre vision</span>
-                <div className="absolute right-0 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-padel-blue/10 border border-white/5 flex items-center justify-center group-hover:bg-padel-blue group-hover:w-full group-hover:rounded-full transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)]">
-                  <ArrowRight size={16} className="text-padel-blue group-hover:text-white group-hover:translate-x-1 transition-all" />
+              <Link 
+                to="/le-club" 
+                className="group relative inline-flex items-center gap-4 px-8 py-4 bg-transparent border border-white/10 rounded-full overflow-hidden transition-all duration-500 hover:border-padel-blue/50"
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-padel-blue to-padel-blue/80 translate-x-[-100%] group-hover:translate-x-0 transition-transform duration-500 ease-out" />
+                <span className="relative z-10 text-white font-black text-xs uppercase tracking-[0.2em] transition-colors duration-300">
+                  Découvrir notre vision
+                </span>
+                <div className="relative z-10 w-8 h-8 rounded-full bg-padel-blue/20 flex items-center justify-center group-hover:bg-white/20 transition-all duration-300">
+                  <ArrowRight size={14} className="text-padel-blue group-hover:text-white group-hover:translate-x-0.5 transition-all duration-300" />
                 </div>
-              </button>
+              </Link>
             </motion.div>
           </motion.div>
 
@@ -119,7 +125,7 @@ export const Presentation = () => {
               <div className="relative aspect-[10/14] md:aspect-[4/5] overflow-hidden rounded-[2rem] md:rounded-[4rem] group">
                 <div className="absolute inset-0 bg-padel-blue/20 mix-blend-overlay group-hover:opacity-0 transition-opacity duration-1000 z-10" />
                 <motion.img
-                  initial={{ scale: 1.2 }}
+                  initial={{ scale: 1 }}
                   whileInView={{ scale: 1 }}
                   transition={{ duration: 2, ease: "easeOut" }}
                   src="/IMAGES/IMG_4501.JPG"
@@ -132,21 +138,7 @@ export const Presentation = () => {
                 <div className="absolute inset-0 border-[1px] border-white/5 rounded-[2rem] md:rounded-[4rem] m-4 pointer-events-none" />
               </div>
 
-              {/* Minimal Stat Badge */}
-              <motion.div
-                initial={{ opacity: 0, x: 50 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.8, duration: 0.8 }}
-                className="absolute -bottom-12 -right-6 md:-right-12 bg-white p-8 md:p-12 rounded-[2rem] md:rounded-[3rem] shadow-[0_30px_60px_rgba(0,0,0,0.5)] flex flex-col items-center justify-center min-w-[160px] md:min-w-[220px]"
-              >
-                <div className="text-4xl md:text-6xl font-display font-black text-padel-blue mb-2">100%</div>
-                <div className="text-[8px] md:text-[10px] font-black text-black/40 uppercase tracking-[0.4em] whitespace-nowrap">
-                  Passion Partagée
-                </div>
-                {/* Floating decorative dot */}
-                <div className="absolute -top-2 -left-2 w-4 h-4 bg-padel-yellow rounded-full animate-pulse" />
-              </motion.div>
+              
             </motion.div>
 
             {/* Background Decorative Text (Large Stroke) */}

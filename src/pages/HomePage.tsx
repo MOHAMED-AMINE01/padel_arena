@@ -1,6 +1,7 @@
 import React from 'react';
 import { Hero } from '../components/Hero';
 import { Presentation } from '../components/Presentation';
+import { OurActivities } from '../components/OurActivities';
 import { Infrastructure } from '../components/Infrastructure';
 import { Activities } from '../components/Activities';
 import { Booking } from '../components/Booking';
@@ -14,13 +15,14 @@ export const HomePage = () => {
     <div className="relative">
       <Hero />
       <Presentation />
-      <Infrastructure />
+      <OurActivities />
       <Activities />
       <Booking />
-      <Tournaments />
+      {/* <Tournaments /> */}
       <Testimonials />
       {/* <LiveStats /> */}
       <FinalCTA />
+      <Infrastructure />
     </div>
   );
 };

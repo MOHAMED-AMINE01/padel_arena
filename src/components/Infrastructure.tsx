@@ -13,7 +13,7 @@ const carouselImages = [
   },
   {
     url: "/IMAGES/IMAGES CARROUSEL/pexels-anhelina-vasylyk-734724285-35248239.jpg",
-    title: "ACADÉMIE DE PADEL",
+    title: "ACADÉMIE DE PADEL", // notranslate applied in JSX
     desc: "Progression assurée avec nos coachs certifiés et programmes sur mesure",
     tag: "EXCELLENCE",
     icon: <Zap size={20} />

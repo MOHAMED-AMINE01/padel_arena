@@ -26,7 +26,6 @@ export const AccessMap = () => {
               transition={{ duration: 0.8 }}
             >
               <div className="inline-flex items-center gap-4 mb-8">
-                <div className="w-12 h-[1px] bg-padel-yellow" />
                 <span className="text-[10px] font-black tracking-[0.4em] text-padel-yellow uppercase">ACCÈS & LOCALISATION</span>
               </div>
 

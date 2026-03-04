@@ -1,37 +1,37 @@
 import React, { useRef, useState } from 'react';
 import { motion } from 'motion/react';
-import { Zap, Shield, Coffee, GraduationCap, LayoutGrid, CheckCircle2 } from 'lucide-react';
+import { Zap, Shield, Coffee, LayoutGrid, CheckCircle2 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
 const reasons = [
   {
-    title: "TERRAINS PROFESSIONNELS",
-    desc: "Gazon WPT certified et éclairage LED haute performance pour une visibilité totale.",
+    title: "1 600 M² DE COMPLEXE",
+    desc: "Un espace indoor moderne dimensionné pour le confort et le partage.",
     icon: <LayoutGrid size={24} />,
     color: "group-hover:text-padel-blue"
   },
   {
-    title: "RÉSERVATION RAPIDE",
-    desc: "Réservez votre terrain en moins de 30 secondes via notre système ultra-fluide.",
-    icon: <Zap size={24} />,
+    title: "3 TERRAINS DE PADEL",
+    desc: "Des infrastructures de qualité accessibles à tous les niveaux de jeu.",
+    icon: <Shield size={24} />,
     color: "group-hover:text-padel-yellow"
   },
   {
-    title: "COACHING CERTIFIÉ",
-    desc: "Progressez avec nos coachs diplômés d'État experts en analyse technique.",
-    icon: <GraduationCap size={24} />,
+    title: "RÉSERVATION RAPIDE",
+    desc: "Un système en ligne pour bloquer votre terrain en quelques secondes.",
+    icon: <Zap size={24} />,
     color: "group-hover:text-padel-blue"
   },
   {
-    title: "ESPACE DÉTENTE",
-    desc: "Un club house moderne et chaleureux pour prolonger l'expérience après le match.",
+    title: "CLUB-HOUSE & BAR",
+    desc: "Un espace central convivial conçu pour prolonger l'instant après le match.",
     icon: <Coffee size={24} />,
     color: "group-hover:text-padel-yellow"
   },
   {
-    title: "PARKING SÉCURISÉ",
-    desc: "Accès facilité et parking privé gratuit sous vidéo-surveillance 24/7.",
-    icon: <Shield size={24} />,
+    title: "SERVICES & PARKING",
+    desc: "Stationnement privé sous vidéo-surveillance et prêt de matériel sur place.",
+    icon: <CheckCircle2 size={24} />,
     color: "group-hover:text-padel-blue"
   }
 ];
@@ -67,24 +67,15 @@ export const ClubWhyUs = () => {
         <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-12 mb-24">
           <div className="max-w-3xl text-center lg:text-left">
             <div className="inline-flex items-center gap-4 mb-8">
-              <div className="w-12 h-[1px] bg-padel-yellow" />
               <span className="text-[10px] font-black tracking-[0.4em] text-padel-yellow uppercase">POURQUOI NOUS CHOISIR ?</span>
             </div>
-            <h3 className="text-4xl sm:text-5xl md:text-8xl font-display font-black tracking-tighter leading-[0.9] uppercase">
-              L'EXCELLENCE DANS <br />
-              <span className="text-padel-blue italic">CHAQUE DÉTAIL</span>
+            <h3 className="text-4xl sm:text-5xl md:text-8xl font-display font-black tracking-tighter leading-[0.9]">
+              L'expérience Padel
+              <span className="text-padel-blue italic"> Arena</span>
             </h3>
           </div>
 
-          <div className="hidden lg:block pb-4 text-right">
-            <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em] mb-4">MÉTHODOLOGIE ARENA</p>
-            <div className="flex items-center gap-4 justify-end">
-              <span className="text-white font-medium">9.9/10</span>
-              <div className="flex gap-1">
-                {[1, 2, 3, 4, 5].map(s => <CheckCircle2 key={s} size={12} className="text-padel-blue" />)}
-              </div>
-            </div>
-          </div>
+          
         </div>
 
         {/* Horizontal Scroll for Mobile/Tablet */}

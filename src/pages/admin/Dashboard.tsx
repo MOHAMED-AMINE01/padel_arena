@@ -374,7 +374,7 @@ export function AdminDashboard() {
                     </div>
                     <div>
                         <h1 className="text-5xl sm:text-6xl md:text-8xl font-display font-black text-white italic uppercase tracking-tighter leading-[0.85] md:leading-[0.8]">
-                            Global <br /><span className="text-padel-yellow drop-shadow-[0_0_40px_rgba(255,210,31,0.3)]">Cockpit</span>
+                            Dashboard
                         </h1>
                         <p className="text-[11px] md:text-[14px] font-bold text-white/30 uppercase tracking-[0.2em] md:tracking-[0.4em] mt-6 md:mt-8 max-w-2xl leading-relaxed italic">
                             Intelligence de terrain synchronisée. <br className="hidden md:block" /> Analyse flux & performances réseau Padel Arena.

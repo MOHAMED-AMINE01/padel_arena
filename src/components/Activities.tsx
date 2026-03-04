@@ -1,27 +1,27 @@
-import React, { useRef } from 'react';
-import { motion, useMotionValue, useTransform, useSpring } from 'motion/react';
-import { Target, Trophy, GraduationCap, Briefcase, ArrowRight, UserCheck, ShoppingBag, Sparkles } from 'lucide-react';
+import React, { useRef, useState } from 'react';
+import { motion, useMotionValue, useTransform, useSpring, AnimatePresence } from 'motion/react';
+import { Target, Trophy, GraduationCap, Briefcase, ArrowRight, UserCheck, ShoppingBag, Sparkles, ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '../lib/utils';
 
 const activities = [
   {
     title: "ACADÉMIE",
-    subtitle: "KIDS & ADULTS",
+    subtitle: "ENFANTS & ADULTES",
     icon: <GraduationCap size={24} />,
     image: "/IMAGES/artur-kornakov-ArI-foyWnfA-unsplash.jpg",
     desc: "Des cours structurés pour enfants et adultes, encadrés par des coachs certifiés pour une progression fulgurante.",
     tag: "FORMATION"
   },
   {
-    title: "COACHING",
+    title: "ENTRAÎNEMENT",
     subtitle: "SUR MESURE",
     icon: <Target size={24} />,
     image: "/IMAGES/IMG_4503.JPG",
     desc: "Séances individuelles haute performance utilisant l'analyse vidéo pour corriger chaque mouvement.",
-    tag: "ELITE"
+    tag: "ÉLITE"
   },
   {
-    title: "STAGES",
+    title: "ÉTAPES",
     subtitle: "INTENSIF",
     icon: <Sparkles size={24} />,
     image: "/IMAGES/oskar-hagberg-uJlPtLTZT7c-unsplash.jpg",
@@ -29,12 +29,12 @@ const activities = [
     tag: "IMMERSION"
   },
   {
-    title: "EVENTS",
-    subtitle: "CORPORATE",
+    title: "ÉVÉNEMENTS",
+    subtitle: "ENTREPRISE",
     icon: <Briefcase size={24} />,
     image: "/IMAGES/todd-trapani-sI-p_NLBNr0-unsplash.jpg",
     desc: "Team building, séminaires et événements exclusifs pour souder vos équipes autour des valeurs du sport.",
-    tag: "BUSINESS"
+    tag: "AFFAIRES"
   }
 ];
 
@@ -84,11 +84,11 @@ const ActivityCard: React.FC<{ activity: Activity, index: number }> = ({ activit
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
-      className="relative aspect-[3/4] md:aspect-[4/6] xl:aspect-[3/4] w-full rounded-[2rem] md:rounded-[3rem] cursor-pointer group"
+      className="relative aspect-[4/3] sm:aspect-[3/4] md:aspect-[4/6] xl:aspect-[3/4] w-full rounded-[1.5rem] sm:rounded-[2rem] md:rounded-[3rem] cursor-pointer group"
     >
       <div
         style={{ transform: "translateZ(30px)" }}
-        className="absolute inset-0 rounded-[2rem] md:rounded-[3rem] overflow-hidden bg-[#0a0a0a]"
+        className="absolute inset-0 rounded-[1.5rem] sm:rounded-[2rem] md:rounded-[3rem] overflow-hidden bg-[#0a0a0a]"
       >
         <img
           src={activity.image}
@@ -98,23 +98,22 @@ const ActivityCard: React.FC<{ activity: Activity, index: number }> = ({ activit
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent opacity-90 group-hover:opacity-100 transition-opacity" />
 
         {/* Content Overlay */}
-        <div className="absolute inset-0 p-8 md:p-12 flex flex-col justify-between">
-          <div className="flex justify-between items-center">
+        <div className="absolute inset-0 p-6 sm:p-8 md:p-10 lg:p-12 flex flex-col">
+          <div className="flex justify-between items-center mb-auto">
             <div
               style={{ transform: "translateZ(20px)" }}
-              className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/10 flex items-center justify-center text-white group-hover:bg-padel-blue group-hover:border-padel-blue transition-all duration-500"
+              className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-white/10 backdrop-blur-xl border border-white/10 flex items-center justify-center text-white group-hover:bg-padel-blue group-hover:border-padel-blue transition-all duration-500"
             >
               {activity.icon}
             </div>
-            <span className="text-[9px] font-black tracking-[0.4em] text-padel-yellow uppercase">{activity.tag}</span>
+            <span className="text-[8px] sm:text-[9px] font-black tracking-[0.3em] sm:tracking-[0.4em] text-padel-yellow uppercase">{activity.subtitle}</span>
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4 text-center mt-auto mb-auto">
             <div>
-              <p className="text-padel-yellow text-[10px] font-black tracking-[0.3em] uppercase mb-1">{activity.subtitle}</p>
               <h4
                 style={{ transform: "translateZ(40px)" }}
-                className="text-4xl md:text-5xl font-display font-black tracking-tighter text-white uppercase leading-none"
+                className="text-xl sm:text-2xl md:text-3xl lg:text-3xl font-display font-black tracking-tighter text-white uppercase leading-none"
               >
                 {activity.title}
               </h4>
@@ -122,16 +121,16 @@ const ActivityCard: React.FC<{ activity: Activity, index: number }> = ({ activit
 
             <p
               style={{ transform: "translateZ(10px)" }}
-              className="text-white/80 text-[16px] md:text-xs leading-relaxed font-medium max-w-[280px] group-hover:text-white/60 transition-colors h-24 line-clamp-4"
+              className="text-white/80 text-xs sm:text-sm md:text-base leading-relaxed font-medium max-w-[280px] mx-auto group-hover:text-white/60 transition-colors line-clamp-3 sm:line-clamp-4"
             >
               {activity.desc}
             </p>
+          </div>
 
-            <div className="flex items-center gap-4 pt-4 group/btn">
-              <div className="h-[1px] w-8 bg-white/20 group-hover:w-16 group-hover:bg-padel-blue transition-all duration-700" />
-              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white">REJOINDRE</span>
-              <ArrowRight size={14} className="text-padel-blue group-hover:translate-x-2 transition-transform" />
-            </div>
+          <div className="flex items-center justify-center gap-3 sm:gap-4 pt-4 mt-auto group/btn">
+            <div className="h-[1px] w-6 sm:w-8 bg-white/20 group-hover:w-12 sm:group-hover:w-16 group-hover:bg-padel-blue transition-all duration-700" />
+            <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.15em] sm:tracking-[0.2em] text-white">REJOINDRE</span>
+            <ArrowRight size={14} className="text-padel-blue group-hover:translate-x-2 transition-transform" />
           </div>
         </div>
       </div>
@@ -143,8 +142,18 @@ const ActivityCard: React.FC<{ activity: Activity, index: number }> = ({ activit
 };
 
 export const Activities = () => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  const nextSlide = () => {
+    setCurrentIndex((prev) => (prev + 1) % activities.length);
+  };
+
+  const prevSlide = () => {
+    setCurrentIndex((prev) => (prev - 1 + activities.length) % activities.length);
+  };
+
   return (
-    <section id="activites" className="py-24 md:py-48 px-6 relative overflow-hidden bg-[#050505]">
+    <section id="activites" className="py-16 sm:py-24 md:py-48 px-4 sm:px-6 relative overflow-hidden bg-[#050505]">
       {/* Editorial Grid Lines */}
       <div className="absolute inset-0 pointer-events-none opacity-[0.03]">
         <div className="max-w-[1400px] mx-auto h-full w-full flex justify-between border-x border-white">
@@ -163,7 +172,6 @@ export const Activities = () => {
               viewport={{ once: true }}
               className="inline-flex items-center gap-4 mb-8"
             >
-              <div className="w-12 h-[1px] bg-padel-blue" />
               <span className="text-[10px] font-black tracking-[0.4em] text-padel-blue uppercase">SERVICES EXCLUSIFS</span>
             </motion.div>
 
@@ -174,7 +182,7 @@ export const Activities = () => {
               transition={{ delay: 0.2 }}
               className="text-5xl md:text-7xl lg:text-8xl font-display font-black tracking-tighter leading-[0.9] uppercase"
             >
-              VIVEZ LE PADEL <br />
+              VIVEZ LE <span className="notranslate" translate="no">PADEL</span> <br />
               <span className="text-white italic">SOUS TOUTES SES</span> <br />
               <span className="text-padel-blue">COULEURS</span>
             </motion.h3>
@@ -193,11 +201,62 @@ export const Activities = () => {
           </motion.div>
         </div>
 
-        {/* Dynamic Grid Layout */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-10">
+        {/* Dynamic Grid Layout - Desktop */}
+        <div className="hidden sm:grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 lg:gap-10">
           {activities.map((activity, i) => (
             <ActivityCard key={i} activity={activity} index={i} />
           ))}
+        </div>
+
+        {/* Mobile Carousel with Pagination */}
+        <div className="sm:hidden">
+          <div className="relative">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={currentIndex}
+                initial={{ opacity: 0, x: 50 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -50 }}
+                transition={{ duration: 0.3 }}
+                className="w-full"
+              >
+                <ActivityCard activity={activities[currentIndex]} index={0} />
+              </motion.div>
+            </AnimatePresence>
+          </div>
+
+          {/* Pagination Controls */}
+          <div className="flex items-center justify-center gap-6 mt-8">
+            <button
+              onClick={prevSlide}
+              className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-padel-blue hover:border-padel-blue transition-all"
+            >
+              <ChevronLeft size={20} />
+            </button>
+
+            {/* Dots */}
+            <div className="flex items-center gap-2">
+              {activities.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setCurrentIndex(i)}
+                  className={cn(
+                    "w-2 h-2 rounded-full transition-all duration-300",
+                    currentIndex === i
+                      ? "w-6 bg-padel-blue"
+                      : "bg-white/20 hover:bg-white/40"
+                  )}
+                />
+              ))}
+            </div>
+
+            <button
+              onClick={nextSlide}
+              className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-padel-blue hover:border-padel-blue transition-all"
+            >
+              <ChevronRight size={20} />
+            </button>
+          </div>
         </div>
 
       </div>

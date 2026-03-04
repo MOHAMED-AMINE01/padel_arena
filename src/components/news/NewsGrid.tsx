@@ -51,7 +51,6 @@ export const NewsGrid = () => {
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-10 mb-20 md:mb-32">
                     <div className="max-w-2xl text-center md:text-left">
                         <div className="inline-flex items-center gap-4 mb-8">
-                            <div className="w-12 h-[1px] bg-padel-yellow" />
                             <span className="text-[10px] font-black tracking-[0.4em] text-padel-yellow uppercase">LATEST STORIES</span>
                         </div>
                         <h2 className="text-4xl md:text-7xl font-display font-black tracking-tighter leading-[0.9] uppercase">

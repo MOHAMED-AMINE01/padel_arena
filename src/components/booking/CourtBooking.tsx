@@ -255,9 +255,7 @@ export const CourtBooking = () => {
             transition={{ duration: 0.8 }}
           >
             <div className="inline-flex items-center gap-3 mb-4">
-              <div className="w-8 h-[1px] bg-padel-blue" />
               <span className="text-[10px] font-black tracking-[0.4em] text-padel-blue uppercase">RÉSERVATION VENDÔME</span>
-              <div className="w-8 h-[1px] bg-padel-blue" />
             </div>
 
             <h1 className="text-4xl md:text-6xl font-display font-black tracking-tighter uppercase mb-10 leading-none">

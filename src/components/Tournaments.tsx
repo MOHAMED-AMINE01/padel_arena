@@ -52,7 +52,6 @@ export const Tournaments = () => {
               viewport={{ once: true }}
               className="inline-flex items-center gap-4 mb-8"
             >
-              <div className="w-12 h-[1px] bg-padel-blue" />
               <span className="text-[10px] font-black tracking-[0.4em] text-padel-blue uppercase">L'ARÈNE DES CHAMPIONS</span>
             </motion.div>
 

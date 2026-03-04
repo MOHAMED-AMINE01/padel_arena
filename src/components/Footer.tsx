@@ -28,7 +28,7 @@ export const Footer = () => {
                 className="h-24 md:h-32 object-contain md:-ml-4"
               />
               <p className="text-base md:text-lg text-white/50 font-medium max-w-sm leading-relaxed">
-                L'arène ultime dédiée à l'excellence du padel. Une expérience immersive où chaque détail est pensé pour la performance.
+                L'arène ultime dédiée à l'excellence du <span className="notranslate" translate="no">padel</span>. Une expérience immersive où chaque détail est pensé pour la performance.
               </p>
             </div>
 
@@ -102,7 +102,7 @@ export const Footer = () => {
                 <li className="space-y-2">
                   <p className="text-[11px] font-black text-white/50 uppercase tracking-[0.2em]">LOCALISATION</p>
                   <a href="#" className="text-white/50 hover:text-white transition-colors text-xs font-medium block leading-relaxed">
-                    123 Avenue du Padel,<br />41100 Vendôme
+                    123 Avenue du <span className="notranslate" translate="no">Padel</span>,<br />41100 Vendôme
                   </a>
                 </li>
                 <li className="space-y-2">
@@ -127,7 +127,7 @@ export const Footer = () => {
         <div className="pt-12 border-t border-white/5 flex flex-col lg:flex-row justify-between items-center gap-8 text-center lg:text-left">
           <div className="flex flex-col md:flex-row items-center gap-4 md:gap-8">
             <p className="text-[9px] font-black text-white/70 uppercase tracking-widest">
-              © 2026 PADEL ARENA VENDÔME. DESIGNED FOR EXCELLENCE.
+              © 2026 <span className="notranslate" translate="no">PADEL ARENA</span> VENDÔME. DESIGNED FOR EXCELLENCE.
             </p>
           </div>
 

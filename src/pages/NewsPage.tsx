@@ -33,7 +33,6 @@ export const NewsPage = () => {
             <section className="py-24 md:py-48 px-6 bg-[#0a0a0a] border-t border-white/[0.03] overflow-hidden relative">
                 <div className="max-w-[1400px] mx-auto relative z-10 text-center">
                     <div className="inline-flex items-center gap-4 mb-8">
-                        <div className="w-12 h-[1px] bg-padel-blue" />
                         <span className="text-[10px] font-black tracking-[0.4em] text-padel-blue uppercase">KEEP IN TOUCH</span>
                     </div>
                     <h2 className="text-4xl md:text-8xl font-display font-black tracking-tighter leading-[0.9] uppercase mb-12">

@@ -4,7 +4,7 @@ import { ArrowRight, BadgeEuro, Ticket, Wallet } from 'lucide-react';
 
 export const PricingHero = () => {
     return (
-        <section id="hero" className="relative h-auto min-h-[75vh] md:h-[85vh] w-full overflow-hidden flex items-center justify-center bg-[#050505] pt-32 pb-20 md:pt-30 md:pb-0 px-6">
+        <section id="hero" className="relative h-auto min-h-[75vh] md:h-[100vh] w-full overflow-hidden flex items-center justify-center bg-[#050505] pt-12 md:pt-40">
             {/* Editorial Grid Lines */}
             <div className="absolute inset-0 pointer-events-none opacity-[0.03] z-10">
                 <div className="max-w-[1400px] mx-auto h-full w-full flex justify-between border-x border-white">
@@ -40,7 +40,6 @@ export const PricingHero = () => {
                             transition={{ duration: 0.8 }}
                         >
                             <div className="inline-flex items-center gap-3 mb-8">
-                                <div className="w-10 h-[1px] bg-padel-yellow" />
                                 <span className="text-[10px] font-black tracking-[0.4em] text-padel-yellow uppercase leading-none">OFFRES & TARIFS</span>
                             </div>
 

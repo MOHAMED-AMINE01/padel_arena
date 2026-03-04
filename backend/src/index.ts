@@ -15,6 +15,7 @@ import tournamentRoutes from './routes/tournamentRoutes';
 import courseRoutes from './routes/courseRoutes';
 import subscriptionRoutes from './routes/subscriptionRoutes';
 import statsRoutes from './routes/statsRoutes';
+import promoCodeRoutes from './routes/promoCodeRoutes';
 
 // Load environment variables
 dotenv.config();
@@ -81,6 +82,7 @@ app.use('/api/tournaments', tournamentRoutes);
 app.use('/api/courses', courseRoutes);
 app.use('/api/subscriptions', subscriptionRoutes);
 app.use('/api/stats', statsRoutes);
+app.use('/api/promo-codes', promoCodeRoutes);
 
 // Root Route
 app.get('/', (req: Request, res: Response) => {

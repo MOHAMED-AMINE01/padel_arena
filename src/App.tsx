@@ -24,6 +24,7 @@ import { AdminUsers } from './pages/admin/Users';
 import { AdminReservations } from './pages/admin/Reservations';
 import { AdminPayments } from './pages/admin/Payments';
 import { AdminSubscriptions } from './pages/admin/Subscriptions';
+import { AdminPromoCodes } from './pages/admin/PromoCodes';
 
 import { AdminSettings } from './pages/admin/Settings';
 import { AdminCourts } from './pages/admin/Courts';
@@ -139,7 +140,7 @@ export default function App() {
                       <Route path="events" element={<AdminEvents />} />
                       <Route path="payments" element={<AdminPayments />} />
                       <Route path="subscriptions" element={<AdminSubscriptions />} />
-
+                      <Route path="promo-codes" element={<AdminPromoCodes />} />
                       <Route path="settings" element={<AdminSettings />} />
                     </Route>
                   </Route>

@@ -53,25 +53,24 @@ export const ClubConcept = () => {
               transition={{ duration: 1, delay: 0.2 }}
             >
               <div className="inline-flex items-center gap-4 mb-8">
-                <div className="w-12 h-[1px] bg-padel-blue" />
                 <span className="text-[10px] font-black tracking-[0.4em] text-padel-blue uppercase">NOTRE ADN</span>
               </div>
 
               <h2 className="text-5xl md:text-7xl lg:text-8xl font-display font-black tracking-tighter leading-[0.9] uppercase mb-10">
-                PENSÉ POUR <br />
-                <span className="text-white italic">L'EXCELLENCE</span>
+                LE PLAISIR <br />
+                <span className="text-white italic">DU JEU</span>
               </h2>
 
               <div className="space-y-8 mb-12">
                 <p className="text-base md:text-lg text-white/40 font-medium leading-relaxed max-w-2xl">
-                  Padel Arena Vendôme n'est pas un simple club. C'est une vision du padel moderne où chaque courbe, chaque lumière et chaque terrain a été optimisé pour le plaisir du jeu.
+                  <span className="notranslate" translate="no">Padel Arena</span> installe une culture club à Vendôme. L'espace s'écarte des codes traditionnels pour privilégier l'équilibre entre le jeu et les moments partagés. Un lieu conçu pour pratiquer à son rythme et se retrouver simplement au club-house.
                 </p>
 
                 <div className="grid sm:grid-cols-2 gap-8">
                   {[
-                    { icon: <Target className="text-padel-blue" size={24} />, title: "PRÉCISION", desc: "Éclairage LED sans zone d'ombre pour un suivi de balle parfait." },
-                    { icon: <Zap className="text-padel-yellow" size={24} />, title: "ÉNERGIE", desc: "Une atmosphère électrique portée par une communauté passionnée." },
-                    { icon: <Shield className="text-padel-blue" size={24} />, title: "CONFORT", desc: "Climatisation active et vestiaires haut de gamme." },
+                    { icon: <Target className="text-padel-blue" size={24} />, title: "CONVIVIALITÉ", desc: "Un bar central et des espaces de vie pour prolonger l'instant après chaque partie." },
+                    { icon: <Zap className="text-padel-yellow" size={24} />, title: "ATMOSPHÈRE", desc: "Une ambiance saine et décontractée portée par une communauté qui privilégie le partage." },
+                    { icon: <Shield className="text-padel-blue" size={24} />, title: "ACCESSIBILITÉ", desc: "Des infrastructures de qualité ouvertes à tous, pour s'amuser immédiatement quel que soit le niveau." },
                   ].map((item, i) => (
                     <div key={i} className="space-y-3">
                       <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center">

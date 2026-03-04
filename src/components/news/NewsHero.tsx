@@ -4,7 +4,7 @@ import { ArrowRight, Newspaper, Bell, TrendingUp } from 'lucide-react';
 
 export const NewsHero = () => {
     return (
-        <section id="hero" className="relative h-auto min-h-[75vh] md:h-[75vh] w-full overflow-hidden flex items-center justify-center bg-[#050505] pt-32 pb-20 md:pt-0 md:pb-0 px-6">
+        <section id="hero" className="relative h-auto min-h-[75vh] md:h-[75vh] w-full overflow-hidden flex items-center justify-center bg-[#050505] pt-12 md:pt-40">
             {/* Editorial Grid Lines */}
             <div className="absolute inset-0 pointer-events-none opacity-[0.03] z-10">
                 <div className="max-w-[1400px] mx-auto h-full w-full flex justify-between border-x border-white">
@@ -38,7 +38,6 @@ export const NewsHero = () => {
                             transition={{ duration: 0.8 }}
                         >
                             <div className="inline-flex items-center gap-3 mb-6">
-                                <div className="w-10 h-[1px] bg-padel-blue" />
                                 <span className="text-[10px] font-black tracking-[0.4em] text-padel-blue uppercase leading-none">L'ACTUALITÉ DU CLUB</span>
                             </div>
 
@@ -63,33 +62,12 @@ export const NewsHero = () => {
                                     </span>
                                 </motion.button>
 
-                                <div className="flex items-center gap-5">
-                                    <div className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-padel-yellow bg-white/5 backdrop-blur-md">
-                                        <Bell size={16} />
-                                    </div>
-                                    <div className="text-left">
-                                        <p className="text-[9px] font-black text-white uppercase tracking-widest leading-none mb-1">NOTIFICATIONS LIVE</p>
-                                        <p className="text-[8px] font-black text-white/20 uppercase tracking-widest leading-none">DIRECT SUR VOTRE APP</p>
-                                    </div>
-                                </div>
+                                
                             </div>
                         </motion.div>
                     </div>
 
-                    <div className="hidden lg:flex lg:col-span-4 justify-end">
-                        <motion.div
-                            initial={{ opacity: 0, rotate: 10, scale: 0.8 }}
-                            animate={{ opacity: 1, rotate: -5, scale: 1 }}
-                            transition={{ delay: 0.4, duration: 1 }}
-                            className="w-48 h-48 rounded-full border border-white/10 flex flex-col items-center justify-center text-center p-8 backdrop-blur-xl bg-white/5 relative group cursor-default"
-                        >
-                            <TrendingUp size={32} className="text-padel-blue mb-4 transition-transform group-hover:scale-110" />
-                            <p className="text-[9px] font-black tracking-[0.2em] uppercase text-white leading-tight">
-                                TENDANCES <br /> PADEL 2026
-                            </p>
-                            <div className="absolute inset-0 border-2 border-dashed border-padel-blue/20 rounded-full animate-[spin_20s_linear_infinite]" />
-                        </motion.div>
-                    </div>
+                    
                 </div>
             </div>
 

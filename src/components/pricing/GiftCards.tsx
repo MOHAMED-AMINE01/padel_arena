@@ -24,7 +24,6 @@ export const GiftCards = () => {
             className="text-center lg:text-left"
           >
             <div className="inline-flex items-center gap-4 mb-8">
-              <div className="w-12 h-[1px] bg-padel-yellow" />
               <span className="text-[10px] font-black tracking-[0.4em] text-padel-yellow uppercase">CARTE CADEAU ARENA</span>
             </div>
             <h3 className="text-4xl md:text-8xl font-display font-black tracking-tighter leading-[0.85] uppercase mb-10">

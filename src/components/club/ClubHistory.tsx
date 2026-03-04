@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'motion/react';
 
 const timeline = [
-  { year: "2022", title: "LA GENÈSE", desc: "Né d’une passion profonde pour le padel, le projet voit le jour avec l'ambition de redéfinir les standards du sport." },
+  { year: "2022", title: "LA GENÈSE", desc: "Né d'une passion profonde pour le padel, le projet voit le jour avec l'ambition de redéfinir les standards du sport." }, // notranslate in JSX
   { year: "2023", title: "CONCEPTION", desc: "Immersion dans l'architecture et sélection rigoureuse des meilleurs matériaux pour nos infrastructures." },
   { year: "2024", title: "OUVERTURE", desc: "Ouverture officielle des portes. L'Arène Vendôme accueille ses premiers membres dans un cadre unique." },
   { year: "2025", title: "EXPANSION", desc: "Lancement de l'Académie et intégration de nouveaux terrains panoramiques pour répondre à la demande." },
@@ -27,7 +27,6 @@ export const ClubHistory = () => {
           {/* Side Title (4 cols) - Sticky on Desktop, Static on Mobile */}
           <div className="lg:col-span-5 xl:col-span-4 lg:sticky lg:top-24 h-fit text-center lg:text-left">
             <div className="inline-flex items-center gap-4 mb-8">
-              <div className="w-12 h-[1px] bg-padel-blue" />
               <span className="text-[10px] font-black tracking-[0.4em] text-padel-blue uppercase">NOTRE PARCOURS</span>
             </div>
             <h3 className="text-5xl md:text-7xl font-display font-black tracking-tighter leading-[0.9] uppercase mb-8 md:mb-10 lg:pr-10">

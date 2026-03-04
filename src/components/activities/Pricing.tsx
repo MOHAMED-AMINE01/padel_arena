@@ -63,7 +63,6 @@ export const Pricing = () => {
         <div className="flex flex-col lg:flex-row items-center lg:items-end justify-between gap-12 mb-20 md:mb-32 text-center lg:text-left">
           <div className="max-w-3xl">
             <div className="inline-flex items-center gap-4 mb-8">
-              <div className="w-12 h-[1px] bg-padel-blue" />
               <span className="text-[10px] font-black tracking-[0.4em] text-padel-blue uppercase">FORMULES SUR MESURE</span>
             </div>
             <h3 className="text-4xl sm:text-5xl md:text-8xl font-display font-black tracking-tighter leading-[0.9] uppercase">

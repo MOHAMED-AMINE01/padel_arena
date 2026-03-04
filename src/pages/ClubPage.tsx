@@ -39,9 +39,9 @@ export const ClubPage = () => {
       <ClubStats />
       <ClubWhyUs />
       <ClubHistory />
-      <ClubInstallations />
+      {/* <ClubInstallations /> */}
       <ClubTeam />
-      <ClubValues />
+      {/* <ClubValues /> */}
       <ClubGallery />
       {/* <ClubVirtualTour /> */}
     </motion.div>

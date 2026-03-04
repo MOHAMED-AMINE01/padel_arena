@@ -4,12 +4,12 @@ import { Music, PartyPopper, Trophy, GlassWater, Cake, Users, ArrowUpRight } fro
 import { cn } from '../../lib/utils';
 
 const eventTypes = [
-  { title: "SOIRÉES PADEL", icon: <PartyPopper size={28} />, desc: "Des soirées thématiques pour mixer sport et plaisir." },
+  { title: "SOIRÉES PADEL", icon: <PartyPopper size={28} />, desc: "Des soirées thématiques pour mixer sport et plaisir." }, // notranslate applied in JSX
   { title: "EXHIBITION MATCHS", icon: <Trophy size={28} />, desc: "Admirez les meilleurs joueurs lors de matchs d'exception." },
   { title: "DJ NIGHTS", icon: <Music size={28} />, desc: "Vibrez avec nos DJ sets exclusifs au club house." },
   { title: "AFTER MATCH", icon: <GlassWater size={28} />, desc: "Détendez-vous avec nos offres bar & tapas artisanales." },
   { title: "ANNIVERSAIRES", icon: <Cake size={28} />, desc: "Fêtez votre anniversaire sur les terrains en mode VIP." },
-  { title: "TEAM BUILDING", icon: <Users size={28} />, desc: "Renforcez la cohésion de vos équipes par le padel." },
+  { title: "TEAM BUILDING", icon: <Users size={28} />, desc: "Renforcez la cohésion de vos équipes par le padel." }, // notranslate in JSX
 ];
 
 export const Events = () => {
@@ -35,7 +35,7 @@ export const Events = () => {
   };
 
   return (
-    <section id="evenements" className="relative py-24 md:py-48 px-6 bg-[#050505] overflow-hidden border-t border-white/[0.03]">
+    <section id="evenements" className="relative py-24 md:py-16 px-6 bg-[#050505] overflow-hidden border-t border-white/[0.03]">
       {/* Structural Lines */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1px] h-full bg-white opacity-[0.02] z-0" />
 
@@ -43,7 +43,6 @@ export const Events = () => {
         <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-12 mb-24">
           <div className="max-w-3xl text-center lg:text-left">
             <div className="inline-flex items-center gap-4 mb-8">
-              <div className="w-12 h-[1px] bg-padel-yellow" />
               <span className="text-[10px] font-black tracking-[0.4em] text-padel-yellow uppercase">LIFESTYLE & EVENTS</span>
             </div>
             <h3 className="text-4xl sm:text-5xl md:text-8xl font-display font-black tracking-tighter leading-[0.9] uppercase">
@@ -117,7 +116,7 @@ export const Events = () => {
               </h4>
               <button className="group relative px-12 py-6 bg-padel-blue text-white rounded-full font-black text-[12px] tracking-[0.4em] uppercase overflow-hidden transition-all shadow-2xl">
                 <span className="relative z-10 flex items-center justify-center gap-4">
-                  DEMANDER UN DEVIS <ArrowUpRight size={20} />
+                  EN SAVOIR PLUS <ArrowUpRight size={20} />
                 </span>
                 <div className="absolute inset-0 bg-padel-yellow translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
               </button>

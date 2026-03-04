@@ -14,7 +14,14 @@ import {
     LogOut,
     ChevronLeft,
     X,
-    Sparkles
+    Sparkles,
+    Receipt,
+    Mail,
+    Target,
+    ClipboardList,
+    CalendarDays,
+    Wallet,
+    BadgePercent
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { useAuth } from '../../context/AuthContext';
@@ -88,14 +95,17 @@ export const AdminSidebar = ({ collapsed, setCollapsed, mobileOpen, setMobileOpe
     };
 
     const managerMenu = [
-        { icon: LayoutDashboard, label: 'Cockpit Global', href: '/admin' },
-        { icon: CalendarCheck2, label: 'Planning & Flux', href: '/admin/reservations' },
-        { icon: Users, label: 'Athlètes & Membres', href: '/admin/users' },
-        { icon: Building2, label: 'Gestion des Terrains', href: '/admin/courts' },
-        { icon: Sparkles, label: 'Tournois & Events', href: '/admin/events' },
-        { icon: CreditCard, label: 'Finances & Caisse', href: '/admin/payments' },
-        { icon: Ticket, label: 'Offres Abonnements', href: '/admin/subscriptions' },
-        { icon: Settings, label: 'Configuration', href: '/admin/settings' },
+        { icon: LayoutDashboard, label: 'Dashboard', href: '/admin' },
+        { icon: Users, label: 'Adhérents', href: '/admin/users' },
+        { icon: CalendarCheck2, label: 'Réservations', href: '/admin/reservations' },
+        { icon: Receipt, label: 'Facturation', href: '/admin/billing' },
+        { icon: Mail, label: 'Boîte Mail', href: '/admin/mailbox' },
+        { icon: Target, label: 'Terrains', href: '/admin/courts' },
+        { icon: ClipboardList, label: 'Programmes', href: '/admin/programs' },
+        { icon: CalendarDays, label: 'Événements', href: '/admin/events' },
+        { icon: Ticket, label: 'Abonnements', href: '/admin/subscriptions' },
+        { icon: Wallet, label: 'Paiements', href: '/admin/payments' },
+        { icon: BadgePercent, label: 'Codes Promo', href: '/admin/promo-codes' },
     ];
 
     const handleLogout = async () => {

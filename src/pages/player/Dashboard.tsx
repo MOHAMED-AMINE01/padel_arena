@@ -639,7 +639,7 @@ export function PlayerDashboard() {
                             {[
                                 { label: 'Réserver un terrain', sub: 'Padel · Pickleball · Badminton', icon: <Zap size={16} className="sm:w-[18px] sm:h-[18px]" />, to: '/book', color: '#1349D3' },
                                 { label: 'Voir mes réservations', sub: 'Gérer & annuler', icon: <Calendar size={16} className="sm:w-[18px] sm:h-[18px]" />, to: '/my-reservations', color: '#22c55e' },
-                                { label: 'Tournois ouverts', sub: `${openTournaments.length} tournoi${openTournaments.length !== 1 ? 's' : ''} disponible`, icon: <Trophy size={16} className="sm:w-[18px] sm:h-[18px]" />, to: '/tournaments', color: '#FFD21F' },
+                                { label: 'Tournois ouverts', sub: `${openTournaments.length} tournoi${openTournaments.length !== 1 ? 's' : ''} disponible`, icon: <Trophy size={16} className="sm:w-[18px] sm:h-[18px]" />, to: '/events', color: '#FFD21F' },
                             ].map((action, i) => (
                                 <Link
                                     key={i}

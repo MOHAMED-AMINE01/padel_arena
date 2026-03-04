@@ -150,7 +150,7 @@ export function AuthPage() {
                             <p className="text-white/40 text-[12px] leading-relaxed max-w-[280px] mx-auto">
                                 {isLogin
                                     ? 'Accédez à votre espace membre et à vos réservations.'
-                                    : 'Créez votre profil pour commencer l\'aventure Padel Arena.'}
+                                    : 'Créez votre profil pour commencer l\'aventure <span class="notranslate" translate="no">Padel Arena</span>.'}
                             </p>
                         </div>
 

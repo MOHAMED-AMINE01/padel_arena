@@ -34,7 +34,7 @@ export const ActivitiesPage = () => {
     >
       <ActivitiesHero />
       <Coaching />
-      <TournamentsSection />
+      {/* <TournamentsSection /> */}
       <Events />
       <Academy />
       <Services />

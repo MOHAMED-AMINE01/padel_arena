@@ -67,7 +67,6 @@ export const ClubInstallations = () => {
         <div className="flex flex-col md:flex-row items-center md:items-end justify-between gap-8 mb-16 md:mb-24 text-center md:text-left">
           <div className="max-w-3xl">
             <div className="inline-flex items-center gap-4 mb-8">
-              <div className="w-12 h-[1px] bg-padel-blue" />
               <span className="text-[10px] font-black tracking-[0.4em] text-padel-blue uppercase">INFRASTRUCTURES 5 ÉTOILES</span>
             </div>
             <h3 className="text-4xl sm:text-5xl md:text-8xl font-display font-black tracking-tighter leading-[0.9] uppercase">

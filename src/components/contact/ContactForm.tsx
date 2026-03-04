@@ -20,7 +20,7 @@ export const ContactForm = () => {
   };
 
   return (
-    <section id="contact" className="relative pt-32 pb-24 md:pt-48 md:pb-48 px-6 bg-[#050505] overflow-hidden">
+    <section id="contact" className="relative bg-[#050505] overflow-hidden pt-40 md:pt-60 px-6">
       {/* Editorial Grid Lines */}
       <div className="absolute inset-0 pointer-events-none opacity-[0.03] z-0">
         <div className="max-w-[1400px] mx-auto h-full w-full flex justify-between border-x border-white">
@@ -34,14 +34,13 @@ export const ContactForm = () => {
         <div className="grid lg:grid-cols-12 gap-16 lg:gap-24">
 
           {/* Left Column: Branding & Info */}
-          <div className="lg:col-span-5">
+          <div className="lg:col-span-5 text-center lg:text-left">
             <motion.div
               initial={{ opacity: 0, x: -30 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8 }}
             >
               <div className="inline-flex items-center gap-4 mb-8">
-                <div className="w-12 h-[1px] bg-padel-blue" />
                 <span className="text-[10px] font-black tracking-[0.4em] text-padel-blue uppercase">NOUS CONTACTER</span>
               </div>
 
@@ -50,26 +49,26 @@ export const ContactForm = () => {
                 <span className="text-white italic">EN CONTACT</span>
               </h1>
 
-              <p className="text-base md:text-lg text-white/30 font-medium max-w-md mb-16 leading-relaxed">
+              <p className="text-base md:text-lg text-white/30 font-medium max-w-md mb-16 leading-relaxed mx-auto lg:mx-0">
                 Une demande spécifique ? Notre équipe d'experts est à votre disposition pour orchestrer votre expérience Padel Arena.
               </p>
 
-              <div className="grid sm:grid-cols-2 gap-8 mb-16">
+              <div className="grid sm:grid-cols-2 gap-8 mb-16 text-left">
                 {contactInfo.map((info, i) => (
                   <div key={i} className="group cursor-default">
-                    <div className="flex items-center gap-3 mb-4 text-padel-yellow">
+                    <div className="flex items-center gap-3 mb-4 text-padel-yellow justify-center sm:justify-start">
                       {info.icon}
                       <span className="text-[9px] font-black tracking-[0.2em] text-white/20 uppercase">{info.label}</span>
                     </div>
                     {info.link ? (
-                      <a href={info.link} className="block group/link">
+                      <a href={info.link} className="block group/link text-center sm:text-left">
                         <p className="text-md font-display font-black text-white group-hover/link:text-padel-blue transition-colors uppercase leading-none mb-1">
                           {info.value}
                         </p>
                         <p className="text-[10px] font-medium text-white/20 uppercase tracking-widest">{info.subValue}</p>
                       </a>
                     ) : (
-                      <div>
+                      <div className="text-center sm:text-left">
                         <p className="text-md font-display font-black text-white uppercase leading-none mb-1">{info.value}</p>
                         <p className="text-[10px] font-medium text-white/20 uppercase tracking-widest">{info.subValue}</p>
                       </div>
@@ -78,7 +77,7 @@ export const ContactForm = () => {
                 ))}
               </div>
 
-              <div className="flex items-center gap-10 pt-10 border-t border-white/[0.03]">
+              <div className="flex items-center gap-10 pt-10 border-t border-white/[0.03] justify-center lg:justify-start">
                 <div className="flex gap-6">
                   <Instagram size={20} className="text-white/20 hover:text-padel-blue cursor-pointer transition-colors" />
                   <Facebook size={20} className="text-white/20 hover:text-padel-blue cursor-pointer transition-colors" />

@@ -58,7 +58,6 @@ export const FAQSection = () => {
               transition={{ duration: 0.8 }}
             >
               <div className="inline-flex items-center gap-4 mb-8">
-                <div className="w-12 h-[1px] bg-padel-yellow" />
                 <span className="text-[10px] font-black tracking-[0.4em] text-padel-yellow uppercase">QUESTIONS FRÉQUENTES</span>
               </div>
 

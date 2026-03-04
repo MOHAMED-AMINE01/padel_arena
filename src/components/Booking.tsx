@@ -47,7 +47,6 @@ export const Booking = () => {
               transition={{ duration: 1.2, ease: [0.23, 1, 0.32, 1] }}
             >
               <div className="inline-flex items-center gap-4 mb-8">
-                <div className="w-12 h-[1px] bg-padel-blue" />
                 <span className="text-[10px] font-black tracking-[0.4em] text-padel-blue uppercase">RÉSERVATION LIVE</span>
               </div>
 

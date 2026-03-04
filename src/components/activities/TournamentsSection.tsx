@@ -55,7 +55,6 @@ export const TournamentsSection = () => {
         <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-12 mb-24">
           <div className="max-w-3xl text-center lg:text-left">
             <div className="inline-flex items-center gap-4 mb-8">
-              <div className="w-12 h-[1px] bg-padel-yellow" />
               <span className="text-[10px] font-black tracking-[0.4em] text-padel-yellow uppercase">COMPÉTITION</span>
             </div>
             <h3 className="text-4xl sm:text-5xl md:text-8xl font-display font-black tracking-tighter leading-[0.9] uppercase">
@@ -145,7 +144,6 @@ export const TournamentsSection = () => {
             className="lg:col-span-12 xl:col-span-5"
           >
             <div className="inline-flex items-center gap-4 mb-8">
-              <div className="w-12 h-[1px] bg-padel-yellow" />
               <span className="text-[10px] font-black tracking-[0.4em] text-padel-yellow uppercase">GESTION DIGITALE</span>
             </div>
             <h4 className="text-3xl md:text-5xl font-display font-black text-white uppercase leading-[0.9] mb-10">

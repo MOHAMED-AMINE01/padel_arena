@@ -59,7 +59,6 @@ export const Academy = () => {
         <div className="flex flex-col md:flex-row items-end justify-between gap-8 mb-24">
           <div className="max-w-3xl text-center md:text-left">
             <div className="inline-flex items-center gap-4 mb-8">
-              <div className="w-12 h-[1px] bg-padel-blue" />
               <span className="text-[10px] font-black tracking-[0.4em] text-padel-blue uppercase">FORMATION D'ÉLITE</span>
             </div>
             <h3 className="text-4xl sm:text-5xl md:text-8xl font-display font-black tracking-tighter leading-[0.9] uppercase">
