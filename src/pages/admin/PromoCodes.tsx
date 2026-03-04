@@ -40,7 +40,7 @@ interface PromoCode {
     validFrom: string;
     validUntil: string;
     isActive: boolean;
-    applicableTo: 'all' | 'booking' | 'subscription' | 'course';
+    applicableTo: 'all' | 'booking' | 'subscription' | 'course' | 'tournament';
 }
 
 interface Stats {
@@ -74,7 +74,7 @@ export function AdminPromoCodes() {
         validFrom: '',
         validUntil: '',
         isActive: true,
-        applicableTo: 'all' as 'all' | 'booking' | 'subscription' | 'course'
+        applicableTo: 'all' as 'all' | 'booking' | 'subscription' | 'course' | 'tournament'
     });
 
     const fetchData = async () => {
@@ -199,7 +199,8 @@ export function AdminPromoCodes() {
         all: 'Tout',
         booking: 'Réservations',
         subscription: 'Abonnements',
-        course: 'Cours'
+        course: 'Cours',
+        tournament: 'Tournois'
     };
 
     return (
@@ -211,19 +212,12 @@ export function AdminPromoCodes() {
             {/* Header */}
             <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 md:gap-8 border-b border-white/5 pb-8 md:pb-10 pt-6 md:pt-0">
                 <div className="space-y-3 md:space-y-4">
-                    <motion.div
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.2 }}
-                        className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-padel-yellow/10 border border-padel-yellow/20 text-padel-yellow text-[8px] md:text-[10px] font-black uppercase tracking-[0.2em] md:tracking-[0.3em]"
-                    >
-                        <BadgePercent size={10} className="md:w-3 md:h-3" /> Promotion Engine
-                    </motion.div>
+
                     <div>
-                        <h1 className="text-4xl md:text-6xl lg:text-7xl font-display font-black text-white italic uppercase tracking-tighter leading-[0.9] md:leading-[0.85]">
+                        <h1 className="text-4xl md:text-6xl lg:text-7xl font-display font-black text-white uppercase tracking-tighter leading-[0.9] md:leading-[0.85]">
                             Codes <br /> <span className="text-padel-blue drop-shadow-[0_0_30px_rgba(19,73,211,0.3)]">Promo</span>
                         </h1>
-                        <p className="text-[10px] md:text-xs font-bold text-white/30 uppercase tracking-[0.2em] md:tracking-[0.3em] mt-3 md:mt-4 italic">Gestion des promotions • Fidélisation</p>
+                        <p className="text-[10px] md:text-xs font-bold text-white/30 uppercase tracking-[0.2em] md:tracking-[0.3em] mt-3 md:mt-4">Gestion des promotions • Fidélisation</p>
                     </div>
                 </div>
 
@@ -263,7 +257,7 @@ export function AdminPromoCodes() {
                             </div>
                         </div>
                         <p className="text-[8px] md:text-[10px] font-black text-white/20 uppercase tracking-[0.2em] md:tracking-[0.3em] mb-1.5 md:mb-2">{kpi.label}</p>
-                        <p className="text-2xl md:text-4xl font-black text-white italic tracking-tighter group-hover:text-padel-blue transition-colors duration-500 truncate">{kpi.val}</p>
+                        <p className="text-2xl md:text-4xl font-black text-white tracking-tighter group-hover:text-padel-blue transition-colors duration-500 truncate">{kpi.val}</p>
                     </motion.div>
                 ))}
             </div>
@@ -274,7 +268,7 @@ export function AdminPromoCodes() {
                     <h3 className="text-xs font-black text-white uppercase tracking-[0.2em] md:tracking-[0.4em] flex items-center gap-3 md:gap-4">
                         <BadgePercent size={16} className="text-padel-yellow md:w-5 md:h-5" /> Codes Promotionnels
                     </h3>
-                    <div className="px-3 md:px-4 py-1.5 md:py-2 rounded-xl bg-white/5 border border-white/10 text-[8px] md:text-[10px] font-black text-white/40 uppercase tracking-widest italic">
+                    <div className="px-3 md:px-4 py-1.5 md:py-2 rounded-xl bg-white/5 border border-white/10 text-[8px] md:text-[10px] font-black text-white/40 uppercase tracking-widest">
                         {promoCodes.length} Code{promoCodes.length > 1 ? 's' : ''}
                     </div>
                 </div>
@@ -302,7 +296,7 @@ export function AdminPromoCodes() {
                                 </tr>
                             ) : promoCodes.length === 0 ? (
                                 <tr>
-                                    <td colSpan={7} className="py-20 text-center text-white/20 text-[10px] font-black uppercase tracking-widest italic">Aucun code promo configuré</td>
+                                    <td colSpan={7} className="py-20 text-center text-white/20 text-[10px] font-black uppercase tracking-widest">Aucun code promo configuré</td>
                                 </tr>
                             ) : (
                                 promoCodes.map((code, idx) => {
@@ -322,7 +316,7 @@ export function AdminPromoCodes() {
                                                     </div>
                                                     <div className="min-w-0">
                                                         <div className="flex items-center gap-2">
-                                                            <p className="text-sm md:text-lg font-black italic uppercase tracking-tighter text-white">{code.code}</p>
+                                                            <p className="text-sm md:text-lg font-black uppercase tracking-tighter text-white">{code.code}</p>
                                                             <button
                                                                 onClick={() => copyToClipboard(code.code)}
                                                                 className="text-white/20 hover:text-padel-blue transition-colors"
@@ -335,7 +329,7 @@ export function AdminPromoCodes() {
                                                 </div>
                                             </td>
                                             <td className="px-4 md:px-8 py-6 md:py-8">
-                                                <p className="text-sm md:text-xl font-black text-padel-yellow italic tracking-tighter">
+                                                <p className="text-sm md:text-xl font-black text-padel-yellow tracking-tighter">
                                                     {code.discountType === 'percentage' ? `${code.discountValue}%` : `${code.discountValue}€`}
                                                 </p>
                                             </td>
@@ -347,7 +341,7 @@ export function AdminPromoCodes() {
                                             <td className="px-4 md:px-8 py-6 md:py-8">
                                                 <div className="flex items-center gap-2 md:gap-3">
                                                     <Users size={14} className="text-white/20 md:w-4 md:h-4" />
-                                                    <p className="text-sm md:text-lg font-black text-white italic tracking-tighter">
+                                                    <p className="text-sm md:text-lg font-black text-white tracking-tighter">
                                                         {code.currentUsageCount}{code.maxUsageCount ? `/${code.maxUsageCount}` : ''}
                                                     </p>
                                                 </div>
@@ -429,7 +423,7 @@ export function AdminPromoCodes() {
                         >
                             <div className="p-8 border-b border-white/5 flex items-center justify-between">
                                 <div>
-                                    <h2 className="text-2xl font-black text-white italic uppercase tracking-tight">
+                                    <h2 className="text-2xl font-black text-white uppercase tracking-tight">
                                         {editingCode ? 'Modifier le Code' : 'Nouveau Code Promo'}
                                     </h2>
                                     <p className="text-[10px] font-bold text-white/30 uppercase tracking-widest mt-1">Configuration de la promotion</p>
@@ -461,7 +455,8 @@ export function AdminPromoCodes() {
                                                 { value: 'all', label: 'Tout' },
                                                 { value: 'booking', label: 'Réservations' },
                                                 { value: 'subscription', label: 'Abonnements' },
-                                                { value: 'course', label: 'Cours' }
+                                                { value: 'course', label: 'Cours' },
+                                                { value: 'tournament', label: 'Tournois' }
                                             ]}
                                             icon={Tag}
                                         />

@@ -101,8 +101,8 @@ export const AdminSidebar = ({ collapsed, setCollapsed, mobileOpen, setMobileOpe
         { icon: Receipt, label: 'Facturation', href: '/admin/billing' },
         { icon: Mail, label: 'Boîte Mail', href: '/admin/mailbox' },
         { icon: Target, label: 'Terrains', href: '/admin/courts' },
-        { icon: ClipboardList, label: 'Programmes', href: '/admin/programs' },
-        { icon: CalendarDays, label: 'Événements', href: '/admin/events' },
+        { icon: ClipboardList, label: 'Programmes', href: '/admin/courses' },
+        { icon: CalendarDays, label: 'Événements', href: '/admin/tournaments' },
         { icon: Ticket, label: 'Abonnements', href: '/admin/subscriptions' },
         { icon: Wallet, label: 'Paiements', href: '/admin/payments' },
         { icon: BadgePercent, label: 'Codes Promo', href: '/admin/promo-codes' },
@@ -134,7 +134,7 @@ export const AdminSidebar = ({ collapsed, setCollapsed, mobileOpen, setMobileOpe
                                     Elite Manager
                                 </h3>
                             </div>
-                            <h2 className="text-sm font-black tracking-[0.1em] uppercase leading-none text-white italic group-hover:text-padel-blue transition-colors">
+                            <h2 className="text-sm font-black tracking-[0.1em] uppercase leading-none text-white group-hover:text-padel-blue transition-colors">
                                 Padel <span className="text-padel-yellow">Arena</span>
                             </h2>
                         </div>
@@ -191,7 +191,7 @@ export const AdminSidebar = ({ collapsed, setCollapsed, mobileOpen, setMobileOpe
                                     <span className="text-[10px] font-black text-padel-yellow uppercase tracking-[0.2em] leading-none">Elite Manager</span>
                                     <ShieldAlert size={10} className="text-padel-yellow/50" />
                                 </div>
-                                <p className="text-sm font-black text-white italic tracking-tight leading-none truncate">{user.name}</p>
+                                <p className="text-sm font-black text-white tracking-tight leading-none truncate">{user.name}</p>
                             </div>
                         )}
                     </div>

@@ -137,7 +137,8 @@ export default function App() {
                       <Route path="users" element={<AdminUsers />} />
                       <Route path="reservations" element={<AdminReservations />} />
                       <Route path="courts" element={<AdminCourts />} />
-                      <Route path="events" element={<AdminEvents />} />
+                      <Route path="tournaments" element={<AdminEvents />} />
+                      <Route path="courses" element={<AdminEvents defaultTab="COURS" />} />
                       <Route path="payments" element={<AdminPayments />} />
                       <Route path="subscriptions" element={<AdminSubscriptions />} />
                       <Route path="promo-codes" element={<AdminPromoCodes />} />

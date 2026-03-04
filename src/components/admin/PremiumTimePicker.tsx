@@ -59,7 +59,7 @@ export const PremiumTimePicker: React.FC<PremiumTimePickerProps> = ({
                     )}
                     size={14}
                 />
-                <span className="block truncate font-bold text-white uppercase italic tracking-tighter leading-none text-[12px]">
+                <span className="block truncate font-bold text-white uppercase tracking-tighter leading-none text-[12px]">
                     {value.replace(':', 'h')}
                 </span>
                 <span className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">

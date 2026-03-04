@@ -9,6 +9,8 @@ export interface IBooking extends Document {
     status: 'PENDING' | 'CONFIRMED' | 'CANCELLED' | 'COMPLETED';
     paymentStatus: 'UNPAID' | 'PAID' | 'REFUNDED';
     stripePaymentIntentId?: string;
+    promoCode?: string;
+    discountAmount?: number;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -29,7 +31,9 @@ const BookingSchema: Schema = new Schema({
         enum: ['UNPAID', 'PAID', 'REFUNDED'],
         default: 'UNPAID'
     },
-    stripePaymentIntentId: { type: String }
+    stripePaymentIntentId: { type: String },
+    promoCode: { type: String },
+    discountAmount: { type: Number, default: 0 }
 }, {
     timestamps: true
 });

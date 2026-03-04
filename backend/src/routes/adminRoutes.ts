@@ -1,5 +1,5 @@
 import express from 'express';
-import { getAdminStats, getAllUsers, deleteUser, updateUser } from '../controllers/adminController';
+import { getAdminStats, getAllUsers, deleteUser, updateUser, createUser } from '../controllers/adminController';
 import { getTransactions, createTransaction, deleteTransaction } from '../controllers/transactionController';
 import { getCurrentShift, openShift, closeShift, getShiftHistory, deleteShift } from '../controllers/cashShiftController';
 import { getSubscriptions, createSubscription, updateSubscription, deleteSubscription, getSubscriptionStats, exportSubscriptions } from '../controllers/subscriptionController';
@@ -12,7 +12,9 @@ router.use(protect);
 router.use(authorize('ADMIN'));
 
 router.get('/stats', getAdminStats);
-router.get('/users', getAllUsers);
+router.route('/users')
+    .get(getAllUsers)
+    .post(createUser);
 router.route('/users/:id')
     .put(updateUser)
     .delete(deleteUser);

@@ -147,19 +147,12 @@ export function AdminSubscriptions() {
             {/* Elite Header */}
             <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 md:gap-8 border-b border-white/5 pb-8 md:pb-10 pt-6 md:pt-0">
                 <div className="space-y-3 md:space-y-4">
-                    <motion.div
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.2 }}
-                        className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-padel-yellow/10 border border-padel-yellow/20 text-padel-yellow text-[8px] md:text-[10px] font-black uppercase tracking-[0.2em] md:tracking-[0.3em]"
-                    >
-                        <Ticket size={10} className="md:w-3 md:h-3" /> Membership Engine
-                    </motion.div>
+
                     <div>
-                        <h1 className="text-4xl md:text-6xl lg:text-7xl font-display font-black text-white italic uppercase tracking-tighter leading-[0.9] md:leading-[0.85]">
+                        <h1 className="text-4xl md:text-6xl lg:text-7xl font-display font-black text-white uppercase tracking-tighter leading-[0.9] md:leading-[0.85]">
                             Gestion <br /> <span className="text-padel-blue drop-shadow-[0_0_30px_rgba(19,73,211,0.3)]">Abonnements</span>
                         </h1>
-                        <p className="text-[10px] md:text-xs font-bold text-white/30 uppercase tracking-[0.2em] md:tracking-[0.3em] mt-3 md:mt-4 italic">Stratégie Offres • Rétention Athlètes</p>
+                        <p className="text-[10px] md:text-xs font-bold text-white/30 uppercase tracking-[0.2em] md:tracking-[0.3em] mt-3 md:mt-4">Stratégie Offres • Rétention Athlètes</p>
                     </div>
                 </div>
 
@@ -197,7 +190,7 @@ export function AdminSubscriptions() {
                             <span className="text-[8px] md:text-[10px] font-black text-green-500 bg-green-500/10 px-2 md:px-3 py-1 rounded-full border border-green-500/10 truncate max-w-[100px]">{kpi.change}</span>
                         </div>
                         <p className="text-[8px] md:text-[10px] font-black text-white/20 uppercase tracking-[0.2em] md:tracking-[0.3em] mb-1.5 md:mb-2">{kpi.label}</p>
-                        <p className="text-2xl md:text-4xl font-black text-white italic tracking-tighter group-hover:text-padel-blue transition-colors duration-500">{kpi.val}</p>
+                        <p className="text-2xl md:text-4xl font-black text-white tracking-tighter group-hover:text-padel-blue transition-colors duration-500">{kpi.val}</p>
                     </motion.div>
                 ))}
             </div>
@@ -208,7 +201,7 @@ export function AdminSubscriptions() {
                     <h3 className="text-xs font-black text-white uppercase tracking-[0.2em] md:tracking-[0.4em] flex items-center gap-3 md:gap-4">
                         <Crown size={16} className="text-padel-yellow md:w-5 md:h-5" /> Formules
                     </h3>
-                    <div className="px-3 md:px-4 py-1.5 md:py-2 rounded-xl bg-white/5 border border-white/10 text-[8px] md:text-[10px] font-black text-white/40 uppercase tracking-widest italic">
+                    <div className="px-3 md:px-4 py-1.5 md:py-2 rounded-xl bg-white/5 border border-white/10 text-[8px] md:text-[10px] font-black text-white/40 uppercase tracking-widest">
                         {plans.length} {plans.length > 1 ? 'Actifs' : 'Actif'}
                     </div>
                 </div>
@@ -236,7 +229,7 @@ export function AdminSubscriptions() {
                                 </tr>
                             ) : plans.length === 0 ? (
                                 <tr>
-                                    <td colSpan={7} className="py-20 text-center text-white/20 text-[10px] font-black uppercase tracking-widest italic">Aucun plan configuré</td>
+                                    <td colSpan={7} className="py-20 text-center text-white/20 text-[10px] font-black uppercase tracking-widest">Aucun plan configuré</td>
                                 </tr>
                             ) : (
                                 plans.map((plan, idx) => (
@@ -256,13 +249,13 @@ export function AdminSubscriptions() {
                                                     <Crown size={14} className="md:w-5 md:h-5" />
                                                 </div>
                                                 <div className="min-w-0">
-                                                    <p className="text-sm md:text-lg font-black italic uppercase tracking-tighter text-white truncate">{plan.name}</p>
+                                                    <p className="text-sm md:text-lg font-black uppercase tracking-tighter text-white truncate">{plan.name}</p>
                                                     <p className="text-[8px] md:text-[10px] text-white/20 font-black uppercase tracking-[0.1em] md:tracking-[0.2em] truncate max-w-[150px]">{plan.features.join(' • ') || 'Standard'}</p>
                                                 </div>
                                             </div>
                                         </td>
                                         <td className="px-4 md:px-8 py-6 md:py-8">
-                                            <p className="text-sm md:text-xl font-black text-white italic tracking-tighter">{plan.price}€</p>
+                                            <p className="text-sm md:text-xl font-black text-white tracking-tighter">{plan.price}€</p>
                                         </td>
                                         <td className="px-4 md:px-8 py-6 md:py-8 hidden md:table-cell">
                                             <div className="inline-flex items-center gap-2 px-2 py-0.5 rounded-lg bg-white/5 border border-white/10 text-[8px] font-black text-white/40 uppercase tracking-widest">
@@ -272,11 +265,11 @@ export function AdminSubscriptions() {
                                         <td className="px-4 md:px-8 py-6 md:py-8">
                                             <div className="flex items-center gap-2 md:gap-3">
                                                 <Users size={14} className="text-white/20 md:w-4 md:h-4" />
-                                                <p className="text-sm md:text-lg font-black text-white italic tracking-tighter">{plan.subscriberCount || 0}</p>
+                                                <p className="text-sm md:text-lg font-black text-white tracking-tighter">{plan.subscriberCount || 0}</p>
                                             </div>
                                         </td>
                                         <td className="px-4 md:px-8 py-6 md:py-8 hidden lg:table-cell">
-                                            <p className="text-sm md:text-base font-black text-green-500 italic">
+                                            <p className="text-sm md:text-base font-black text-green-500">
                                                 {(plan.revenue || 0).toLocaleString()} €
                                             </p>
                                         </td>
@@ -307,10 +300,10 @@ export function AdminSubscriptions() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
                 <div className="bg-[#151518]/40 backdrop-blur-xl border border-white/10 p-8 md:p-10 rounded-2xl md:rounded-[3rem] relative overflow-hidden group">
                     <div className="relative z-10">
-                        <h3 className="text-lg md:text-xl font-black text-white uppercase italic tracking-tighter mb-4 md:mb-6 flex items-center gap-3 md:gap-4">
+                        <h3 className="text-lg md:text-xl font-black text-white uppercase tracking-tighter mb-4 md:mb-6 flex items-center gap-3 md:gap-4">
                             <ShieldCheck className="text-padel-blue md:w-6 md:h-6" size={20} /> Audit
                         </h3>
-                        <p className="text-xs md:text-sm text-white/40 font-medium leading-relaxed mb-6 md:mb-8 italic">
+                        <p className="text-xs md:text-sm text-white/40 font-medium leading-relaxed mb-6 md:mb-8">
                             Contrats synchronisés Stripe. Renouvellements automatiques actifs.
                         </p>
                         <button
@@ -325,8 +318,8 @@ export function AdminSubscriptions() {
                 <div className="bg-padel-blue p-8 md:p-10 rounded-2xl md:rounded-[3rem] relative overflow-hidden group">
                     <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-[100px] -mr-32 -mt-32" />
                     <div className="relative z-10">
-                        <h3 className="text-lg md:text-xl font-black text-white uppercase italic tracking-tighter mb-4">Objectif MRR</h3>
-                        <p className="text-3xl md:text-5xl font-black text-white italic tracking-tighter mb-6 md:mb-8">
+                        <h3 className="text-lg md:text-xl font-black text-white uppercase tracking-tighter mb-4">Objectif MRR</h3>
+                        <p className="text-3xl md:text-5xl font-black text-white tracking-tighter mb-6 md:mb-8">
                             {stats?.mrr > 0 ? `+${Math.round((stats.mrr / 75000) * 100)}%` : '0%'}
                         </p>
                         <div className="flex gap-4">
@@ -339,7 +332,7 @@ export function AdminSubscriptions() {
                                 />
                             </div>
                         </div>
-                        <p className="text-[8px] md:text-[10px] font-black text-white/60 uppercase tracking-[0.2em] md:tracking-[0.3em] mt-3 md:mt-4 italic">
+                        <p className="text-[8px] md:text-[10px] font-black text-white/60 uppercase tracking-[0.2em] md:tracking-[0.3em] mt-3 md:mt-4">
                             Q1 : 75k€ • Actuel : {stats?.mrr?.toLocaleString() || 0}€
                         </p>
                     </div>
@@ -352,7 +345,7 @@ export function AdminSubscriptions() {
                         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowModal(false)} className="absolute inset-0 bg-dark-bg/90 backdrop-blur-2xl" />
                         <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} className="bg-[#1a1a1e] border border-white/10 w-full max-w-lg rounded-2xl md:rounded-[3rem] p-6 md:p-8 relative z-10 shadow-3xl">
                             <button onClick={() => setShowModal(false)} className="absolute top-4 md:top-8 right-4 md:right-8 text-white/20 hover:text-white transition-colors"><X size={20} className="md:w-6 md:h-6" /></button>
-                            <h2 className="text-xl md:text-2xl font-display font-black text-white italic uppercase tracking-tighter mb-6 md:mb-8">{editingPlan ? 'Modifier' : 'Nouveau'} <span className="text-padel-yellow">Plan</span></h2>
+                            <h2 className="text-xl md:text-2xl font-display font-black text-white uppercase tracking-tighter mb-6 md:mb-8">{editingPlan ? 'Modifier' : 'Nouveau'} <span className="text-padel-yellow">Plan</span></h2>
 
                             <form onSubmit={handleSubmit} className="space-y-6">
                                 <div className="space-y-2">

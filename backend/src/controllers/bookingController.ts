@@ -4,12 +4,13 @@ import Court from '../models/Court';
 import Transaction from '../models/Transaction';
 import User from '../models/User';
 import { asyncHandler } from '../utils/asyncHandler';
+import { validateAndApplyPromoCode, incrementPromoCodeUsage } from '../services/promoCodeService';
 
 // @desc    Create new booking
 // @route   POST /api/bookings
 // @access  Private
 export const createBooking = asyncHandler(async (req: any, res: Response) => {
-    const { courtId, startTime, endTime, userId } = req.body;
+    const { courtId, startTime, endTime, userId, promoCode } = req.body;
 
     // 1. Basic validation
     if (!courtId || !startTime || !endTime) {
@@ -47,24 +48,53 @@ export const createBooking = asyncHandler(async (req: any, res: Response) => {
 
     // 4. Calculate total price
     const durationInHours = (end.getTime() - start.getTime()) / (1000 * 60 * 60);
-    const totalPrice = Number((durationInHours * court.pricePerHour).toFixed(2));
+    let totalPrice = Number((durationInHours * court.pricePerHour).toFixed(2));
+    let discountAmount = 0;
+    let promoCodeId = null;
 
-    // 5. Determine user (Admin can specify userId)
+    // 5. Handle Promo Code if provided
+    if (promoCode) {
+        const promoResult = await validateAndApplyPromoCode(
+            promoCode,
+            totalPrice,
+            'booking',
+            req.user.id
+        );
+
+        if (promoResult.isValid) {
+            discountAmount = promoResult.discountAmount;
+            totalPrice = Math.max(0, totalPrice - discountAmount);
+            promoCodeId = promoResult.promoCodeId;
+        } else {
+            // Option to fail if promo code is invalid, or just ignore it
+            // Here we'll return error to be strict
+            return res.status(400).json({ success: false, message: promoResult.message });
+        }
+    }
+
+    // 6. Determine user (Admin can specify userId)
     let finalUserId = req.user.id;
     if (userId && req.user.role === 'ADMIN') {
         finalUserId = userId;
     }
 
-    // 6. Create the booking
+    // 7. Create the booking
     const booking = await Booking.create({
         user: finalUserId,
         court: courtId,
         startTime: start,
         endTime: end,
         totalPrice,
+        discountAmount,
+        promoCode: promoCode?.toUpperCase(),
         status: 'PENDING',
         paymentStatus: 'UNPAID'
     });
+
+    // 8. Increment promo code usage if applicable
+    if (promoCodeId) {
+        await incrementPromoCodeUsage(promoCodeId, req.user.id);
+    }
 
     const populated = await Booking.findById(booking._id)
         .populate('user', 'name email')

@@ -113,15 +113,15 @@ export function AdminCourts() {
         try {
             const res = await api.get('/bookings');
             const bookings = res.data.data || [];
-            
+
             const now = new Date();
             const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-            
+
             // Heures d'ouverture par jour (8h à 22h = 14h par jour, 7 jours = 98h max)
             const maxHoursPerWeek = 14 * 7;
-            
+
             const usageByCourtId: Record<string, number> = {};
-            
+
             bookings.forEach((booking: any) => {
                 const bookingDate = new Date(booking.date || booking.startTime);
                 if (bookingDate >= sevenDaysAgo && bookingDate <= now) {
@@ -133,13 +133,13 @@ export function AdminCourts() {
                     }
                 }
             });
-            
+
             // Convertir en pourcentage
             const usagePercentages: Record<string, number> = {};
             Object.keys(usageByCourtId).forEach(courtId => {
                 usagePercentages[courtId] = Math.min(100, Math.round((usageByCourtId[courtId] / maxHoursPerWeek) * 100));
             });
-            
+
             setCourtUsage(usagePercentages);
         } catch (err) {
             console.error('Error fetching usage stats:', err);
@@ -233,15 +233,15 @@ export function AdminCourts() {
         const matchesSearch = court.name.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesSport = sportFilter === 'ALL' || court.sport === sportFilter;
         const matchesType = typeFilter === 'ALL' || court.type === typeFilter;
-        const matchesStatus = statusFilter === 'ALL' || 
-            (statusFilter === 'active' && court.isActive) || 
+        const matchesStatus = statusFilter === 'ALL' ||
+            (statusFilter === 'active' && court.isActive) ||
             (statusFilter === 'maintenance' && !court.isActive);
         return matchesSearch && matchesSport && matchesType && matchesStatus;
     });
 
     // Types disponibles selon le filtre sport actuel
-    const availableTypes = sportFilter === 'ALL' 
-        ? Object.values(typesBySport).flat() 
+    const availableTypes = sportFilter === 'ALL'
+        ? Object.values(typesBySport).flat()
         : typesBySport[sportFilter] || [];
 
     return (
@@ -253,19 +253,12 @@ export function AdminCourts() {
             {/* Intel Header */}
             <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 md:gap-8 border-b border-white/5 pb-8 md:pb-10 pt-6 md:pt-0">
                 <div className="space-y-3 md:space-y-4">
-                    <motion.div
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.2 }}
-                        className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-padel-blue/10 border border-padel-blue/20 text-padel-blue text-[8px] md:text-[10px] font-black uppercase tracking-[0.2em] md:tracking-[0.3em]"
-                    >
-                        <Target size={10} className="md:w-3 md:h-3" /> Resource Management
-                    </motion.div>
+
                     <div>
-                        <h1 className="text-4xl md:text-6xl lg:text-7xl font-display font-black text-white italic uppercase tracking-tighter leading-[0.9] md:leading-[0.85]">
+                        <h1 className="text-4xl md:text-6xl lg:text-7xl font-display font-black text-white uppercase tracking-tighter leading-[0.9] md:leading-[0.85]">
                             Contrôle <br /> <span className="text-padel-yellow drop-shadow-[0_0_30px_rgba(255,210,31,0.3)]">Terrains</span>
                         </h1>
-                        <p className="text-[10px] md:text-xs font-bold text-white/30 uppercase tracking-[0.2em] md:tracking-[0.3em] mt-3 md:mt-4 italic">Optimisation Flux • Monitoring Technique</p>
+                        <p className="text-[10px] md:text-xs font-bold text-white/30 uppercase tracking-[0.2em] md:tracking-[0.3em] mt-3 md:mt-4">Optimisation Flux • Monitoring Technique</p>
                     </div>
                 </div>
 
@@ -273,11 +266,11 @@ export function AdminCourts() {
                     <div className="bg-white/5 backdrop-blur-md p-2 rounded-2xl border border-white/10 flex">
                         <div className="flex-1 px-4 md:px-6 py-2 md:py-3 border-r border-white/5 text-center">
                             <p className="text-[8px] md:text-[9px] font-black text-white/20 uppercase tracking-widest mb-0.5 md:mb-1">Actifs</p>
-                            <p className="text-xl md:text-2xl font-black text-white italic tracking-tighter">{courts.filter(c => c.isActive).length}</p>
+                            <p className="text-xl md:text-2xl font-black text-white tracking-tighter">{courts.filter(c => c.isActive).length}</p>
                         </div>
                         <div className="flex-1 px-4 md:px-6 py-2 md:py-3 text-center">
                             <p className="text-[8px] md:text-[9px] font-black text-white/20 uppercase tracking-widest mb-0.5 md:mb-1">Total</p>
-                            <p className="text-xl md:text-2xl font-black text-white italic tracking-tighter">{courts.length}</p>
+                            <p className="text-xl md:text-2xl font-black text-white tracking-tighter">{courts.length}</p>
                         </div>
                     </div>
                     <button
@@ -339,11 +332,11 @@ export function AdminCourts() {
                                                     }}
                                                     className={cn(
                                                         "px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all",
-                                                        sportFilter === sport 
-                                                            ? sport === 'Padel' ? "bg-padel-blue text-white" 
-                                                            : sport === 'Pickleball' ? "bg-padel-yellow text-black"
-                                                            : sport === 'Badminton' ? "bg-white text-black"
-                                                            : "bg-padel-blue text-white"
+                                                        sportFilter === sport
+                                                            ? sport === 'Padel' ? "bg-padel-blue text-white"
+                                                                : sport === 'Pickleball' ? "bg-padel-yellow text-black"
+                                                                    : sport === 'Badminton' ? "bg-white text-black"
+                                                                        : "bg-padel-blue text-white"
                                                             : "text-white/40 hover:bg-white/5 bg-white/5"
                                                     )}
                                                 >
@@ -395,10 +388,10 @@ export function AdminCourts() {
                                                     onClick={() => setStatusFilter(status.value)}
                                                     className={cn(
                                                         "flex-1 px-3 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all",
-                                                        statusFilter === status.value 
+                                                        statusFilter === status.value
                                                             ? status.value === 'active' ? "bg-emerald-500/20 text-emerald-500 border border-emerald-500/30"
-                                                            : status.value === 'maintenance' ? "bg-red-500/20 text-red-500 border border-red-500/30"
-                                                            : "bg-padel-blue text-white"
+                                                                : status.value === 'maintenance' ? "bg-red-500/20 text-red-500 border border-red-500/30"
+                                                                    : "bg-padel-blue text-white"
                                                             : "text-white/40 hover:bg-white/5 bg-white/5"
                                                     )}
                                                 >
@@ -513,7 +506,7 @@ export function AdminCourts() {
                                             <Sparkles size={12} className="text-padel-yellow md:w-[14px] md:h-[14px]" />
                                             <p className="text-[8px] md:text-[10px] font-black text-white/20 uppercase tracking-[0.4em] truncate">{(item as Court).type}</p>
                                         </div>
-                                        <h3 className="text-xl md:text-3xl font-black text-white italic uppercase tracking-tighter group-hover:text-padel-blue transition-colors leading-tight truncate">{(item as Court).name}</h3>
+                                        <h3 className="text-xl md:text-3xl font-black text-white uppercase tracking-tighter group-hover:text-padel-blue transition-colors leading-tight truncate">{(item as Court).name}</h3>
                                         {/* Sport badge */}
                                         {(item as Court).sport && (
                                             <div
@@ -532,15 +525,15 @@ export function AdminCourts() {
                                     <div className="grid grid-cols-2 gap-4 md:gap-6 mb-6 md:mb-8 relative z-10 flex-1">
                                         <div className="bg-white/[0.03] border border-white/5 p-4 md:p-6 rounded-xl md:rounded-[1.5rem] group/stat">
                                             <p className="text-[8px] md:text-[10px] font-black text-white/20 uppercase tracking-widest mb-1.5 md:mb-2 group-hover/stat:text-padel-blue transition-colors">Tarif</p>
-                                            <p className="text-lg md:text-2xl font-black text-white italic tracking-tighter">{(item as Court).pricePerHour}€<span className="text-[10px] md:text-xs text-white/30 ml-0.5 md:ml-1">/h</span></p>
+                                            <p className="text-lg md:text-2xl font-black text-white tracking-tighter">{(item as Court).pricePerHour}€<span className="text-[10px] md:text-xs text-white/30 ml-0.5 md:ml-1">/h</span></p>
                                         </div>
                                         <div className="bg-white/[0.03] border border-white/5 p-4 md:p-6 rounded-xl md:rounded-[1.5rem] group/stat">
                                             <p className="text-[8px] md:text-[10px] font-black text-white/20 uppercase tracking-widest mb-1.5 md:mb-2 group-hover/stat:text-padel-yellow transition-colors">Usage 7j</p>
                                             <p className={cn(
-                                                "text-lg md:text-2xl font-black italic tracking-tighter",
+                                                "text-lg md:text-2xl font-black tracking-tighter",
                                                 (courtUsage[(item as Court)._id] || 0) >= 70 ? "text-emerald-400" :
-                                                (courtUsage[(item as Court)._id] || 0) >= 40 ? "text-padel-yellow" :
-                                                (courtUsage[(item as Court)._id] || 0) > 0 ? "text-orange-400" : "text-white/40"
+                                                    (courtUsage[(item as Court)._id] || 0) >= 40 ? "text-padel-yellow" :
+                                                        (courtUsage[(item as Court)._id] || 0) > 0 ? "text-orange-400" : "text-white/40"
                                             )}>
                                                 {courtUsage[(item as Court)._id] || 0}%
                                             </p>
@@ -557,7 +550,7 @@ export function AdminCourts() {
                                             <div>
                                                 <p className="text-[7px] font-bold text-white/15 uppercase tracking-widest mb-0.5">Créé le</p>
                                                 <p className="text-[9px] font-black text-white/40">
-                                                    {(item as Court).createdAt 
+                                                    {(item as Court).createdAt
                                                         ? new Date((item as Court).createdAt!).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' })
                                                         : 'N/A'}
                                                 </p>
@@ -565,7 +558,7 @@ export function AdminCourts() {
                                             <div>
                                                 <p className="text-[7px] font-bold text-white/15 uppercase tracking-widest mb-0.5">Modifié le</p>
                                                 <p className="text-[9px] font-black text-white/40">
-                                                    {(item as Court).updatedAt 
+                                                    {(item as Court).updatedAt
                                                         ? new Date((item as Court).updatedAt!).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' })
                                                         : 'N/A'}
                                                 </p>
@@ -654,7 +647,7 @@ export function AdminCourts() {
                             </button>
 
                             <div className="mb-6">
-                                <h2 className="text-2xl md:text-3xl font-display font-black text-white italic uppercase tracking-tighter">
+                                <h2 className="text-2xl md:text-3xl font-display font-black text-white uppercase tracking-tighter">
                                     {editingCourt ? 'Modifier' : 'Nouveau'} <span className="text-padel-yellow">Terrain</span>
                                 </h2>
                                 <p className="text-[8px] md:text-[10px] font-black text-white/20 uppercase tracking-[0.4em] mt-1">Configuration infrastructure Padel Arena</p>
@@ -726,7 +719,7 @@ export function AdminCourts() {
                                             <div className="flex items-center justify-between bg-white/[0.03] border border-white/10 rounded-2xl p-1 h-[54px] group-hover:border-padel-yellow/30 transition-all">
                                                 <button type="button" onClick={() => setFormData(p => ({ ...p, pricePerHour: Math.max(0, p.pricePerHour - 5) }))} className="w-10 h-10 flex items-center justify-center rounded-xl bg-white/5 hover:bg-white/10 text-white/20 hover:text-white transition-all font-black text-lg">-</button>
                                                 <div className="flex items-center gap-2">
-                                                    <span className="text-padel-yellow font-black text-sm italic">€</span>
+                                                    <span className="text-padel-yellow font-black text-sm">€</span>
                                                     <input
                                                         type="number" required
                                                         value={formData.pricePerHour}
@@ -821,7 +814,7 @@ export function AdminCourts() {
                                                                 <div className="absolute left-0.5 top-0.5 w-4 h-4 rounded-full bg-white/30 transition-transform" />
                                                             </div>
                                                         ) : (
-                                                            <input 
+                                                            <input
                                                                 type="number"
                                                                 className="w-16 bg-white/5 border border-white/10 rounded-lg px-2 py-1 text-[10px] text-white text-center font-bold focus:outline-none focus:border-padel-blue"
                                                                 placeholder="0"

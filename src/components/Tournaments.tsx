@@ -33,6 +33,26 @@ const tournaments = [
 export const Tournaments = () => {
   return (
     <section id="tournois" className="relative py-24 md:py-48 px-6 overflow-hidden bg-dark-bg">
+      {/* Ajout du code promo pour les tournois */}
+      <div className="max-w-md mx-auto mb-12">
+        <h4 className="text-lg font-black text-white mb-2 uppercase tracking-widest">Code promo tournoi</h4>
+        <PromoCodeInput
+          applicationType="tournament"
+          onApply={(discount, code) => {
+            setPromoDiscount(discount);
+            setPromoCode(code);
+          }}
+        />
+        {promoDiscount > 0 && (
+          <div className="mt-2 text-green-400 text-xs font-bold flex items-center gap-2">
+            <CheckCircle2 size={16} />
+            Code appliqué : <span className="font-mono bg-green-500/10 px-2 py-1 rounded">{promoCode}</span> (-{promoDiscount}€)
+          </div>
+        )}
+        <div className="mt-2 text-white text-xs font-bold">
+          Prix final : <span className="font-mono bg-padel-blue/10 px-2 py-1 rounded">{tournamentPrice - promoDiscount}€</span>
+        </div>
+      </div>
       {/* Editorial Grid Lines */}
       <div className="absolute inset-0 pointer-events-none opacity-[0.03]">
         <div className="max-w-[1400px] mx-auto h-full w-full flex justify-between border-x border-white">

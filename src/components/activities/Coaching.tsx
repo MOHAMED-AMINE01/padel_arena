@@ -124,6 +124,11 @@ export const Coaching = () => {
                   <p className="text-xs md:text-sm text-white/30 font-medium leading-relaxed group-hover:text-white/50 transition-colors">
                     {type.desc}
                   </p>
+                    {/* Promo code input for course context */}
+                    <div className="mt-4">
+                      {/* You may want to style or position this differently */}
+                      <PromoCodeInput applicationType="course" />
+                    </div>
                 </div>
               </motion.div>
             ))}

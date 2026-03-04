@@ -22,7 +22,9 @@ import {
     MoreHorizontal,
     CheckCircle2,
     User,
-    MapPin
+    MapPin,
+    Plus,
+    Lock
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import api from '../../lib/api';
@@ -59,6 +61,18 @@ export function AdminUsers() {
     });
     const [isRoleOpen, setIsRoleOpen] = useState(false);
 
+    // Create Modal State
+    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+    const [newUser, setNewUser] = useState({
+        name: '',
+        email: '',
+        password: '',
+        role: 'PLAYER' as 'PLAYER' | 'ADMIN',
+        phone: '',
+        address: ''
+    });
+    const [isCreateRoleOpen, setIsCreateRoleOpen] = useState(false);
+
     const fetchUsers = async () => {
         try {
             const res = await api.get('/admin/users');
@@ -74,6 +88,28 @@ export function AdminUsers() {
     useEffect(() => {
         fetchUsers();
     }, []);
+
+    const handleCreateUser = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setUpdateLoading(true);
+        try {
+            const res = await api.post('/admin/users', newUser);
+            setUsers([res.data.data, ...users]);
+            setIsCreateModalOpen(false);
+            setNewUser({
+                name: '',
+                email: '',
+                password: '',
+                role: 'PLAYER',
+                phone: '',
+                address: ''
+            });
+        } catch (err: any) {
+            alert(err.response?.data?.message || 'Erreur lors de la création.');
+        } finally {
+            setUpdateLoading(false);
+        }
+    };
 
     const handleDeleteUser = (id: string, name: string) => {
         setDeleteModal({ isOpen: true, id, name });
@@ -160,30 +196,23 @@ export function AdminUsers() {
             {/* Elite Header */}
             <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 border-b border-white/5 pb-10 pt-4 md:pt-0">
                 <div className="space-y-4">
-                    <motion.div
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.2 }}
-                        className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-padel-blue/10 border border-padel-blue/20 text-padel-blue text-[9px] md:text-[10px] font-black uppercase tracking-[0.3em]"
-                    >
-                        <UsersIcon size={12} /> Database Globale
-                    </motion.div>
+
                     <div>
-                        <h1 className="text-4xl sm:text-5xl md:text-7xl font-display font-black text-white italic uppercase tracking-tighter leading-[0.85]">
+                        <h1 className="text-4xl sm:text-5xl md:text-7xl font-display font-black text-white uppercase tracking-tighter leading-[0.85]">
                             Contrôle <br /> <span className="text-padel-yellow drop-shadow-[0_0_30px_rgba(255,210,31,0.3)] text-3xl sm:text-5xl md:text-7xl">Athlètes</span>
                         </h1>
-                        <p className="text-[10px] md:text-xs font-bold text-white/30 uppercase tracking-[0.2em] md:tracking-[0.3em] mt-4 italic">Gestion centralisée • Performance • Sécurité</p>
+                        <p className="text-[10px] md:text-xs font-bold text-white/30 uppercase tracking-[0.2em] md:tracking-[0.3em] mt-4">Gestion centralisée • Performance • Sécurité</p>
                     </div>
                 </div>
 
                 <div className="flex bg-white/5 backdrop-blur-md p-1.5 md:p-2 rounded-2xl border border-white/10 w-fit">
                     <div className="px-4 md:px-6 py-2 md:py-3 border-r border-white/5">
                         <p className="text-[8px] md:text-[9px] font-black text-white/20 uppercase tracking-widest mb-1">Total</p>
-                        <p className="text-xl md:text-2xl font-black text-white italic tracking-tighter">{users.length}</p>
+                        <p className="text-xl md:text-2xl font-black text-white tracking-tighter">{users.length}</p>
                     </div>
                     <div className="px-4 md:px-6 py-2 md:py-3">
                         <p className="text-[8px] md:text-[9px] font-black text-padel-yellow/50 uppercase tracking-widest mb-1">Filtrés</p>
-                        <p className="text-xl md:text-2xl font-black text-white italic tracking-tighter">{filteredUsers.length}</p>
+                        <p className="text-xl md:text-2xl font-black text-white tracking-tighter">{filteredUsers.length}</p>
                     </div>
                 </div>
             </div>
@@ -244,8 +273,15 @@ export function AdminUsers() {
                     </AnimatePresence> */}
 
                     <button
-                        onClick={handleExportCSV}
+                        onClick={() => setIsCreateModalOpen(true)}
                         className="flex-1 md:flex-none flex items-center justify-center gap-3 px-6 md:px-10 py-4 md:py-5 rounded-2xl md:rounded-[1.5rem] bg-padel-blue text-white text-[9px] md:text-[10px] font-black uppercase tracking-widest shadow-2xl shadow-padel-blue/30 hover:bg-padel-yellow hover:text-padel-blue transition-all duration-500"
+                    >
+                        <Plus size={14} className="md:w-4 md:h-4" /> Nouveau Membre
+                    </button>
+
+                    <button
+                        onClick={handleExportCSV}
+                        className="flex-1 md:flex-none flex items-center justify-center gap-3 px-6 md:px-10 py-4 md:py-5 rounded-2xl md:rounded-[1.5rem] bg-white/5 border border-white/10 text-[9px] md:text-[10px] font-black uppercase tracking-widest text-white/40 hover:bg-white/10 hover:text-white transition-all duration-500"
                     >
                         <Download size={14} className="md:w-4 md:h-4" /> Export Flux
                     </button>
@@ -294,7 +330,7 @@ export function AdminUsers() {
                                     {user.name.split(' ').map(n => n[0]).join('')}
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                    <h3 className="text-lg md:text-xl font-black text-white italic truncate pr-16 group-hover:text-padel-blue transition-colors leading-tight uppercase tracking-tighter">{user.name}</h3>
+                                    <h3 className="text-lg md:text-xl font-black text-white truncate pr-16 group-hover:text-padel-blue transition-colors leading-tight uppercase tracking-tighter">{user.name}</h3>
                                     <p className="text-[9px] md:text-[10px] text-white/30 font-bold uppercase tracking-widest truncate">{user.email}</p>
                                 </div>
                             </div>
@@ -305,13 +341,13 @@ export function AdminUsers() {
                                     <p className="text-[7px] md:text-[8px] font-black text-white/20 uppercase tracking-widest flex items-center gap-2">
                                         <Phone size={10} className="text-padel-blue" /> Contact Direct
                                     </p>
-                                    <p className="text-xs md:text-sm font-black text-white italic tracking-tighter">{user.phone || 'Non renseigné'}</p>
+                                    <p className="text-xs md:text-sm font-black text-white tracking-tighter">{user.phone || 'Non renseigné'}</p>
                                 </div>
                                 <div className="bg-white/[0.02] border border-white/5 p-3 md:p-4 rounded-xl md:rounded-2xl space-y-1">
                                     <p className="text-[7px] md:text-[8px] font-black text-white/20 uppercase tracking-widest flex items-center gap-2">
                                         <Calendar size={10} className="text-padel-yellow" /> Déploiement Profil
                                     </p>
-                                    <p className="text-xs md:text-sm font-black text-white italic tracking-tighter">
+                                    <p className="text-xs md:text-sm font-black text-white tracking-tighter">
                                         {new Date(user.createdAt).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' })}
                                     </p>
                                 </div>
@@ -398,8 +434,8 @@ export function AdminUsers() {
                         >
                             <div className="p-6 md:p-8 border-b border-white/5 flex items-center justify-between sticky top-0 bg-[#1A1A1E]/80 backdrop-blur-xl z-20">
                                 <div>
-                                    <h3 className="text-xl md:text-2xl font-black text-white italic uppercase tracking-tighter leading-none">Modifier <span className="text-padel-blue">Profil</span></h3>
-                                    <p className="text-[8px] md:text-[10px] font-black text-white/20 uppercase tracking-widest mt-1.5 italic truncate max-w-[200px] md:max-w-none">ID: {editingUser._id}</p>
+                                    <h3 className="text-xl md:text-2xl font-black text-white uppercase tracking-tighter leading-none">Modifier <span className="text-padel-blue">Profil</span></h3>
+                                    <p className="text-[8px] md:text-[10px] font-black text-white/20 uppercase tracking-widest mt-1.5 truncate max-w-[200px] md:max-w-none">ID: {editingUser._id}</p>
                                 </div>
                                 <button
                                     onClick={() => setIsEditModalOpen(false)}
@@ -524,7 +560,7 @@ export function AdminUsers() {
                                     <button
                                         type="button"
                                         onClick={() => setIsEditModalOpen(false)}
-                                        className="flex-1 py-4 md:py-5 rounded-xl md:rounded-2xl bg-white/5 border border-white/10 text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] text-white/40 hover:bg-white/10 hover:text-white transition-all italic order-2 md:order-none"
+                                        className="flex-1 py-4 md:py-5 rounded-xl md:rounded-2xl bg-white/5 border border-white/10 text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] text-white/40 hover:bg-white/10 hover:text-white transition-all order-2 md:order-none"
                                     >
                                         Annuler
                                     </button>
@@ -546,6 +582,193 @@ export function AdminUsers() {
                     </div>
                 )}
             </AnimatePresence>
+
+            {/* Create User Modal */}
+            <AnimatePresence>
+                {isCreateModalOpen && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setIsCreateModalOpen(false)}
+                            className="absolute inset-0 bg-black/80 backdrop-blur-md"
+                        />
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                            className="relative w-full max-w-xl bg-[#1A1A1E] border border-white/10 rounded-[1.5rem] md:rounded-[2.5rem] overflow-hidden shadow-3xl max-h-[90vh] overflow-y-auto custom-scrollbar"
+                        >
+                            <div className="p-6 md:p-8 border-b border-white/5 flex items-center justify-between sticky top-0 bg-[#1A1A1E]/80 backdrop-blur-xl z-20">
+                                <div>
+                                    <h3 className="text-xl md:text-2xl font-black text-white uppercase tracking-tighter leading-none">Nouveau <span className="text-padel-blue">Membre</span></h3>
+                                    <p className="text-[8px] md:text-[10px] font-black text-white/20 uppercase tracking-widest mt-1.5">Création manuelle d'une fiche membre</p>
+                                </div>
+                                <button
+                                    onClick={() => setIsCreateModalOpen(false)}
+                                    className="p-2.5 md:p-3 rounded-xl bg-white/5 border border-white/10 text-white/40 hover:text-white transition-all"
+                                >
+                                    <X size={18} className="md:w-5 md:h-5" />
+                                </button>
+                            </div>
+
+                            <form onSubmit={handleCreateUser} className="p-6 md:p-8 space-y-6">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                                    <div className="space-y-2">
+                                        <label className="text-[9px] md:text-[10px] font-black text-white/30 uppercase tracking-[0.2em] md:tracking-[0.3em] ml-1 flex items-center gap-2">
+                                            <User size={12} className="text-padel-blue" /> Nom complet
+                                        </label>
+                                        <div className="relative group">
+                                            <input
+                                                type="text"
+                                                required
+                                                value={newUser.name}
+                                                onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
+                                                className="w-full bg-white/[0.03] border border-white/10 rounded-xl md:rounded-2xl py-3 md:py-4 px-4 md:px-6 text-xs md:text-sm text-white focus:outline-none focus:border-padel-blue/40 transition-all font-black group-hover:bg-white/[0.06]"
+                                                placeholder="Jean Dupont"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-[9px] md:text-[10px] font-black text-white/30 uppercase tracking-[0.2em] md:tracking-[0.3em] ml-1 flex items-center gap-2">
+                                            <Mail size={12} className="text-padel-blue" /> Email
+                                        </label>
+                                        <div className="relative group">
+                                            <input
+                                                type="email"
+                                                required
+                                                value={newUser.email}
+                                                onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
+                                                className="w-full bg-white/[0.03] border border-white/10 rounded-xl md:rounded-2xl py-3 md:py-4 px-4 md:px-6 text-xs md:text-sm text-white focus:outline-none focus:border-padel-blue/40 transition-all font-black group-hover:bg-white/[0.06]"
+                                                placeholder="jean@exemple.com"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                                    <div className="space-y-2">
+                                        <label className="text-[9px] md:text-[10px] font-black text-white/30 uppercase tracking-[0.2em] md:tracking-[0.3em] ml-1 flex items-center gap-2">
+                                            <Lock size={12} className="text-padel-blue" /> Mot de passe
+                                        </label>
+                                        <div className="relative group">
+                                            <input
+                                                type="password"
+                                                value={newUser.password}
+                                                onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
+                                                placeholder="Laisser vide pour 'padel123'"
+                                                className="w-full bg-white/[0.03] border border-white/10 rounded-xl md:rounded-2xl py-3 md:py-4 px-4 md:px-6 text-xs md:text-sm text-white focus:outline-none focus:border-padel-blue/40 transition-all font-black group-hover:bg-white/[0.06]"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-[9px] md:text-[10px] font-black text-white/30 uppercase tracking-[0.2em] md:tracking-[0.3em] ml-1 flex items-center gap-2">
+                                            <Phone size={12} className="text-padel-blue" /> Téléphone
+                                        </label>
+                                        <div className="relative group">
+                                            <input
+                                                type="text"
+                                                value={newUser.phone}
+                                                onChange={(e) => setNewUser({ ...newUser, phone: e.target.value })}
+                                                placeholder="+33 6 00 00 00 00"
+                                                className="w-full bg-white/[0.03] border border-white/10 rounded-xl md:rounded-2xl py-3 md:py-4 px-4 md:px-6 text-xs md:text-sm text-white focus:outline-none focus:border-padel-blue/40 transition-all font-black group-hover:bg-white/[0.06]"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                                    <div className="space-y-2">
+                                        <label className="text-[9px] md:text-[10px] font-black text-white/30 uppercase tracking-[0.2em] md:tracking-[0.3em] ml-1 flex items-center gap-2">
+                                            <ShieldCheck size={12} className="text-padel-yellow" /> Rôle
+                                        </label>
+                                        <div className="relative group">
+                                            <button
+                                                type="button"
+                                                onClick={() => setIsCreateRoleOpen(!isCreateRoleOpen)}
+                                                className="w-full bg-white/[0.03] border border-white/10 rounded-xl md:rounded-2xl px-4 md:px-6 py-3 md:py-4 text-white text-[9px] md:text-[10px] font-black transition-all flex items-center justify-between hover:bg-white/[0.06] hover:border-padel-yellow"
+                                            >
+                                                {newUser.role === 'PLAYER' ? 'JOUEUR (ATHLÈTE)' : 'ADMINISTRATEUR'}
+                                                <MoreHorizontal size={14} className={cn("transition-transform duration-500", isCreateRoleOpen ? "rotate-90 text-padel-yellow" : "text-white/20")} />
+                                            </button>
+
+                                            <AnimatePresence>
+                                                {isCreateRoleOpen && (
+                                                    <motion.div
+                                                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                                                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                                                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                                                        className="absolute top-full left-0 w-full mt-2 bg-[#1a1a1e] border border-white/10 rounded-xl md:rounded-2xl overflow-hidden z-[110] shadow-3xl backdrop-blur-3xl"
+                                                    >
+                                                        {[
+                                                            { id: 'PLAYER', label: 'JOUEUR (ATHLÈTE)' },
+                                                            { id: 'ADMIN', label: 'ADMINISTRATEUR' }
+                                                        ].map(r => (
+                                                            <button
+                                                                key={r.id}
+                                                                type="button"
+                                                                onClick={() => {
+                                                                    setNewUser({ ...newUser, role: r.id as 'PLAYER' | 'ADMIN' });
+                                                                    setIsCreateRoleOpen(false);
+                                                                }}
+                                                                className={cn(
+                                                                    "w-full px-4 md:px-6 py-3 md:py-4 text-left text-[9px] md:text-[10px] font-black transition-all hover:bg-white/[0.05] flex items-center justify-between uppercase tracking-widest",
+                                                                    newUser.role === r.id ? "text-padel-yellow bg-padel-yellow/5" : "text-white/40"
+                                                                )}
+                                                            >
+                                                                {r.label}
+                                                                {newUser.role === r.id && <CheckCircle2 size={12} className="text-padel-yellow" />}
+                                                            </button>
+                                                        ))}
+                                                    </motion.div>
+                                                )}
+                                            </AnimatePresence>
+                                        </div>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-[9px] md:text-[10px] font-black text-white/30 uppercase tracking-[0.2em] md:tracking-[0.3em] ml-1 flex items-center gap-2">
+                                            <MapPin size={12} className="text-padel-blue" /> Résidence
+                                        </label>
+                                        <div className="relative group">
+                                            <input
+                                                type="text"
+                                                value={newUser.address}
+                                                onChange={(e) => setNewUser({ ...newUser, address: e.target.value })}
+                                                placeholder="123 Avenue des Champs, 75000 Paris"
+                                                className="w-full bg-white/[0.03] border border-white/10 rounded-xl md:rounded-2xl py-3 md:py-4 px-4 md:px-6 text-xs md:text-sm text-white focus:outline-none focus:border-padel-blue/40 transition-all font-black group-hover:bg-white/[0.06]"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="pt-6 flex flex-col md:flex-row gap-3 md:gap-4">
+                                    <button
+                                        type="button"
+                                        onClick={() => setIsCreateModalOpen(false)}
+                                        className="flex-1 py-4 md:py-5 rounded-xl md:rounded-2xl bg-white/5 border border-white/10 text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] text-white/40 hover:bg-white/10 hover:text-white transition-all order-2 md:order-none"
+                                    >
+                                        Annuler
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        disabled={updateLoading}
+                                        className="flex-[2] py-4 md:py-5 rounded-xl md:rounded-2xl bg-padel-blue text-white text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] shadow-2xl shadow-padel-blue/30 hover:bg-padel-yellow hover:text-padel-blue transition-all duration-500 flex items-center justify-center gap-3 disabled:opacity-50"
+                                    >
+                                        {updateLoading ? (
+                                            <Loader2 size={16} className="animate-spin text-white" />
+                                        ) : (
+                                            <Plus size={16} />
+                                        )}
+                                        Créer le Compte
+                                    </button>
+                                </div>
+                            </form>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
+
 
             <DeleteConfirmModal
                 isOpen={deleteModal.isOpen}

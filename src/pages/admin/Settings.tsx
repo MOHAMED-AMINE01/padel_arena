@@ -78,19 +78,12 @@ export function AdminSettings() {
             {/* Header */}
             <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 md:gap-8 border-b border-white/5 pb-8 md:pb-10 pt-6 md:pt-0">
                 <div className="space-y-3 md:space-y-4">
-                    <motion.div
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.2 }}
-                        className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-padel-blue/10 border border-padel-blue/20 text-padel-blue text-[8px] md:text-[10px] font-black uppercase tracking-[0.2em] md:tracking-[0.3em]"
-                    >
-                        <Settings size={10} className="md:w-3 md:h-3" /> Account Governance
-                    </motion.div>
+
                     <div>
-                        <h1 className="text-4xl md:text-6xl lg:text-7xl font-display font-black text-white italic uppercase tracking-tighter leading-[0.9] md:leading-[0.85]">
+                        <h1 className="text-4xl md:text-6xl lg:text-7xl font-display font-black text-white uppercase tracking-tighter leading-[0.9] md:leading-[0.85]">
                             Profil & <br /> <span className="text-padel-yellow drop-shadow-[0_0_30px_rgba(255,210,31,0.2)]">Sécurité</span>
                         </h1>
-                        <p className="text-[10px] md:text-xs font-bold text-white/30 uppercase tracking-[0.2em] md:tracking-[0.3em] mt-3 md:mt-4 italic">Gérez vos accès et informations</p>
+                        <p className="text-[10px] md:text-xs font-bold text-white/30 uppercase tracking-[0.2em] md:tracking-[0.3em] mt-3 md:mt-4">Gérez vos accès et informations</p>
                     </div>
                 </div>
             </div>
@@ -118,7 +111,7 @@ export function AdminSettings() {
                 <div className="lg:col-span-6">
                     <form onSubmit={handleUpdateProfile} className="bg-[#151518]/60 backdrop-blur-2xl border border-white/10 rounded-2xl md:rounded-[3rem] p-6 md:p-10 space-y-8 md:space-y-10 shadow-3xl h-full">
                         <div className="flex items-center justify-between pb-6 md:pb-8 border-b border-white/5">
-                            <h3 className="text-lg md:text-xl font-black text-white uppercase italic tracking-tighter flex items-center gap-3 md:gap-4">
+                            <h3 className="text-lg md:text-xl font-black text-white uppercase tracking-tighter flex items-center gap-3 md:gap-4">
                                 <User className="text-padel-blue md:w-6 md:h-6" size={20} /> Infos Publiques
                             </h3>
                         </div>
@@ -174,7 +167,7 @@ export function AdminSettings() {
                 <div className="lg:col-span-6">
                     <form onSubmit={handleChangePassword} className="bg-[#151518]/60 backdrop-blur-2xl border border-white/10 rounded-2xl md:rounded-[3rem] p-6 md:p-10 space-y-8 md:space-y-10 shadow-3xl h-full">
                         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-6 md:pb-8 border-b border-white/5">
-                            <h3 className="text-lg md:text-xl font-black text-white uppercase italic tracking-tighter flex items-center gap-3 md:gap-4">
+                            <h3 className="text-lg md:text-xl font-black text-white uppercase tracking-tighter flex items-center gap-3 md:gap-4">
                                 <Lock className="text-padel-yellow md:w-6 md:h-6" size={20} /> Sécurité Accès
                             </h3>
                             <div className="flex items-center gap-2 text-[8px] md:text-[9px] font-black text-white/20 uppercase tracking-widest bg-white/5 px-3 md:px-4 py-1.5 md:py-2 rounded-full border border-white/5">

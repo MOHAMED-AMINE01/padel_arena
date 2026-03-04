@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import Course from '../models/Course';
 import { asyncHandler } from '../utils/asyncHandler';
+import { validateAndApplyPromoCode, incrementPromoCodeUsage } from '../services/promoCodeService';
 
 // @desc    Get all courses
 // @route   GET /api/courses
@@ -66,6 +67,7 @@ export const deleteCourse = asyncHandler(async (req: Request, res: Response) => 
 // @route   POST /api/courses/:id/join
 // @access  Private (Player)
 export const joinCourse = asyncHandler(async (req: any, res: Response) => {
+    const { promoCode } = req.body;
     const course = await Course.findById(req.params.id);
 
     if (!course) {
@@ -86,10 +88,30 @@ export const joinCourse = asyncHandler(async (req: any, res: Response) => {
         return res.status(400).json({ message: 'Vous êtes déjà inscrit à ce cours.' });
     }
 
+    let promoCodeId = null;
+    if (promoCode) {
+        const promoResult = await validateAndApplyPromoCode(
+            promoCode,
+            course.price,
+            'course',
+            req.user.id
+        );
+
+        if (promoResult.isValid) {
+            promoCodeId = promoResult.promoCodeId;
+        } else {
+            return res.status(400).json({ success: false, message: promoResult.message });
+        }
+    }
+
     course.participants.push(req.user.id);
     course.currentParticipants += 1;
 
     await course.save();
+
+    if (promoCodeId) {
+        await incrementPromoCodeUsage(promoCodeId, req.user.id);
+    }
 
     res.status(200).json({
         success: true,

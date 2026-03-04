@@ -48,12 +48,12 @@ export const CourtPricing = () => {
               <span className="text-[10px] font-black tracking-[0.4em] text-padel-blue uppercase">TARIFICATION TERRAINS</span>
             </div>
             <h3 className="text-4xl sm:text-5xl md:text-8xl font-display font-black tracking-tighter leading-[0.9] uppercase">
-              RESERVEZ L' <br />
-              <span className="text-white italic">EXCELLENCE</span>
+              Votre accès  <br />
+              <span className="text-white italic">au club</span>
             </h3>
           </div>
           <div className="hidden lg:block pb-4 text-right">
-            <div className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em] mb-4 text-right">PRICING POLICY</div>
+            <div className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em] mb-4 text-right">politique de prix</div>
             <p className="text-sm text-white/40 font-medium max-w-[300px] leading-relaxed">
               Nos tarifs sont calculés par terrain pour une session de 90 minutes.
             </p>

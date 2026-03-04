@@ -101,7 +101,7 @@ export const PremiumDatePicker: React.FC<PremiumDatePickerProps> = ({
                     size={14}
                 />
                 <span className={cn(
-                    "block truncate font-bold uppercase italic tracking-tighter leading-none text-[11px]",
+                    "block truncate font-bold uppercase tracking-tighter leading-none text-[11px]",
                     value ? "text-white" : "text-white/20"
                 )}>
                     {(() => {
@@ -146,7 +146,7 @@ export const PremiumDatePicker: React.FC<PremiumDatePickerProps> = ({
                                     key={`month-${viewDate.getMonth()}`}
                                     initial={{ y: 5, opacity: 0 }}
                                     animate={{ y: 0, opacity: 1 }}
-                                    className="text-xl font-display font-black text-white italic uppercase tracking-tighter leading-none"
+                                    className="text-xl font-display font-black text-white uppercase tracking-tighter leading-none"
                                 >
                                     {viewDate.toLocaleDateString('fr-FR', { month: 'long' })}
                                 </motion.p>

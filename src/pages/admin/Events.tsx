@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import {
     Trophy,
@@ -142,7 +143,7 @@ const TacticalDateTimePicker = ({ value, onChange, label, icon: Icon, color = 'b
                             {/* Calendar Header */}
                             <div className="flex items-center justify-between mb-6 px-2">
                                 <button type="button" onClick={() => setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() - 1))} className="w-8 h-8 flex items-center justify-center hover:bg-white/5 rounded-full text-white/40 hover:text-white transition-all"><ChevronLeft size={16} /></button>
-                                <p className="text-[10px] font-black text-white uppercase tracking-[0.3em] italic">{monthNames[viewDate.getMonth()]} {viewDate.getFullYear()}</p>
+                                <p className="text-[10px] font-black text-white uppercase tracking-[0.3em]">{monthNames[viewDate.getMonth()]} {viewDate.getFullYear()}</p>
                                 <button type="button" onClick={() => setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() + 1))} className="w-8 h-8 flex items-center justify-center hover:bg-white/5 rounded-full text-white/40 hover:text-white transition-all"><ChevronRight size={16} /></button>
                             </div>
 
@@ -191,7 +192,7 @@ const TacticalDateTimePicker = ({ value, onChange, label, icon: Icon, color = 'b
                                     <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-white/20">
                                         <Clock size={14} />
                                     </div>
-                                    <span className="text-[9px] font-black text-white/40 uppercase tracking-widest italic">Temporalité</span>
+                                    <span className="text-[9px] font-black text-white/40 uppercase tracking-widest">Temporalité</span>
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <div className="flex items-center bg-white/5 border border-white/10 rounded-xl px-3 py-2 gap-2 group/time">
@@ -221,9 +222,19 @@ const TacticalDateTimePicker = ({ value, onChange, label, icon: Icon, color = 'b
     );
 };
 
-export function AdminEvents() {
+export function AdminEvents({ defaultTab = 'TOURNOIS' }: { defaultTab?: 'TOURNOIS' | 'COURS' }) {
+    const navigate = useNavigate();
     // Tab state
-    const [activeTab, setActiveTab] = useState<'TOURNOIS' | 'COURS'>('TOURNOIS');
+    const [activeTab, setActiveTab] = useState<'TOURNOIS' | 'COURS'>(defaultTab);
+
+    useEffect(() => {
+        setActiveTab(defaultTab);
+    }, [defaultTab]);
+
+    const handleTabChange = (tab: 'TOURNOIS' | 'COURS') => {
+        setActiveTab(tab);
+        navigate(tab === 'TOURNOIS' ? '/admin/tournaments' : '/admin/courses');
+    };
 
     // Tournament states
     const [tournaments, setTournaments] = useState<Tournament[]>([]);
@@ -500,49 +511,41 @@ export function AdminEvents() {
             {/* Legend Header */}
             <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 md:gap-8 border-b border-white/5 pb-8 md:pb-10 pt-6 md:pt-0">
                 <div className="space-y-3 md:space-y-4">
-                    <motion.div
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.2 }}
-                        className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-padel-yellow/10 border border-padel-yellow/20 text-padel-yellow text-[8px] md:text-[10px] font-black uppercase tracking-[0.2em] md:tracking-[0.3em]"
-                    >
-                        {activeTab === 'TOURNOIS' ? <Trophy size={10} className="md:w-3 md:h-3" /> : <GraduationCap size={10} className="md:w-3 md:h-3" />}
-                        {activeTab === 'TOURNOIS' ? 'Elite Tournament Management' : 'Coaching & Formation'}
-                    </motion.div>
+
                     <div>
-                        <h1 className="text-4xl md:text-6xl lg:text-7xl font-display font-black text-white italic uppercase tracking-tighter leading-[0.9] md:leading-[0.85]">
+                        <h1 className="text-4xl md:text-6xl lg:text-7xl font-display font-black text-white uppercase tracking-tighter leading-[0.9] md:leading-[0.85]">
                             {activeTab === 'TOURNOIS' ? (
                                 <>Circuit <br /> <span className="text-padel-blue drop-shadow-[0_0_30px_rgba(19,73,211,0.3)]">Elite & Rankings</span></>
                             ) : (
                                 <>Académie <br /> <span className="text-padel-blue drop-shadow-[0_0_30px_rgba(19,73,211,0.3)]">& Coaching</span></>
                             )}
                         </h1>
-                        <p className="text-[10px] md:text-xs font-bold text-white/30 uppercase tracking-[0.2em] md:tracking-[0.3em] mt-3 md:mt-4 italic">
+                        <p className="text-[10px] md:text-xs font-bold text-white/30 uppercase tracking-[0.2em] md:tracking-[0.3em] mt-3 md:mt-4">
                             {activeTab === 'TOURNOIS' ? 'Déploiement Stratégique • Homologation FFT' : 'Progression • Excellence • Performance'}
                         </p>
                     </div>
 
                     {/* Tabs */}
-                    <div className="flex bg-white/5 rounded-2xl p-1.5 border border-white/10 w-fit mt-4">
+                    {/* <div className="flex bg-white/5 rounded-2xl p-1.5 border border-white/10 w-fit mt-4">
                         <button
-                            onClick={() => setActiveTab('TOURNOIS')}
+                            onClick={() => handleTabChange('TOURNOIS')}
                             className={cn(
                                 "flex items-center gap-2 px-5 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all",
                                 activeTab === 'TOURNOIS' ? "bg-padel-blue text-white shadow-lg shadow-padel-blue/20" : "text-white/40 hover:text-white"
                             )}
                         >
-                            <Trophy size={12} /> Tournois
+                            <Trophy size={12} /> Événements
                         </button>
                         <button
-                            onClick={() => setActiveTab('COURS')}
+                            onClick={() => handleTabChange('COURS')}
                             className={cn(
                                 "flex items-center gap-2 px-5 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all",
                                 activeTab === 'COURS' ? "bg-padel-blue text-white shadow-lg shadow-padel-blue/20" : "text-white/40 hover:text-white"
                             )}
                         >
-                            <GraduationCap size={12} /> Cours
+                            <GraduationCap size={12} /> Programmes
                         </button>
-                    </div>
+                    </div> */}
                 </div>
 
                 <div className="flex gap-4">
@@ -565,297 +568,297 @@ export function AdminEvents() {
             </div>
 
             <AnimatePresence mode="wait">
-            {activeTab === 'TOURNOIS' ? (
-            <motion.div
-                key="tournois"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                className="space-y-8"
-            >
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {loading ? (
-                    <div className="col-span-full flex flex-col items-center justify-center py-20 gap-4">
-                        <Loader2 size={48} className="text-padel-blue animate-spin" />
-                        <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em]">Chargement des données satellites...</p>
-                    </div>
-                ) : (
-                    tournaments.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map((tourney, i) => (
-                        <motion.div
-                            initial={{ opacity: 0, y: 30 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: i * 0.1 }}
-                            key={tourney._id}
-                            className="bg-[#151518]/60 backdrop-blur-2xl border border-white/5 rounded-2xl md:rounded-[2.5rem] overflow-hidden group hover:border-padel-yellow/20 transition-all duration-500 shadow-3xl relative flex flex-col"
-                        >
-                            {/* Card Header: Image & Badges */}
-                            <div className="relative h-40 md:h-48 overflow-hidden">
-                                {tourney.image ? (
-                                    <img src={tourney.image} alt="" className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" />
-                                ) : (
-                                    <div className="w-full h-full bg-padel-yellow flex items-center justify-center text-padel-blue">
-                                        <Trophy size={48} className="md:w-[64px] md:h-[64px]" />
-                                    </div>
-                                )}
-                                <div className="absolute inset-0 bg-gradient-to-t from-[#151518] to-transparent" />
-
-                                {/* Status Badge (Floating) */}
-                                <div className="absolute top-4 md:top-6 left-4 md:left-6">
-                                    <span className={cn(
-                                        "px-3 md:px-4 py-1 md:py-1.5 rounded-full text-[8px] md:text-[9px] font-black uppercase tracking-widest border backdrop-blur-md shadow-2xl",
-                                        tourney.status === 'CANCELLED' ? 'bg-red-500/20 text-red-500 border-red-500/10' :
-                                            tourney.status === 'UPCOMING' ? 'bg-green-500/20 text-green-500 border-green-500/10' :
-                                                'bg-padel-blue/20 text-padel-blue border-padel-blue/10'
-                                    )}>{tourney.status}</span>
-                                </div>
-
-                                {/* Quick Actions */}
-                                <div className="absolute top-4 md:top-6 right-4 md:right-6 flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0">
-                                    <button
-                                        onClick={() => handleEditTournament(tourney)}
-                                        className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-white/10 border border-white/10 flex items-center justify-center text-white hover:bg-padel-blue hover:border-padel-blue transition-all"
-                                    >
-                                        <Edit2 size={12} className="md:w-[16px] md:h-[16px]" />
-                                    </button>
-                                    <button
-                                        onClick={() => handleDeleteTournament(tourney._id)}
-                                        className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-red-500/10 border border-red-500/10 flex items-center justify-center text-red-500 hover:bg-red-500 hover:text-white transition-all transition-all"
-                                    >
-                                        <Trash2 size={12} className="md:w-[16px] md:h-[16px]" />
-                                    </button>
-                                </div>
-                            </div>
-
-                            {/* Card Content */}
-                            <div className="p-6 md:p-8 space-y-4 md:space-y-6 flex-1 flex flex-col">
-                                <div>
-                                    <div className="flex items-center gap-2 mb-2 md:mb-3">
-                                        <div className="px-2 py-0.5 md:px-3 md:py-1 rounded-md bg-padel-blue/10 border border-padel-blue/20 text-[7px] md:text-[8px] font-black text-padel-blue uppercase tracking-widest">{tourney.level}</div>
-                                        <div className="flex items-center gap-1 text-[7px] md:text-[8px] font-black text-white/20 uppercase tracking-widest">
-                                            <MapPin size={8} className="md:w-[10px] md:h-[10px]" /> ARENA
-                                        </div>
-                                    </div>
-                                    <h3 className="text-xl md:text-2xl font-black text-white italic uppercase tracking-tighter mb-1 md:mb-2 group-hover:text-padel-yellow transition-colors leading-tight line-clamp-2 md:line-clamp-none">{tourney.name}</h3>
-                                    <p className="text-[9px] md:text-[10px] font-bold text-white/30 uppercase tracking-[0.1em] md:tracking-[0.2em]">
-                                        {new Date(tourney.startDate).toLocaleDateString('fr-FR')} - {new Date(tourney.endDate).toLocaleDateString('fr-FR')}
-                                    </p>
-                                </div>
-
-                                {/* Filling Progress */}
-                                <div className="space-y-1.5 md:space-y-2">
-                                    <div className="flex justify-between items-end">
-                                        <p className="text-[8px] font-black text-white/20 uppercase tracking-widest">Remplissage</p>
-                                        <p className="text-[10px] md:text-[11px] font-black text-white italic">{tourney.currentTeams}/{tourney.maxTeams}</p>
-                                    </div>
-                                    <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
-                                        <motion.div
-                                            initial={{ width: 0 }}
-                                            animate={{ width: `${(tourney.currentTeams / tourney.maxTeams) * 100}%` }}
-                                            className="h-full bg-padel-blue rounded-full"
-                                        />
-                                    </div>
-                                </div>
-
-                                {/* Footer Stats */}
-                                <div className="pt-4 md:pt-6 border-t border-white/5 grid grid-cols-2 gap-4 mt-auto">
-                                    <div className="space-y-0.5 md:space-y-1">
-                                        <p className="text-[7px] md:text-[8px] font-black text-white/20 uppercase tracking-widest">Entry Fee</p>
-                                        <p className="text-sm md:text-lg font-black text-white italic">{tourney.entryFee}€</p>
-                                    </div>
-                                    <div className="space-y-0.5 md:space-y-1">
-                                        <p className="text-[7px] md:text-[8px] font-black text-white/20 uppercase tracking-widest">Prize Pool</p>
-                                        <p className="text-sm md:text-lg font-black text-padel-yellow italic tracking-tighter">{tourney.prize.split(' ')[0]}</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </motion.div>
-                    ))
-                )}
-                </div>
-
-            {/* Pagination Controls */}
-            {!loading && tournaments.length > itemsPerPage && (
-                <div className="flex flex-col sm:flex-row justify-center items-center gap-4 md:gap-6 pt-8 md:pt-12">
-                    <button
-                        disabled={currentPage === 1}
-                        onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                        className="w-full sm:w-auto px-6 md:px-8 py-3 md:py-4 rounded-lg md:rounded-xl bg-white/5 border border-white/10 text-[9px] md:text-[10px] font-black uppercase tracking-widest text-white/40 hover:text-white transition-all"
+                {activeTab === 'TOURNOIS' ? (
+                    <motion.div
+                        key="tournois"
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -20 }}
+                        className="space-y-8"
                     >
-                        Précédent
-                    </button>
-                    <div className="flex items-center gap-2 md:gap-3 overflow-x-auto pb-2 sm:pb-0 custom-scrollbar max-w-full">
-                        {Array.from({ length: Math.ceil(tournaments.length / itemsPerPage) }).map((_, i) => (
-                            <button
-                                key={i}
-                                onClick={() => setCurrentPage(i + 1)}
-                                className={cn(
-                                    "w-8 h-8 md:w-10 md:h-10 rounded-lg text-[9px] md:text-[10px] font-black transition-all border shrink-0",
-                                    currentPage === i + 1 ? "bg-padel-blue border-padel-blue text-white shadow-xl shadow-padel-blue/20" : "bg-white/5 border-white/5 text-white/20 hover:text-white"
-                                )}
-                            >
-                                {i + 1}
-                            </button>
-                        ))}
-                    </div>
-                    <button
-                        disabled={currentPage === Math.ceil(tournaments.length / itemsPerPage)}
-                        onClick={() => setCurrentPage(prev => Math.min(Math.ceil(tournaments.length / itemsPerPage), prev + 1))}
-                        className="w-full sm:w-auto px-6 md:px-8 py-3 md:py-4 rounded-lg md:rounded-xl bg-white/5 border border-white/10 text-[9px] md:text-[10px] font-black uppercase tracking-widest text-white/40 hover:text-white transition-all"
-                    >
-                        Suivant
-                    </button>
-                </div>
-            )}
-            </motion.div>
-            ) : (
-            /* ─── COURSES SECTION ─── */
-            <motion.div
-                key="cours"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                className="space-y-8"
-            >
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {loadingCourses ? (
-                        <div className="col-span-full flex flex-col items-center justify-center py-20 gap-4">
-                            <Loader2 size={48} className="text-padel-blue animate-spin" />
-                            <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em]">Chargement des cours...</p>
-                        </div>
-                    ) : courses.length === 0 ? (
-                        <div className="col-span-full text-center py-20">
-                            <GraduationCap size={48} className="text-white/10 mx-auto mb-4" />
-                            <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em]">Aucun cours programmé</p>
-                        </div>
-                    ) : (
-                        courses.slice((coursePage - 1) * itemsPerPage, coursePage * itemsPerPage).map((course, i) => (
-                            <motion.div
-                                initial={{ opacity: 0, y: 30 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: i * 0.1 }}
-                                key={course._id}
-                                className="bg-[#151518]/60 backdrop-blur-2xl border border-white/5 rounded-2xl md:rounded-[2rem] overflow-hidden group hover:border-padel-blue/20 transition-all duration-500 shadow-xl relative flex flex-col"
-                            >
-                                {/* Card Header */}
-                                <div className="relative h-32 md:h-40 overflow-hidden bg-gradient-to-br from-padel-blue/20 to-padel-yellow/10 flex items-center justify-center">
-                                    <GraduationCap size={48} className="text-white/20" />
-                                    
-                                    {/* Status Badge */}
-                                    <div className="absolute top-4 left-4">
-                                        <span className={cn(
-                                            "px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest border backdrop-blur-md",
-                                            course.status === 'CANCELLED' ? 'bg-red-500/20 text-red-500 border-red-500/10' :
-                                                course.status === 'COMPLETED' ? 'bg-white/10 text-white/50 border-white/10' :
-                                                course.status === 'UPCOMING' ? 'bg-green-500/20 text-green-500 border-green-500/10' :
-                                                    'bg-padel-blue/20 text-padel-blue border-padel-blue/10'
-                                        )}>{course.status === 'UPCOMING' ? 'À venir' : course.status === 'ONGOING' ? 'En cours' : course.status === 'COMPLETED' ? 'Terminé' : 'Annulé'}</span>
-                                    </div>
-
-                                    {/* Level Badge */}
-                                    <div className="absolute top-4 right-4">
-                                        <span className="px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest bg-padel-yellow/20 text-padel-yellow border border-padel-yellow/20">
-                                            {course.level}
-                                        </span>
-                                    </div>
-
-                                    {/* Quick Actions */}
-                                    <div className="absolute bottom-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300">
-                                        <button
-                                            onClick={() => handleEditCourse(course)}
-                                            className="w-8 h-8 rounded-full bg-white/10 border border-white/10 flex items-center justify-center text-white hover:bg-padel-blue hover:border-padel-blue transition-all"
-                                        >
-                                            <Edit2 size={12} />
-                                        </button>
-                                        <button
-                                            onClick={() => handleDeleteCourse(course._id)}
-                                            className="w-8 h-8 rounded-full bg-red-500/10 border border-red-500/10 flex items-center justify-center text-red-500 hover:bg-red-500 hover:text-white transition-all"
-                                        >
-                                            <Trash2 size={12} />
-                                        </button>
-                                    </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                            {loading ? (
+                                <div className="col-span-full flex flex-col items-center justify-center py-20 gap-4">
+                                    <Loader2 size={48} className="text-padel-blue animate-spin" />
+                                    <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em]">Chargement des données satellites...</p>
                                 </div>
+                            ) : (
+                                tournaments.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map((tourney, i) => (
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 30 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: i * 0.1 }}
+                                        key={tourney._id}
+                                        className="bg-[#151518]/60 backdrop-blur-2xl border border-white/5 rounded-2xl md:rounded-[2.5rem] overflow-hidden group hover:border-padel-yellow/20 transition-all duration-500 shadow-3xl relative flex flex-col"
+                                    >
+                                        {/* Card Header: Image & Badges */}
+                                        <div className="relative h-40 md:h-48 overflow-hidden">
+                                            {tourney.image ? (
+                                                <img src={tourney.image} alt="" className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" />
+                                            ) : (
+                                                <div className="w-full h-full bg-padel-yellow flex items-center justify-center text-padel-blue">
+                                                    <Trophy size={48} className="md:w-[64px] md:h-[64px]" />
+                                                </div>
+                                            )}
+                                            <div className="absolute inset-0 bg-gradient-to-t from-[#151518] to-transparent" />
 
-                                {/* Card Content */}
-                                <div className="p-5 md:p-6 space-y-4 flex-1 flex flex-col">
-                                    <div>
-                                        <div className="flex items-center gap-2 mb-2">
-                                            <span className="px-2 py-0.5 rounded bg-padel-blue/10 text-padel-blue text-[7px] font-black uppercase tracking-widest">
-                                                {course.sport}
-                                            </span>
-                                        </div>
-                                        <h3 className="text-lg md:text-xl font-display font-black text-white italic uppercase tracking-tighter leading-tight group-hover:text-padel-blue transition-colors">
-                                            {course.title}
-                                        </h3>
-                                    </div>
+                                            {/* Status Badge (Floating) */}
+                                            <div className="absolute top-4 md:top-6 left-4 md:left-6">
+                                                <span className={cn(
+                                                    "px-3 md:px-4 py-1 md:py-1.5 rounded-full text-[8px] md:text-[9px] font-black uppercase tracking-widest border backdrop-blur-md shadow-2xl",
+                                                    tourney.status === 'CANCELLED' ? 'bg-red-500/20 text-red-500 border-red-500/10' :
+                                                        tourney.status === 'UPCOMING' ? 'bg-green-500/20 text-green-500 border-green-500/10' :
+                                                            'bg-padel-blue/20 text-padel-blue border-padel-blue/10'
+                                                )}>{tourney.status}</span>
+                                            </div>
 
-                                    <div className="space-y-2 flex-1">
-                                        <div className="flex items-center gap-2 text-[9px] font-bold text-white/30 uppercase tracking-widest">
-                                            <Calendar size={12} className="text-padel-blue" />
-                                            {new Date(course.date).toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' })}
-                                            {' • '}
-                                            {new Date(course.date).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+                                            {/* Quick Actions */}
+                                            <div className="absolute top-4 md:top-6 right-4 md:right-6 flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0">
+                                                <button
+                                                    onClick={() => handleEditTournament(tourney)}
+                                                    className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-white/10 border border-white/10 flex items-center justify-center text-white hover:bg-padel-blue hover:border-padel-blue transition-all"
+                                                >
+                                                    <Edit2 size={12} className="md:w-[16px] md:h-[16px]" />
+                                                </button>
+                                                <button
+                                                    onClick={() => handleDeleteTournament(tourney._id)}
+                                                    className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-red-500/10 border border-red-500/10 flex items-center justify-center text-red-500 hover:bg-red-500 hover:text-white transition-all transition-all"
+                                                >
+                                                    <Trash2 size={12} className="md:w-[16px] md:h-[16px]" />
+                                                </button>
+                                            </div>
                                         </div>
-                                        <div className="flex items-center gap-2 text-[9px] font-bold text-white/30 uppercase tracking-widest">
-                                            <Clock size={12} className="text-padel-blue" /> {course.duration} min
-                                        </div>
-                                        <div className="flex items-center gap-2 text-[9px] font-bold text-white/30 uppercase tracking-widest">
-                                            <Users size={12} className="text-padel-blue" /> {course.currentParticipants}/{course.maxParticipants} places
-                                        </div>
-                                        <div className="flex items-center gap-2 text-[9px] font-bold text-white/30 uppercase tracking-widest">
-                                            <Star size={12} className="text-padel-yellow" /> Coach : {course.coach}
-                                        </div>
-                                    </div>
 
-                                    <div className="flex items-center justify-between pt-4 border-t border-white/5">
-                                        <span className="text-2xl font-display font-black text-padel-yellow italic">{course.price}€</span>
-                                        <span className={cn(
-                                            "text-[8px] font-black uppercase tracking-widest",
-                                            course.currentParticipants >= course.maxParticipants ? "text-red-500" : "text-green-500"
-                                        )}>
-                                            {course.currentParticipants >= course.maxParticipants ? 'Complet' : `${course.maxParticipants - course.currentParticipants} places restantes`}
-                                        </span>
-                                    </div>
-                                </div>
-                            </motion.div>
-                        ))
-                    )}
-                </div>
+                                        {/* Card Content */}
+                                        <div className="p-6 md:p-8 space-y-4 md:space-y-6 flex-1 flex flex-col">
+                                            <div>
+                                                <div className="flex items-center gap-2 mb-2 md:mb-3">
+                                                    <div className="px-2 py-0.5 md:px-3 md:py-1 rounded-md bg-padel-blue/10 border border-padel-blue/20 text-[7px] md:text-[8px] font-black text-padel-blue uppercase tracking-widest">{tourney.level}</div>
+                                                    <div className="flex items-center gap-1 text-[7px] md:text-[8px] font-black text-white/20 uppercase tracking-widest">
+                                                        <MapPin size={8} className="md:w-[10px] md:h-[10px]" /> ARENA
+                                                    </div>
+                                                </div>
+                                                <h3 className="text-xl md:text-2xl font-black text-white uppercase tracking-tighter mb-1 md:mb-2 group-hover:text-padel-yellow transition-colors leading-tight line-clamp-2 md:line-clamp-none">{tourney.name}</h3>
+                                                <p className="text-[9px] md:text-[10px] font-bold text-white/30 uppercase tracking-[0.1em] md:tracking-[0.2em]">
+                                                    {new Date(tourney.startDate).toLocaleDateString('fr-FR')} - {new Date(tourney.endDate).toLocaleDateString('fr-FR')}
+                                                </p>
+                                            </div>
 
-                {/* Courses Pagination */}
-                {!loadingCourses && courses.length > itemsPerPage && (
-                    <div className="flex flex-col sm:flex-row justify-center items-center gap-4 md:gap-6 pt-8">
-                        <button
-                            disabled={coursePage === 1}
-                            onClick={() => setCoursePage(prev => Math.max(1, prev - 1))}
-                            className="w-full sm:w-auto px-6 py-3 rounded-xl bg-white/5 border border-white/10 text-[9px] font-black uppercase tracking-widest text-white/40 hover:text-white transition-all disabled:opacity-30"
-                        >
-                            Précédent
-                        </button>
-                        <div className="flex items-center gap-2">
-                            {Array.from({ length: Math.ceil(courses.length / itemsPerPage) }).map((_, i) => (
+                                            {/* Filling Progress */}
+                                            <div className="space-y-1.5 md:space-y-2">
+                                                <div className="flex justify-between items-end">
+                                                    <p className="text-[8px] font-black text-white/20 uppercase tracking-widest">Remplissage</p>
+                                                    <p className="text-[10px] md:text-11px] font-black text-white">{tourney.currentTeams}/{tourney.maxTeams}</p>
+                                                </div>
+                                                <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
+                                                    <motion.div
+                                                        initial={{ width: 0 }}
+                                                        animate={{ width: `${(tourney.currentTeams / tourney.maxTeams) * 100}%` }}
+                                                        className="h-full bg-padel-blue rounded-full"
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            {/* Footer Stats */}
+                                            <div className="pt-4 md:pt-6 border-t border-white/5 grid grid-cols-2 gap-4 mt-auto">
+                                                <div className="space-y-0.5 md:space-y-1">
+                                                    <p className="text-[7px] md:text-[8px] font-black text-white/20 uppercase tracking-widest">Entry Fee</p>
+                                                    <p className="text-sm md:text-lg font-black text-white">{tourney.entryFee}€</p>
+                                                </div>
+                                                <div className="space-y-0.5 md:space-y-1">
+                                                    <p className="text-[7px] md:text-[8px] font-black text-white/20 uppercase tracking-widest">Prize Pool</p>
+                                                    <p className="text-sm md:text-lg font-black text-padel-yellow tracking-tighter">{tourney.prize.split(' ')[0]}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </motion.div>
+                                ))
+                            )}
+                        </div>
+
+                        {/* Pagination Controls */}
+                        {!loading && tournaments.length > itemsPerPage && (
+                            <div className="flex flex-col sm:flex-row justify-center items-center gap-4 md:gap-6 pt-8 md:pt-12">
                                 <button
-                                    key={i}
-                                    onClick={() => setCoursePage(i + 1)}
-                                    className={cn(
-                                        "w-8 h-8 rounded-lg text-[9px] font-black transition-all border",
-                                        coursePage === i + 1 ? "bg-padel-blue border-padel-blue text-white shadow-xl shadow-padel-blue/20" : "bg-white/5 border-white/5 text-white/20 hover:text-white"
-                                    )}
+                                    disabled={currentPage === 1}
+                                    onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                                    className="w-full sm:w-auto px-6 md:px-8 py-3 md:py-4 rounded-lg md:rounded-xl bg-white/5 border border-white/10 text-[9px] md:text-[10px] font-black uppercase tracking-widest text-white/40 hover:text-white transition-all"
                                 >
-                                    {i + 1}
+                                    Précédent
                                 </button>
-                            ))}
+                                <div className="flex items-center gap-2 md:gap-3 overflow-x-auto pb-2 sm:pb-0 custom-scrollbar max-w-full">
+                                    {Array.from({ length: Math.ceil(tournaments.length / itemsPerPage) }).map((_, i) => (
+                                        <button
+                                            key={i}
+                                            onClick={() => setCurrentPage(i + 1)}
+                                            className={cn(
+                                                "w-8 h-8 md:w-10 md:h-10 rounded-lg text-[9px] md:text-[10px] font-black transition-all border shrink-0",
+                                                currentPage === i + 1 ? "bg-padel-blue border-padel-blue text-white shadow-xl shadow-padel-blue/20" : "bg-white/5 border-white/5 text-white/20 hover:text-white"
+                                            )}
+                                        >
+                                            {i + 1}
+                                        </button>
+                                    ))}
+                                </div>
+                                <button
+                                    disabled={currentPage === Math.ceil(tournaments.length / itemsPerPage)}
+                                    onClick={() => setCurrentPage(prev => Math.min(Math.ceil(tournaments.length / itemsPerPage), prev + 1))}
+                                    className="w-full sm:w-auto px-6 md:px-8 py-3 md:py-4 rounded-lg md:rounded-xl bg-white/5 border border-white/10 text-[9px] md:text-[10px] font-black uppercase tracking-widest text-white/40 hover:text-white transition-all"
+                                >
+                                    Suivant
+                                </button>
+                            </div>
+                        )}
+                    </motion.div>
+                ) : (
+                    /* ─── COURSES SECTION ─── */
+                    <motion.div
+                        key="cours"
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -20 }}
+                        className="space-y-8"
+                    >
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {loadingCourses ? (
+                                <div className="col-span-full flex flex-col items-center justify-center py-20 gap-4">
+                                    <Loader2 size={48} className="text-padel-blue animate-spin" />
+                                    <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em]">Chargement des cours...</p>
+                                </div>
+                            ) : courses.length === 0 ? (
+                                <div className="col-span-full text-center py-20">
+                                    <GraduationCap size={48} className="text-white/10 mx-auto mb-4" />
+                                    <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em]">Aucun cours programmé</p>
+                                </div>
+                            ) : (
+                                courses.slice((coursePage - 1) * itemsPerPage, coursePage * itemsPerPage).map((course, i) => (
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 30 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: i * 0.1 }}
+                                        key={course._id}
+                                        className="bg-[#151518]/60 backdrop-blur-2xl border border-white/5 rounded-2xl md:rounded-[2rem] overflow-hidden group hover:border-padel-blue/20 transition-all duration-500 shadow-xl relative flex flex-col"
+                                    >
+                                        {/* Card Header */}
+                                        <div className="relative h-32 md:h-40 overflow-hidden bg-gradient-to-br from-padel-blue/20 to-padel-yellow/10 flex items-center justify-center">
+                                            <GraduationCap size={48} className="text-white/20" />
+
+                                            {/* Status Badge */}
+                                            <div className="absolute top-4 left-4">
+                                                <span className={cn(
+                                                    "px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest border backdrop-blur-md",
+                                                    course.status === 'CANCELLED' ? 'bg-red-500/20 text-red-500 border-red-500/10' :
+                                                        course.status === 'COMPLETED' ? 'bg-white/10 text-white/50 border-white/10' :
+                                                            course.status === 'UPCOMING' ? 'bg-green-500/20 text-green-500 border-green-500/10' :
+                                                                'bg-padel-blue/20 text-padel-blue border-padel-blue/10'
+                                                )}>{course.status === 'UPCOMING' ? 'À venir' : course.status === 'ONGOING' ? 'En cours' : course.status === 'COMPLETED' ? 'Terminé' : 'Annulé'}</span>
+                                            </div>
+
+                                            {/* Level Badge */}
+                                            <div className="absolute top-4 right-4">
+                                                <span className="px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest bg-padel-yellow/20 text-padel-yellow border border-padel-yellow/20">
+                                                    {course.level}
+                                                </span>
+                                            </div>
+
+                                            {/* Quick Actions */}
+                                            <div className="absolute bottom-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300">
+                                                <button
+                                                    onClick={() => handleEditCourse(course)}
+                                                    className="w-8 h-8 rounded-full bg-white/10 border border-white/10 flex items-center justify-center text-white hover:bg-padel-blue hover:border-padel-blue transition-all"
+                                                >
+                                                    <Edit2 size={12} />
+                                                </button>
+                                                <button
+                                                    onClick={() => handleDeleteCourse(course._id)}
+                                                    className="w-8 h-8 rounded-full bg-red-500/10 border border-red-500/10 flex items-center justify-center text-red-500 hover:bg-red-500 hover:text-white transition-all"
+                                                >
+                                                    <Trash2 size={12} />
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        {/* Card Content */}
+                                        <div className="p-5 md:p-6 space-y-4 flex-1 flex flex-col">
+                                            <div>
+                                                <div className="flex items-center gap-2 mb-2">
+                                                    <span className="px-2 py-0.5 rounded bg-padel-blue/10 text-padel-blue text-[7px] font-black uppercase tracking-widest">
+                                                        {course.sport}
+                                                    </span>
+                                                </div>
+                                                <h3 className="text-lg md:text-xl font-display font-black text-white uppercase tracking-tighter leading-tight group-hover:text-padel-blue transition-colors">
+                                                    {course.title}
+                                                </h3>
+                                            </div>
+
+                                            <div className="space-y-2 flex-1">
+                                                <div className="flex items-center gap-2 text-[9px] font-bold text-white/30 uppercase tracking-widest">
+                                                    <Calendar size={12} className="text-padel-blue" />
+                                                    {new Date(course.date).toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' })}
+                                                    {' • '}
+                                                    {new Date(course.date).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+                                                </div>
+                                                <div className="flex items-center gap-2 text-[9px] font-bold text-white/30 uppercase tracking-widest">
+                                                    <Clock size={12} className="text-padel-blue" /> {course.duration} min
+                                                </div>
+                                                <div className="flex items-center gap-2 text-[9px] font-bold text-white/30 uppercase tracking-widest">
+                                                    <Users size={12} className="text-padel-blue" /> {course.currentParticipants}/{course.maxParticipants} places
+                                                </div>
+                                                <div className="flex items-center gap-2 text-[9px] font-bold text-white/30 uppercase tracking-widest">
+                                                    <Star size={12} className="text-padel-yellow" /> Coach : {course.coach}
+                                                </div>
+                                            </div>
+
+                                            <div className="flex items-center justify-between pt-4 border-t border-white/5">
+                                                <span className="text-2xl font-display font-black text-padel-yellow">{course.price}€</span>
+                                                <span className={cn(
+                                                    "text-[8px] font-black uppercase tracking-widest",
+                                                    course.currentParticipants >= course.maxParticipants ? "text-red-500" : "text-green-500"
+                                                )}>
+                                                    {course.currentParticipants >= course.maxParticipants ? 'Complet' : `${course.maxParticipants - course.currentParticipants} places restantes`}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </motion.div>
+                                ))
+                            )}
                         </div>
-                        <button
-                            disabled={coursePage === Math.ceil(courses.length / itemsPerPage)}
-                            onClick={() => setCoursePage(prev => Math.min(Math.ceil(courses.length / itemsPerPage), prev + 1))}
-                            className="w-full sm:w-auto px-6 py-3 rounded-xl bg-white/5 border border-white/10 text-[9px] font-black uppercase tracking-widest text-white/40 hover:text-white transition-all disabled:opacity-30"
-                        >
-                            Suivant
-                        </button>
-                    </div>
+
+                        {/* Courses Pagination */}
+                        {!loadingCourses && courses.length > itemsPerPage && (
+                            <div className="flex flex-col sm:flex-row justify-center items-center gap-4 md:gap-6 pt-8">
+                                <button
+                                    disabled={coursePage === 1}
+                                    onClick={() => setCoursePage(prev => Math.max(1, prev - 1))}
+                                    className="w-full sm:w-auto px-6 py-3 rounded-xl bg-white/5 border border-white/10 text-[9px] font-black uppercase tracking-widest text-white/40 hover:text-white transition-all disabled:opacity-30"
+                                >
+                                    Précédent
+                                </button>
+                                <div className="flex items-center gap-2">
+                                    {Array.from({ length: Math.ceil(courses.length / itemsPerPage) }).map((_, i) => (
+                                        <button
+                                            key={i}
+                                            onClick={() => setCoursePage(i + 1)}
+                                            className={cn(
+                                                "w-8 h-8 rounded-lg text-[9px] font-black transition-all border",
+                                                coursePage === i + 1 ? "bg-padel-blue border-padel-blue text-white shadow-xl shadow-padel-blue/20" : "bg-white/5 border-white/5 text-white/20 hover:text-white"
+                                            )}
+                                        >
+                                            {i + 1}
+                                        </button>
+                                    ))}
+                                </div>
+                                <button
+                                    disabled={coursePage === Math.ceil(courses.length / itemsPerPage)}
+                                    onClick={() => setCoursePage(prev => Math.min(Math.ceil(courses.length / itemsPerPage), prev + 1))}
+                                    className="w-full sm:w-auto px-6 py-3 rounded-xl bg-white/5 border border-white/10 text-[9px] font-black uppercase tracking-widest text-white/40 hover:text-white transition-all disabled:opacity-30"
+                                >
+                                    Suivant
+                                </button>
+                            </div>
+                        )}
+                    </motion.div>
                 )}
-            </motion.div>
-            )}
             </AnimatePresence>
 
             {/* Modal de Configuration Tournoi */}
@@ -884,7 +887,7 @@ export function AdminEvents() {
                             </button>
 
                             <div className="mb-6">
-                                <h2 className="text-2xl md:text-3xl font-display font-black text-white italic uppercase tracking-tighter">
+                                <h2 className="text-2xl md:text-3xl font-display font-black text-white uppercase tracking-tighter">
                                     {editingTournament ? 'Modifier' : 'Configurer'} <span className="text-padel-yellow">Tournoi</span>
                                 </h2>
                                 <p className="text-[8px] md:text-[10px] font-black text-white/20 uppercase tracking-[0.4em] mt-1">DÉPLOIEMENT COMPÉTITION ÉLITE</p>
@@ -1114,7 +1117,7 @@ export function AdminEvents() {
                                 </div>
 
                                 {error && (
-                                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="p-3 bg-red-500/10 border border-red-500/20 rounded-2xl text-red-500 text-[9px] font-black uppercase tracking-widest text-center italic">
+                                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="p-3 bg-red-500/10 border border-red-500/20 rounded-2xl text-red-500 text-[9px] font-black uppercase tracking-widest text-center">
                                         ⚡ Error: {error}
                                     </motion.div>
                                 )}
@@ -1167,7 +1170,7 @@ export function AdminEvents() {
                             </button>
 
                             <div className="mb-6">
-                                <h2 className="text-2xl md:text-3xl font-display font-black text-white italic uppercase tracking-tighter">
+                                <h2 className="text-2xl md:text-3xl font-display font-black text-white uppercase tracking-tighter">
                                     {editingCourse ? 'Modifier' : 'Créer'} <span className="text-padel-blue">Cours</span>
                                 </h2>
                                 <p className="text-[8px] md:text-[10px] font-black text-white/20 uppercase tracking-[0.4em] mt-1">COACHING & FORMATION</p>

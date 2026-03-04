@@ -305,19 +305,12 @@ export function AdminPayments() {
             {/* Tactical Financial Header */}
             <div className="flex flex-col xl:flex-row xl:items-end justify-between gap-8 md:gap-10 border-b border-white/5 pb-8 md:pb-12 pt-6 md:pt-0">
                 <div className="space-y-3 md:space-y-5">
-                    <motion.div
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.2 }}
-                        className="inline-flex items-center gap-2 md:gap-3 px-3 md:px-4 py-1.5 rounded-full bg-padel-blue/10 border border-padel-blue/20 text-padel-blue text-[8px] md:text-[9px] lg:text-[10px] font-black uppercase tracking-[0.2em] md:tracking-[0.4em]"
-                    >
-                        <ShieldCheck size={10} className="md:w-3 md:h-3" /> Financial Core • Secure Environment
-                    </motion.div>
+
                     <div>
-                        <h1 className="text-4xl md:text-6xl xl:text-8xl font-display font-black text-white italic uppercase tracking-tighter leading-[0.9] md:leading-[0.8]">
+                        <h1 className="text-4xl md:text-6xl xl:text-8xl font-display font-black text-white uppercase tracking-tighter leading-[0.9] md:leading-[0.8]">
                             Finances <br /> <span className="text-padel-yellow drop-shadow-[0_0_35px_rgba(255,210,31,0.25)]">& Caisses</span>
                         </h1>
-                        <p className="text-[9px] md:text-xs font-bold text-white/30 uppercase tracking-[0.2em] md:tracking-[0.5em] mt-4 md:mt-6 italic flex items-center gap-2 md:gap-3">
+                        <p className="text-[9px] md:text-xs font-bold text-white/30 uppercase tracking-[0.2em] md:tracking-[0.5em] mt-4 md:mt-6 flex items-center gap-2 md:gap-3">
                             <Zap size={12} className="text-padel-yellow md:w-4 md:h-4" /> Audit Réseau • Trésorerie Live • Reporting
                         </p>
                     </div>
@@ -408,10 +401,10 @@ export function AdminPayments() {
                         <div className="space-y-1 relative z-10">
                             <p className="text-[9px] md:text-xs font-black text-white/30 uppercase tracking-[0.2em] md:tracking-[0.4em] mb-1 md:mb-2">{stat.label}</p>
                             <div className="flex items-baseline gap-2">
-                                <h4 className="text-xl md:text-4xl lg:text-5xl font-black text-white italic tracking-tighter leading-none">
+                                <h4 className="text-xl md:text-4xl lg:text-5xl font-black text-white tracking-tighter leading-none">
                                     {typeof stat.val === 'number' ? <NumberTicker value={stat.val} /> : stat.val}
                                 </h4>
-                                <span className="text-xs md:text-lg font-black text-white/20 uppercase italic">€</span>
+                                <span className="text-xs md:text-lg font-black text-white/20 uppercase">€</span>
                             </div>
                             <p className="text-[8px] md:text-[10px] font-bold text-white/10 uppercase tracking-widest mt-2 md:mt-4 flex items-center gap-2">
                                 <span className="w-4 h-[1px] bg-white/10" /> {stat.desc} Dashboard
@@ -427,7 +420,7 @@ export function AdminPayments() {
                 <div className="xl:col-span-2 bg-[#151518]/60 backdrop-blur-2xl border border-white/10 rounded-2xl md:rounded-[4rem] overflow-hidden shadow-3xl">
                     <div className="p-6 md:p-10 border-b border-white/5 flex flex-col md:flex-row md:items-center justify-between gap-6 md:gap-8">
                         <div className="space-y-1 md:space-y-2">
-                            <h3 className="text-lg md:text-xl font-black text-white uppercase italic tracking-tighter flex items-center gap-3 md:gap-4">
+                            <h3 className="text-lg md:text-xl font-black text-white uppercase tracking-tighter flex items-center gap-3 md:gap-4">
                                 <History className="text-padel-yellow w-4 h-4 md:w-5 md:h-5" /> Matrix Transactions
                             </h3>
                             <p className="text-[8px] md:text-[9px] font-black text-white/20 uppercase tracking-[0.2em] md:tracking-[0.3em]">Flux de Trésorerie • Temps Réel</p>
@@ -502,7 +495,7 @@ export function AdminPayments() {
                                             <td className="px-6 md:px-10 py-5 md:py-6 font-black text-white/10 tracking-[0.1em] text-[8px] md:text-[10px]">#{tr.id.toString().slice(-4).toUpperCase()}</td>
                                             <td className="px-4 md:px-8 py-5 md:py-6">
                                                 <div className="flex flex-col gap-0.5 md:gap-1 min-w-0">
-                                                    <p className="text-[10px] md:text-sm font-black text-white italic group-hover:text-padel-blue transition-colors uppercase tracking-tighter truncate max-w-[100px] md:max-w-none">{tr.user}</p>
+                                                    <p className="text-[10px] md:text-sm font-black text-white group-hover:text-padel-blue transition-colors uppercase tracking-tighter truncate max-w-[100px] md:max-w-none">{tr.user}</p>
                                                     <p className="text-[7px] md:text-[9px] font-bold text-white/20 uppercase tracking-widest truncate max-w-[100px] md:max-w-none">{tr.label}</p>
                                                 </div>
                                             </td>
@@ -513,7 +506,7 @@ export function AdminPayments() {
                                                         (tr.type === 'INCOME' || tr.type === 'REVENUE') ? (tr.amount >= 0 ? "bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.3)]" : "bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.3)]") : "bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.3)]"
                                                     )} />
                                                     <span className={cn(
-                                                        "text-xs md:text-lg font-black italic tracking-tighter whitespace-nowrap",
+                                                        "text-xs md:text-lg font-black tracking-tighter whitespace-nowrap",
                                                         (tr.type === 'INCOME' || tr.type === 'REVENUE') ? (tr.amount >= 0 ? "text-green-500" : "text-red-500") : "text-red-500"
                                                     )}>
                                                         {tr.type === 'EXPENSE' ? '' : tr.amount >= 0 ? '+' : ''}{tr.amount.toFixed(2)}€
@@ -526,7 +519,7 @@ export function AdminPayments() {
                                                     <span className="text-[7px] md:text-[9px] font-black text-white/40 uppercase tracking-widest">{tr.method}</span>
                                                 </div>
                                             </td>
-                                            <td className="hidden md:table-cell px-8 py-6 text-[11px] font-bold text-white/20 uppercase tracking-tighter italic whitespace-nowrap">
+                                            <td className="hidden md:table-cell px-8 py-6 text-[11px] font-bold text-white/20 uppercase tracking-tighter whitespace-nowrap">
                                                 {new Date(tr.date).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
                                             </td>
                                             <td className="px-6 md:px-10 py-5 md:py-6 text-right">
@@ -588,7 +581,7 @@ export function AdminPayments() {
 
                         <div className="flex items-center justify-between mb-8 md:mb-10">
                             <div>
-                                <h3 className="text-xl md:text-2xl font-black text-white italic uppercase tracking-tighter leading-tight">Console <span className="text-padel-yellow">Caisse</span></h3>
+                                <h3 className="text-xl md:text-2xl font-black text-white uppercase tracking-tighter leading-tight">Console <span className="text-padel-yellow">Caisse</span></h3>
                                 <p className="text-[8px] md:text-[9px] font-black text-white/20 uppercase tracking-[0.3em] md:tracking-[0.4em] mt-1">Opérations Tactiques Directes</p>
                             </div>
                             <div className={cn(
@@ -680,7 +673,7 @@ export function AdminPayments() {
                                 <div key={item.label} className="space-y-2 md:space-y-3">
                                     <div className="flex justify-between items-end">
                                         <span className="text-[9px] md:text-[10px] font-black text-white/40 uppercase tracking-widest">{item.label}</span>
-                                        <span className="text-[10px] md:text-xs font-black text-white italic">{item.val}</span>
+                                        <span className="text-[10px] md:text-xs font-black text-white">{item.val}</span>
                                     </div>
                                     <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden">
                                         <motion.div
@@ -724,7 +717,7 @@ export function AdminPayments() {
                                 </button>
 
                                 <div className="mb-8 md:mb-10">
-                                    <h3 className="text-2xl md:text-3xl font-display font-black text-white italic uppercase tracking-tighter">Entrée <span className="text-padel-yellow">Tactique</span></h3>
+                                    <h3 className="text-2xl md:text-3xl font-display font-black text-white uppercase tracking-tighter">Entrée <span className="text-padel-yellow">Tactique</span></h3>
                                     <p className="text-[8px] md:text-[10px] font-black text-white/20 uppercase tracking-[0.4em] mt-2">Mouvement Trésorerie Authentifié</p>
                                 </div>
 
@@ -768,9 +761,9 @@ export function AdminPayments() {
                                                 value={registerFormData.amount}
                                                 onChange={(e) => setRegisterFormData({ ...registerFormData, amount: e.target.value })}
                                                 placeholder="0.00"
-                                                className="w-full bg-white/[0.03] border border-white/10 rounded-2xl md:rounded-[3rem] pl-16 md:pl-24 pr-10 py-5 md:py-8 text-2xl md:text-4xl font-black text-white focus:outline-none focus:border-padel-blue/50 focus:bg-white/[0.06] transition-all italic tracking-tighter placeholder:text-white/5 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                                className="w-full bg-white/[0.03] border border-white/10 rounded-2xl md:rounded-[3rem] pl-16 md:pl-24 pr-10 py-5 md:py-8 text-2xl md:text-4xl font-black text-white focus:outline-none focus:border-padel-blue/50 focus:bg-white/[0.06] transition-all tracking-tighter placeholder:text-white/5 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                             />
-                                            <div className="absolute right-6 md:right-10 top-1/2 -translate-y-1/2 text-[10px] md:text-sm font-black text-white/20 uppercase italic tracking-widest bg-white/5 px-3 py-1.5 rounded-lg border border-white/10">
+                                            <div className="absolute right-6 md:right-10 top-1/2 -translate-y-1/2 text-[10px] md:text-sm font-black text-white/20 uppercase tracking-widest bg-white/5 px-3 py-1.5 rounded-lg border border-white/10">
                                                 EUR
                                             </div>
                                         </div>
@@ -842,8 +835,8 @@ export function AdminPayments() {
                                 </div>
                             </div>
 
-                            <h3 className="text-xl md:text-2xl font-display font-black text-white italic uppercase tracking-tighter mb-2 leading-none text-center">Rapport <span className="text-padel-yellow">Analytique</span></h3>
-                            <p className="text-[9px] md:text-[10px] font-black text-white/20 uppercase tracking-[0.3em] md:tracking-[0.4em] mb-8 md:mb-10 italic text-center">Session d'Audit Terminée • {new Date().toLocaleDateString('fr-FR')}</p>
+                            <h3 className="text-xl md:text-2xl font-display font-black text-white uppercase tracking-tighter mb-2 leading-none text-center">Rapport <span className="text-padel-yellow">Analytique</span></h3>
+                            <p className="text-[9px] md:text-[10px] font-black text-white/20 uppercase tracking-[0.3em] md:tracking-[0.4em] mb-8 md:mb-10 text-center">Session d'Audit Terminée • {new Date().toLocaleDateString('fr-FR')}</p>
 
                             <div className="space-y-3 md:space-y-4 mb-8 md:mb-10">
                                 <div className="flex justify-between items-center p-4 md:p-5 rounded-xl md:rounded-2xl bg-white/[0.03] border border-white/5 backdrop-blur-xl">
@@ -853,7 +846,7 @@ export function AdminPayments() {
                                 <div className="flex justify-between items-center p-4 md:p-5 rounded-xl md:rounded-2xl bg-white/[0.03] border border-white/5 backdrop-blur-xl">
                                     <span className="text-[9px] md:text-[10px] font-black text-white/30 uppercase tracking-widest text-left">Mouvement Cash Net</span>
                                     <div className="flex flex-col items-end">
-                                        <span className={cn("text-xs md:text-sm font-black italic tracking-tighter", closingSummary.netMovement >= 0 ? "text-green-500" : "text-red-500")}>
+                                        <span className={cn("text-xs md:text-sm font-black tracking-tighter", closingSummary.netMovement >= 0 ? "text-green-500" : "text-red-500")}>
                                             {closingSummary.netMovement >= 0 ? '+' : ''}{closingSummary.netMovement.toFixed(2)} €
                                         </span>
                                         <span className="text-[7px] font-bold uppercase tracking-widest opacity-20">Audit Direct</span>
@@ -861,22 +854,22 @@ export function AdminPayments() {
                                 </div>
                                 <div className="flex justify-between items-center p-4 md:p-5 rounded-xl md:rounded-2xl bg-padel-blue/5 border border-padel-blue/20">
                                     <span className="text-[9px] md:text-[10px] font-black text-padel-blue uppercase tracking-widest text-left">Flux Digital (Stripe)</span>
-                                    <span className="text-xs md:text-sm font-black text-padel-blue italic tracking-tighter">+{closingSummary.stripeRevenue.toFixed(2)} €</span>
+                                    <span className="text-xs md:text-sm font-black text-padel-blue tracking-tighter">+{closingSummary.stripeRevenue.toFixed(2)} €</span>
                                 </div>
                                 {closingSummary.otherRevenue > 0 && (
                                     <div className="flex justify-between items-center p-4 md:p-5 rounded-xl md:rounded-2xl bg-white/[0.03] border border-white/5">
                                         <span className="text-[9px] md:text-[10px] font-black text-white/30 uppercase tracking-widest text-left">Vecteurs Externes</span>
-                                        <span className="text-xs md:text-sm font-black text-white italic tracking-tighter">+{closingSummary.otherRevenue.toFixed(2)} €</span>
+                                        <span className="text-xs md:text-sm font-black text-white tracking-tighter">+{closingSummary.otherRevenue.toFixed(2)} €</span>
                                     </div>
                                 )}
                                 <div className="p-6 md:p-8 rounded-[2rem] md:rounded-[2.5rem] bg-gradient-to-br from-padel-yellow to-[#f59e0b] text-padel-blue shadow-2xl shadow-padel-yellow/20 relative overflow-hidden group">
                                     <div className="absolute top-0 right-0 w-20 h-20 bg-white/20 blur-2xl rounded-full -mr-10 -mt-10" />
                                     <p className="text-[8px] md:text-[10px] font-black uppercase tracking-[0.2em] md:tracking-[0.3em] mb-1 opacity-60">TOTAL RÉALISÉ SUR LE SHIFT</p>
-                                    <p className="text-2xl md:text-4xl font-black italic tracking-tighter leading-none">{(closingSummary.totalRevenue).toFixed(2)} €</p>
+                                    <p className="text-2xl md:text-4xl font-black tracking-tighter leading-none">{(closingSummary.totalRevenue).toFixed(2)} €</p>
                                 </div>
                             </div>
 
-                            <button onClick={() => setShowSummaryModal(false)} className="w-full py-5 md:py-7 bg-white text-dark-bg rounded-2xl md:rounded-[2.5rem] text-[10px] md:text-[11px] font-black uppercase tracking-[0.3em] hover:bg-padel-yellow transition-all duration-500 font-display italic active:scale-95 shadow-2xl">
+                            <button onClick={() => setShowSummaryModal(false)} className="w-full py-5 md:py-7 bg-white text-dark-bg rounded-2xl md:rounded-[2.5rem] text-[10px] md:text-[11px] font-black uppercase tracking-[0.3em] hover:bg-padel-yellow transition-all duration-500 font-display active:scale-95 shadow-2xl">
                                 Valider & Archiver l'Audit
                             </button>
                         </motion.div>
@@ -892,7 +885,7 @@ export function AdminPayments() {
             >
                 <div className="p-6 md:p-10 border-b border-white/5 flex flex-col xl:flex-row xl:items-center justify-between gap-6 md:gap-8">
                     <div className="space-y-3">
-                        <h3 className="text-lg md:text-xl font-black text-white italic uppercase tracking-tighter flex items-center gap-3 md:gap-4">
+                        <h3 className="text-lg md:text-xl font-black text-white uppercase tracking-tighter flex items-center gap-3 md:gap-4">
                             <Clock className="text-padel-blue w-5 h-5 md:w-6 md:h-6" size={20} /> Historique des Shifts
                         </h3>
                         <p className="text-[8px] md:text-[9px] font-black text-white/20 uppercase tracking-[0.3em] leading-relaxed">Chronologie des ouvertures & fermetures de caisse</p>
@@ -947,7 +940,7 @@ export function AdminPayments() {
                                 <tr key={shift._id} className="hover:bg-white/[0.03] transition-all group">
                                     <td className="px-6 md:px-10 py-5 md:py-6">
                                         <div className="flex flex-col gap-1">
-                                            <p className="text-xs md:text-sm font-black text-white uppercase italic tracking-tighter">
+                                            <p className="text-xs md:text-sm font-black text-white uppercase tracking-tighter">
                                                 {new Date(shift.startTime).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })}
                                             </p>
                                             <p className="text-[9px] md:text-[10px] font-bold text-white/20 uppercase tracking-wider">
@@ -962,15 +955,15 @@ export function AdminPayments() {
                                                 {shift.openedBy?.name?.charAt(0) || '?'}
                                             </div>
                                             <div className="flex flex-col">
-                                                <span className="text-xs md:text-sm font-black text-white italic uppercase tracking-tighter truncate max-w-[120px] md:max-w-none">{shift.openedBy?.name || 'Tactical Admin'}</span>
+                                                <span className="text-xs md:text-sm font-black text-white uppercase tracking-tighter truncate max-w-[120px] md:max-w-none">{shift.openedBy?.name || 'Tactical Admin'}</span>
                                                 <span className="text-[8px] font-bold text-white/10 uppercase tracking-widest leading-none mt-1">Manager</span>
                                             </div>
                                         </div>
                                     </td>
-                                    <td className="px-6 md:px-8 py-5 md:py-6 text-xs md:text-sm font-black text-white/40 font-mono tracking-tighter italic">
+                                    <td className="px-6 md:px-8 py-5 md:py-6 text-xs md:text-sm font-black text-white/40 font-mono tracking-tighter">
                                         {shift.startingCash.toFixed(2)} €
                                     </td>
-                                    <td className="px-6 md:px-8 py-5 md:py-6 text-xs md:text-sm font-black text-white italic tracking-tighter">
+                                    <td className="px-6 md:px-8 py-5 md:py-6 text-xs md:text-sm font-black text-white tracking-tighter">
                                         {shift.status === 'CLOSED' ? (
                                             <span className="text-white">{shift.endingCash.toFixed(2)} €</span>
                                         ) : (
@@ -983,7 +976,7 @@ export function AdminPayments() {
                                                 "inline-flex flex-col items-center px-4 py-1.5 rounded-xl border",
                                                 (shift.endingCash - shift.startingCash) >= 0 ? "bg-green-500/5 border-green-500/10 text-green-500" : "bg-red-500/5 border-red-500/10 text-red-500"
                                             )}>
-                                                <span className="text-[11px] md:text-xs font-black italic tracking-tighter leading-none">
+                                                <span className="text-[11px] md:text-xs font-black tracking-tighter leading-none">
                                                     {(shift.endingCash - shift.startingCash) >= 0 ? '+' : ''}{(shift.endingCash - shift.startingCash).toFixed(2)} €
                                                 </span>
                                                 <span className="text-[8px] font-bold uppercase tracking-widest mt-1 opacity-50">Flux Net</span>

@@ -53,8 +53,8 @@ export function DeleteConfirmModal({
                                 <AlertTriangle size={32} />
                             </div>
 
-                            <h3 className="text-2xl font-display font-black text-white italic uppercase tracking-tighter mb-4">
-                                Confirmation <span className="text-red-500 italic">Critique</span>
+                            <h3 className="text-2xl font-display font-black text-white uppercase tracking-tighter mb-4">
+                                Confirmation <span className="text-red-500">Critique</span>
                             </h3>
 
                             <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.4em] mb-4">Protocol de Suppression</p>

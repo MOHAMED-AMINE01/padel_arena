@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+import { PromoCodeInput } from '../../components/player/PromoCodeInput';
 import {
-    Calendar as CalendarIcon,
+    Calendar,
     MapPin,
     Clock,
     ChevronRight,
@@ -23,7 +24,10 @@ import {
     Star,
     Wifi,
     Trophy,
-    Timer
+    Timer,
+    Target,
+    Layout,
+    Ticket
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { Link, useNavigate } from 'react-router-dom';
@@ -234,7 +238,7 @@ export function PlayerBook() {
         if (!selectedTime) return { available: false, reason: 'Sélectionnez un créneau' };
 
         const endTime = getEndTime(selectedTime, durationMinutes);
-        
+
         // Check if duration exceeds closing time
         if (endTime > CLOSING_TIME) {
             return { available: false, reason: `Dépasse l'heure de fermeture (${CLOSING_TIME})` };
@@ -246,7 +250,7 @@ export function PlayerBook() {
             // Check all slots that would be occupied by this duration
             const startMinutes = parseInt(selectedTime.split(':')[0]) * 60 + parseInt(selectedTime.split(':')[1]);
             const endMinutes = parseInt(endTime.split(':')[0]) * 60 + parseInt(endTime.split(':')[1]);
-            
+
             // Check each 30-min interval within the duration
             for (let t = startMinutes; t < endMinutes; t += 30) {
                 const timeStr = `${String(Math.floor(t / 60)).padStart(2, '0')}:${String(t % 60).padStart(2, '0')}`;
@@ -263,7 +267,9 @@ export function PlayerBook() {
         return { available: true };
     }, [selectedTime, courtSlots, getEndTime]);
 
-    // ── Book
+    // Ajout état pour code promo et réduction
+    const [promoDiscount, setPromoDiscount] = useState<number>(0);
+    const [promoCode, setPromoCode] = useState<string>('');
     const handleBook = async () => {
         if (!selectedCourt || !selectedTime || !selectedDate) return;
         setLoadingBook(true);
@@ -281,6 +287,7 @@ export function PlayerBook() {
                 courtId: selectedCourt.courtId,
                 startTime: start.toISOString(),
                 endTime: end.toISOString(),
+                promoCode: promoCode || undefined
             });
 
             setBookingRef(res.data.data._id?.toString().slice(-6).toUpperCase() || 'OK');
@@ -294,7 +301,8 @@ export function PlayerBook() {
 
     // Calculate total price based on hourly rate and selected duration
     const hourlyPrice = selectedCourt?.slots.find(s => s.time === selectedTime)?.price ?? 0;
-    const totalPrice = (hourlyPrice * selectedDuration / 60).toFixed(0);
+    // Nouveau calcul du prix total avec réduction
+    const totalPrice = Math.max(0, (hourlyPrice * selectedDuration / 60) - promoDiscount).toFixed(2);
 
     // ── Render ────────────────────────────────────────────────────────────────
     return (
@@ -434,7 +442,7 @@ export function PlayerBook() {
                                     {[
                                         { icon: <Zap size={18} />, label: 'Sport', value: selectedSport || '–' },
                                         { icon: <MapPin size={18} />, label: 'Terrain', value: selectedCourt?.courtName || '–' },
-                                        { icon: <CalendarIcon size={18} />, label: 'Date', value: selectedDate.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' }) },
+                                        { icon: <Calendar size={18} />, label: 'Date', value: selectedDate.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' }) },
                                         { icon: <Clock size={18} />, label: 'Heure', value: `${selectedTime} — ${selectedDuration >= 60 ? Math.floor(selectedDuration / 60) + 'h' : ''}${selectedDuration % 60 > 0 ? (selectedDuration % 60) : ''}` },
                                     ].map((item, i) => (
                                         <motion.div
@@ -678,7 +686,7 @@ export function PlayerBook() {
                                 </div>
                             ) : mergedSlots.length === 0 ? (
                                 <div className="flex flex-col items-center gap-5 py-20 bg-white/[0.02] border border-white/5 rounded-[2.5rem]">
-                                    <CalendarIcon size={40} className="text-white/10" />
+                                    <Calendar size={40} className="text-white/10" />
                                     <p className="text-[10px] font-black uppercase tracking-[0.3em] text-white/20 italic">Aucun terrain disponible pour ce sport ce jour-là.</p>
                                 </div>
                             ) : (
@@ -794,16 +802,16 @@ export function PlayerBook() {
                                                 </div>
                                             </div>
                                         )}
-                                        
+
                                         <Timer className="w-6 h-6 sm:w-8 sm:h-8 md:w-8 md:h-8 mx-auto mb-2 sm:mb-4 transition-colors" style={{ color: isSelected ? '#1349D3' : 'rgba(255,255,255,0.2)' }} />
-                                        
+
                                         <span className={cn(
                                             'text-3xl sm:text-4xl md:text-5xl font-display font-black italic tracking-tighter block mb-1 sm:mb-2',
                                             isSelected ? 'text-white' : 'text-white/60'
                                         )}>
                                             {option.label}
                                         </span>
-                                        
+
                                         <span className={cn(
                                             'text-[10px] font-black uppercase tracking-widest block mb-4',
                                             isSelected ? 'text-padel-blue' : 'text-white/30'
@@ -992,141 +1000,215 @@ export function PlayerBook() {
                     >
                         <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 sm:gap-6 lg:gap-8">
                             {/* Left: Recap */}
-                            <div className="lg:col-span-3 bg-[#151518]/60 backdrop-blur-2xl border border-white/10 rounded-2xl sm:rounded-[2.5rem] lg:rounded-[3rem] p-5 sm:p-8 md:p-10 lg:p-14 relative overflow-hidden">
-                                <div className="absolute top-0 right-0 w-48 sm:w-64 h-48 sm:h-64 bg-padel-blue/5 rounded-full blur-[80px] pointer-events-none" />
+                            <div className="lg:col-span-3 bg-[#151518]/60 backdrop-blur-2xl border border-white/10 rounded-2xl sm:rounded-[2.5rem] lg:rounded-[3rem] p-6 sm:p-8 md:p-10 lg:p-14 relative overflow-hidden flex flex-col justify-between">
+                                <div className="absolute top-0 right-0 w-64 h-64 bg-padel-blue/5 rounded-full blur-[100px] pointer-events-none" />
+                                <div className="absolute -bottom-32 -left-32 w-80 h-80 bg-padel-yellow/5 rounded-full blur-[120px] pointer-events-none" />
 
-                                <button
-                                    onClick={() => setStep(4)}
-                                    className="group flex items-center gap-2 sm:gap-3 text-[9px] sm:text-[10px] font-black text-white/30 hover:text-white uppercase tracking-widest transition-all mb-6 sm:mb-10 lg:mb-12"
-                                >
-                                    <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-white/10 transition-all">
-                                        <ChevronLeft size={14} className="sm:w-4 sm:h-4" />
+                                <div className="relative z-10">
+                                    <div className="flex items-center gap-4 mb-8 sm:mb-12">
+                                        <div className="w-12 h-12 sm:w-16 sm:h-16 bg-white/5 border border-white/10 rounded-xl sm:rounded-2xl flex items-center justify-center text-padel-blue shadow-inner">
+                                            <Target size={24} className="sm:w-8 sm:h-8" />
+                                        </div>
+                                        <div>
+                                            <p className="text-[10px] sm:text-[11px] font-black text-white/30 uppercase tracking-[0.3em] italic mb-1">Sport sélectionné</p>
+                                            <h3 className="text-xl sm:text-2xl font-black text-white italic uppercase tracking-tighter">{selectedSport}</h3>
+                                        </div>
                                     </div>
-                                    Modifier le terrain
-                                </button>
 
-                                <div className="mb-6 sm:mb-8 lg:mb-10">
-                                    <p className="text-[8px] sm:text-[9px] font-black uppercase tracking-[0.4em] sm:tracking-[0.5em] text-padel-blue/60 mb-1 sm:mb-2 italic">Étape finale</p>
-                                    <h2 className="text-2xl sm:text-3xl md:text-4xl font-display font-black text-white italic uppercase tracking-tighter">RÉCAPITULATIF</h2>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-10">
+                                        <div className="space-y-6">
+                                            <div className="flex gap-4 sm:gap-5">
+                                                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-padel-blue/10 border border-padel-blue/20 rounded-lg sm:rounded-xl flex items-center justify-center text-padel-blue shrink-0">
+                                                    <Calendar size={20} />
+                                                </div>
+                                                <div>
+                                                    <p className="text-[9px] font-black text-white/20 uppercase tracking-widest mb-1">Date du match</p>
+                                                    <p className="text-sm sm:text-lg font-black text-white italic uppercase tracking-tight">
+                                                        {selectedDate?.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div className="flex gap-4 sm:gap-5">
+                                                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-padel-yellow/10 border border-padel-yellow/20 rounded-lg sm:rounded-xl flex items-center justify-center text-padel-yellow shrink-0">
+                                                    <Clock size={20} />
+                                                </div>
+                                                <div>
+                                                    <p className="text-[9px] font-black text-white/20 uppercase tracking-widest mb-1">Créneau & Durée</p>
+                                                    <p className="text-sm sm:text-lg font-black text-white italic uppercase tracking-tight">
+                                                        {selectedTime} <span className="text-white/30 mx-2">—</span> {selectedDuration} min
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="space-y-6">
+                                            <div className="flex gap-4 sm:gap-5">
+                                                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white/5 border border-white/10 rounded-lg sm:rounded-xl flex items-center justify-center text-white/40 shrink-0">
+                                                    <Layout size={20} />
+                                                </div>
+                                                <div>
+                                                    <p className="text-[9px] font-black text-white/20 uppercase tracking-widest mb-1">Terrain</p>
+                                                    <p className="text-sm sm:text-lg font-black text-white italic uppercase tracking-tight">
+                                                        {selectedCourt?.courtName}
+                                                        <span className="block text-[10px] text-white/30 lowercase italic tracking-normal mt-0.5">Automatiquement attribué</span>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div className="flex gap-4 sm:gap-5">
+                                                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white/5 border border-white/10 rounded-lg sm:rounded-xl flex items-center justify-center text-white/40 shrink-0">
+                                                    <Sparkles size={20} />
+                                                </div>
+                                                <div>
+                                                    <p className="text-[9px] font-black text-white/20 uppercase tracking-widest mb-1">Inclus</p>
+                                                    <p className="text-xs sm:text-sm font-black text-white/60 italic uppercase tracking-tight">
+                                                        Vestiaires, Douches & Parking
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
 
-                                {/* Details */}
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 lg:gap-5 mb-6 sm:mb-8 lg:mb-10">
-                                    {[
-                                        { icon: <Building2 size={20} />, label: 'Lieu', value: 'Padel Arena Vendôme' },
-                                        { icon: <Zap size={20} />, label: 'Discipline', value: `${selectedSport} • ${selectedCourt?.courtName}` },
-                                        { icon: <CalendarIcon size={20} />, label: 'Date', value: selectedDate.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) },
-                                        { icon: <Clock size={20} />, label: 'Heure', value: `${selectedTime} → ${selectedDuration >= 60 ? Math.floor(selectedDuration / 60) + 'h' : ''}${selectedDuration % 60 > 0 ? (selectedDuration % 60) : ''} de jeu` },
-                                        { icon: <Users size={20} />, label: 'Joueurs', value: 'Maximum 4 joueurs' },
-                                        { icon: <ShieldCheck size={20} />, label: 'Équipement', value: 'Raquettes & Balles incluses' },
-                                    ].map((item, i) => (
-                                        <motion.div
-                                            key={i}
-                                            initial={{ opacity: 0, x: -10 }}
-                                            animate={{ opacity: 1, x: 0 }}
-                                            transition={{ delay: i * 0.06 }}
-                                            className="flex gap-3 sm:gap-4 p-3 sm:p-4 lg:p-5 rounded-xl sm:rounded-2xl bg-white/[0.02] border border-white/5"
-                                        >
-                                            <div className="shrink-0 w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-padel-blue/10 flex items-center justify-center text-padel-blue border border-padel-blue/10">
-                                                <div className="scale-75 sm:scale-100">{item.icon}</div>
-                                            </div>
-                                            <div>
-                                                <p className="text-[7px] sm:text-[8px] font-black text-white/20 uppercase tracking-[0.2em] mb-0.5 sm:mb-1 leading-none">{item.label}</p>
-                                                <p className="text-xs sm:text-sm font-black text-white uppercase italic leading-tight">{item.value}</p>
-                                            </div>
-                                        </motion.div>
-                                    ))}
-                                </div>
-
-                                {/* Info box */}
-                                <div className="flex items-start gap-3 sm:gap-4 p-4 sm:p-5 lg:p-6 rounded-xl sm:rounded-2xl bg-padel-blue/5 border border-padel-blue/10">
-                                    <Sparkles size={16} className="sm:w-[18px] sm:h-[18px] text-padel-blue shrink-0 mt-0.5 sm:mt-1" />
-                                    <p className="text-[9px] sm:text-[10px] font-bold text-white/30 leading-relaxed uppercase tracking-wider italic">
-                                        Présentez-vous 15 min avant le début de votre séance. Annulation possible jusqu'à 24h avant.
-                                    </p>
+                                <div className="mt-12 sm:mt-16 pt-8 border-t border-white/5 flex flex-wrap gap-4 sm:gap-8 relative z-10">
+                                    <div className="flex items-center gap-2 text-[8px] sm:text-[9px] font-black text-green-500 uppercase tracking-widest">
+                                        <ShieldCheck size={14} className="sm:w-4 sm:h-4" /> Réservation 100% sécurisée
+                                    </div>
+                                    <div className="flex items-center gap-2 text-[8px] sm:text-[9px] font-black text-white/30 uppercase tracking-widest">
+                                        <Zap size={14} className="sm:w-4 sm:h-4 text-padel-yellow" /> Confirmation instantanée
+                                    </div>
                                 </div>
                             </div>
 
                             {/* Right: Payment */}
-                            <div className="lg:col-span-2 flex flex-col gap-4 sm:gap-6">
+                            <div className="lg:col-span-2 flex flex-col gap-4 sm:gap-6 h-full">
                                 {/* Price Card */}
-                                <div className="bg-padel-blue rounded-2xl sm:rounded-[2.5rem] lg:rounded-[3rem] p-6 sm:p-8 lg:p-10 text-white relative overflow-hidden shadow-2xl shadow-padel-blue/50 flex-1">
-                                    <div className="absolute -top-16 -right-16 w-48 h-48 bg-white/10 rounded-full blur-[60px] pointer-events-none" />
+                                <div className="bg-padel-blue rounded-2xl sm:rounded-[2.5rem] lg:rounded-[3rem] p-6 sm:p-8 lg:p-10 text-white relative overflow-hidden shadow-2xl shadow-padel-blue/50 flex flex-col justify-between h-full group flex-1">
+                                    <div className="absolute -top-16 -right-16 w-48 h-48 bg-white/10 rounded-full blur-[60px] pointer-events-none transition-transform group-hover:scale-110 duration-700" />
                                     <div className="absolute -bottom-8 -left-8 w-32 h-32 bg-padel-yellow/20 rounded-full blur-3xl pointer-events-none" />
 
-                                    <p className="text-[8px] sm:text-[9px] font-black uppercase tracking-[0.4em] sm:tracking-[0.5em] mb-2 sm:mb-3 opacity-60 italic relative z-10">Montant Total</p>
-                                    <div className="flex items-baseline gap-1.5 sm:gap-2 mb-2 sm:mb-3 relative z-10">
-                                        <span className="text-5xl sm:text-6xl lg:text-7xl font-display font-black italic tracking-tighter leading-none">
-                                            {totalPrice}
-                                        </span>
-                                        <span className="text-lg sm:text-xl font-black">€</span>
-                                        <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest opacity-50 ml-1">TTC</span>
-                                    </div>
-                                    <p className="text-[8px] sm:text-[9px] font-black uppercase tracking-widest opacity-40 mb-5 sm:mb-6 lg:mb-8 relative z-10">{selectedDuration >= 60 ? Math.floor(selectedDuration / 60) + 'h' : ''}{selectedDuration % 60 > 0 ? (selectedDuration % 60) : ''} • {selectedSport} • {selectedCourt?.courtName}</p>
-
-                                    {/* Payment method toggle */}
-                                    <div className="flex gap-1.5 sm:gap-2 mb-4 sm:mb-6 bg-white/10 p-1 sm:p-1.5 rounded-xl sm:rounded-2xl relative z-10">
-                                        <button
-                                            onClick={() => setPaymentMethod('online')}
-                                            className={cn(
-                                                'flex-1 py-2.5 sm:py-3 rounded-lg sm:rounded-xl text-[8px] sm:text-[9px] font-black uppercase tracking-widest transition-all',
-                                                paymentMethod === 'online' ? 'bg-white text-padel-blue shadow-lg' : 'text-white/50 hover:text-white'
-                                            )}
-                                        >
-                                            En ligne
-                                        </button>
-                                        <button
-                                            onClick={() => setPaymentMethod('club')}
-                                            className={cn(
-                                                'flex-1 py-2.5 sm:py-3 rounded-lg sm:rounded-xl text-[8px] sm:text-[9px] font-black uppercase tracking-widest transition-all',
-                                                paymentMethod === 'club' ? 'bg-white text-padel-blue shadow-lg' : 'text-white/50 hover:text-white'
-                                            )}
-                                        >
-                                            Au club
-                                        </button>
-                                    </div>
-
-                                    {/* Book Button */}
-                                    {bookError && (
-                                        <div className="mb-3 sm:mb-4 p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center gap-2 sm:gap-3 relative z-10">
-                                            <AlertCircle size={14} className="sm:w-4 sm:h-4 text-red-400 shrink-0" />
-                                            <p className="text-[9px] sm:text-[10px] font-black text-red-400 uppercase tracking-wider">{bookError}</p>
+                                    <div>
+                                        <p className="text-[8px] sm:text-[9px] font-black uppercase tracking-[0.4em] sm:tracking-[0.5em] mb-4 sm:mb-6 opacity-60 italic relative z-10 border-l-2 border-white/20 pl-3">Récapitulatif Financier</p>
+                                        <div className="flex flex-col gap-1 mb-8 relative z-10">
+                                            <div className="flex items-baseline gap-1.5 sm:gap-2">
+                                                <span className="text-5xl sm:text-6xl lg:text-7xl font-display font-black italic tracking-tighter leading-none">
+                                                    {totalPrice}
+                                                </span>
+                                                <span className="text-lg sm:text-xl font-black">€</span>
+                                            </div>
+                                            <div className="flex items-center gap-2 text-[9px] font-black uppercase tracking-widest opacity-40">
+                                                <span className="w-1 h-1 rounded-full bg-white" />
+                                                Total TTC à régler
+                                            </div>
                                         </div>
-                                    )}
 
-                                    <motion.button
-                                        whileHover={{ scale: 1.03 }}
-                                        whileTap={{ scale: 0.97 }}
-                                        onClick={handleBook}
-                                        disabled={loadingBook}
-                                        className="w-full flex items-center justify-center gap-2 sm:gap-3 py-4 sm:py-5 rounded-xl sm:rounded-2xl bg-white text-padel-blue text-[9px] sm:text-[10px] font-black uppercase tracking-widest shadow-xl hover:shadow-2xl transition-all relative z-10 disabled:opacity-60 disabled:cursor-not-allowed"
-                                    >
-                                        {loadingBook ? (
-                                            <>
-                                                <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 0.8, ease: 'linear' }}>
-                                                    <Loader2 size={16} className="sm:w-[18px] sm:h-[18px]" />
-                                                </motion.div>
-                                                <span className="hidden sm:inline">Réservation en cours...</span>
-                                                <span className="sm:hidden">En cours...</span>
-                                            </>
-                                        ) : paymentMethod === 'online' ? (
-                                            <><CreditCard size={16} className="sm:w-[18px] sm:h-[18px]" /> Confirmer & Payer</>
-                                        ) : (
-                                            <><ShieldCheck size={16} className="sm:w-[18px] sm:h-[18px]" /> <span className="hidden sm:inline">Réserver (Payer au club)</span><span className="sm:hidden">Réserver</span></>
+                                        {/* Promo Code Input */}
+                                        <div className="mb-8 relative z-10">
+                                            <PromoCodeInput
+                                                applicationType="booking"
+                                                purchaseAmount={hourlyPrice * selectedDuration / 60}
+                                                onApply={(discount, code) => {
+                                                    setPromoDiscount(discount);
+                                                    setPromoCode(code);
+                                                }}
+                                            />
+                                            <AnimatePresence>
+                                                {promoDiscount > 0 && (
+                                                    <motion.div
+                                                        initial={{ opacity: 0, y: -10 }}
+                                                        animate={{ opacity: 1, y: 0 }}
+                                                        exit={{ opacity: 0, y: -10 }}
+                                                        className="mt-3 flex flex-col gap-1.5 p-3 rounded-xl bg-green-500/10 border border-green-500/20"
+                                                    >
+                                                        <div className="flex justify-between items-center text-[9px] font-black uppercase tracking-widest text-green-400">
+                                                            <span className="flex items-center gap-2"><CheckCircle2 size={12} /> Réduction appliquée</span>
+                                                            <span>-{promoDiscount.toFixed(2)}€</span>
+                                                        </div>
+                                                        <p className="text-[9px] text-green-400/60 font-mono italic">{promoCode}</p>
+                                                    </motion.div>
+                                                )}
+                                            </AnimatePresence>
+                                        </div>
+                                    </div>
+
+                                    <div className="relative z-10 space-y-4">
+                                        {/* Payment method toggle */}
+                                        <div>
+                                            <p className="text-[8px] font-black uppercase tracking-widest text-white/40 mb-2 ml-4 italic">Mode de règlement</p>
+                                            <div className="flex gap-1.5 sm:gap-2 bg-black/20 p-1.5 rounded-2xl">
+                                                <button
+                                                    onClick={() => setPaymentMethod('online')}
+                                                    className={cn(
+                                                        'flex-1 py-3 rounded-xl text-[8px] sm:text-[9px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2',
+                                                        paymentMethod === 'online' ? 'bg-white text-padel-blue shadow-lg' : 'text-white/40 hover:text-white'
+                                                    )}
+                                                >
+                                                    <CreditCard size={12} /> En ligne
+                                                </button>
+                                                <button
+                                                    onClick={() => setPaymentMethod('club')}
+                                                    className={cn(
+                                                        'flex-1 py-3 rounded-xl text-[8px] sm:text-[9px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2',
+                                                        paymentMethod === 'club' ? 'bg-white text-padel-blue shadow-lg' : 'text-white/40 hover:text-white'
+                                                    )}
+                                                >
+                                                    <Ticket size={12} /> Au club
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        {/* Book Button */}
+                                        {bookError && (
+                                            <motion.div
+                                                initial={{ opacity: 0, scale: 0.95 }}
+                                                animate={{ opacity: 1, scale: 1 }}
+                                                className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center gap-3"
+                                            >
+                                                <AlertCircle size={14} className="text-red-400 shrink-0" />
+                                                <p className="text-[9px] font-black text-red-400 uppercase tracking-wider">{bookError}</p>
+                                            </motion.div>
                                         )}
-                                    </motion.button>
-                                </div>
 
-                                {/* Trust badges */}
-                                <div className="bg-white/[0.03] border border-white/5 rounded-xl sm:rounded-2xl lg:rounded-[2rem] p-4 sm:p-5 lg:p-6 space-y-3 sm:space-y-4">
+                                        <motion.button
+                                            whileHover={{ scale: 1.02, y: -2 }}
+                                            whileTap={{ scale: 0.98 }}
+                                            onClick={handleBook}
+                                            disabled={loadingBook}
+                                            className="w-full flex items-center justify-center gap-3 py-5 rounded-2xl bg-white text-padel-blue text-[10px] font-black uppercase tracking-widest shadow-xl shadow-padel-blue/20 hover:shadow-2xl transition-all disabled:opacity-60 disabled:cursor-not-allowed group active:bg-blue-50"
+                                        >
+                                            {loadingBook ? (
+                                                <>
+                                                    <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 0.8, ease: 'linear' }}>
+                                                        <Loader2 size={18} />
+                                                    </motion.div>
+                                                    <span>Traitement...</span>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    {paymentMethod === 'online' ? (
+                                                        <>
+                                                            <CreditCard size={18} className="group-hover:rotate-12 transition-transform" />
+                                                            <span>Confirmer & Payer</span>
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <Target size={18} className="group-hover:scale-110 transition-transform" />
+                                                            <span>Réserver maintenant</span>
+                                                        </>
+                                                    )}
+                                                </>
+                                            )}
+                                        </motion.button>
+                                    </div>
+                                </div>
+                                <div className="bg-white/[0.03] border border-white/5 rounded-2xl sm:rounded-[2rem] p-4 sm:p-6 space-y-3 sm:space-y-4">
                                     {[
-                                        { icon: <ShieldCheck size={14} className="sm:w-4 sm:h-4 text-green-500" />, text: 'Réservation 100% sécurisée' },
-                                        { icon: <Star size={14} className="sm:w-4 sm:h-4 text-padel-yellow" />, text: 'Satisfaction garantie' },
-                                        { icon: <Wifi size={14} className="sm:w-4 sm:h-4 text-padel-blue" />, text: 'Confirmation par email' },
+                                        { icon: <ShieldCheck size={14} className="text-green-500" />, text: 'Réservation 100% sécurisée' },
+                                        { icon: <Star size={14} className="text-padel-yellow" />, text: 'Satisfaction garantie' },
+                                        { icon: <Wifi size={14} className="text-padel-blue" />, text: 'Confirmation par email' },
                                     ].map((item, i) => (
-                                        <div key={i} className="flex items-center gap-2 sm:gap-3">
+                                        <div key={i} className="flex items-center gap-3">
                                             {item.icon}
-                                            <p className="text-[8px] sm:text-[9px] font-black text-white/30 uppercase tracking-widest italic">{item.text}</p>
+                                            <p className="text-[10px] font-black text-white/30 uppercase tracking-widest italic">{item.text}</p>
                                         </div>
                                     ))}
                                 </div>
@@ -1134,8 +1216,8 @@ export function PlayerBook() {
                         </div>
                     </motion.div>
                 )}
-
             </AnimatePresence>
         </div>
+
     );
 }

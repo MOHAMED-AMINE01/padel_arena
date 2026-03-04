@@ -119,11 +119,11 @@ export const CourtBooking = () => {
           api.get('/courts'),
           api.get('/bookings')
         ]);
-        
+
         // Filtrer seulement les terrains actifs
         const activeCourts = (courtsRes.data.data || []).filter((c: Court) => c.isActive);
         setCourts(activeCourts);
-        
+
         // Récupérer les réservations
         const allBookings = bookingsRes.data.data || [];
         setExistingBookings(allBookings);
@@ -149,12 +149,12 @@ export const CourtBooking = () => {
   const isSlotInPast = (time: string, date: string): boolean => {
     const today = new Date().toISOString().split('T')[0];
     if (date !== today) return false;
-    
+
     const now = new Date();
     const [hours, minutes] = time.split(':').map(Number);
     const slotTime = new Date();
     slotTime.setHours(hours, minutes, 0, 0);
-    
+
     // Ajouter 30 min de marge pour permettre aux utilisateurs de réserver
     return slotTime.getTime() <= now.getTime() + 30 * 60 * 1000;
   };
@@ -169,7 +169,7 @@ export const CourtBooking = () => {
     if (!bookingData.time) return { available: false, reason: 'Sélectionnez un créneau' };
 
     const endTime = getEndTime(bookingData.time, durationMinutes);
-    
+
     // Vérifier si la durée dépasse l'heure de fermeture
     if (endTime > CLOSING_TIME) {
       return { available: false, reason: `Dépasse l'heure de fermeture (${CLOSING_TIME})` };
@@ -179,7 +179,7 @@ export const CourtBooking = () => {
     const hasConflict = existingBookings.some(booking => {
       const bookingDateStr = new Date(booking.date).toISOString().split('T')[0];
       if (bookingDateStr !== bookingData.date) return false;
-      
+
       const bookingStart = booking.startTime;
       const bookingEnd = booking.endTime;
       const selectedStart = bookingData.time;
@@ -224,12 +224,12 @@ export const CourtBooking = () => {
   const calculateTotal = () => {
     const court = courts.find(c => c._id === bookingData.courtId);
     if (!court || !bookingData.duration) return '0.00';
-    
+
     const hourlyRate = court.pricePerHour;
     const durationHours = bookingData.duration / 60;
     const basePrice = hourlyRate * durationHours;
     const optionsPrice = bookingData.options.length * 5;
-    
+
     return (basePrice + optionsPrice).toFixed(2);
   };
 
@@ -255,7 +255,7 @@ export const CourtBooking = () => {
             transition={{ duration: 0.8 }}
           >
             <div className="inline-flex items-center gap-3 mb-4">
-              <span className="text-[10px] font-black tracking-[0.4em] text-padel-blue uppercase">RÉSERVATION VENDÔME</span>
+              <span className="text-[10px] font-black tracking-[0.4em] text-padel-blue uppercase notranslate" translate="no">RÉSERVATION PADEL ARENA</span>
             </div>
 
             <h1 className="text-4xl md:text-6xl font-display font-black tracking-tighter uppercase mb-10 leading-none">
@@ -295,7 +295,7 @@ export const CourtBooking = () => {
                 {currentStep === 0 && (
                   <motion.div key="s0" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-10">
                     <div>
-                      <h2 className="text-2xl md:text-4xl font-display font-black uppercase tracking-tight mb-2">SÉLECTION <span className="text-padel-blue italic">TEMPORELLE</span></h2>
+                      <h2 className="text-2xl md:text-4xl font-display font-black uppercase tracking-tight mb-2">Quand venez-vous <span className="text-padel-blue italic">jouer ?</span></h2>
                       <p className="text-white/20 text-[9px] font-black uppercase tracking-[0.3em] mb-8">CHOISISSEZ UNE DATE DANS LE CYCLE DE 14 JOURS.</p>
                     </div>
                     <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
@@ -330,13 +330,13 @@ export const CourtBooking = () => {
                     ) : (
                       <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
                         {availableTimeSlots.map(t => (
-                          <button 
-                            key={t} 
-                            onClick={() => setBookingData({ ...bookingData, time: t, duration: 0 })} 
+                          <button
+                            key={t}
+                            onClick={() => setBookingData({ ...bookingData, time: t, duration: 0 })}
                             className={cn(
-                              "p-5 md:p-6 rounded-2xl border transition-all text-center group relative overflow-hidden", 
-                              bookingData.time === t 
-                                ? "bg-padel-blue border-padel-blue text-white shadow-xl" 
+                              "p-5 md:p-6 rounded-2xl border transition-all text-center group relative overflow-hidden",
+                              bookingData.time === t
+                                ? "bg-padel-blue border-padel-blue text-white shadow-xl"
                                 : "bg-white/[0.02] border-white/5 text-white/40 hover:border-white/15 hover:bg-white/[0.04]"
                             )}
                           >
@@ -357,7 +357,7 @@ export const CourtBooking = () => {
                     <div>
                       <h2 className="text-2xl md:text-4xl font-display font-black uppercase tracking-tight mb-2">DURÉE <span className="text-padel-blue italic">DE JEU</span></h2>
                       <p className="text-white/20 text-[9px] font-black uppercase tracking-[0.3em]">
-                        CRÉNEAU SÉLECTIONNÉ : <span className="text-padel-blue">{bookingData.time}</span> 
+                        CRÉNEAU SÉLECTIONNÉ : <span className="text-padel-blue">{bookingData.time}</span>
                         {bookingData.duration > 0 && <span className="text-emerald-500"> → {getEndTime(bookingData.time, bookingData.duration)}</span>}
                       </p>
                     </div>
@@ -372,7 +372,7 @@ export const CourtBooking = () => {
                             !d.available && "opacity-30 cursor-not-allowed grayscale",
                             bookingData.duration === d.value
                               ? "bg-padel-blue border-padel-blue text-white shadow-xl shadow-padel-blue/20"
-                              : d.available 
+                              : d.available
                                 ? "bg-white/[0.02] border-white/5 text-white/40 hover:border-white/15 hover:bg-white/[0.04]"
                                 : "bg-white/[0.01] border-white/5 text-white/20"
                           )}

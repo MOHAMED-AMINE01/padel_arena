@@ -122,7 +122,7 @@ const BookingDetailModal = ({ booking, onClose, onDelete, onChangeStatus }: {
                                 {booking.status === 'CANCELLED' ? <XCircle size={8} /> : <CheckCircle2 size={8} />}
                                 {booking.status}
                             </div>
-                            <h2 className="text-2xl font-display font-black text-white italic uppercase tracking-tighter leading-none">Détails de la<br />Séance</h2>
+                            <h2 className="text-2xl font-display font-black text-white uppercase tracking-tighter leading-none">Détails de la<br />Séance</h2>
                         </div>
                         <button onClick={onClose} className="p-2.5 rounded-xl bg-white/5 text-white/20 hover:text-white hover:bg-white/10 transition-all">
                             <X size={16} />
@@ -151,12 +151,12 @@ const BookingDetailModal = ({ booking, onClose, onDelete, onChangeStatus }: {
                                         <Calendar size={12} />
                                         <span className="text-[8px] font-black uppercase tracking-widest">Planifié</span>
                                     </div>
-                                    <p className="text-[10px] font-black text-white uppercase italic tracking-tighter">
+                                    <p className="text-[10px] font-black text-white uppercase tracking-tighter">
                                         {new Date(booking.startTime).toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' })}
                                     </p>
                                 </div>
                                 <div className="text-right">
-                                    <p className="text-lg font-black text-padel-yellow italic leading-none">
+                                    <p className="text-lg font-black text-padel-yellow leading-none">
                                         {new Date(booking.startTime).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }).replace(':', 'h')}
                                     </p>
                                 </div>
@@ -167,7 +167,7 @@ const BookingDetailModal = ({ booking, onClose, onDelete, onChangeStatus }: {
                     <div className="flex items-center gap-3">
                         <div className="flex-1 p-5 rounded-2xl bg-padel-blue/5 border border-padel-blue/10 flex flex-col items-center">
                             <span className="text-[7px] font-black text-padel-blue uppercase tracking-widest mb-1 opacity-50">Total</span>
-                            <p className="text-2xl font-black text-white italic leading-none">{booking.totalPrice}€</p>
+                            <p className="text-2xl font-black text-white leading-none">{booking.totalPrice}€</p>
                         </div>
                         <div className="flex-1 p-5 rounded-2xl bg-white/[0.02] border border-white/5 flex flex-col items-center">
                             <span className="text-[7px] font-black text-white/20 uppercase tracking-widest mb-1">Réf</span>
@@ -276,11 +276,11 @@ const CreateBookingModal = ({ users, courts, onClose, onFinish }: {
                             <Sparkles size={10} />
                             Action Admin
                         </div>
-                        <h2 className="text-2xl md:text-3xl font-display font-black text-white italic uppercase tracking-tighter leading-none">Créer une<br />Réservation</h2>
+                        <h2 className="text-2xl md:text-3xl font-display font-black text-white uppercase tracking-tighter leading-none">Créer une<br />Réservation</h2>
                     </div>
                     <div className="flex flex-col items-end gap-2">
                         <div className="text-[10px] font-black text-white/20 uppercase tracking-widest">Estimatif Prix</div>
-                        <div className="text-2xl font-black text-padel-yellow italic">
+                        <div className="text-2xl font-black text-padel-yellow">
                             {(() => {
                                 const court = courts.find(c => c._id === selectedCourt);
                                 if (court && court.pricePerHour) {
@@ -416,7 +416,7 @@ const DeleteConfirmModal = ({ booking, onClose, onConfirm, loading }: { booking:
             <div className="w-20 h-20 bg-red-500/10 text-red-500 rounded-full flex items-center justify-center mx-auto mb-8 border border-red-500/20 shadow-2xl shadow-red-500/10">
                 <Trash2 size={40} />
             </div>
-            <h2 className="text-3xl font-display font-black text-white uppercase italic tracking-tighter mb-4">Annuler la réservation ?</h2>
+            <h2 className="text-3xl font-display font-black text-white uppercase tracking-tighter mb-4">Annuler la réservation ?</h2>
             <p className="text-white/40 text-[11px] font-black uppercase tracking-[0.2em] mb-10 leading-relaxed">Cette action va changer le statut en "ANNULÉE". La réservation restera visible historiquement sur le planning.</p>
             <div className="flex gap-4">
                 <button onClick={onClose} className="flex-1 py-5 rounded-2xl bg-white/5 text-white/60 text-[10px] font-black uppercase tracking-widest hover:bg-white/10 transition-all">Garder</button>
@@ -593,23 +593,20 @@ export function AdminReservations() {
                 {/* Hub Header */}
                 <div className="flex flex-col lg:flex-row lg:items-end justify-between px-2 gap-6 pt-6 md:pt-0">
                     <div className="space-y-2">
-                        <div className="flex items-center gap-3">
-                            <div className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-green-500 animate-pulse shadow-[0_0_10px_rgba(34,197,94,0.5)]" />
-                            <span className="text-[9px] md:text-[10px] font-black text-white/40 uppercase tracking-[0.3em] md:tracking-[0.4em]">Live Management Hub</span>
-                        </div>
-                        <h1 className="text-4xl md:text-5xl font-display font-black text-white italic uppercase tracking-tighter leading-none">
+
+                        <h1 className="text-4xl md:text-5xl font-display font-black text-white uppercase tracking-tighter leading-none">
                             Planning<br /><span className="text-padel-blue">Arena</span>
                         </h1>
                     </div>
                     <div className="hidden lg:flex items-center gap-8 mb-2">
                         <div className="text-right">
                             <p className="text-[10px] font-black text-white/20 uppercase tracking-widest mb-1">Status Base</p>
-                            <p className="text-sm font-black text-white uppercase italic tracking-tighter">Opérationnel</p>
+                            <p className="text-sm font-black text-white uppercase tracking-tighter">Opérationnel</p>
                         </div>
                         <div className="h-8 w-[1px] bg-white/5" />
                         <div className="text-right">
                             <p className="text-[10px] font-black text-white/20 uppercase tracking-widest mb-1">Version Panel</p>
-                            <p className="text-sm font-black text-white uppercase italic tracking-tighter text-padel-yellow">PRO 2.4</p>
+                            <p className="text-sm font-black text-white uppercase tracking-tighter text-padel-yellow">PRO 2.4</p>
                         </div>
                     </div>
                 </div>
@@ -638,7 +635,7 @@ export function AdminReservations() {
                                 <p className="text-[8px] md:text-[10px] font-black text-padel-blue uppercase tracking-[0.2em] md:tracking-[0.3em] mb-1">
                                     {currentDate.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })}
                                 </p>
-                                <h2 className="text-xs md:text-base font-black text-white italic uppercase tracking-tighter line-clamp-1">
+                                <h2 className="text-xs md:text-base font-black text-white uppercase tracking-tighter line-clamp-1">
                                     {viewMode === 'Jour' ? currentDate.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' }) :
                                         viewMode === 'Mois' ? `Mois de ${currentDate.toLocaleDateString('fr-FR', { month: 'long' })}` :
                                             `Semaine du ${visibleDays[0].getDate()}`}
@@ -694,24 +691,24 @@ export function AdminReservations() {
                 {/* KPI Bar */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 px-1">
                     <div className="bg-white/5 border border-white/5 p-3 md:p-4 rounded-xl md:rounded-2xl flex items-center gap-2 md:gap-3">
-                        <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-padel-yellow text-padel-blue flex items-center justify-center italic font-black text-base md:text-lg shadow-lg shadow-padel-yellow/10">B</div>
+                        <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-padel-yellow text-padel-blue flex items-center justify-center font-black text-base md:text-lg shadow-lg shadow-padel-yellow/10">B</div>
                         <div className="min-w-0">
                             <p className="text-[7px] md:text-[9px] font-black text-white/20 uppercase tracking-widest leading-none mb-1 md:mb-1.5">Aujourd'hui</p>
-                            <p className="text-sm md:text-xl font-black text-white italic tracking-tighter leading-none truncate">{kpis.todayCount} RÉSERV.</p>
+                            <p className="text-sm md:text-xl font-black text-white tracking-tighter leading-none truncate">{kpis.todayCount} RÉSERV.</p>
                         </div>
                     </div>
                     <div className="bg-white/5 border border-white/5 p-3 md:p-4 rounded-xl md:rounded-2xl flex items-center gap-2 md:gap-3">
-                        <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-padel-blue text-white flex items-center justify-center italic shadow-lg shadow-padel-blue/10"><CreditCard size={16} className="md:w-5 md:h-5" /></div>
+                        <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-padel-blue text-white flex items-center justify-center shadow-lg shadow-padel-blue/10"><CreditCard size={16} className="md:w-5 md:h-5" /></div>
                         <div className="min-w-0">
                             <p className="text-[7px] md:text-[9px] font-black text-white/20 uppercase tracking-widest leading-none mb-1 md:mb-1.5">Revenue</p>
-                            <p className="text-sm md:text-xl font-black text-white italic tracking-tighter leading-none truncate">{kpis.totalRevenue} €</p>
+                            <p className="text-sm md:text-xl font-black text-white tracking-tighter leading-none truncate">{kpis.totalRevenue} €</p>
                         </div>
                     </div>
                     <div className="bg-white/5 border border-white/5 p-3 md:p-4 rounded-xl md:rounded-2xl flex items-center gap-2 md:gap-3">
-                        <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-white/5 text-padel-blue flex items-center justify-center italic shadow-lg shadow-white/5"><Clock size={16} className="text-white/40 md:w-5 md:h-5" /></div>
+                        <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-white/5 text-padel-blue flex items-center justify-center shadow-lg shadow-white/5"><Clock size={16} className="text-white/40 md:w-5 md:h-5" /></div>
                         <div className="min-w-0">
                             <p className="text-[7px] md:text-[9px] font-black text-white/20 uppercase tracking-widest leading-none mb-1 md:mb-1.5">Attente</p>
-                            <p className="text-sm md:text-xl font-black text-white italic tracking-tighter">{kpis.pending}</p>
+                            <p className="text-sm md:text-xl font-black text-white tracking-tighter">{kpis.pending}</p>
                         </div>
                     </div>
                     <div
@@ -753,7 +750,7 @@ export function AdminReservations() {
                                 {hours.map(hour => (
                                     <div key={hour} className="flex-1 py-3 px-1 text-center border-r border-white/5 group/hour hover:bg-white/[0.02] transition-colors relative">
                                         <div className="absolute top-0 left-0 right-0 h-[2px] bg-padel-blue/0 group-hover/hour:bg-padel-blue/20 transition-all" />
-                                        <p className="text-[8px] md:text-[9px] font-black text-white/10 uppercase tracking-widest italic group-hover/hour:text-white/30 transition-colors">{hour}h</p>
+                                        <p className="text-[8px] md:text-[9px] font-black text-white/10 uppercase tracking-widest group-hover/hour:text-white/30 transition-colors">{hour}h</p>
                                     </div>
                                 ))}
                             </div>
@@ -824,7 +821,7 @@ export function AdminReservations() {
                                                     <div className="absolute left-0 top-0 bottom-0 w-[2px] md:w-[3px] bg-padel-blue shadow-[3px_0_10px_rgba(59,130,246,0.3)] rounded-r-full" />
                                                 )}
                                                 <div className="flex flex-col md:flex-row md:items-center gap-0.5 md:gap-2 group-hover:translate-x-1 transition-transform">
-                                                    <p className={cn("text-xl md:text-2xl font-black italic leading-none tracking-tighter", isToday ? "text-padel-blue" : "text-white/60")}>{day.getDate()}</p>
+                                                    <p className={cn("text-xl md:text-2xl font-black leading-none tracking-tighter", isToday ? "text-padel-blue" : "text-white/60")}>{day.getDate()}</p>
                                                     <p className="text-[7px] md:text-[8px] font-black text-white/20 uppercase tracking-wider">{day.toLocaleDateString('fr-FR', { weekday: 'short' })}</p>
                                                 </div>
                                                 {activeCount > 0 && <p className="text-[6px] md:text-[7px] font-black text-padel-yellow uppercase tracking-[0.1em] md:tracking-[0.2em] mt-1 line-clamp-1">{activeCount} R.</p>}
@@ -929,10 +926,10 @@ export function AdminReservations() {
 
                 {/* Bottom */}
                 <div className="flex flex-col sm:flex-row items-center justify-between px-4 gap-4">
-                    <p className="text-[8px] md:text-[10px] font-black text-white/10 uppercase tracking-[0.3em] italic text-center sm:text-left">
+                    <p className="text-[8px] md:text-[10px] font-black text-white/10 uppercase tracking-[0.3em] text-center sm:text-left">
                         {kpis.totalAll} réservations totales • {bookings.filter(b => b.status === 'CANCELLED').length} annulées
                     </p>
-                    <p className="text-[8px] md:text-[10px] font-black text-white/10 uppercase tracking-[0.3em] italic text-center sm:text-right">
+                    <p className="text-[8px] md:text-[10px] font-black text-white/10 uppercase tracking-[0.3em] text-center sm:text-right">
                         Sync: {new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
                     </p>
                 </div>

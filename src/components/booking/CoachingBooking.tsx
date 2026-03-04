@@ -11,6 +11,11 @@ const coaches = [
 
 export const CoachingBooking = () => {
   const [selectedCoach, setSelectedCoach] = useState<number | null>(null);
+  const [promoDiscount, setPromoDiscount] = useState(0);
+  const [promoCode, setPromoCode] = useState('');
+  // Exemple de prix de base (à adapter selon la logique réelle)
+  const basePrice = 50;
+  const finalPrice = Math.max(0, basePrice - promoDiscount);
 
   return (
     <section id="coaching" className="relative py-24 md:py-48 px-6 bg-[#050505] overflow-hidden border-t border-white/[0.03]">
@@ -140,6 +145,26 @@ export const CoachingBooking = () => {
                       CONFIGUREZ VOTRE PROGRAMME TECHNIQUE, LES MODALITÉS DE COACHING ET LES CRÉNEAUX DISPONIBLES.
                     </p>
                   </div>
+                </div>
+
+                {/* Ajout du code promo pour les cours */}
+                <div className="w-full max-w-xs mx-auto mb-8">
+                  <PromoCodeInput
+                    applicationType="course"
+                    onApply={(discount, code) => {
+                      setPromoDiscount(discount);
+                      setPromoCode(code);
+                    }}
+                  />
+                  {promoDiscount > 0 && (
+                    <div className="mt-2 text-green-400 text-xs font-bold flex items-center gap-2">
+                      <CheckCircle2 size={16} />
+                      Code appliqué : <span className="font-mono bg-green-500/10 px-2 py-1 rounded">{promoCode}</span> (-{promoDiscount}€)
+                    </div>
+                  )}
+                   <div className="mt-2 text-white text-xs font-bold">
+                     Prix final : <span className="font-mono bg-padel-blue/10 px-2 py-1 rounded">{finalPrice}€</span>
+                   </div>
                 </div>
 
                 <motion.button

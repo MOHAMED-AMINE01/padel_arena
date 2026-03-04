@@ -12,7 +12,7 @@ export interface IPromoCode extends Document {
     validFrom: Date;
     validUntil: Date;
     isActive: boolean;
-    applicableTo: 'all' | 'booking' | 'subscription' | 'course';
+    applicableTo: 'all' | 'booking' | 'subscription' | 'course' | 'tournament';
     createdBy: mongoose.Types.ObjectId;
 }
 
@@ -68,7 +68,7 @@ const PromoCodeSchema: Schema = new Schema({
     },
     applicableTo: { 
         type: String, 
-        enum: ['all', 'booking', 'subscription', 'course'], 
+        enum: ['all', 'booking', 'subscription', 'course', 'tournament'], 
         default: 'all' 
     },
     createdBy: { 

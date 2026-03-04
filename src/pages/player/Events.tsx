@@ -22,6 +22,7 @@ import {
 import { cn } from '../../lib/utils';
 import api from '../../lib/api';
 import { useAuth } from '../../context/AuthContext';
+import { PromoCodeInput } from '../../components/player/PromoCodeInput';
 
 interface Course {
     _id: string;
@@ -58,8 +59,8 @@ interface Tournament {
 
 export function PlayerEvents() {
     const { user } = useAuth();
-    const [activeTab, setActiveTab] = useState<'COURS' | 'TOURNOIS'>('COURS');
-    
+    const [activeTab, setActiveTab] = useState<'PROGRAMMES' | 'EVENEMENTS'>('PROGRAMMES');
+
     // Courses state
     const [courses, setCourses] = useState<Course[]>([]);
     const [loadingCourses, setLoadingCourses] = useState(true);
@@ -67,7 +68,7 @@ export function PlayerEvents() {
     const [joiningCourse, setJoiningCourse] = useState<string | null>(null);
     const [leavingCourse, setLeavingCourse] = useState<string | null>(null);
     const [courseSuccess, setCourseSuccess] = useState<string | null>(null);
-    
+
     // Tournaments state
     const [tournaments, setTournaments] = useState<Tournament[]>([]);
     const [loadingTournaments, setLoadingTournaments] = useState(true);
@@ -75,6 +76,13 @@ export function PlayerEvents() {
     const [joiningTournament, setJoiningTournament] = useState<string | null>(null);
     const [leavingTournament, setLeavingTournament] = useState<string | null>(null);
     const [tournamentSuccess, setTournamentSuccess] = useState<string | null>(null);
+
+    // Promo codes mapping
+    const [promos, setPromos] = useState<{ [id: string]: { code: string, discount: number } }>({});
+
+    const setEventPromo = (id: string, code: string, discount: number) => {
+        setPromos(prev => ({ ...prev, [id]: { code, discount } }));
+    };
 
     const ITEMS_PER_PAGE = 6;
 
@@ -110,7 +118,7 @@ export function PlayerEvents() {
     const handleJoinCourse = async (courseId: string) => {
         setJoiningCourse(courseId);
         try {
-            await api.post(`/courses/${courseId}/join`);
+            await api.post(`/courses/${courseId}/join`, { promoCode: promos[courseId]?.code });
             setCourseSuccess(courseId);
             setTimeout(() => setCourseSuccess(null), 3000);
             fetchCourses();
@@ -124,7 +132,7 @@ export function PlayerEvents() {
     const handleJoinTournament = async (tournamentId: string) => {
         setJoiningTournament(tournamentId);
         try {
-            await api.post(`/tournaments/${tournamentId}/join`);
+            await api.post(`/tournaments/${tournamentId}/join`, { promoCode: promos[tournamentId]?.code });
             setTournamentSuccess(tournamentId);
             setTimeout(() => setTournamentSuccess(null), 3000);
             fetchTournaments();
@@ -194,19 +202,19 @@ export function PlayerEvents() {
                     </h1>
                     <div className="flex bg-white/5 rounded-xl sm:rounded-2xl p-1 sm:p-1.5 border border-white/10 w-fit">
                         <button
-                            onClick={() => setActiveTab('COURS')}
+                            onClick={() => setActiveTab('PROGRAMMES')}
                             className={cn(
                                 "flex items-center gap-1.5 sm:gap-2 px-4 sm:px-6 py-2 sm:py-2.5 rounded-lg sm:rounded-xl text-[9px] sm:text-[10px] font-black uppercase tracking-widest transition-all",
-                                activeTab === 'COURS' ? "bg-padel-blue text-white shadow-lg shadow-padel-blue/20" : "text-white/40 hover:text-white"
+                                activeTab === 'PROGRAMMES' ? "bg-padel-blue text-white shadow-lg shadow-padel-blue/20" : "text-white/40 hover:text-white"
                             )}
                         >
-                            <GraduationCap size={12} className="sm:w-[14px] sm:h-[14px]" /> Cours
+                            <GraduationCap size={12} className="sm:w-[14px] sm:h-[14px]" /> Programmes
                         </button>
                         <button
-                            onClick={() => setActiveTab('TOURNOIS')}
+                            onClick={() => setActiveTab('EVENEMENTS')}
                             className={cn(
                                 "flex items-center gap-1.5 sm:gap-2 px-4 sm:px-6 py-2 sm:py-2.5 rounded-lg sm:rounded-xl text-[9px] sm:text-[10px] font-black uppercase tracking-widest transition-all",
-                                activeTab === 'TOURNOIS' ? "bg-padel-blue text-white shadow-lg shadow-padel-blue/20" : "text-white/40 hover:text-white"
+                                activeTab === 'EVENEMENTS' ? "bg-padel-blue text-white shadow-lg shadow-padel-blue/20" : "text-white/40 hover:text-white"
                             )}
                         >
                             <Trophy size={12} className="sm:w-[14px] sm:h-[14px]" /> Tournois
@@ -226,7 +234,7 @@ export function PlayerEvents() {
             </div>
 
             <AnimatePresence mode="wait">
-                {activeTab === 'COURS' ? (
+                {activeTab === 'PROGRAMMES' ? (
                     <motion.div
                         key="cours"
                         initial={{ opacity: 0, y: 20 }}
@@ -251,7 +259,7 @@ export function PlayerEvents() {
                                         const isFull = course.currentParticipants >= course.maxParticipants;
                                         const spotsLeft = course.maxParticipants - course.currentParticipants;
                                         const isRegistered = user && course.participants?.includes(user._id);
-                                        
+
                                         return (
                                             <motion.div
                                                 key={course._id}
@@ -262,32 +270,32 @@ export function PlayerEvents() {
                                                 className="bg-[#151518] border border-white/5 rounded-2xl sm:rounded-[2.5rem] p-5 sm:p-8 relative overflow-hidden group hover:border-padel-blue/20 transition-all"
                                             >
                                                 <div className="absolute top-0 right-0 w-32 h-32 bg-padel-blue/5 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-padel-blue/10 transition-all" />
-                                                
+
                                                 <div className="flex justify-between items-start mb-4 sm:mb-8">
                                                     <span className="px-2 sm:px-3 py-1 bg-padel-blue/10 border border-padel-blue/20 text-padel-blue text-[8px] sm:text-[9px] font-black uppercase tracking-wider sm:tracking-widest rounded-md">
                                                         {getLevelLabel(course.level)}
                                                     </span>
                                                     <span className="text-lg sm:text-xl font-black text-padel-yellow italic">{course.price}€</span>
                                                 </div>
-                                                
+
                                                 <div className="flex items-center gap-2 mb-2">
                                                     <span className="px-2 py-0.5 rounded bg-white/5 text-[7px] font-black text-white/40 uppercase">{course.sport}</span>
                                                 </div>
-                                                
+
                                                 <h3 className="text-lg sm:text-2xl font-black text-white italic uppercase mb-4 sm:mb-6 tracking-tighter leading-tight group-hover:text-padel-yellow transition-colors">
                                                     {course.title}
                                                 </h3>
-                                                
+
                                                 <div className="space-y-2 sm:space-y-4 mb-6 sm:mb-10">
                                                     <div className="flex items-center gap-2 sm:gap-3 text-[10px] sm:text-[11px] font-bold text-white/30 uppercase tracking-widest">
-                                                        <Calendar size={12} className="text-padel-blue sm:w-[14px] sm:h-[14px]" /> 
+                                                        <Calendar size={12} className="text-padel-blue sm:w-[14px] sm:h-[14px]" />
                                                         {formatDate(course.date)} • {formatTime(course.date)}
                                                     </div>
                                                     <div className="flex items-center gap-2 sm:gap-3 text-[10px] sm:text-[11px] font-bold text-white/30 uppercase tracking-widest">
                                                         <Clock size={12} className="text-padel-blue sm:w-[14px] sm:h-[14px]" /> {course.duration} min
                                                     </div>
                                                     <div className="flex items-center gap-2 sm:gap-3 text-[10px] sm:text-[11px] font-bold uppercase tracking-widest">
-                                                        <Users size={12} className={cn("sm:w-[14px] sm:h-[14px]", isFull ? "text-red-500" : "text-padel-blue")} /> 
+                                                        <Users size={12} className={cn("sm:w-[14px] sm:h-[14px]", isFull ? "text-red-500" : "text-padel-blue")} />
                                                         <span className={isFull ? "text-red-500/50" : "text-white/30"}>
                                                             {isFull ? 'Complet' : `${spotsLeft} place${spotsLeft > 1 ? 's' : ''}`}
                                                         </span>
@@ -296,7 +304,22 @@ export function PlayerEvents() {
                                                         <Star size={12} className="text-padel-yellow sm:w-[14px] sm:h-[14px]" /> Coach : {course.coach}
                                                     </div>
                                                 </div>
-                                                
+
+                                                {!isRegistered && !isFull && (
+                                                    <div className="mb-4">
+                                                        <PromoCodeInput
+                                                            applicationType="course"
+                                                            purchaseAmount={course.price}
+                                                            onApply={(discount, code) => setEventPromo(course._id, code, discount)}
+                                                        />
+                                                        {promos[course._id]?.discount > 0 && (
+                                                            <div className="mt-2 text-green-400 text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
+                                                                <Check size={12} /> Code {promos[course._id].code} appliqué (-{promos[course._id].discount}€)
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                )}
+
                                                 {isRegistered ? (
                                                     <div className="flex gap-2">
                                                         <div className="flex-1 py-3 sm:py-5 rounded-xl sm:rounded-2xl text-[9px] sm:text-[10px] font-black uppercase tracking-widest bg-green-500/10 border border-green-500/20 text-green-500 flex items-center justify-center gap-2">
@@ -315,14 +338,14 @@ export function PlayerEvents() {
                                                         </button>
                                                     </div>
                                                 ) : (
-                                                    <button 
+                                                    <button
                                                         onClick={() => !isFull && handleJoinCourse(course._id)}
                                                         disabled={isFull || joiningCourse === course._id}
                                                         className={cn(
                                                             "w-full py-3 sm:py-5 rounded-xl sm:rounded-2xl text-[9px] sm:text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-between px-4 sm:px-6",
                                                             courseSuccess === course._id ? "bg-green-500/20 border border-green-500/30 text-green-500" :
-                                                            isFull ? "bg-white/[0.02] border border-white/5 text-white/20 cursor-not-allowed" : 
-                                                            "bg-padel-blue text-white shadow-xl shadow-padel-blue/10 hover:scale-[1.02] disabled:opacity-50"
+                                                                isFull ? "bg-white/[0.02] border border-white/5 text-white/20 cursor-not-allowed" :
+                                                                    "bg-padel-blue text-white shadow-xl shadow-padel-blue/10 hover:scale-[1.02] disabled:opacity-50"
                                                         )}
                                                     >
                                                         {courseSuccess === course._id ? (
@@ -403,7 +426,7 @@ export function PlayerEvents() {
                                         const isRegistered = user && tourney.participants?.includes(user._id);
                                         const canJoin = !isFull && !deadlinePassed && !isRegistered && tourney.status === 'UPCOMING';
                                         const spotsLeft = tourney.maxTeams - tourney.currentTeams;
-                                        
+
                                         return (
                                             <motion.div
                                                 key={tourney._id}
@@ -414,7 +437,7 @@ export function PlayerEvents() {
                                                 className="bg-[#151518] border border-white/5 rounded-2xl sm:rounded-[2.5rem] p-5 sm:p-8 relative overflow-hidden group hover:border-padel-yellow/20 transition-all flex flex-col"
                                             >
                                                 <div className="absolute top-0 right-0 w-32 h-32 bg-padel-yellow/5 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-padel-yellow/10 transition-all" />
-                                                
+
                                                 {/* Header */}
                                                 <div className="flex justify-between items-start mb-4 sm:mb-6">
                                                     <div className="flex flex-wrap items-center gap-2">
@@ -431,32 +454,32 @@ export function PlayerEvents() {
                                                         <Trophy size={20} className="sm:w-6 sm:h-6" />
                                                     </div>
                                                 </div>
-                                                
+
                                                 {/* Title */}
                                                 <h3 className="text-lg sm:text-xl font-black text-white italic uppercase mb-4 sm:mb-6 tracking-tighter leading-tight group-hover:text-padel-yellow transition-colors line-clamp-2">
                                                     {tourney.name}
                                                 </h3>
-                                                
+
                                                 {/* Info */}
                                                 <div className="space-y-2 sm:space-y-3 mb-6 sm:mb-8 flex-1">
                                                     <div className="flex items-center gap-2 sm:gap-3 text-[10px] sm:text-[11px] font-bold text-white/30 uppercase tracking-widest">
-                                                        <Calendar size={12} className="text-padel-yellow sm:w-[14px] sm:h-[14px]" /> 
+                                                        <Calendar size={12} className="text-padel-yellow sm:w-[14px] sm:h-[14px]" />
                                                         {formatDate(tourney.startDate)}
                                                         {tourney.endDate !== tourney.startDate && ` → ${formatDate(tourney.endDate)}`}
                                                     </div>
                                                     <div className="flex items-center gap-2 sm:gap-3 text-[10px] sm:text-[11px] font-bold uppercase tracking-widest">
-                                                        <Users size={12} className={cn("sm:w-[14px] sm:h-[14px]", isFull ? "text-red-500" : "text-padel-yellow")} /> 
+                                                        <Users size={12} className={cn("sm:w-[14px] sm:h-[14px]", isFull ? "text-red-500" : "text-padel-yellow")} />
                                                         <span className={isFull ? "text-red-500/50" : "text-white/30"}>
                                                             {isFull ? 'Complet' : `${spotsLeft} place${spotsLeft > 1 ? 's' : ''} restante${spotsLeft > 1 ? 's' : ''}`}
                                                         </span>
                                                     </div>
                                                     <div className="flex items-center gap-2 sm:gap-3 text-[10px] sm:text-[11px] font-bold text-white/30 uppercase tracking-widest">
-                                                        <Medal size={12} className="text-padel-yellow sm:w-[14px] sm:h-[14px]" /> 
+                                                        <Medal size={12} className="text-padel-yellow sm:w-[14px] sm:h-[14px]" />
                                                         Gain : <span className="text-padel-yellow font-black">{tourney.prize}</span>
                                                     </div>
                                                     {tourney.entryFee > 0 && (
                                                         <div className="flex items-center gap-2 sm:gap-3 text-[10px] sm:text-[11px] font-bold text-white/30 uppercase tracking-widest">
-                                                            <Target size={12} className="text-padel-blue sm:w-[14px] sm:h-[14px]" /> 
+                                                            <Target size={12} className="text-padel-blue sm:w-[14px] sm:h-[14px]" />
                                                             Inscription : {tourney.entryFee}€
                                                         </div>
                                                     )}
@@ -479,7 +502,22 @@ export function PlayerEvents() {
                                                         />
                                                     </div>
                                                 </div>
-                                                
+
+                                                {canJoin && tourney.entryFee > 0 && (
+                                                    <div className="mb-4">
+                                                        <PromoCodeInput
+                                                            applicationType="tournament"
+                                                            purchaseAmount={tourney.entryFee}
+                                                            onApply={(discount, code) => setEventPromo(tourney._id, code, discount)}
+                                                        />
+                                                        {promos[tourney._id]?.discount > 0 && (
+                                                            <div className="mt-2 text-green-400 text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
+                                                                <Check size={12} /> Code {promos[tourney._id].code} appliqué (-{promos[tourney._id].discount}€)
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                )}
+
                                                 {/* Button */}
                                                 {isRegistered && !deadlinePassed ? (
                                                     <div className="flex gap-2">
@@ -503,14 +541,14 @@ export function PlayerEvents() {
                                                         <Check size={14} /> Inscrit
                                                     </div>
                                                 ) : (
-                                                    <button 
+                                                    <button
                                                         onClick={() => canJoin && handleJoinTournament(tourney._id)}
                                                         disabled={!canJoin || joiningTournament === tourney._id}
                                                         className={cn(
                                                             "w-full py-3 sm:py-5 rounded-xl sm:rounded-2xl text-[9px] sm:text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-between px-4 sm:px-6",
                                                             tournamentSuccess === tourney._id ? "bg-green-500/20 border border-green-500/30 text-green-500" :
-                                                            !canJoin ? "bg-white/[0.02] border border-white/5 text-white/20 cursor-not-allowed" :
-                                                            "bg-padel-yellow text-padel-blue shadow-xl shadow-padel-yellow/10 hover:scale-[1.02]"
+                                                                !canJoin ? "bg-white/[0.02] border border-white/5 text-white/20 cursor-not-allowed" :
+                                                                    "bg-padel-yellow text-padel-blue shadow-xl shadow-padel-yellow/10 hover:scale-[1.02]"
                                                         )}
                                                     >
                                                         {tournamentSuccess === tourney._id ? (

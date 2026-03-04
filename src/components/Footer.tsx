@@ -32,22 +32,6 @@ export const Footer = () => {
               </p>
             </div>
 
-            <div className="flex gap-4">
-              {[
-                { icon: <Instagram size={18} />, label: "INSTAGRAM" },
-                { icon: <Facebook size={18} />, label: "FACEBOOK" },
-                { icon: <Twitter size={18} />, label: "TWITTER" }
-              ].map((social, i) => (
-                <motion.a
-                  key={i}
-                  href="#"
-                  whileHover={{ scale: 1.1, y: -2 }}
-                  className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/40 hover:text-padel-blue hover:border-padel-blue transition-all duration-300"
-                >
-                  {social.icon}
-                </motion.a>
-              ))}
-            </div>
           </div>
 
           {/* Navigation Columns (7 cols total) - 2 cols on tablet, 3 on desktop */}
@@ -65,8 +49,8 @@ export const Footer = () => {
                   { name: 'CONTACT', href: '/contact' }
                 ].map((link) => (
                   <li key={link.name}>
-                    <Link to={link.href} className="text-white/50 hover:text-white transition-colors text-[11px] font-black tracking-widest uppercase flex items-center justify-center md:justify-start gap-2 group">
-                      <span className="hidden md:block w-0 group-hover:w-3 h-[1px] bg-padel-blue transition-all duration-300" />
+                    <Link to={link.href} className="text-white/50 hover:text-white transition-colors text-[11px] font-black tracking-widest uppercase flex items-center justify-center md:justify-start group">
+                      <span className="hidden md:block w-0 group-hover:w-3 h-[1px] bg-padel-blue transition-all duration-300 group-hover:mr-2" />
                       {link.name}
                     </Link>
                   </li>
@@ -86,8 +70,8 @@ export const Footer = () => {
                   { name: 'TARIFS', href: '/tarifs' }
                 ].map((link) => (
                   <li key={link.name}>
-                    <Link to={link.href} className="text-white/50 hover:text-white transition-colors text-[11px] font-black tracking-widest uppercase flex items-center justify-center md:justify-start gap-2 group">
-                      <span className="hidden md:block w-0 group-hover:w-3 h-[1px] bg-padel-yellow transition-all duration-300" />
+                    <Link to={link.href} className="text-white/50 hover:text-white transition-colors text-[11px] font-black tracking-widest uppercase flex items-center justify-center md:justify-start group">
+                      <span className="hidden md:block w-0 group-hover:w-3 h-[1px] bg-padel-yellow transition-all duration-300 group-hover:mr-2" />
                       {link.name}
                     </Link>
                   </li>
@@ -96,24 +80,24 @@ export const Footer = () => {
             </div>
 
             {/* Column 3: Contact (2nd column on tablet, 3rd on desktop) */}
-            <div className="space-y-8 flex flex-col items-center md:items-start text-center md:text-left sm:col-span-2 lg:col-span-1">
+            <div className="space-y-8 flex flex-col items-center md:items-start text-center md:text-left">
               <h4 className="text-[10px] font-black text-white uppercase tracking-[0.4em]">CONTACT</h4>
-              <ul className="flex flex-col md:flex-row lg:flex-col gap-6 md:gap-12 lg:gap-6 w-full justify-center md:justify-start">
-                <li className="space-y-2">
-                  <p className="text-[11px] font-black text-white/50 uppercase tracking-[0.2em]">LOCALISATION</p>
-                  <a href="#" className="text-white/50 hover:text-white transition-colors text-xs font-medium block leading-relaxed">
-                    123 Avenue du <span className="notranslate" translate="no">Padel</span>,<br />41100 Vendôme
-                  </a>
+              <ul className="space-y-4 justify-center md:justify-start">
+                <li>
+                  <div className="text-white/50 transition-colors text-[11px] font-black tracking-widest uppercase flex items-center justify-center md:justify-start group">
+                    <span className="hidden md:block w-0 h-[1px] transition-all duration-300 group-hover:mr-2" />
+                    <span className="whitespace-nowrap">123 Avenue du <span className="notranslate" translate="no">Padel</span>, 41100 Vendôme</span>
+                  </div>
                 </li>
-                <li className="space-y-2">
-                  <p className="text-[11px] font-black text-white/50 uppercase tracking-[0.2em]">TÉLÉPHONE</p>
-                  <a href="tel:+33200000000" className="text-white/50 hover:text-white transition-colors text-xs font-black">
+                <li>
+                  <a href="tel:+33200000000" className="text-white/50 hover:text-white transition-colors text-[11px] font-black tracking-widest uppercase flex items-center justify-center md:justify-start group">
+                    <span className="hidden md:block w-0 h-[1px] transition-all duration-300 group-hover:mr-2" />
                     +33 2 00 00 00 00
                   </a>
                 </li>
-                <li className="space-y-2">
-                  <p className="text-[11px] font-black text-white/50 uppercase tracking-[0.2em]">EMAIL US</p>
-                  <a href="mailto:contact@padelarena.fr" className="text-white/50 hover:text-white transition-colors text-xs font-medium">
+                <li>
+                  <a href="mailto:contact@padelarena.fr" className="text-white/50 hover:text-white transition-colors text-[11px] font-black tracking-widest uppercase flex items-center justify-center md:justify-start group">
+                    <span className="hidden md:block w-0 h-[1px] transition-all duration-300 group-hover:mr-2" />
                     contact@padelarena.fr
                   </a>
                 </li>
@@ -134,7 +118,7 @@ export const Footer = () => {
           <div className="flex flex-col md:flex-row items-center gap-6 md:gap-8 text-white/70">
             <div className="flex gap-8">
               <a href="#" className="text-[9px] font-black text-white/70 hover:text-white uppercase tracking-widest transition-colors">MENTIONS LÉGALES</a>
-              <a href="#" className="text-[9px] font-black text-white/70 hover:text-white uppercase tracking-widest transition-colors">PRIVACY POLICY</a>
+              <a href="#" className="text-[9px] font-black text-white/70 hover:text-white uppercase tracking-widest transition-colors">politique de confidentialité</a>
             </div>
             <div className="flex items-center gap-2 group cursor-default">
               <span className="text-[9px] font-black tracking-widest uppercase group-hover:text-padel-blue transition-colors">VENDÔME, FR</span>

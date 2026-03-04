@@ -214,9 +214,6 @@ export const SubscriptionPlans = () => {
         {/* ROI Simulator Section */}
         <div className="grid lg:grid-cols-2 gap-16 lg:gap-32 items-center px-6 md:px-16 py-16 md:py-24 glass rounded-[4rem] border-white/5 pb-32 md:pb-24">
           <div>
-            <div className="inline-flex items-center gap-4 mb-8">
-              <span className="text-[10px] font-black tracking-[0.4em] text-padel-yellow uppercase">ROI ANALYTICS</span>
-            </div>
             <h4 className="text-3xl md:text-5xl font-display font-black text-white uppercase tracking-tighter leading-none mb-10">
               OPTIMISEZ <br /> <span className="text-padel-blue italic">VOTRE BUDGET</span>
             </h4>

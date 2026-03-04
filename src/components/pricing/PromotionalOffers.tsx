@@ -76,7 +76,7 @@ export const PromotionalOffers = () => {
       <div className="max-w-[1400px] mx-auto relative z-10">
         <div className="text-center mb-24 md:mb-32">
           <div className="inline-flex items-center gap-4 mb-8">
-            <span className="text-[10px] font-black tracking-[0.4em] text-padel-blue uppercase">OFFRES FLASH & DEALS</span>
+            <span className="text-[10px] font-black tracking-[0.4em] text-padel-blue uppercase">OFFRES FLASH</span>
           </div>
           <h3 className="text-4xl md:text-7xl font-display font-black tracking-tighter leading-[0.9] uppercase">
             PROFITEZ DES <br />

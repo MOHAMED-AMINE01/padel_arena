@@ -70,7 +70,7 @@ const KPICard = ({ title, value, change, icon: Icon, isPositive, color = 'blue',
             {loading ? (
                 <div className="h-8 md:h-10 w-16 md:w-24 bg-white/5 animate-pulse rounded-lg" />
             ) : (
-                <p className="text-xl md:text-4xl font-black text-white italic uppercase tracking-tighter leading-none">{value}</p>
+                <p className="text-xl md:text-4xl font-black text-white uppercase tracking-tighter leading-none">{value}</p>
             )}
         </div>
     </motion.div>
@@ -86,12 +86,8 @@ const HourlyChart = ({ data, loading }: { data: number[]; loading: boolean }) =>
 
             <div className="flex items-center justify-between mb-12 relative z-10">
                 <div className="space-y-1">
-                    <h3 className="text-xl md:text-2xl font-display font-black text-white italic uppercase tracking-tighter leading-none">Occupation Aujourd'hui</h3>
+                    <h3 className="text-xl md:text-2xl font-display font-black text-white uppercase tracking-tighter leading-none">Occupation Aujourd'hui</h3>
                     <p className="text-[9px] md:text-[11px] font-bold text-white/20 uppercase tracking-[0.2em]">Distribution horaire en temps réel (8h - 22h)</p>
-                </div>
-                <div className="flex items-center gap-3 px-4 py-2 bg-white/5 border border-white/10 rounded-2xl">
-                    <div className="w-2 h-2 rounded-full bg-padel-blue animate-pulse shadow-[0_0_10px_rgba(19,73,211,0.5)]" />
-                    <span className="text-[10px] font-black text-white/60 uppercase tracking-widest italic">Live Flow Active</span>
                 </div>
             </div>
 
@@ -175,11 +171,11 @@ const ActivityItem = ({ title, time, court, status }: any) => (
                     <span className="w-1 h-1 rounded-full bg-white/10" />
                     <p className="text-[7px] font-black text-white/20 uppercase tracking-[0.3em]">Réservation</p>
                 </div>
-                <span className="text-[8px] text-white/20 font-black italic tracking-tighter bg-white/5 px-1.5 py-0.5 rounded-md border border-white/5">{time}</span>
+                <span className="text-[8px] text-white/20 font-black tracking-tighter bg-white/5 px-1.5 py-0.5 rounded-md border border-white/5">{time}</span>
             </div>
 
             <div className="space-y-0.5">
-                <p className="text-[12px] font-black text-white italic uppercase tracking-tighter leading-none group-hover:text-padel-yellow transition-colors">
+                <p className="text-[12px] font-black text-white uppercase tracking-tighter leading-none group-hover:text-padel-yellow transition-colors">
                     {title}
                 </p>
                 {court && (
@@ -214,7 +210,7 @@ const StatusChip = ({ label, value, color, icon: Icon }: { label: string; value:
             </div>
             <span className="text-[11px] font-black text-white/30 uppercase tracking-widest">{label}</span>
         </div>
-        <span className="text-2xl font-black text-white italic tracking-tighter">{value}</span>
+        <span className="text-2xl font-black text-white tracking-tighter">{value}</span>
     </div>
 );
 
@@ -253,7 +249,7 @@ const LogsModal = ({ isOpen, onClose, bookings }: { isOpen: boolean; onClose: ()
                                         <Activity size={20} />
                                     </div>
                                     <div>
-                                        <h3 className="text-xl md:text-2xl font-display font-black text-white italic uppercase tracking-tighter">Flux Réseau Complet</h3>
+                                        <h3 className="text-xl md:text-2xl font-display font-black text-white uppercase tracking-tighter">Flux Réseau Complet</h3>
                                         <p className="text-[8px] md:text-[10px] font-bold text-white/20 uppercase tracking-[0.2em]">Historique des transactions & événements</p>
                                     </div>
                                 </div>
@@ -347,7 +343,7 @@ export function AdminDashboard() {
                     <XCircle size={40} md:size={48} />
                 </div>
                 <div className="space-y-3">
-                    <h2 className="text-3xl md:text-4xl font-display font-black text-white uppercase italic tracking-tighter">Cockpit Hors-Ligne</h2>
+                    <h2 className="text-3xl md:text-4xl font-display font-black text-white uppercase tracking-tighter">Cockpit Hors-Ligne</h2>
                     <p className="text-white/40 text-[10px] md:text-[12px] font-black uppercase tracking-[0.3em] max-w-sm mx-auto">{error}</p>
                 </div>
                 <button
@@ -369,16 +365,12 @@ export function AdminDashboard() {
         >
             <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-10 border-b border-white/5 pb-10 md:pb-16 pt-10 md:pt-0">
                 <div className="space-y-6">
-                    <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-padel-blue/10 border border-padel-blue/20 text-padel-blue text-[9px] md:text-[10px] font-black uppercase tracking-[0.3em] md:tracking-[0.4em]">
-                        <Activity size={14} className="animate-pulse" /> Live Monitoring System
-                    </div>
+
                     <div>
-                        <h1 className="text-5xl sm:text-6xl md:text-8xl font-display font-black text-white italic uppercase tracking-tighter leading-[0.85] md:leading-[0.8]">
+                        <h1 className="text-5xl sm:text-6xl md:text-8xl font-display font-black text-white uppercase tracking-tighter leading-[0.85] md:leading-[0.8]">
                             Dashboard
                         </h1>
-                        <p className="text-[11px] md:text-[14px] font-bold text-white/30 uppercase tracking-[0.2em] md:tracking-[0.4em] mt-6 md:mt-8 max-w-2xl leading-relaxed italic">
-                            Intelligence de terrain synchronisée. <br className="hidden md:block" /> Analyse flux & performances réseau Padel Arena.
-                        </p>
+
                     </div>
                 </div>
             </div>
@@ -398,7 +390,7 @@ export function AdminDashboard() {
                 <div className="xl:col-span-4 bg-[#151518]/60 backdrop-blur-3xl border border-white/10 p-6 md:p-8 rounded-[2rem] md:rounded-[3rem] shadow-3xl relative overflow-hidden flex flex-col">
                     <div className="absolute top-0 right-0 p-8 opacity-[0.05] pointer-events-none group-hover:scale-110 transition-transform"><Activity size={200} /></div>
                     <div className="flex items-center justify-between mb-8 relative z-10">
-                        <h3 className="text-lg md:text-xl font-display font-black text-white italic uppercase tracking-tighter">Activité Live</h3>
+                        <h3 className="text-lg md:text-xl font-display font-black text-white uppercase tracking-tighter">Activité Live</h3>
                         <div className="flex items-center gap-2">
                             {loading && <Loader2 className="animate-spin text-padel-yellow" size={14} />}
                             <div className="px-2.5 py-1 bg-padel-blue text-white text-[8px] font-black uppercase rounded-lg">SYNC OK</div>
@@ -437,7 +429,7 @@ export function AdminDashboard() {
                 <div className="bg-[#151518]/60 backdrop-blur-xl border border-white/10 p-6 md:p-10 rounded-[2.5rem] md:rounded-[3.5rem] shadow-2xl lg:col-span-2">
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-10">
                         <h3 className="text-[10px] md:text-[12px] font-black text-white/30 uppercase tracking-[0.4em]">Segmentation Réservations</h3>
-                        <span className="text-[9px] md:text-[10px] font-black text-padel-yellow uppercase tracking-widest bg-padel-yellow/10 px-3 py-1 rounded-full italic">Total Global</span>
+                        <span className="text-[9px] md:text-[10px] font-black text-padel-yellow uppercase tracking-widest bg-padel-yellow/10 px-3 py-1 rounded-full">Total Global</span>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <StatusChip label="Confirmées" value={stats?.confirmedCount || 0} color="bg-green-500 text-white" icon={CheckCircle2} />
@@ -450,10 +442,10 @@ export function AdminDashboard() {
                     <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-white/20 via-transparent to-black/20 pointer-events-none" />
                     <div className="relative z-10">
                         <Zap size={32} md:size={48} className="text-padel-yellow mb-6 md:mb-10" />
-                        <h2 className="text-3xl md:text-4xl font-display font-black text-white italic uppercase tracking-tighter leading-[0.9]">Peak <br /> Performance</h2>
+                        <h2 className="text-3xl md:text-4xl font-display font-black text-white uppercase tracking-tighter leading-[0.9]">Peak <br /> Performance</h2>
                         <div className="mt-6 md:mt-8 space-y-2">
                             <p className="text-[10px] md:text-xs font-black text-white/60 uppercase tracking-widest">Heure de Pointe Aujourd'hui</p>
-                            <p className="text-xl md:text-3xl font-black text-padel-yellow italic uppercase tracking-tighter">{stats?.peakHours || '—'}</p>
+                            <p className="text-xl md:text-3xl font-black text-padel-yellow uppercase tracking-tighter">{stats?.peakHours || '—'}</p>
                         </div>
                     </div>
                 </motion.div>

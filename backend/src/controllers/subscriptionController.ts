@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import Subscription from '../models/Subscription';
 import User from '../models/User';
 import { asyncHandler } from '../utils/asyncHandler';
+import { validateAndApplyPromoCode, incrementPromoCodeUsage } from '../services/promoCodeService';
 
 // @desc    Get all subscriptions
 // @route   GET /api/admin/subscriptions
@@ -181,6 +182,7 @@ export const getMySubscription = asyncHandler(async (req: Request, res: Response
 // @route   POST /api/subscriptions/subscribe/:planId
 export const subscribeToPlan = asyncHandler(async (req: Request, res: Response) => {
     const { planId } = req.params;
+    const { promoCode } = req.body;
 
     const plan = await Subscription.findById(planId);
     if (!plan) {
@@ -191,11 +193,31 @@ export const subscribeToPlan = asyncHandler(async (req: Request, res: Response) 
         return res.status(400).json({ success: false, message: 'Ce plan n\'est plus disponible.' });
     }
 
+    let promoCodeId = null;
+    if (promoCode) {
+        const promoResult = await validateAndApplyPromoCode(
+            promoCode,
+            plan.price,
+            'subscription',
+            (req as any).user._id
+        );
+
+        if (promoResult.isValid) {
+            promoCodeId = promoResult.promoCodeId;
+        } else {
+            return res.status(400).json({ success: false, message: promoResult.message });
+        }
+    }
+
     const user = await User.findByIdAndUpdate(
         (req as any).user._id,
         { subscription: planId },
         { new: true }
     ).populate('subscription');
+
+    if (promoCodeId) {
+        await incrementPromoCodeUsage(promoCodeId, (req as any).user._id);
+    }
 
     res.status(200).json({
         success: true,

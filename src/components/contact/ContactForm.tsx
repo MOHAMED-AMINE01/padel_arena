@@ -45,8 +45,8 @@ export const ContactForm = () => {
               </div>
 
               <h1 className="text-4xl md:text-8xl font-display font-black tracking-tighter leading-[0.9] uppercase mb-12">
-                ENTRONS <br />
-                <span className="text-white italic">EN CONTACT</span>
+                CONTACTEZ <br />
+                <span className="text-white italic">LE CLUB</span>
               </h1>
 
               <p className="text-base md:text-lg text-white/30 font-medium max-w-md mb-16 leading-relaxed mx-auto lg:mx-0">

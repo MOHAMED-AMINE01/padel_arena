@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import Tournament from '../models/Tournament';
 import { asyncHandler } from '../utils/asyncHandler';
+import { validateAndApplyPromoCode, incrementPromoCodeUsage } from '../services/promoCodeService';
 
 // @desc    Get all tournaments
 // @route   GET /api/tournaments
@@ -66,6 +67,7 @@ export const deleteTournament = asyncHandler(async (req: Request, res: Response)
 // @route   POST /api/tournaments/:id/join
 // @access  Private (Player)
 export const joinTournament = asyncHandler(async (req: any, res: Response) => {
+    const { promoCode } = req.body;
     const tournament = await Tournament.findById(req.params.id);
 
     if (!tournament) {
@@ -91,12 +93,32 @@ export const joinTournament = asyncHandler(async (req: any, res: Response) => {
         return res.status(400).json({ message: 'Vous êtes déjà inscrit à ce tournoi.' });
     }
 
+    let promoCodeId = null;
+    if (promoCode) {
+        const promoResult = await validateAndApplyPromoCode(
+            promoCode,
+            tournament.entryFee,
+            'tournament',
+            req.user.id
+        );
+
+        if (promoResult.isValid) {
+            promoCodeId = promoResult.promoCodeId;
+        } else {
+            return res.status(400).json({ success: false, message: promoResult.message });
+        }
+    }
+
     // Actually, join logic might need more detail (teams of 2, etc.)
     // For now, let's keep it simple: just add the user
     tournament.participants.push(req.user.id);
     tournament.currentTeams += 0.5; // If it's single user joining, 2 users = 1 team?
 
     await tournament.save();
+
+    if (promoCodeId) {
+        await incrementPromoCodeUsage(promoCodeId, req.user.id);
+    }
 
     res.status(200).json({
         success: true,
