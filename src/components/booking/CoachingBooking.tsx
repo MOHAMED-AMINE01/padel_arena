@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Star, Calendar as CalendarIcon, Clock, ArrowRight, CheckCircle2, ShieldCheck, Zap, ArrowUpRight } from 'lucide-react';
 import { cn } from '../../lib/utils';
+import { PromoCodeInput } from '../player/PromoCodeInput';
 
 const coaches = [
   { id: 1, name: "LUCAS MARTIN", role: "HEAD COACH", level: "EXPERT", rating: 4.9, image: "/IMAGES/ACTIVITIES - COACHING/pexels-atbo-245208.jpg", specialties: ["TECHNIQUE", "TACTIQUE"], exp: "12 ANS" },
@@ -162,9 +163,9 @@ export const CoachingBooking = () => {
                       Code appliqué : <span className="font-mono bg-green-500/10 px-2 py-1 rounded">{promoCode}</span> (-{promoDiscount}€)
                     </div>
                   )}
-                   <div className="mt-2 text-white text-xs font-bold">
-                     Prix final : <span className="font-mono bg-padel-blue/10 px-2 py-1 rounded">{finalPrice}€</span>
-                   </div>
+                  <div className="mt-2 text-white text-xs font-bold">
+                    Prix final : <span className="font-mono bg-padel-blue/10 px-2 py-1 rounded">{finalPrice}€</span>
+                  </div>
                 </div>
 
                 <motion.button

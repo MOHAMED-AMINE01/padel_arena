@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { Trophy, Medal, Users, ArrowRight, Calendar, Star, ChevronRight, Award } from 'lucide-react';
+import { Trophy, Medal, Users, ArrowRight, Calendar, Star, ChevronRight, Award, CheckCircle2 } from 'lucide-react';
 import { cn } from '../lib/utils';
+import { PromoCodeInput } from './player/PromoCodeInput';
 
 const tournaments = [
   {
@@ -31,6 +32,9 @@ const tournaments = [
 ];
 
 export const Tournaments = () => {
+  const [promoDiscount, setPromoDiscount] = useState(0);
+  const [promoCode, setPromoCode] = useState('');
+  const tournamentPrice = 25; // Prix de base par défaut
   return (
     <section id="tournois" className="relative py-24 md:py-48 px-6 overflow-hidden bg-dark-bg">
       {/* Ajout du code promo pour les tournois */}

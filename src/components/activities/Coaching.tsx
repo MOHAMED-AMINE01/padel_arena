@@ -2,6 +2,7 @@ import React, { useRef, useState } from 'react';
 import { motion } from 'motion/react';
 import { ArrowRight, CheckCircle2, Video, Target, Zap, Users, User, ArrowUpRight } from 'lucide-react';
 import { cn } from '../../lib/utils';
+import { PromoCodeInput } from '../player/PromoCodeInput';
 
 const coachingTypes = [
   {
@@ -124,11 +125,11 @@ export const Coaching = () => {
                   <p className="text-xs md:text-sm text-white/30 font-medium leading-relaxed group-hover:text-white/50 transition-colors">
                     {type.desc}
                   </p>
-                    {/* Promo code input for course context */}
-                    <div className="mt-4">
-                      {/* You may want to style or position this differently */}
-                      <PromoCodeInput applicationType="course" />
-                    </div>
+                  {/* Promo code input for course context */}
+                  <div className="mt-4">
+                    {/* You may want to style or position this differently */}
+                    <PromoCodeInput applicationType="course" onApply={() => { }} />
+                  </div>
                 </div>
               </motion.div>
             ))}
@@ -149,7 +150,7 @@ export const Coaching = () => {
           </div>
         </div>
 
-        
+
       </div>
     </section>
   );
