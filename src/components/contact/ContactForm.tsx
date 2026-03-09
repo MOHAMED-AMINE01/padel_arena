@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Mail, Phone, MapPin, Clock, Send, CheckCircle2, ArrowUpRight, MessageSquare, Instagram, Facebook } from 'lucide-react';
+import { Mail, Phone, MapPin, Clock, Send, CheckCircle2, ArrowUpRight, MessageSquare, Instagram, Facebook, Loader2 } from 'lucide-react';
 import { cn } from '../../lib/utils';
+import api from '../../lib/api';
 
 const contactInfo = [
   { icon: <MapPin size={24} />, label: "LOCALISATION", value: "123 Avenue du Padel", subValue: "41100 Vendôme, France", link: "https://maps.google.com" },
@@ -12,11 +13,42 @@ const contactInfo = [
 
 export const ContactForm = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    subject: 'PRÉSERVATION DE COURT',
+    message: ''
+  });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitted(true);
-    setTimeout(() => setIsSubmitted(false), 5000);
+    setIsSubmitting(true);
+    try {
+      await api.post('/messages/contact', {
+        name: `${formData.firstName} ${formData.lastName}`,
+        email: formData.email,
+        subject: formData.subject,
+        message: formData.message
+      });
+      setIsSubmitted(true);
+      setTimeout(() => setIsSubmitted(false), 8000);
+      setFormData({
+        firstName: '',
+        lastName: '',
+        email: '',
+        phone: '',
+        subject: 'PRÉSERVATION DE COURT',
+        message: ''
+      });
+    } catch (err) {
+      console.error('Error sending message:', err);
+      alert('Une erreur est survenue lors de l\'envoi du message. Veuillez réessayer.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -112,29 +144,60 @@ export const ContactForm = () => {
                     <div className="grid md:grid-cols-2 gap-10">
                       <div className="space-y-4">
                         <label className="text-[9px] font-black text-white/20 uppercase tracking-[0.3em] ml-1">PRÉNOM</label>
-                        <input required type="text" className="w-full bg-white/5 border border-white/10 rounded-2xl py-5 px-8 text-sm font-bold text-white focus:border-padel-yellow focus:outline-none transition-all placeholder:text-white/5 uppercase" placeholder="JEAN" />
+                        <input
+                          required
+                          type="text"
+                          value={formData.firstName}
+                          onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                          className="w-full bg-white/5 border border-white/10 rounded-2xl py-5 px-8 text-sm font-bold text-white focus:border-padel-yellow focus:outline-none transition-all placeholder:text-white/5 uppercase"
+                          placeholder="JEAN"
+                        />
                       </div>
                       <div className="space-y-4">
                         <label className="text-[9px] font-black text-white/20 uppercase tracking-[0.3em] ml-1">NOM</label>
-                        <input required type="text" className="w-full bg-white/5 border border-white/10 rounded-2xl py-5 px-8 text-sm font-bold text-white focus:border-padel-yellow focus:outline-none transition-all placeholder:text-white/5 uppercase" placeholder="DUPONT" />
+                        <input
+                          required
+                          type="text"
+                          value={formData.lastName}
+                          onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                          className="w-full bg-white/5 border border-white/10 rounded-2xl py-5 px-8 text-sm font-bold text-white focus:border-padel-yellow focus:outline-none transition-all placeholder:text-white/5 uppercase"
+                          placeholder="DUPONT"
+                        />
                       </div>
                     </div>
 
                     <div className="grid md:grid-cols-2 gap-10">
                       <div className="space-y-4">
                         <label className="text-[9px] font-black text-white/20 uppercase tracking-[0.3em] ml-1">EMAIL BUSINESS</label>
-                        <input required type="email" className="w-full bg-white/5 border border-white/10 rounded-2xl py-5 px-8 text-sm font-bold text-white focus:border-padel-yellow focus:outline-none transition-all placeholder:text-white/5 uppercase" placeholder="JEAN@ARENA.FR" />
+                        <input
+                          required
+                          type="email"
+                          value={formData.email}
+                          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                          className="w-full bg-white/5 border border-white/10 rounded-2xl py-5 px-8 text-sm font-bold text-white focus:border-padel-yellow focus:outline-none transition-all placeholder:text-white/5 uppercase"
+                          placeholder="JEAN@ARENA.FR"
+                        />
                       </div>
                       <div className="space-y-4">
                         <label className="text-[9px] font-black text-white/20 uppercase tracking-[0.3em] ml-1">MOBILE</label>
-                        <input type="tel" className="w-full bg-white/5 border border-white/10 rounded-2xl py-5 px-8 text-sm font-bold text-white focus:border-padel-yellow focus:outline-none transition-all placeholder:text-white/5 uppercase" placeholder="+33 XX XX XX XX" />
+                        <input
+                          type="tel"
+                          value={formData.phone}
+                          onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                          className="w-full bg-white/5 border border-white/10 rounded-2xl py-5 px-8 text-sm font-bold text-white focus:border-padel-yellow focus:outline-none transition-all placeholder:text-white/5 uppercase"
+                          placeholder="+33 XX XX XX XX"
+                        />
                       </div>
                     </div>
 
                     <div className="space-y-4">
                       <label className="text-[9px] font-black text-white/20 uppercase tracking-[0.3em] ml-1">OBJET DE LA DEMANDE</label>
                       <div className="relative">
-                        <select className="w-full bg-white/5 border border-white/10 rounded-2xl py-5 px-8 text-sm font-bold text-white focus:border-padel-yellow focus:outline-none transition-all appearance-none uppercase">
+                        <select
+                          value={formData.subject}
+                          onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
+                          className="w-full bg-white/5 border border-white/10 rounded-2xl py-5 px-8 text-sm font-bold text-white focus:border-padel-yellow focus:outline-none transition-all appearance-none uppercase"
+                        >
                           <option className="bg-[#111]">PRÉSERVATION DE COURT</option>
                           <option className="bg-[#111]">COACHING & ACADÉMIE</option>
                           <option className="bg-[#111]">OFFRES CORPORATE</option>
@@ -149,18 +212,29 @@ export const ContactForm = () => {
 
                     <div className="space-y-4">
                       <label className="text-[9px] font-black text-white/20 uppercase tracking-[0.3em] ml-1">MESSAGE</label>
-                      <textarea required rows={5} className="w-full bg-white/5 border border-white/10 rounded-[2rem] py-6 px-8 text-sm font-bold text-white focus:border-padel-yellow focus:outline-none transition-all resize-none placeholder:text-white/5 uppercase" placeholder="DÉTAILLEZ VOTRE DEMANDE ICI..." />
+                      <textarea
+                        required
+                        rows={5}
+                        value={formData.message}
+                        onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                        className="w-full bg-white/5 border border-white/10 rounded-[2rem] py-6 px-8 text-sm font-bold text-white focus:border-padel-yellow focus:outline-none transition-all resize-none placeholder:text-white/5 uppercase"
+                        placeholder="DÉTAILLEZ VOTRE DEMANDE ICI..."
+                      />
                     </div>
 
                     <button
                       type="submit"
-                      className="w-full group relative py-6 bg-padel-blue text-white rounded-full font-black text-[11px] uppercase tracking-[0.4em] overflow-hidden shadow-2xl transition-all"
+                      disabled={isSubmitting}
+                      className="w-full group relative py-6 bg-padel-blue text-white rounded-full font-black text-[11px] uppercase tracking-[0.4em] overflow-hidden shadow-2xl transition-all disabled:opacity-50"
                     >
                       <span className="relative z-10 flex items-center justify-center gap-4 group-hover:text-padel-blue transition-colors">
-                        INITIER LE CONTACT
-                        <Send size={16} />
+                        {isSubmitting ? (
+                          <>SYNCHRONISATION... <Loader2 size={16} className="animate-spin" /></>
+                        ) : (
+                          <>INITIER LE CONTACT <Send size={16} /></>
+                        )}
                       </span>
-                      <div className="absolute inset-0 bg-padel-yellow translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
+                      {!isSubmitting && <div className="absolute inset-0 bg-padel-yellow translate-y-full group-hover:translate-y-0 transition-transform duration-500" />}
                     </button>
                   </motion.form>
                 ) : (

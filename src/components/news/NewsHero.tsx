@@ -43,7 +43,7 @@ export const NewsHero = () => {
 
                             <h1 className="text-4xl sm:text-5xl md:text-7xl xl:text-8xl font-display font-black tracking-tighter leading-[0.85] uppercase mb-8">
                                 NEWS <br />
-                                <span className="text-padel-yellow italic">& BLOG</span>
+                                <span className="text-padel-blue italic">& BLOG</span>
                             </h1>
 
                             <p className="text-base md:text-lg text-white/40 font-medium max-w-lg mb-12 leading-relaxed mx-auto md:mx-0">

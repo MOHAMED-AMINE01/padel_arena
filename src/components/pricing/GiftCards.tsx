@@ -70,7 +70,7 @@ export const GiftCards = () => {
               <div className="relative z-10 h-full flex flex-col justify-between">
                 <div className="flex justify-between items-start">
                   <div className="space-y-1">
-                    <img src="/IMAGES/logo_tr.png" className="h-10 opacity-60 group-hover:opacity-100 transition-opacity" alt="Logo" />
+                    <img src="/IMAGES/newLogo_tr.png" className="h-10 opacity-60 group-hover:opacity-100 transition-opacity" alt="Logo" />
                     <p className="text-[7px] font-black text-white/20 tracking-[0.4em] uppercase">OFFICIAL GIFT CARD</p>
                   </div>
                   <Sparkles className="text-padel-yellow animate-pulse" size={24} />

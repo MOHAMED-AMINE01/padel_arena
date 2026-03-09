@@ -125,7 +125,7 @@ export function AuthPage() {
                         <div className="mb-5 flex justify-center">
                             <Link to="/">
                                 <motion.img
-                                    src="/IMAGES/logo_tr.png"
+                                    src="/IMAGES/newLogo_tr.png"
                                     alt="Logo"
                                     className="h-28 md:h-36 drop-shadow-[0_0_40px_rgba(19,73,211,0.4)] object-contain"
                                     initial={{ scale: 0.5, opacity: 0 }}

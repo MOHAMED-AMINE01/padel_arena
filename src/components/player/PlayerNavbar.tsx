@@ -15,7 +15,8 @@ import {
     Sparkles,
     Shield,
     ChevronDown,
-    ArrowRight
+    ArrowRight,
+    MessageSquare
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { useAuth } from '../../context/AuthContext';
@@ -41,6 +42,7 @@ export function PlayerNavbar() {
         { label: 'Mes Matchs', href: '/my-reservations', icon: History },
         { label: 'Tournois', href: '/events', icon: Trophy },
         { label: 'Abonnement', href: '/subscription', icon: Ticket },
+        { label: 'Support', href: '/messages', icon: MessageSquare },
     ];
 
     const handleLogout = async () => {
@@ -74,7 +76,7 @@ export function PlayerNavbar() {
                                 className="relative z-10"
                             >
                                 <img
-                                    src="/IMAGES/logo_tr.png"
+                                    src="/IMAGES/newLogo_tr.png"
                                     alt="Logo"
                                     className="h-12 scale-200 w-auto drop-shadow-[0_0_15px_rgba(19,73,211,0.3)] transition-transform duration-500"
                                 />
@@ -85,35 +87,35 @@ export function PlayerNavbar() {
 
                     {/* Desktop Menu - Centered */}
                     <div className="hidden lg:flex items-center gap-0 absolute left-1/2 -translate-x-1/2">
-                            {navLinks.map((link) => (
-                                <Link
-                                    key={link.href}
-                                    to={link.href}
-                                    className={cn(
-                                        "relative px-3 py-2 group overflow-hidden transition-all",
-                                        location.pathname === link.href ? "text-white" : "text-white/40 hover:text-white/80"
-                                    )}
-                                >
-                                    <div className="relative z-10 flex items-center gap-2">
-                                        <link.icon size={16} className={cn(
-                                            "transition-colors",
-                                            location.pathname === link.href ? "text-padel-blue" : "text-current"
-                                        )} />
-                                        <span className="text-[10px] font-black uppercase tracking-[0.15em] italic whitespace-nowrap">
-                                            {link.label}
-                                        </span>
-                                    </div>
-                                    {location.pathname === link.href && (
-                                        <motion.div
-                                            layoutId="nav-active"
-                                            className="absolute inset-0 bg-white/[0.05] rounded-xl border border-white/10"
-                                            transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                                        />
-                                    )}
-                                    <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-[2px] bg-padel-blue group-hover:w-full transition-all duration-500 opacity-50" />
-                                </Link>
-                            ))}
-                        </div>
+                        {navLinks.map((link) => (
+                            <Link
+                                key={link.href}
+                                to={link.href}
+                                className={cn(
+                                    "relative px-3 py-2 group overflow-hidden transition-all",
+                                    location.pathname === link.href ? "text-white" : "text-white/40 hover:text-white/80"
+                                )}
+                            >
+                                <div className="relative z-10 flex items-center gap-2">
+                                    <link.icon size={16} className={cn(
+                                        "transition-colors",
+                                        location.pathname === link.href ? "text-padel-blue" : "text-current"
+                                    )} />
+                                    <span className="text-[10px] font-black uppercase tracking-[0.15em] italic whitespace-nowrap">
+                                        {link.label}
+                                    </span>
+                                </div>
+                                {location.pathname === link.href && (
+                                    <motion.div
+                                        layoutId="nav-active"
+                                        className="absolute inset-0 bg-white/[0.05] rounded-xl border border-white/10"
+                                        transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                                    />
+                                )}
+                                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-[2px] bg-padel-blue group-hover:w-full transition-all duration-500 opacity-50" />
+                            </Link>
+                        ))}
+                    </div>
 
                     {/* Right Side Actions */}
                     <div className="flex items-center gap-2">

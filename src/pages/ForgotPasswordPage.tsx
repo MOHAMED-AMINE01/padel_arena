@@ -49,7 +49,7 @@ export function ForgotPasswordPage() {
                         <div className="mb-5 flex justify-center">
                             <Link to="/">
                                 <motion.img
-                                    src="/IMAGES/logo_tr.png"
+                                    src="/IMAGES/newLogo_tr.png"
                                     alt="Logo"
                                     className="h-18 drop-shadow-[0_0_20px_rgba(19,73,211,0.2)]"
                                     whileHover={{ scale: 1.05 }}

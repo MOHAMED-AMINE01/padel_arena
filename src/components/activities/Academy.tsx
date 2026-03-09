@@ -18,7 +18,7 @@ const sections = [
     desc: "Des sessions condensées durant les vacances pour transformer votre jeu sous l'œil de nos experts.",
     items: ["Vacances scolaires", "Préparation tournois", "Sessions Elites", "Analyse vidéo"],
     image: "/IMAGES/IMAGES CARROUSEL/pexels-criticalimagery-33226057.jpg",
-    icon: <TrendingUp size={24} className="text-padel-yellow" />
+    icon: <TrendingUp size={24} className="text-padel-blue" />
   }
 ];
 

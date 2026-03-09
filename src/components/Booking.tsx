@@ -52,7 +52,7 @@ export const Booking = () => {
 
               <h2 className="text-5xl md:text-7xl xl:text-8xl font-display font-black mb-8 leading-[0.9] tracking-tighter uppercase">
                 DOMINEZ <br />
-                <span className="text-padel-yellow italic">L'ARÈNE</span>
+                <span className="text-padel-blue italic">L'ARÈNE</span>
               </h2>
 
               <p className="text-base md:text-lg text-white/40 mb-12 font-medium leading-relaxed max-w-md">

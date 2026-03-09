@@ -60,7 +60,7 @@ export const IntroExperience: React.FC<IntroExperienceProps> = ({ onEnter }) => 
           className="text-center"
         >
           <h1 className="text-4xl md:text-6xl font-display font-black text-white mb-4 tracking-tighter uppercase italic leading-[0.9] notranslate" translate="no">
-            PADEL <span className="text-padel-blue">ARENA</span> <span className="text-padel-yellow">VENDÔMOIS</span>
+            PADEL <span className="text-padel-blue">ARENA</span> <span className="text-padel-blue">VENDÔMOIS</span>
           </h1>
           <div className="h-1 w-24 bg-padel-blue mx-auto rounded-full" />
         </motion.div>

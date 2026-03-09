@@ -107,7 +107,7 @@ export const Navbar = () => {
           {/* Logo Section - Impactful Size */}
           <Link to="/" className="relative z-[110] group">
             <motion.img
-              src="/IMAGES/logo_tr.png"
+              src="/IMAGES/newLogo_tr.png"
               alt="Logo"
               className={cn(
                 "transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] drop-shadow-[0_0_25px_rgba(19,73,211,0.25)]",
@@ -270,7 +270,7 @@ export const Navbar = () => {
                   backgroundColor: "#ffd21f"
                 }}
                 whileTap={{ scale: 0.98 }}
-                className="px-10 py-4 bg-padel-yellow text-padel-blue font-display font-black text-xs rounded-full uppercase tracking-[0.25em] shadow-xl border-none transition-all duration-300"
+                className="px-10 py-4 bg-white text-padel-blue font-display font-black text-xs rounded-full uppercase tracking-[0.25em] shadow-xl border-none transition-all duration-300 hover:bg-padel-yellow/80"
               >
                 <span className="notranslate" translate="no">RÉSERVER</span>
               </motion.button>
@@ -306,7 +306,7 @@ export const Navbar = () => {
           >
             {/* Header Area */}
             <div className="flex items-center justify-between p-6">
-              <img src="/IMAGES/logo_tr.png" alt="Logo" className="h-20 object-contain" />
+              <img src="/IMAGES/newLogo_tr.png" alt="Logo" className="h-20 object-contain" />
               <motion.button
                 whileTap={{ scale: 0.9 }}
                 onClick={() => setIsOpen(false)}
@@ -333,11 +333,11 @@ export const Navbar = () => {
                     <div className="flex items-center gap-4 mb-1.5">
                       <div className={cn(
                         "w-1 h-1 rounded-full",
-                        location.pathname === item.href ? "bg-padel-yellow" : "bg-white/10"
+                        location.pathname === item.href ? "bg-padel-blue" : "bg-white/10"
                       )} />
                       <h2 className={cn(
                         "text-2xl font-display font-black uppercase tracking-tight",
-                        location.pathname === item.href ? "text-padel-yellow" : "text-white"
+                        location.pathname === item.href ? "text-padel-blue" : "text-white"
                       )}>
                         {item.name}
                       </h2>

@@ -9,7 +9,7 @@ const activities = [
     image: '/IMAGES/IMG_4502.JPG',
     description: "Découvrez le sport qui fait sensation ! Des courts modernes avec des parois en verre pour une expérience de jeu optimale.",
     buttonText: 'Réserver',
-    titleColor: 'text-padel-yellow',
+    titleColor: 'text-padel-blue',
     buttonColor: 'bg-padel-blue text-white hover:bg-padel-yellow/90 hover:text-black'
   },
   {
@@ -18,7 +18,7 @@ const activities = [
     image: '/IMAGES/oskar-hagberg-uJlPtLTZT7c-unsplash.jpg',
     description: "Découvrez notre terrain hybride Pickleball / Badminton, conçu pour offrir une polyvalence maximale et une expérience de jeu optimale.",
     buttonText: 'Réserver',
-    titleColor: 'text-padel-yellow',
+    titleColor: 'text-padel-blue',
     buttonColor: 'bg-padel-blue text-white hover:bg-padel-yellow/90 hover:text-black'
   },
   {
@@ -27,7 +27,7 @@ const activities = [
     image: '/IMAGES/artur-kornakov-ArI-foyWnfA-unsplash.jpg',
     description: "Découvrez notre terrain de basket 3×3, un espace d'exception chargé d'histoire. Utilisé lors des Jeux Olympiques 2024, ce court officiel offre des conditions de jeu haut de gamme, fidèles aux standards internationaux.",
     buttonText: 'Réserver',
-    titleColor: 'text-padel-yellow',
+    titleColor: 'text-padel-blue',
     buttonColor: 'bg-padel-blue text-white hover:bg-padel-yellow/90 hover:text-black'
   },
   {
@@ -36,7 +36,7 @@ const activities = [
     image: '/IMAGES/todd-trapani-sI-p_NLBNr0-unsplash.jpg',
     description: "Jouez sur les plus beaux parcours du monde grâce à notre simulateur de golf haute technologie.",
     buttonText: 'Réserver',
-    titleColor: 'text-padel-yellow',
+    titleColor: 'text-padel-blue',
     buttonColor: 'bg-padel-blue text-white hover:bg-padel-yellow/90 hover:text-black'
   }
 ];
@@ -129,7 +129,7 @@ export const OurActivities = () => {
           className="text-center"
         >
           <h3 className="text-4xl md:text-6xl lg:text-7xl font-display font-black tracking-tight uppercase mb-4">
-            <span className="text-padel-blue">1600 M²</span> <span className="text-padel-yellow">D'ACTIVITÉS !</span>
+            <span className="text-padel-blue">1600 M²</span> <span className="">D'ACTIVITÉS !</span>
           </h3>
           <p className="text-white/60 text-base md:text-lg">
             5 sports, une seule destination. Choisissez votre passion.

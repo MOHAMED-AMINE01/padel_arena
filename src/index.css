@@ -65,7 +65,7 @@
   }
 
   body {
-    @apply bg-dark-bg text-white font-body antialiased selection:bg-padel-yellow selection:text-padel-blue;
+    @apply bg-dark-bg text-white font-body antialiased selection:bg-padel-blue selection:text-white;
     width: 100%;
     margin: 0;
     padding: 0;
@@ -146,7 +146,7 @@
   }
 
   .glow-yellow {
-    box-shadow: 0 0 40px rgba(255, 210, 31, 0.3);
+    box-shadow: 0 0 40px rgba(19, 73, 211, 0.3);
   }
 
   .text-shadow-premium {

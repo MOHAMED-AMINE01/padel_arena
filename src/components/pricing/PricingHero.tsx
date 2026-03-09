@@ -40,7 +40,7 @@ export const PricingHero = () => {
                             transition={{ duration: 0.8 }}
                         >
                             <div className="inline-flex items-center gap-3 mb-8">
-                                <span className="text-[10px] font-black tracking-[0.4em] text-padel-yellow uppercase leading-none">OFFRES & TARIFS</span>
+                                <span className="text-[10px] font-black tracking-[0.4em] text-padel-blue uppercase leading-none">OFFRES & TARIFS</span>
                             </div>
 
                             <h1 className="text-4xl sm:text-5xl md:text-7xl xl:text-9xl font-display font-black tracking-tighter leading-[0.85] uppercase mb-10">

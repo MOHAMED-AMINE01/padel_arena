@@ -25,8 +25,11 @@ import { AdminReservations } from './pages/admin/Reservations';
 import { AdminPayments } from './pages/admin/Payments';
 import { AdminSubscriptions } from './pages/admin/Subscriptions';
 import { AdminPromoCodes } from './pages/admin/PromoCodes';
+import Facturation from './pages/admin/Facturation';
 
 import { AdminSettings } from './pages/admin/Settings';
+import { AdminMailbox } from './pages/admin/Mailbox';
+import { AdminNewsletter } from './pages/admin/Newsletter';
 import { AdminCourts } from './pages/admin/Courts';
 import { AdminEvents } from './pages/admin/Events';
 
@@ -41,6 +44,7 @@ import { PlayerPayments } from './pages/player/Payments';
 import { PlayerProfile } from './pages/player/Profile';
 import { PlayerSettings } from './pages/player/Settings';
 import { PlayerRanking } from './pages/player/Ranking';
+import { PlayerMessages } from './pages/player/Messages';
 
 import { AuthProvider } from './context/AuthContext';
 import { GoogleOAuthProvider } from '@react-oauth/google';
@@ -143,6 +147,9 @@ export default function App() {
                       <Route path="subscriptions" element={<AdminSubscriptions />} />
                       <Route path="promo-codes" element={<AdminPromoCodes />} />
                       <Route path="settings" element={<AdminSettings />} />
+                      <Route path="billing" element={<Facturation />} />
+                      <Route path="mailbox" element={<AdminMailbox />} />
+                      <Route path="newsletter" element={<AdminNewsletter />} />
                     </Route>
                   </Route>
 
@@ -158,6 +165,7 @@ export default function App() {
                       <Route path="/profile" element={<PlayerProfile />} />
                       <Route path="/settings" element={<PlayerSettings />} />
                       <Route path="/ranking" element={<PlayerRanking />} />
+                      <Route path="/messages" element={<PlayerMessages />} />
                     </Route>
                   </Route>
                 </Routes>

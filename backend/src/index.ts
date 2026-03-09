@@ -16,6 +16,9 @@ import courseRoutes from './routes/courseRoutes';
 import subscriptionRoutes from './routes/subscriptionRoutes';
 import statsRoutes from './routes/statsRoutes';
 import promoCodeRoutes from './routes/promoCodeRoutes';
+import invoiceRoutes from './routes/invoiceRoutes';
+import messageRoutes from './routes/messageRoutes';
+import newsletterRoutes from './routes/newsletterRoutes';
 
 // Load environment variables
 dotenv.config();
@@ -37,7 +40,7 @@ app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin');
     res.setHeader('Access-Control-Allow-Credentials', 'true');
-    
+
     // Handle preflight
     if (req.method === 'OPTIONS') {
         return res.status(200).end();
@@ -50,8 +53,8 @@ app.use((req, res, next) => {
 
 // Cookie parser and JSON body
 app.use(cookieParser());
-app.use(express.json({ limit: '10kb' })); 
-app.use(morgan('dev')); 
+app.use(express.json({ limit: '10kb' }));
+app.use(morgan('dev'));
 
 // Debug endpoint to verify environment and headers (remove in final production)
 app.get('/api/debug/health', (req, res) => {
@@ -83,6 +86,9 @@ app.use('/api/courses', courseRoutes);
 app.use('/api/subscriptions', subscriptionRoutes);
 app.use('/api/stats', statsRoutes);
 app.use('/api/promo-codes', promoCodeRoutes);
+app.use('/api/invoices', invoiceRoutes);
+app.use('/api/messages', messageRoutes);
+app.use('/api/newsletter', newsletterRoutes);
 
 // Root Route
 app.get('/', (req: Request, res: Response) => {
