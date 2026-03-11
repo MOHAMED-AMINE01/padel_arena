@@ -13,7 +13,7 @@ const socials = [
         icon: <Instagram className="w-[18px] h-[18px] md:w-5 md:h-5" />,
         href: 'https://www.instagram.com/padelarenavendome/',
         label: 'Instagram',
-        color: 'border-[#E4405F]/40 text-[#E4405F] shadow-[0_0_10px_rgba(228,64,95,0.2)] hover:border-[#E4405F] hover:shadow-[0_0_20px_rgba(228,64,95,0.4)]',
+        color: 'border-[#ffd21f]/40 text-[#ffd21f] shadow-[0_0_10px_rgba(255,210,31,0.2)] hover:border-[#ffd21f] hover:shadow-[0_0_20px_rgba(255,210,31,0.4)]',
     },
     /* {
         icon: <Linkedin className="w-[18px] h-[18px] md:w-5 md:h-5" />,

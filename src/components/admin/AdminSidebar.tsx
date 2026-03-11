@@ -21,7 +21,9 @@ import {
     ClipboardList,
     CalendarDays,
     Wallet,
-    BadgePercent
+    BadgePercent,
+    Newspaper,
+    Zap
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { useAuth } from '../../context/AuthContext';
@@ -107,9 +109,10 @@ export const AdminSidebar = ({ collapsed, setCollapsed, mobileOpen, setMobileOpe
         { icon: Target, label: 'Terrains', href: '/admin/courts' },
         { icon: ClipboardList, label: 'Programmes', href: '/admin/courses' },
         { icon: CalendarDays, label: 'Événements', href: '/admin/tournaments' },
-        { icon: Ticket, label: 'Abonnements', href: '/admin/subscriptions' },
         { icon: Wallet, label: 'Paiements', href: '/admin/payments' },
         { icon: BadgePercent, label: 'Codes Promo', href: '/admin/promo-codes' },
+        { icon: Newspaper, label: 'Actualités', href: '/admin/news' },
+        { icon: Receipt, label: 'Tarifs', href: '/admin/plans' },
     ];
 
     const handleLogout = async () => {

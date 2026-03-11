@@ -35,10 +35,11 @@ export const ActivitiesPage = () => {
       <ActivitiesHero />
       <Coaching />
       {/* <TournamentsSection /> */}
-      <Events />
+
       <Academy />
       <Services />
-      <Pricing />
+      <Events />
+      {/* <Pricing /> */}
       {/* <Corporate /> */}
     </motion.div>
   );

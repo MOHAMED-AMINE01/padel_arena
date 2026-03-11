@@ -11,6 +11,7 @@
     "dependencies": {
         "axios": "^1.13.6",
         "bcryptjs": "^2.4.3",
+        "cloudinary": "^1.41.3",
         "cookie-parser": "^1.4.6",
         "cors": "^2.8.5",
         "dotenv": "^16.3.1",
@@ -21,6 +22,8 @@
         "mongo-sanitize": "^1.1.0",
         "mongoose": "^8.0.0",
         "morgan": "^1.10.0",
+        "multer": "^2.1.1",
+        "multer-storage-cloudinary": "^4.0.0",
         "nodemailer": "^8.0.1",
         "zod": "^3.22.4"
     },
@@ -31,6 +34,7 @@
         "@types/express": "^4.17.21",
         "@types/jsonwebtoken": "^9.0.5",
         "@types/morgan": "^1.9.9",
+        "@types/multer": "^2.1.0",
         "@types/node": "^20.9.0",
         "@types/nodemailer": "^7.0.11",
         "ts-node-dev": "^2.0.0",

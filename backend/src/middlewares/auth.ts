@@ -14,7 +14,7 @@ export const protect = asyncHandler(async (req: any, res: Response, next: NextFu
     if (req.cookies?.token) {
         token = req.cookies.token;
     }
-    
+
     // 2. Check Authorization header (case-insensitive for Vercel/Serverless compatibility)
     if (!token) {
         const authHeader = req.headers.authorization || req.headers['Authorization'];
@@ -25,9 +25,9 @@ export const protect = asyncHandler(async (req: any, res: Response, next: NextFu
 
     // 3. No token found anywhere
     if (!token) {
-        return res.status(401).json({ 
-            success: false, 
-            message: 'Authentication required. Please log in.' 
+        return res.status(401).json({
+            success: false,
+            message: 'Authentication required. Please log in.'
         });
     }
 
@@ -37,14 +37,14 @@ export const protect = asyncHandler(async (req: any, res: Response, next: NextFu
             console.error('JWT_SECRET is not defined in environment variables!');
             return res.status(500).json({ success: false, message: 'Server configuration error' });
         }
-        
+
         const decoded = jwt.verify(token, secret) as JwtPayload;
         const user = await User.findById(decoded.id);
-        
+
         if (!user) {
             return res.status(401).json({ success: false, message: 'User associated with this token no longer exists' });
         }
-        
+
         req.user = user;
         next();
     } catch (err: any) {
@@ -52,6 +52,44 @@ export const protect = asyncHandler(async (req: any, res: Response, next: NextFu
             return res.status(401).json({ success: false, message: 'Session expired. Please log in again.' });
         }
         return res.status(401).json({ success: false, message: 'Invalid authentication token' });
+    }
+});
+
+export const optionalProtect = asyncHandler(async (req: any, res: Response, next: NextFunction) => {
+    let token: string | undefined;
+
+    // 1. Check cookies first
+    if (req.cookies?.token) {
+        token = req.cookies.token;
+    }
+
+    // 2. Check Authorization header
+    if (!token) {
+        const authHeader = req.headers.authorization || req.headers['Authorization'];
+        if (authHeader && typeof authHeader === 'string' && authHeader.startsWith('Bearer ')) {
+            token = authHeader.substring(7);
+        }
+    }
+
+    // 3. No token? No problem, just move to next() without setting req.user
+    if (!token) {
+        return next();
+    }
+
+    try {
+        const secret = process.env.JWT_SECRET;
+        if (!secret) return next();
+
+        const decoded = jwt.verify(token, secret) as JwtPayload;
+        const user = await User.findById(decoded.id);
+
+        if (user) {
+            req.user = user;
+        }
+        next();
+    } catch (err) {
+        // If token is invalid/expired, we still let them through as a guest
+        next();
     }
 });
 

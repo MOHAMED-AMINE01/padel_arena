@@ -4,7 +4,7 @@ import { ArrowRight, BadgeEuro, Ticket, Wallet } from 'lucide-react';
 
 export const PricingHero = () => {
     return (
-        <section id="hero" className="relative h-auto min-h-[75vh] md:h-[100vh] w-full overflow-hidden flex items-center justify-center bg-[#050505] pt-12 md:pt-40">
+        <section id="hero" className="relative h-auto min-h-[75vh] md:h-[100vh] w-full overflow-hidden flex items-center justify-center bg-[#050505] pt-12 md:pt-14">
             {/* Editorial Grid Lines */}
             <div className="absolute inset-0 pointer-events-none opacity-[0.03] z-10">
                 <div className="max-w-[1400px] mx-auto h-full w-full flex justify-between border-x border-white">
@@ -56,7 +56,13 @@ export const PricingHero = () => {
                                 <motion.button
                                     whileHover={{ scale: 1.05 }}
                                     whileTap={{ scale: 0.95 }}
-                                    className="w-full sm:w-auto group relative px-10 py-5 bg-padel-blue text-white rounded-full font-black text-[10px] uppercase tracking-[0.3em] overflow-hidden shadow-2xl transition-all"
+                                    onClick={() => {
+                                        const el = document.getElementById('terrains');
+                                        if (el) {
+                                            el.scrollIntoView({ behavior: 'smooth' });
+                                        }
+                                    }}
+                                    className="w-full sm:w-auto group relative px-10 py-5 bg-padel-blue text-white rounded-full font-black text-[10px] uppercase tracking-[0.3em] overflow-hidden shadow-2xl transition-all cursor-pointer"
                                 >
                                     <span className="relative z-10 flex items-center justify-center gap-3">
                                         voir nos tarifs
@@ -65,16 +71,7 @@ export const PricingHero = () => {
                                     <div className="absolute inset-0 bg-padel-yellow translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
                                 </motion.button>
 
-                                <div className="flex gap-10">
-                                    <div className="flex flex-col items-center md:items-start gap-2">
-                                        <p className="text-2xl font-display font-black text-white">0€</p>
-                                        <p className="text-[9px] font-black tracking-widest text-padel-blue uppercase">Frais d'adhésion</p>
-                                    </div>
-                                    <div className="flex flex-col items-center md:items-start gap-2">
-                                        <p className="text-2xl font-display font-black text-white">-20%</p>
-                                        <p className="text-[9px] font-black tracking-widest text-padel-blue uppercase">Heures creuses</p>
-                                    </div>
-                                </div>
+                                {/* Optional: You can put something else here or leave it empty so only the button remains */}
                             </div>
                         </motion.div>
                     </div>

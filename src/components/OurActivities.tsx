@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 
 const activities = [
   {
-    id: 'padel',
+    id: 'Padel',
     title: 'PADEL',
     image: '/IMAGES/IMG_4502.JPG',
     description: "Découvrez le sport qui fait sensation ! Des courts modernes avec des parois en verre pour une expérience de jeu optimale.",
@@ -13,7 +13,7 @@ const activities = [
     buttonColor: 'bg-padel-blue text-white hover:bg-padel-yellow/90 hover:text-black'
   },
   {
-    id: 'pickleball',
+    id: 'Pickleball',
     title: 'PICKLEBALL / BADMINTON',
     image: '/IMAGES/oskar-hagberg-uJlPtLTZT7c-unsplash.jpg',
     description: "Découvrez notre terrain hybride Pickleball / Badminton, conçu pour offrir une polyvalence maximale et une expérience de jeu optimale.",
@@ -22,7 +22,7 @@ const activities = [
     buttonColor: 'bg-padel-blue text-white hover:bg-padel-yellow/90 hover:text-black'
   },
   {
-    id: 'basket',
+    id: 'Basket',
     title: 'BASKET 3X3',
     image: '/IMAGES/artur-kornakov-ArI-foyWnfA-unsplash.jpg',
     description: "Découvrez notre terrain de basket 3×3, un espace d'exception chargé d'histoire. Utilisé lors des Jeux Olympiques 2024, ce court officiel offre des conditions de jeu haut de gamme, fidèles aux standards internationaux.",
@@ -31,7 +31,7 @@ const activities = [
     buttonColor: 'bg-padel-blue text-white hover:bg-padel-yellow/90 hover:text-black'
   },
   {
-    id: 'golf',
+    id: 'Golf',
     title: 'SIMULATEUR DE GOLF',
     image: '/IMAGES/todd-trapani-sI-p_NLBNr0-unsplash.jpg',
     description: "Jouez sur les plus beaux parcours du monde grâce à notre simulateur de golf haute technologie.",
@@ -82,7 +82,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({ activity, index }) => {
           {activity.description}
         </p>
         <Link
-          to="/booking"
+          to={`/?sport=${activity.id}#club`}
           className={`inline-flex items-center justify-center font-bold text-sm px-6 py-3 rounded-lg transition-colors w-fit ${activity.buttonColor}`}
         >
           {activity.buttonText}

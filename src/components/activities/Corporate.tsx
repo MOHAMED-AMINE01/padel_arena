@@ -1,7 +1,8 @@
 import React, { useRef, useState } from 'react';
 import { motion } from 'motion/react';
-import { Building2, Users, Briefcase, Coffee, ArrowRight, ArrowUpRight } from 'lucide-react';
+import { Building2, Users, Briefcase, Coffee, ArrowUpRight } from 'lucide-react';
 import { cn } from '../../lib/utils';
+import { Link } from 'react-router-dom';
 
 const offers = [
   { title: "TEAM BUILDING", icon: <Users size={24} />, desc: "Renforcez la cohésion de vos équipes à travers des tournois ludiques et conviviaux." },
@@ -63,11 +64,13 @@ export const Corporate = () => {
               Offrez à vos collaborateurs une expérience unique alliant sport, bien-être et networking. Nos solutions sur mesure redéfinissent vos moments d'entreprise.
             </p>
 
-            <button className="flex items-center gap-6 py-5 px-10 bg-padel-blue text-white rounded-full font-black text-[10px] uppercase tracking-[0.3em] overflow-hidden relative group mx-auto xl:mx-0">
-              <span className="relative z-10">TÉLÉCHARGER LA BROCHURE</span>
-              <ArrowUpRight size={16} className="relative z-10 group-hover:translate-x-1 transition-transform" />
-              <div className="absolute inset-0 bg-padel-yellow translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
-            </button>
+            <Link to="/contact">
+              <button className="flex items-center gap-6 py-5 px-10 bg-padel-blue text-white rounded-full font-black text-[10px] uppercase tracking-[0.3em] overflow-hidden relative group mx-auto xl:mx-0">
+                <span className="relative z-10">OBTENIR UN DEVIS</span>
+                <ArrowUpRight size={16} className="relative z-10 group-hover:translate-x-1 transition-transform" />
+                <div className="absolute inset-0 bg-padel-yellow translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
+              </button>
+            </Link>
           </motion.div>
 
           <div className="lg:col-span-12 xl:col-span-6 relative">
@@ -85,11 +88,16 @@ export const Corporate = () => {
                   transition={{ delay: i * 0.1 }}
                   className="min-w-[85vw] sm:min-w-[300px] xl:min-w-0 snap-center group relative glass p-10 md:p-12 rounded-[3.5rem] border-white/5 hover:border-padel-blue/30 transition-all duration-700 flex flex-col h-full"
                 >
-                  <div className="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center text-padel-blue mb-10 group-hover:bg-padel-blue group-hover:text-white transition-all duration-500">
-                    {offer.icon}
-                  </div>
-                  <h4 className="text-xl font-display font-black mb-6 uppercase leading-tight group-hover:text-padel-blue transition-colors">{offer.title}</h4>
-                  <p className="text-xs md:text-sm text-white/30 font-medium leading-relaxed group-hover:text-white/50 transition-colors">{offer.desc}</p>
+                   <Link to="/contact" className="flex flex-col h-full">
+                    <div className="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center text-padel-blue mb-10 group-hover:bg-padel-blue group-hover:text-white transition-all duration-500">
+                      {offer.icon}
+                    </div>
+                    <h4 className="text-xl font-display font-black mb-6 uppercase leading-tight group-hover:text-padel-blue transition-colors">{offer.title}</h4>
+                    <p className="text-xs md:text-sm text-white/30 font-medium leading-relaxed group-hover:text-white/50 transition-colors">{offer.desc}</p>
+                    <div className="mt-auto pt-8 flex items-center gap-3 text-[10px] font-black text-padel-blue opacity-0 group-hover:opacity-100 transition-all uppercase tracking-[0.2em]">
+                      En savoir plus <ArrowUpRight size={14} />
+                    </div>
+                  </Link>
                 </motion.div>
               ))}
             </div>
@@ -130,6 +138,13 @@ export const Corporate = () => {
             <p className="text-sm md:text-lg text-white/40 font-medium leading-relaxed mb-12 max-w-2xl">
               Profitez de notre club house premium et de nos salles de réunion pour vos événements exclusifs. Restauration et service traiteur disponibles sur demande.
             </p>
+            
+            <Link to="/contact">
+              <button className="py-4 px-10 bg-white/10 backdrop-blur-3xl border border-white/20 text-white rounded-full font-black text-[10px] uppercase tracking-[0.3em] hover:bg-padel-blue hover:border-padel-blue transition-all mb-12">
+                NOUS CONTACTER
+              </button>
+            </Link>
+
             <div className="flex flex-wrap gap-12 md:gap-20">
               <div className="text-left group/stat">
                 <div className="text-4xl md:text-6xl font-display font-black text-padel-blue group-hover:text-white transition-colors">50+</div>

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ChevronLeft, ChevronRight, Activity, Zap, Star, ShieldCheck } from 'lucide-react';
 import { cn } from '../lib/utils';
+import { Link } from 'react-router-dom';
 
 const carouselImages = [
   {
@@ -204,13 +205,15 @@ export const Infrastructure = () => {
                             </p>
 
                             {/* CTA inside active slide */}
-                            <motion.button
-                              whileHover={{ scale: 1.05 }}
-                              whileTap={{ scale: 0.95 }}
-                              className="mt-8 px-6 py-2.5 bg-padel-yellow text-padel-blue rounded-full font-black text-[10px] uppercase tracking-widest shadow-xl"
-                            >
-                              S'INSCRIRE MAINTENANT
-                            </motion.button>
+                            <Link to='/auth'>
+                              <motion.button
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                className="mt-8 px-6 py-2.5 bg-padel-yellow text-padel-blue rounded-full font-black text-[10px] uppercase tracking-widest shadow-xl"
+                              >
+                                S'INSCRIRE MAINTENANT
+                              </motion.button>
+                            </Link>
                           </div>
                         </motion.div>
                       )}

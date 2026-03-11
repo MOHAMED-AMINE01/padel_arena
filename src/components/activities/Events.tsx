@@ -2,14 +2,15 @@ import React, { useRef, useState } from 'react';
 import { motion } from 'motion/react';
 import { Music, PartyPopper, Trophy, GlassWater, Cake, Users, ArrowUpRight } from 'lucide-react';
 import { cn } from '../../lib/utils';
+import { Link } from 'react-router-dom';
 
 const eventTypes = [
-  { title: "SOIRÉES PADEL", icon: <PartyPopper size={28} />, desc: "Des soirées thématiques pour mixer sport et plaisir." }, // notranslate applied in JSX
+  { title: "SOIRÉES PADEL", icon: <PartyPopper size={28} />, desc: "Des soirées thématiques pour mixer sport et plaisir." },
   { title: "EXHIBITION MATCHS", icon: <Trophy size={28} />, desc: "Admirez les meilleurs joueurs lors de matchs d'exception." },
   { title: "DJ NIGHTS", icon: <Music size={28} />, desc: "Vibrez avec nos DJ sets exclusifs au club house." },
   { title: "AFTER MATCH", icon: <GlassWater size={28} />, desc: "Détendez-vous avec nos offres bar & tapas artisanales." },
   { title: "ANNIVERSAIRES", icon: <Cake size={28} />, desc: "Fêtez votre anniversaire sur les terrains en mode VIP." },
-  { title: "TEAM BUILDING", icon: <Users size={28} />, desc: "Renforcez la cohésion de vos équipes par le padel." }, // notranslate in JSX
+  { title: "TEAM BUILDING", icon: <Users size={28} />, desc: "Renforcez la cohésion de vos équipes par le padel." },
 ];
 
 export const Events = () => {
@@ -114,12 +115,14 @@ export const Events = () => {
                 ORGANISEZ VOTRE ÉVÉNEMENT <br />
                 <span className="text-padel-blue italic">SUR MESURE</span>
               </h4>
-              <button className="group relative px-12 py-6 bg-padel-blue text-white rounded-full font-black text-[12px] tracking-[0.4em] uppercase overflow-hidden transition-all shadow-2xl">
-                <span className="relative z-10 flex items-center justify-center gap-4">
-                  EN SAVOIR PLUS <ArrowUpRight size={20} />
-                </span>
-                <div className="absolute inset-0 bg-padel-yellow translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
-              </button>
+              <Link to="/contact">
+                <button className="group relative px-12 py-6 bg-padel-blue text-white rounded-full font-black text-[12px] tracking-[0.4em] uppercase overflow-hidden transition-all shadow-2xl">
+                  <span className="relative z-10 flex items-center justify-center gap-4">
+                    EN SAVOIR PLUS <ArrowUpRight size={20} />
+                  </span>
+                  <div className="absolute inset-0 bg-padel-yellow translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
+                </button>
+              </Link>
             </motion.div>
           </div>
         </section>

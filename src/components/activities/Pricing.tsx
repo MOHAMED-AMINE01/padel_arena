@@ -1,7 +1,8 @@
 import React, { useRef, useState } from 'react';
 import { motion } from 'motion/react';
-import { Check, ArrowRight, ArrowUpRight } from 'lucide-react';
+import { Check, ArrowUpRight } from 'lucide-react';
 import { cn } from '../../lib/utils';
+import { Link } from 'react-router-dom';
 
 const plans = [
   {
@@ -71,7 +72,6 @@ export const Pricing = () => {
             </h3>
           </div>
 
-          {/* Toggle Switch */}
           <div className="flex flex-col items-center lg:items-end gap-6">
             <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em]">CHOISISSEZ VOTRE RYTHME</p>
             <div className="flex items-center gap-6 p-2 bg-white/5 backdrop-blur-3xl rounded-full border border-white/10">
@@ -98,7 +98,6 @@ export const Pricing = () => {
           </div>
         </div>
 
-        {/* Pricing Cards */}
         <div className="relative">
           <div
             ref={scrollRef}
@@ -156,20 +155,21 @@ export const Pricing = () => {
                   ))}
                 </div>
 
-                <button className={cn(
-                  "w-full py-6 rounded-full font-black text-[10px] tracking-[0.4em] uppercase transition-all duration-500 flex items-center justify-center gap-4 overflow-hidden relative group/btn shadow-xl",
-                  plan.featured ? "bg-padel-blue text-white" : "bg-white/5 text-white border border-white/10 hover:border-padel-blue hover:text-padel-blue"
-                )}>
-                  <span className="relative z-10 flex items-center gap-3">
-                    S'ABONNER <ArrowUpRight size={16} />
-                  </span>
-                  {plan.featured && <div className="absolute inset-0 bg-padel-yellow translate-y-full group-hover/btn:translate-y-0 transition-transform duration-500" />}
-                </button>
+                <Link to="/auth?redirect=/player/subscription">
+                  <button className={cn(
+                    "w-full py-6 rounded-full font-black text-[10px] tracking-[0.4em] uppercase transition-all duration-500 flex items-center justify-center gap-4 overflow-hidden relative group/btn shadow-xl",
+                    plan.featured ? "bg-padel-blue text-white" : "bg-white/5 text-white border border-white/10 hover:border-padel-blue hover:text-padel-blue"
+                  )}>
+                    <span className="relative z-10 flex items-center gap-3">
+                      S'ABONNER <ArrowUpRight size={16} />
+                    </span>
+                    {plan.featured && <div className="absolute inset-0 bg-padel-yellow translate-y-full group-hover/btn:translate-y-0 transition-transform duration-500" />}
+                  </button>
+                </Link>
               </motion.div>
             ))}
           </div>
 
-          {/* Pagination Indicators */}
           <div className="flex lg:hidden justify-center items-center gap-3 mt-4">
             {plans.map((_, i) => (
               <button
@@ -185,7 +185,6 @@ export const Pricing = () => {
         </div>
       </div>
 
-      {/* Background Decor Text */}
       <div className="absolute bottom-40 -right-20 text-[15rem] font-display font-black text-white/[0.01] tracking-tighter select-none pointer-events-none -z-10 -rotate-90 leading-none">
         MEMBERSHIP
       </div>

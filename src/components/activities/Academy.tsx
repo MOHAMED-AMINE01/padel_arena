@@ -1,7 +1,8 @@
 import React, { useRef, useState } from 'react';
 import { motion } from 'motion/react';
-import { GraduationCap, Timer, TrendingUp, CheckCircle2, ArrowUpRight } from 'lucide-react';
+import { GraduationCap, Timer, TrendingUp, ArrowUpRight } from 'lucide-react';
 import { cn } from '../../lib/utils';
+import { Link } from 'react-router-dom';
 
 const sections = [
   {
@@ -102,15 +103,30 @@ export const Academy = () => {
                   </div>
                 </div>
 
-                <div className="px-6 md:px-12 grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {section.items.map((item, j) => (
-                    <div key={j} className="flex items-center gap-4 group/item">
-                      <div className="w-1.5 h-1.5 rounded-full bg-padel-blue group-hover/item:scale-150 transition-transform" />
-                      <span className="text-sm md:text-base font-medium text-white/40 group-hover/item:text-white/70 transition-colors uppercase tracking-tight">
-                        {item}
-                      </span>
-                    </div>
-                  ))}
+                <div className="px-6 md:px-12 grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-12">
+                  <div className="space-y-6">
+                    {section.items.map((item, j) => (
+                      <div key={j} className="flex items-center gap-4 group/item">
+                        <div className="w-1.5 h-1.5 rounded-full bg-padel-blue group-hover/item:scale-150 transition-transform" />
+                        <span className="text-sm md:text-base font-medium text-white/40 group-hover/item:text-white/70 transition-colors uppercase tracking-tight">
+                          {item}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="flex items-end">
+                    <Link to="/contact" className="w-full">
+                      <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        className="w-full py-5 rounded-2xl bg-white/5 border border-white/10 text-[10px] font-black tracking-[0.3em] uppercase transition-all flex items-center justify-center gap-4 hover:bg-padel-blue hover:border-padel-blue group/btn"
+                      >
+                        S'INSCRIRE
+                        <ArrowUpRight size={18} className="group-hover/btn:translate-x-1 transition-transform" />
+                      </motion.button>
+                    </Link>
+                  </div>
                 </div>
               </motion.div>
             ))}

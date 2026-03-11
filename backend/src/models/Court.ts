@@ -3,7 +3,7 @@ import mongoose, { Schema, Document } from 'mongoose';
 export interface ICourt extends Document {
     name: string;
     type: 'INDOOR' | 'OUTDOOR' | 'Padel Panorama' | 'Padel Classic' | 'Pickleball High';
-    sport: 'Padel' | 'Pickleball' | 'Badminton';
+    sport: 'Padel' | 'Pickleball' | 'Badminton' | 'Basket' | 'Golf';
     surface: 'CLAY' | 'CONCRETE' | 'SYNTHETIC' | 'PRO_TURF';
     pricePerHour: number;
     images: string[];
@@ -15,7 +15,7 @@ export interface ICourt extends Document {
 const CourtSchema: Schema = new Schema({
     name: { type: String, required: true },
     type: { type: String, enum: ['INDOOR', 'OUTDOOR', 'Padel Panorama', 'Padel Classic', 'Pickleball High'], required: true },
-    sport: { type: String, enum: ['Padel', 'Pickleball', 'Badminton'], default: 'Padel' },
+    sport: { type: String, enum: ['Padel', 'Pickleball', 'Badminton', 'Basket', 'Golf'], default: 'Padel' },
     surface: { type: String, enum: ['CLAY', 'CONCRETE', 'SYNTHETIC', 'PRO_TURF'], default: 'PRO_TURF' },
     pricePerHour: { type: Number, required: true },
     images: [{ type: String }],

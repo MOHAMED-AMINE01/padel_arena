@@ -111,7 +111,7 @@ export const Footer = () => {
 
               {/* Ultra Stylized & Compact Newsletter */}
               <div className="w-full pt-8 border-t border-white/5 mt-4">
-                <h4 className="text-[9px] font-black text-padel-blue uppercase tracking-[0.4em] mb-4">NEWSLETTER ELITE</h4>
+                <h4 className="text-[9px] font-black text-padel-blue uppercase tracking-[0.4em] mb-4">NEWSLETTER</h4>
                 <form
                   onSubmit={async (e) => {
                     e.preventDefault();

@@ -1,60 +1,47 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { Check, ArrowRight, Star, Zap, Trophy, ArrowUpRight } from 'lucide-react';
+import { Check, ArrowUpRight, Star, Zap, Trophy, Loader2 } from 'lucide-react';
 import { cn } from '../../lib/utils';
+import api from '../../lib/api';
 
-const plans = [
-  {
-    name: "STARTER",
-    price: "29",
-    icon: <Zap size={24} />,
-    color: "from-emerald-500/20 to-emerald-500/5",
-    accent: "text-emerald-500",
-    features: [
-      "4 sessions / mois",
-      "Réduction 10% sur les sessions sup",
-      "Priorité réservation J-3",
-      "Accès vestiaires premium",
-      "Invitation 1 ami / mois"
-    ]
-  },
-  {
-    name: "PRO PERFORMANCE",
-    price: "59",
-    icon: <Star size={24} />,
-    color: "from-padel-blue/20 to-padel-blue/5",
-    accent: "text-padel-blue",
-    featured: true,
-    features: [
-      "Accès illimité heures creuses",
-      "8 sessions heures pleines / mois",
-      "1h de coaching collectif / mois",
-      "Réduction 15% boutique Pro-Shop",
-      "Priorité réservation J-7",
-      "Accès Lounge VIP Exclusive"
-    ]
-  },
-  {
-    name: "ELITE ARENA",
-    price: "99",
-    icon: <Trophy size={24} />,
-    color: "from-padel-yellow/20 to-padel-yellow/5",
-    accent: "text-padel-yellow",
-    features: [
-      "Accès illimité total 24/7",
-      "Coaching individuel 1h / mois",
-      "Service serviettes & SPA inclus",
-      "Invitations tournois Master",
-      "Priorité réservation J-14",
-      "Casiers privés nominatifs"
-    ]
-  }
-];
+interface IPlan {
+  _id: string;
+  title: string;
+  price: string;
+  annualPrice?: string;
+  icon?: string;
+  color?: string;
+  accent?: string;
+  featured: boolean;
+  features: string[];
+}
+
+const IconMap: Record<string, React.ReactNode> = {
+  Zap: <Zap size={24} />,
+  Star: <Star size={24} />,
+  Trophy: <Trophy size={24} />
+};
 
 export const SubscriptionPlans = () => {
+  const [plans, setPlans] = useState<IPlan[]>([]);
+  const [loading, setLoading] = useState(true);
   const [isAnnual, setIsAnnual] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const fetchPlans = async () => {
+      try {
+        const res = await api.get('/pricing?type=subscription');
+        if (res.data.success) setPlans(res.data.data);
+      } catch (err) {
+        console.error('Failed to fetch subscription plans', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchPlans();
+  }, []);
 
   const handleScroll = () => {
     if (scrollRef.current) {
@@ -73,6 +60,16 @@ export const SubscriptionPlans = () => {
       setActiveIndex(index);
     }
   };
+
+  if (loading) {
+    return (
+      <div className="py-24 flex justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-padel-blue" />
+      </div>
+    );
+  }
+
+  if (plans.length === 0) return null;
 
   return (
     <section id="abonnements" className="relative py-24 md:py-48 px-6 bg-[#050505] overflow-hidden border-t border-white/[0.03]">
@@ -126,7 +123,7 @@ export const SubscriptionPlans = () => {
           >
             {plans.map((plan, i) => (
               <motion.div
-                key={i}
+                key={plan._id}
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -139,7 +136,7 @@ export const SubscriptionPlans = () => {
                 )}
               >
                 {/* Decorative background glow */}
-                <div className={cn("absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-10 transition-opacity duration-700", plan.color)} />
+                <div className={cn("absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-10 transition-opacity duration-700", plan.color || "from-white/5 to-white/0")} />
 
                 {plan.featured && (
                   <div className="absolute top-8 right-8">
@@ -150,19 +147,19 @@ export const SubscriptionPlans = () => {
                 )}
 
                 <div className="relative z-10 mb-16">
-                  <div className={cn("w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center mb-10 transition-colors group-hover:bg-padel-blue group-hover:text-white", plan.accent)}>
-                    {plan.icon}
+                  <div className={cn("w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center mb-10 transition-colors group-hover:bg-padel-blue group-hover:text-white", plan.accent || "text-padel-blue")}>
+                    {IconMap[plan.icon || ''] || <Zap size={24} />}
                   </div>
                   <h4 className="text-xl md:text-2xl font-display font-black uppercase tracking-tight mb-4 group-hover:text-padel-blue transition-colors">
-                    {plan.name}
+                    {plan.title}
                   </h4>
                   <div className="flex items-baseline gap-3">
                     <span className="text-5xl md:text-8xl font-display font-black tracking-tighter text-white">
-                      {isAnnual ? Math.round(parseInt(plan.price) * 0.8) : plan.price}
+                      {isAnnual ? (plan.annualPrice || Math.round(parseInt(plan.price) * 12 * 0.8)) : plan.price}
                     </span>
                     <div className="flex flex-col">
                       <span className="text-2xl font-display font-black text-white italic">€</span>
-                      <span className="text-[10px] font-black text-white/30 uppercase tracking-widest leading-none">/ MOIS</span>
+                      <span className="text-[10px] font-black text-white/30 uppercase tracking-widest leading-none">{isAnnual ? '/ AN' : '/ MOIS'}</span>
                     </div>
                   </div>
                 </div>

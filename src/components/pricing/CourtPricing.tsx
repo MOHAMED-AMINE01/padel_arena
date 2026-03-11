@@ -1,34 +1,46 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { Clock, Sun, Moon, Calendar, ArrowUpRight, ShieldCheck, Zap } from 'lucide-react';
+import { Clock, Sun, Moon, Calendar, ArrowUpRight, ShieldCheck, Zap, Loader2 } from 'lucide-react';
 import { cn } from '../../lib/utils';
+import api from '../../lib/api';
 
-const pricingData = [
-  {
-    type: "INDOOR PANORAMIQUE",
-    offPeak: 32,
-    peak: 40,
-    weekend: 44,
-    features: ["Verrerie ST7", "Éclairage LED 400W", "Surface MONDO WPT"]
-  },
-  {
-    type: "OUTDOOR PREMIUM",
-    offPeak: 24,
-    peak: 32,
-    weekend: 36,
-    features: ["Gazon sablé", "Vue dégagée", "Éclairage nocturne"]
-  },
-  {
-    type: "PRO COMPETITION",
-    offPeak: 36,
-    peak: 45,
-    weekend: 50,
-    features: ["Sorties de piste", "Full Panoramique", "Streaming Live incl."]
-  },
-];
+interface IPricing {
+  _id: string;
+  title: string;
+  offPeak?: number;
+  peak?: number;
+  weekend?: number;
+  features: string[];
+}
 
 export const CourtPricing = () => {
+  const [pricingData, setPricingData] = useState<IPricing[]>([]);
+  const [loading, setLoading] = useState(true);
   const [activeType, setActiveType] = useState(0);
+
+  useEffect(() => {
+    const fetchPricing = async () => {
+      try {
+        const res = await api.get('/pricing?type=court');
+        if (res.data.success) setPricingData(res.data.data);
+      } catch (err) {
+        console.error('Failed to fetch court pricing', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchPricing();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="py-24 flex justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-padel-blue" />
+      </div>
+    );
+  }
+
+  if (pricingData.length === 0) return null;
 
   return (
     <section id="terrains" className="relative py-24 md:py-48 px-6 bg-[#050505] overflow-hidden">
@@ -82,18 +94,7 @@ export const CourtPricing = () => {
               </div>
             ))}
 
-            <div className="p-8 bg-padel-blue/5 border border-padel-blue/20 rounded-[2.5rem]">
-              <div className="flex items-center gap-4 mb-6">
-                <ShieldCheck className="text-padel-blue" size={24} />
-                <h5 className="text-[10px] font-black text-white tracking-widest uppercase">AVANTAGE MEMBRE</h5>
-              </div>
-              <p className="text-sm text-white/40 font-medium leading-relaxed mb-6">
-                Devenez membre et bénéficiez de <span className="text-white">-10% de réduction immédiate</span> sur toutes vos réservations.
-              </p>
-              <div className="flex items-center gap-2 text-padel-blue font-black text-[10px] tracking-widest uppercase cursor-pointer group">
-                EN SAVOIR PLUS <ArrowUpRight size={14} className="group-hover:translate-x-1 transition-transform" />
-              </div>
-            </div>
+
           </div>
 
           {/* Pricing Table/Grid */}
@@ -101,7 +102,7 @@ export const CourtPricing = () => {
             <div className="space-y-6">
               {pricingData.map((row, i) => (
                 <motion.div
-                  key={i}
+                  key={row._id}
                   initial={{ opacity: 0, x: 30 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   transition={{ delay: i * 0.1 }}
@@ -115,7 +116,7 @@ export const CourtPricing = () => {
                   <div className="p-8 md:p-12 flex flex-col md:flex-row md:items-center justify-between gap-10">
                     <div className="max-w-sm">
                       <h4 className="text-2xl md:text-3xl font-display font-black uppercase tracking-tight mb-6 group-hover:text-padel-blue transition-colors">
-                        {row.type}
+                        {row.title}
                       </h4>
                       <div className="flex flex-wrap gap-4">
                         {row.features.map((f, j) => (

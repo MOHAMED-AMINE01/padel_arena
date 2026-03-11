@@ -8,9 +8,9 @@ import { validateAndApplyPromoCode, incrementPromoCodeUsage } from '../services/
 
 // @desc    Create new booking
 // @route   POST /api/bookings
-// @access  Private
+// @access  Public (Optional Authentication)
 export const createBooking = asyncHandler(async (req: any, res: Response) => {
-    const { courtId, startTime, endTime, userId, promoCode } = req.body;
+    const { courtId, startTime, endTime, userId, promoCode, guestName, guestEmail, guestPhone, players } = req.body;
 
     // 1. Basic validation
     if (!courtId || !startTime || !endTime) {
@@ -52,13 +52,26 @@ export const createBooking = asyncHandler(async (req: any, res: Response) => {
     let discountAmount = 0;
     let promoCodeId = null;
 
-    // 5. Handle Promo Code if provided
-    if (promoCode) {
+    // 5. Determine user (Admin can specify userId, or we look up by email for guests)
+    let finalUserId = req.user?.id;
+
+    if (userId && req.user?.role === 'ADMIN') {
+        finalUserId = userId;
+    } else if (!finalUserId && guestEmail) {
+        // Silent Linking: check if email exists in User database
+        const existingUser = await User.findOne({ email: guestEmail.toLowerCase() });
+        if (existingUser) {
+            finalUserId = existingUser._id;
+        }
+    }
+
+    // 6. Handle Promo Code if provided
+    if (promoCode && finalUserId) {
         const promoResult = await validateAndApplyPromoCode(
             promoCode,
             totalPrice,
             'booking',
-            req.user.id
+            finalUserId
         );
 
         if (promoResult.isValid) {
@@ -66,34 +79,36 @@ export const createBooking = asyncHandler(async (req: any, res: Response) => {
             totalPrice = Math.max(0, totalPrice - discountAmount);
             promoCodeId = promoResult.promoCodeId;
         } else {
-            // Option to fail if promo code is invalid, or just ignore it
-            // Here we'll return error to be strict
             return res.status(400).json({ success: false, message: promoResult.message });
         }
     }
 
-    // 6. Determine user (Admin can specify userId)
-    let finalUserId = req.user.id;
-    if (userId && req.user.role === 'ADMIN') {
-        finalUserId = userId;
-    }
-
     // 7. Create the booking
-    const booking = await Booking.create({
-        user: finalUserId,
+    const bookingData: any = {
         court: courtId,
         startTime: start,
         endTime: end,
         totalPrice,
         discountAmount,
+        players: players || 4,
         promoCode: promoCode?.toUpperCase(),
         status: 'PENDING',
         paymentStatus: 'UNPAID'
-    });
+    };
+
+    if (finalUserId) {
+        bookingData.user = finalUserId;
+    } else {
+        bookingData.guestName = guestName;
+        bookingData.guestEmail = guestEmail?.toLowerCase();
+        bookingData.guestPhone = guestPhone;
+    }
+
+    const booking = await Booking.create(bookingData);
 
     // 8. Increment promo code usage if applicable
-    if (promoCodeId) {
-        await incrementPromoCodeUsage(promoCodeId, req.user.id);
+    if (promoCodeId && finalUserId) {
+        await incrementPromoCodeUsage(promoCodeId, finalUserId);
     }
 
     const populated = await Booking.findById(booking._id)
@@ -165,14 +180,14 @@ export const updateBooking = asyncHandler(async (req: any, res: Response) => {
         // Check if transaction already exists for this booking
         const existingTx = await Transaction.findOne({ booking: booking._id });
         if (!existingTx) {
-            const customer = await User.findById(booking.user);
+            const customer = booking.user ? await User.findById(booking.user) : null;
             await Transaction.create({
                 type: 'INCOME',
                 amount: booking.totalPrice,
                 description: `Réservation Terrain #${booking._id.toString().slice(-4)}`,
                 method: paymentMethod || 'CASH',
                 managedBy: req.user._id,
-                customerName: customer ? customer.name : 'Client Inconnu',
+                customerName: customer ? customer.name : (booking.guestName || 'Client Inconnu'),
                 category: 'Réservation',
                 booking: booking._id,
                 status: 'COMPLETED'
@@ -203,15 +218,24 @@ export const cancelBooking = asyncHandler(async (req: any, res: Response) => {
     }
 
     // Check ownership (only the user who booked or an admin can cancel)
-    if (booking.user.toString() !== req.user.id && req.user.role !== 'ADMIN') {
+    if (booking.user?.toString() !== req.user.id && req.user.role !== 'ADMIN') {
         return res.status(401).json({ message: 'Not authorized to cancel this booking' });
+    }
+
+    // If Admin, delete permanently if requested (or by default in this context)
+    if (req.user.role === 'ADMIN') {
+        await booking.deleteOne();
+        return res.status(200).json({
+            success: true,
+            message: 'Booking deleted permanently'
+        });
     }
 
     // Check if it's too late to cancel (e.g., 24h before)
     const now = new Date();
     const hoursUntilStart = (booking.startTime.getTime() - now.getTime()) / (1000 * 60 * 60);
 
-    if (hoursUntilStart < 24 && req.user.role !== 'ADMIN') {
+    if (hoursUntilStart < 24) {
         return res.status(400).json({ message: 'Cancellation is only allowed up to 24h before' });
     }
 

@@ -270,7 +270,7 @@ export const Navbar = () => {
                   backgroundColor: "#ffd21f"
                 }}
                 whileTap={{ scale: 0.98 }}
-                className="px-10 py-4 bg-white text-padel-blue font-display font-black text-xs rounded-full uppercase tracking-[0.25em] shadow-xl border-none transition-all duration-300 hover:bg-padel-yellow/80"
+                className="px-10 py-4 bg-padel-yellow text-padel-blue font-display font-black text-xs rounded-full uppercase tracking-[0.25em] shadow-xl border-none transition-all duration-300 hover:bg-padel-yellow/80"
               >
                 <span className="notranslate" translate="no">RÉSERVER</span>
               </motion.button>

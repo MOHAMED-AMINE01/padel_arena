@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Mail, Phone, MapPin, Clock, Send, CheckCircle2, ArrowUpRight, MessageSquare, Instagram, Facebook, Loader2 } from 'lucide-react';
 import { cn } from '../../lib/utils';
@@ -11,9 +11,19 @@ const contactInfo = [
   { icon: <Clock size={24} />, label: "DISPONIBILITÉ", value: "08:00 — 23:00", subValue: "Sept jours sur sept", link: null },
 ];
 
+const subjects = [
+  'PRÉSERVATION DE COURT',
+  'COACHING & ACADÉMIE',
+  'OFFRES CORPORATE',
+  'ÉVÉNEMENTIEL',
+  'AUTRE'
+];
+
 export const ContactForm = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -22,6 +32,16 @@ export const ContactForm = () => {
     subject: 'PRÉSERVATION DE COURT',
     message: ''
   });
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -109,13 +129,6 @@ export const ContactForm = () => {
                 ))}
               </div>
 
-              <div className="flex items-center gap-10 pt-10 border-t border-white/[0.03] justify-center lg:justify-start">
-                <div className="flex gap-6">
-                  <Instagram size={20} className="text-white/20 hover:text-padel-blue cursor-pointer transition-colors" />
-                  <Facebook size={20} className="text-white/20 hover:text-padel-blue cursor-pointer transition-colors" />
-                </div>
-                <div className="text-[9px] font-black text-white/10 uppercase tracking-[0.4em]">SOCIAL CONNECT</div>
-              </div>
             </motion.div>
           </div>
 
@@ -192,21 +205,59 @@ export const ContactForm = () => {
 
                     <div className="space-y-4">
                       <label className="text-[9px] font-black text-white/20 uppercase tracking-[0.3em] ml-1">OBJET DE LA DEMANDE</label>
-                      <div className="relative">
-                        <select
-                          value={formData.subject}
-                          onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                          className="w-full bg-white/5 border border-white/10 rounded-2xl py-5 px-8 text-sm font-bold text-white focus:border-padel-yellow focus:outline-none transition-all appearance-none uppercase"
+                      <div className="relative" ref={dropdownRef}>
+                        <button
+                          type="button"
+                          onClick={() => setIsOpen(!isOpen)}
+                          className={cn(
+                            "w-full bg-white/5 border rounded-2xl py-5 px-8 text-sm font-bold text-white flex items-center justify-between transition-all appearance-none uppercase text-left group",
+                            isOpen ? "border-padel-yellow outline-none ring-1 ring-padel-yellow" : "border-white/10 hover:border-white/20"
+                          )}
                         >
-                          <option className="bg-[#111]">PRÉSERVATION DE COURT</option>
-                          <option className="bg-[#111]">COACHING & ACADÉMIE</option>
-                          <option className="bg-[#111]">OFFRES CORPORATE</option>
-                          <option className="bg-[#111]">ÉVÉNEMENTIEL</option>
-                          <option className="bg-[#111]">AUTRE</option>
-                        </select>
-                        <div className="absolute right-8 top-1/2 -translate-y-1/2 pointer-events-none text-white/20">
-                          <ArrowUpRight size={16} />
-                        </div>
+                          <span className={formData.subject ? "text-white" : "text-white/20"}>
+                            {formData.subject || "CHOISISSEZ UN OBJET"}
+                          </span>
+                          <ArrowUpRight 
+                            size={16} 
+                            className={cn(
+                              "text-white/20 transition-transform duration-300",
+                              isOpen ? "rotate-45 text-padel-yellow" : ""
+                            )} 
+                          />
+                        </button>
+
+                        <AnimatePresence>
+                          {isOpen && (
+                            <motion.div
+                              initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                              animate={{ opacity: 1, y: 5, scale: 1 }}
+                              exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                              transition={{ duration: 0.2, ease: "easeOut" }}
+                              className="absolute z-50 w-full bg-[#0a0a0a] border border-white/10 rounded-2xl shadow-2xl overflow-hidden backdrop-blur-3xl mt-2"
+                            >
+                              <div className="py-2">
+                                {subjects.map((subject) => (
+                                  <button
+                                    key={subject}
+                                    type="button"
+                                    onClick={() => {
+                                      setFormData({ ...formData, subject });
+                                      setIsOpen(false);
+                                    }}
+                                    className={cn(
+                                      "w-full text-left px-8 py-4 text-xs font-black uppercase tracking-widest transition-all",
+                                      formData.subject === subject 
+                                        ? "bg-padel-blue text-white" 
+                                        : "text-white/40 hover:bg-padel-blue hover:text-white"
+                                    )}
+                                  >
+                                    {subject}
+                                  </button>
+                                ))}
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
                       </div>
                     </div>
 

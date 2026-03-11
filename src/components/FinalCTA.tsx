@@ -57,7 +57,7 @@ export const FinalCTA = () => {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
-              <Link to="/reservation">
+              <Link to="/#club">
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
@@ -68,13 +68,15 @@ export const FinalCTA = () => {
                 </motion.button>
               </Link>
 
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="w-full sm:w-auto px-12 py-5 bg-white/5 border border-white/10 text-white rounded-full font-black text-xs uppercase tracking-[0.2em] backdrop-blur-md hover:bg-white hover:text-black transition-all"
-              >
-                DEVENIR MEMBRE
-              </motion.button>
+              <Link to="/auth">
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="w-full sm:w-auto px-12 py-5 bg-white/5 border border-white/10 text-white rounded-full font-black text-xs uppercase tracking-[0.2em] backdrop-blur-md hover:bg-white hover:text-black transition-all"
+                >
+                  DEVENIR MEMBRE
+                </motion.button>
+              </Link>
             </div>
           </div>
 

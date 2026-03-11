@@ -1,7 +1,8 @@
 import React, { useRef, useState } from 'react';
 import { motion, useMotionValue, useTransform, useSpring, AnimatePresence } from 'motion/react';
-import { Target, Trophy, GraduationCap, Briefcase, ArrowRight, UserCheck, ShoppingBag, Sparkles, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Target, Trophy, GraduationCap, Briefcase, ArrowRight, UserCheck, ShoppingBag, Sparkles, ChevronLeft, ChevronRight, Mail, Phone } from 'lucide-react';
 import { cn } from '../lib/utils';
+import { Link } from 'react-router-dom';
 
 const activities = [
   {
@@ -10,7 +11,9 @@ const activities = [
     icon: <GraduationCap size={24} />,
     image: "/IMAGES/artur-kornakov-ArI-foyWnfA-unsplash.jpg",
     desc: "Des cours structurés pour enfants et adultes, encadrés par des coachs certifiés pour une progression fulgurante.",
-    tag: "FORMATION"
+    tag: "FORMATION",
+    link: "/contact",
+    cta: "S'INSCRIRE"
   },
   {
     title: "ENTRAÎNEMENT",
@@ -18,7 +21,9 @@ const activities = [
     icon: <Target size={24} />,
     image: "/IMAGES/IMG_4503.JPG",
     desc: "Séances individuelles haute performance utilisant l'analyse vidéo pour corriger chaque mouvement.",
-    tag: "ÉLITE"
+    tag: "ÉLITE",
+    link: "/contact",
+    cta: "PRENDRE RDV"
   },
   {
     title: "ÉTAPES",
@@ -26,7 +31,9 @@ const activities = [
     icon: <Sparkles size={24} />,
     image: "/IMAGES/oskar-hagberg-uJlPtLTZT7c-unsplash.jpg",
     desc: "Vivez l'expérience d'un pro pendant un week-end avec nos stages thématiques en immersion totale.",
-    tag: "IMMERSION"
+    tag: "IMMERSION",
+    link: "/contact",
+    cta: "S'INSCRIRE"
   },
   {
     title: "ÉVÉNEMENTS",
@@ -34,7 +41,9 @@ const activities = [
     icon: <Briefcase size={24} />,
     image: "/IMAGES/todd-trapani-sI-p_NLBNr0-unsplash.jpg",
     desc: "Team building, séminaires et événements exclusifs pour souder vos équipes autour des valeurs du sport.",
-    tag: "AFFAIRES"
+    tag: "AFFAIRES",
+    link: "/contact",
+    cta: "NOUS CONTACTER"
   }
 ];
 
@@ -45,6 +54,8 @@ interface Activity {
   image: string;
   desc: string;
   tag: string;
+  link: string;
+  cta: string;
 }
 
 const ActivityCard: React.FC<{ activity: Activity, index: number }> = ({ activity, index }) => {
@@ -127,11 +138,14 @@ const ActivityCard: React.FC<{ activity: Activity, index: number }> = ({ activit
             </p>
           </div>
 
-          <div className="flex items-center justify-center gap-3 sm:gap-4 pt-4 mt-auto group/btn">
+          <Link
+            to={activity.link}
+            className="flex items-center justify-center gap-3 sm:gap-4 pt-4 mt-auto group/btn"
+          >
             <div className="h-[1px] w-6 sm:w-8 bg-white/20 group-hover:w-12 sm:group-hover:w-16 group-hover:bg-padel-blue transition-all duration-700" />
-            <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.15em] sm:tracking-[0.2em] text-white">REJOINDRE</span>
+            <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.15em] sm:tracking-[0.2em] text-white group-hover:text-padel-yellow transition-colors duration-300">{activity.cta}</span>
             <ArrowRight size={14} className="text-padel-blue group-hover:translate-x-2 transition-transform" />
-          </div>
+          </Link>
         </div>
       </div>
 

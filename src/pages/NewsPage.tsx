@@ -43,13 +43,23 @@ export const NewsPage = () => {
                         Inscrivez-vous à notre newsletter pour recevoir en avant-première nos annonces de tournois et offres exclusives.
                     </p>
 
-                    <form className="max-w-xl mx-auto flex flex-col sm:flex-row gap-4">
+                    <form 
+                        className="max-w-xl mx-auto flex flex-col sm:flex-row gap-4"
+                        onSubmit={(e) => {
+                            e.preventDefault();
+                            alert('Merci pour votre inscription !');
+                        }}
+                    >
                         <input
                             type="email"
                             placeholder="VOTRE EMAIL"
+                            required
                             className="flex-1 bg-white/5 border border-white/10 rounded-full px-8 py-5 text-[11px] font-black text-white tracking-[0.2em] focus:outline-none focus:border-padel-blue transition-colors placeholder:text-white/20 uppercase"
                         />
-                        <button className="px-12 py-5 bg-padel-blue text-white rounded-full font-black text-[11px] uppercase tracking-[0.3em] shadow-xl hover:bg-padel-yellow hover:text-padel-blue transition-all duration-500">
+                        <button 
+                            type="submit"
+                            className="px-12 py-5 bg-padel-blue text-white rounded-full font-black text-[11px] uppercase tracking-[0.3em] shadow-xl hover:bg-padel-yellow hover:text-padel-blue transition-all duration-500"
+                        >
                             S'ABONNER
                         </button>
                     </form>

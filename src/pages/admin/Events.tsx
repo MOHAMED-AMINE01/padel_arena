@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import {
@@ -28,7 +28,9 @@ import {
     ArrowLeft,
     ArrowRight as ArrowRightIcon,
     GraduationCap,
-    Dumbbell
+    Dumbbell,
+    Upload,
+    ExternalLink
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import api from '../../lib/api';
@@ -278,6 +280,9 @@ export function AdminEvents({ defaultTab = 'TOURNOIS' }: { defaultTab?: 'TOURNOI
         status: 'UPCOMING'
     });
 
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const [uploading, setUploading] = useState(false);
+
     const [courseFormData, setCourseFormData] = useState({
         title: '',
         description: '',
@@ -500,6 +505,28 @@ export function AdminEvents({ defaultTab = 'TOURNOIS' }: { defaultTab?: 'TOURNOI
             image: '',
             status: 'UPCOMING'
         });
+    };
+
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        setUploading(true);
+        const uploadData = new FormData();
+        uploadData.append('image', file);
+
+        try {
+            const res = await api.post('/upload', uploadData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+            if (res.data.success) {
+                setFormData(prev => ({ ...prev, image: res.data.url }));
+            }
+        } catch (err) {
+            setError("Échec de l'upload de l'image");
+        } finally {
+            setUploading(false);
+        }
     };
 
     return (
@@ -1096,20 +1123,40 @@ export function AdminEvents({ defaultTab = 'TOURNOIS' }: { defaultTab?: 'TOURNOI
                                             </div>
                                         </div>
 
-                                        <div className="space-y-2">
-                                            <label className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] ml-1 flex items-center gap-2">
-                                                <ImageIcon size={12} className="text-white/40" /> Image URL
+                                        <div className="space-y-4">
+                                            <label className="text-[9px] font-black text-white/30 uppercase tracking-[0.4em] ml-1 flex items-center gap-2">
+                                                <ImageIcon size={10} className="text-padel-blue" /> Image de l'évènement
                                             </label>
+                                            <div
+                                                onClick={() => fileInputRef.current?.click()}
+                                                className="aspect-[21/9] rounded-[1.5rem] border-2 border-dashed border-white/10 bg-white/[0.02] flex flex-col items-center justify-center gap-4 cursor-pointer hover:border-padel-blue/50 hover:bg-padel-blue/5 transition-all group overflow-hidden relative shadow-2xl"
+                                            >
+                                                {formData.image ? (
+                                                    <img src={formData.image} alt="Preview" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000" />
+                                                ) : (
+                                                    <>
+                                                        <div className="w-12 h-12 rounded-2xl bg-white/[0.05] flex items-center justify-center text-white/20 group-hover:bg-padel-blue group-hover:text-white transition-all shadow-xl">
+                                                            {uploading ? <Loader2 size={24} className="animate-spin" /> : <Upload size={24} />}
+                                                        </div>
+                                                        <div className="text-center">
+                                                            <p className="text-[9px] font-black text-white uppercase tracking-widest group-hover:text-padel-blue transition-colors">
+                                                                {uploading ? 'Téléchargement...' : 'Cliquez pour uploader'}
+                                                            </p>
+                                                        </div>
+                                                    </>
+                                                )}
+                                                <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleImageUpload} />
+                                            </div>
                                             <div className="relative group">
                                                 <div className="absolute left-6 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-padel-blue transition-colors">
-                                                    <ImageIcon size={16} />
+                                                    <ExternalLink size={16} />
                                                 </div>
                                                 <input
                                                     type="text"
                                                     value={formData.image}
                                                     onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-                                                    placeholder="https://..."
-                                                    className="w-full bg-white/[0.03] border border-white/10 rounded-2xl pl-16 pr-6 py-4 text-white text-xs font-bold focus:outline-none focus:border-padel-blue focus:bg-white/[0.06] transition-all"
+                                                    placeholder="Ou coller une URL..."
+                                                    className="w-full bg-white/[0.03] border border-white/10 rounded-xl pl-16 pr-6 py-4 text-white text-xs font-bold focus:outline-none focus:border-padel-blue focus:bg-white/[0.06] transition-all"
                                                 />
                                             </div>
                                         </div>

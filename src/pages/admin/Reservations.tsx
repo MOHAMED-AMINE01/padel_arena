@@ -416,12 +416,12 @@ const DeleteConfirmModal = ({ booking, onClose, onConfirm, loading }: { booking:
             <div className="w-20 h-20 bg-red-500/10 text-red-500 rounded-full flex items-center justify-center mx-auto mb-8 border border-red-500/20 shadow-2xl shadow-red-500/10">
                 <Trash2 size={40} />
             </div>
-            <h2 className="text-3xl font-display font-black text-white uppercase tracking-tighter mb-4">Annuler la réservation ?</h2>
-            <p className="text-white/40 text-[11px] font-black uppercase tracking-[0.2em] mb-10 leading-relaxed">Cette action va changer le statut en "ANNULÉE". La réservation restera visible historiquement sur le planning.</p>
+            <h2 className="text-3xl font-display font-black text-white uppercase tracking-tighter mb-4">Supprimer la réservation ?</h2>
+            <p className="text-white/40 text-[11px] font-black uppercase tracking-[0.2em] mb-10 leading-relaxed">Cette action est irréversible. La réservation sera définitivement supprimée de la base de données.</p>
             <div className="flex gap-4">
                 <button onClick={onClose} className="flex-1 py-5 rounded-2xl bg-white/5 text-white/60 text-[10px] font-black uppercase tracking-widest hover:bg-white/10 transition-all">Garder</button>
                 <button onClick={onConfirm} disabled={loading} className="flex-1 py-5 rounded-2xl bg-red-500 text-white text-[10px] font-black uppercase tracking-widest hover:bg-red-600 transition-all shadow-xl shadow-red-500/20 flex items-center justify-center">
-                    {loading ? <Loader2 size={16} className="animate-spin" /> : "Confirmer l'Annulation"}
+                    {loading ? <Loader2 size={16} className="animate-spin" /> : "Confirmer la Suppression"}
                 </button>
             </div>
         </motion.div>
@@ -512,12 +512,12 @@ export function AdminReservations() {
         if (!deleteTarget) return;
         setDeleting(true);
         try {
-            await api.put(`/bookings/${deleteTarget._id}`, { status: 'CANCELLED' });
-            setBookings(bookings.map(b => b._id === deleteTarget._id ? { ...b, status: 'CANCELLED' } : b));
+            await api.delete(`/bookings/${deleteTarget._id}`);
+            setBookings(bookings.filter(b => b._id !== deleteTarget._id));
             setDeleteTarget(null);
             setSelectedBooking(null);
         } catch (err) {
-            console.error('Error canceling booking:', err);
+            console.error('Error deleting booking:', err);
         } finally {
             setDeleting(false);
         }

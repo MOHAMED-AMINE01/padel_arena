@@ -5,8 +5,6 @@ import { CourtPricing } from '../components/pricing/CourtPricing';
 import { PricingHero } from '../components/pricing/PricingHero';
 import { SubscriptionPlans } from '../components/pricing/SubscriptionPlans';
 import { PacksAndFormulas } from '../components/pricing/PacksAndFormulas';
-import { PromotionalOffers } from '../components/pricing/PromotionalOffers';
-import { GiftCards } from '../components/pricing/GiftCards';
 
 export const PricingPage = () => {
   const { hash } = useLocation();
@@ -34,8 +32,6 @@ export const PricingPage = () => {
       <CourtPricing />
       <SubscriptionPlans />
       <PacksAndFormulas />
-      <PromotionalOffers />
-      <GiftCards />
     </motion.div>
   );
 };

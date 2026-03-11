@@ -31,7 +31,7 @@ export const ContactPage = () => {
     >
       <ContactForm />
       <AccessMap />
-      <FAQSection />
+      {/* <FAQSection /> */}
       {/* <SupportSection />
       <RecruitmentSection /> */}
     </motion.div>

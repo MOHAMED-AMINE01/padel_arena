@@ -61,12 +61,12 @@ export const AdminLayout = ({ role = 'SUPER_ADMIN' }: { role?: AdminRole }) => {
                 </button>
 
                 {/* Main Content Area */}
-                <div 
+                <div
                     ref={scrollRef}
                     className={cn(
-                    "flex-1 flex flex-col h-full relative z-10 w-full min-w-0 overflow-y-auto overflow-x-hidden custom-scrollbar",
-                    !collapsed ? "lg:pl-72" : "lg:pl-24"
-                )}>
+                        "flex-1 flex flex-col h-full relative z-10 w-full min-w-0 overflow-y-auto overflow-x-hidden custom-scrollbar",
+                        !collapsed ? "lg:pl-72" : "lg:pl-24"
+                    )}>
                     <main className="flex-1 p-6 md:p-10 lg:p-16 pt-24 md:pt-10 lg:pt-16 w-full max-w-full overflow-x-hidden">
                         <Outlet />
                     </main>

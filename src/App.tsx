@@ -10,7 +10,7 @@ import { ActivitiesPage } from './pages/ActivitiesPage';
 import { BookingPage } from './pages/BookingPage';
 import { PricingPage } from './pages/PricingPage';
 import { ContactPage } from './pages/ContactPage';
-import { Volume2, VolumeX } from 'lucide-react';
+
 import { NewsPage } from './pages/NewsPage';
 import { AuthPage } from './pages/AuthPage';
 import { ForgotPasswordPage } from './pages/ForgotPasswordPage';
@@ -32,6 +32,8 @@ import { AdminMailbox } from './pages/admin/Mailbox';
 import { AdminNewsletter } from './pages/admin/Newsletter';
 import { AdminCourts } from './pages/admin/Courts';
 import { AdminEvents } from './pages/admin/Events';
+import { AdminNews } from './pages/admin/News';
+import { AdminPlans } from './pages/admin/Plans';
 
 // PLAYER PAGES
 import { PlayerLayout } from './components/player/PlayerLayout';
@@ -56,7 +58,7 @@ export default function App() {
     return sessionStorage.getItem('intro_seen') !== 'true';
   });
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-  const [isMuted, setIsMuted] = useState(true);
+
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -144,12 +146,13 @@ export default function App() {
                       <Route path="tournaments" element={<AdminEvents />} />
                       <Route path="courses" element={<AdminEvents defaultTab="COURS" />} />
                       <Route path="payments" element={<AdminPayments />} />
-                      <Route path="subscriptions" element={<AdminSubscriptions />} />
                       <Route path="promo-codes" element={<AdminPromoCodes />} />
                       <Route path="settings" element={<AdminSettings />} />
                       <Route path="billing" element={<Facturation />} />
                       <Route path="mailbox" element={<AdminMailbox />} />
                       <Route path="newsletter" element={<AdminNewsletter />} />
+                      <Route path="news" element={<AdminNews />} />
+                      <Route path="plans" element={<AdminPlans />} />
                     </Route>
                   </Route>
 
@@ -170,26 +173,7 @@ export default function App() {
                   </Route>
                 </Routes>
 
-                {/* Global UI Elements */}
-                {/* Sound Button */}
-                <div className="fixed bottom-8 right-6 md:right-8 z-[100]">
-                  <audio
-                    id="bg-music"
-                    loop
-                    autoPlay
-                    muted={isMuted}
-                    src="/AUDIO/background-music.mp3"
-                  />
 
-                  <motion.button
-                    whileHover={{ scale: 1.1, rotate: 5, boxShadow: "0 0 30px rgba(19,73,211,0.4)" }}
-                    whileTap={{ scale: 0.9 }}
-                    onClick={() => setIsMuted(!isMuted)}
-                    className="w-10 h-10 md:w-12 md:h-12 glass text-white rounded-full flex items-center justify-center shadow-2xl"
-                  >
-                    {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
-                  </motion.button>
-                </div>
               </motion.div>
             )}
           </AnimatePresence>

@@ -1,8 +1,15 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { ArrowRight, Play, Star, Users } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 
 export const ActivitiesHero = () => {
+    const scrollToActivities = () => {
+        const element = document.getElementById('coaching');
+        if (element) {
+            element.scrollIntoView({ behavior: 'smooth' });
+        }
+    };
+
     return (
         <section id="hero" className="relative h-auto min-h-[75vh] md:h-[75vh] w-full overflow-hidden flex items-center justify-center bg-[#050505] pt-12 md:pt-40">
             {/* Editorial Grid Lines */}
@@ -52,6 +59,7 @@ export const ActivitiesHero = () => {
 
                             <div className="flex flex-col sm:flex-row items-center md:items-start gap-8 justify-center md:justify-start">
                                 <motion.button
+                                    onClick={scrollToActivities}
                                     whileHover={{ scale: 1.05 }}
                                     whileTap={{ scale: 0.95 }}
                                     className="w-full sm:w-auto group relative px-8 py-4 bg-padel-blue text-white rounded-full font-black text-[10px] uppercase tracking-[0.2em] overflow-hidden shadow-xl transition-all"
@@ -61,13 +69,9 @@ export const ActivitiesHero = () => {
                                         <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
                                     </span>
                                 </motion.button>
-
-                                
                             </div>
                         </motion.div>
                     </div>
-
-                    
                 </div>
             </div>
 

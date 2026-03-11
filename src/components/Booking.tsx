@@ -1,32 +1,188 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Calendar as CalendarIcon, Clock, Users, ChevronRight, CheckCircle2, MapPin, ArrowRight, Zap } from 'lucide-react';
+import { Calendar as CalendarIcon, Clock, Users, ChevronRight, CheckCircle2, MapPin, ArrowRight, Zap, AlertCircle, Loader2, User as UserIcon, Mail, Phone, Sparkles, Target } from 'lucide-react';
 import { cn } from '../lib/utils';
+import api from '../lib/api';
+import { useAuth } from '../context/AuthContext';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+
+interface Slot {
+  time: string;
+  available: boolean;
+  price: number;
+}
+
+interface CourtAvailability {
+  courtId: string;
+  courtName: string;
+  type: string;
+  slots: Slot[];
+}
 
 export const Booking = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [step, setStep] = useState(1);
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
-  const [selectedCourt, setSelectedCourt] = useState<number | null>(null);
+  const [selectedCourtId, setSelectedCourtId] = useState<string | null>(null);
   const [players, setPlayers] = useState(4);
+  const [duration, setDuration] = useState(90); // minutes
 
-  const timeSlots = [
-    '09:00', '10:30', '12:00', '13:30', '15:00', '16:30', '18:00', '19:30', '21:00'
-  ];
+  // Guest Info
+  const [guestName, setGuestName] = useState('');
+  const [guestEmail, setGuestEmail] = useState('');
+  const [guestPhone, setGuestPhone] = useState('');
 
-  const courts = [
-    { id: 1, name: "CENTRAL PANORAMIC", tag: "PRO", price: 40 },
-    { id: 2, name: "ARENA INDOOR #2", tag: "PREMIUM", price: 35 },
-    { id: 3, name: "CLASSIC COURT #3", tag: "STANDARD", price: 30 },
-    { id: 4, name: "OUTDOOR VISTA", tag: "OPEN AIR", price: 30 },
-  ];
+  const [selectedSport, setSelectedSport] = useState<'Padel' | 'Pickleball' | 'Badminton' | 'Basket' | 'Golf'>('Padel');
 
-  const nextStep = () => setStep(prev => Math.min(prev + 1, 3));
-  const prevStep = () => setStep(prev => Math.max(prev - 1, 1));
+  // Handle sport from query param (works for both navigation and same-page hash links)
+  useEffect(() => {
+    // Try searchParams first, then fall back to raw window.location.search
+    const raw = searchParams.get('sport') || new URLSearchParams(window.location.search).get('sport');
+    if (raw) {
+      // Capitalize first letter only (backend expects: Padel, Pickleball, Basket, Golf, Badminton)
+      const formatted = raw.charAt(0).toUpperCase() + raw.slice(1).toLowerCase();
+      if (['Padel', 'Pickleball', 'Badminton', 'Basket', 'Golf'].includes(formatted)) {
+        setSelectedSport(formatted as any);
+      }
+    }
+    // Scroll to section only when hash is #club
+    if (window.location.hash === '#club') {
+      setTimeout(() => {
+        const element = document.getElementById('club');
+        if (element) element.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+    }
+  }, [searchParams]);
+
+  const [availability, setAvailability] = useState<CourtAvailability[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isBooking, setIsBooking] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Auto-fill if user is logged in
+  useEffect(() => {
+    if (user) {
+      setGuestName(user.name);
+      setGuestEmail(user.email);
+    }
+  }, [user]);
+
+  // Fetch availability when date or sport changes
+  useEffect(() => {
+    const fetchAvailability = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+        const res = await api.get('/bookings/available-slots', {
+          params: {
+            sport: selectedSport,
+            date: selectedDate
+          }
+        });
+        if (res.data.success) {
+          setAvailability(res.data.data);
+          setSelectedTime(null);
+          setSelectedCourtId(null);
+        }
+      } catch (err: any) {
+        console.error('Failed to fetch availability', err);
+        setError('Impossible de charger les disponibilités.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchAvailability();
+  }, [selectedDate, selectedSport]);
+
+  const availableTimes = useMemo(() => {
+    const times = new Set<string>();
+    availability.forEach(court => {
+      court.slots.forEach(slot => {
+        if (slot.available) {
+          times.add(slot.time);
+        }
+      });
+    });
+    return Array.from(times).sort();
+  }, [availability]);
+
+  const availableCourts = useMemo(() => {
+    if (!selectedTime) return [];
+    return availability.filter(court =>
+      court.slots.find(s => s.time === selectedTime && s.available)
+    );
+  }, [selectedTime, availability]);
+
+  const calculateTotal = () => {
+    if (!selectedCourtId || !selectedTime) return 0;
+    const court = availability.find(c => c.courtId === selectedCourtId);
+    if (!court) return 0;
+    const slot = court.slots.find(s => s.time === selectedTime);
+    const basePrice = slot ? slot.price : 0;
+    return (basePrice * (duration / 90));
+  };
+
+  const handleNextStep = async () => {
+    if (step === 1) {
+      if (!selectedTime) {
+        setError("Veuillez sélectionner un créneau");
+        return;
+      }
+      setStep(2);
+    } else if (step === 2) {
+      if (!selectedCourtId) {
+        setError("Veuillez sélectionner un terrain");
+        return;
+      }
+
+      // Check Guest Info
+      if (!guestName || !guestEmail) {
+        setError("Veuillez remplir vos informations de contact");
+        return;
+      }
+
+      // Final step: Try to book
+      try {
+        setIsBooking(true);
+        setError(null);
+
+        const startTime = new Date(`${selectedDate}T${selectedTime}:00`);
+        const endTime = new Date(startTime.getTime() + duration * 60000);
+
+        const response = await api.post('/bookings', {
+          courtId: selectedCourtId,
+          startTime: startTime.toISOString(),
+          endTime: endTime.toISOString(),
+          guestName,
+          guestEmail,
+          guestPhone,
+          players,
+          userId: user?._id
+        });
+
+        if (response.data.success) {
+          setStep(3);
+        }
+      } catch (err: any) {
+        console.error('Booking failed', err);
+        setError(err.response?.data?.message || 'La réservation a échoué. Ce créneau est peut-être déjà pris.');
+      } finally {
+        setIsBooking(false);
+      }
+    }
+  };
+
+  const prevStep = () => {
+    setError(null);
+    setStep(prev => Math.max(prev - 1, 1));
+  };
 
   return (
     <section id="club" className="relative py-24 md:py-40 px-6 overflow-hidden bg-dark-bg">
-      {/* Editorial Grid Lines */}
       <div className="absolute inset-0 pointer-events-none opacity-[0.03]">
         <div className="max-w-[1400px] mx-auto h-full w-full flex justify-between border-x border-white">
           <div className="w-[1px] h-full bg-white ml-[25%]" />
@@ -38,7 +194,7 @@ export const Booking = () => {
       <div className="max-w-[1400px] mx-auto relative z-10">
         <div className="grid lg:grid-cols-12 gap-16 xl:gap-24 items-start">
 
-          {/* Left Content - Sticky Info (5 cols) */}
+          {/* Left Content */}
           <div className="lg:col-span-5 lg:sticky lg:top-32">
             <motion.div
               initial={{ opacity: 0, x: -30 }}
@@ -59,7 +215,6 @@ export const Booking = () => {
                 Accédez à nos terrains de classe mondiale. Notre système de réservation temps réel vous garantit une place au cœur de l'action.
               </p>
 
-              {/* Quick Info Box */}
               <div className="hidden lg:block glass p-8 rounded-[2rem] border-white/5 bg-white/[0.02]">
                 <div className="flex items-center gap-4 mb-6">
                   <div className="w-10 h-10 rounded-full bg-padel-blue/20 flex items-center justify-center text-padel-blue">
@@ -70,17 +225,20 @@ export const Booking = () => {
                 <div className="space-y-4">
                   <div className="flex justify-between items-center text-[10px] font-black tracking-widest uppercase">
                     <span className="text-white/20">Aujourd'hui</span>
-                    <span className="text-padel-yellow">12 Créneaux Libres</span>
+                    <span className="text-padel-yellow">{availableTimes.length} Créneaux Libres</span>
                   </div>
                   <div className="w-full h-1 bg-white/5 rounded-full overflow-hidden">
-                    <div className="w-2/3 h-full bg-padel-blue" />
+                    <div
+                      className="h-full bg-padel-blue transition-all duration-1000"
+                      style={{ width: `${(availableTimes.length / 20) * 100}%` }}
+                    />
                   </div>
                 </div>
               </div>
             </motion.div>
           </div>
 
-          {/* Right Content - Booking Engine (7 cols) */}
+          {/* Right Content */}
           <div className="lg:col-span-7">
             <motion.div
               initial={{ opacity: 0, y: 30 }}
@@ -89,7 +247,6 @@ export const Booking = () => {
               transition={{ duration: 1, delay: 0.2 }}
               className="glass rounded-[2.5rem] md:rounded-[4rem] border-white/10 overflow-hidden shadow-[0_50px_100px_rgba(0,0,0,0.4)]"
             >
-              {/* Custom Header Flow */}
               <div className="px-8 md:px-12 py-8 bg-white/[0.03] border-b border-white/5 flex items-center justify-between">
                 <div className="flex gap-4">
                   {[1, 2, 3].map((s) => (
@@ -118,7 +275,27 @@ export const Booking = () => {
                     >
                       <section>
                         <h4 className="text-sm font-black tracking-[0.2em] uppercase text-white/20 mb-8 flex items-center gap-3">
-                          <CalendarIcon size={14} className="text-padel-blue" /> 01. SÉLECTION DE LA DATE
+                          <Target size={14} className="text-padel-blue" /> 01. SÉLECTION DU SPORT
+                        </h4>
+                        <div className="flex flex-wrap gap-4 mb-10">
+                          {['Padel', 'Pickleball', 'Badminton', 'Basket', 'Golf'].map((sport) => (
+                            <button
+                              key={sport}
+                              onClick={() => setSelectedSport(sport as any)}
+                              className={cn(
+                                "px-8 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all",
+                                selectedSport === sport
+                                  ? "bg-padel-blue text-white shadow-[0_0_20px_rgba(19,73,211,0.4)]"
+                                  : "bg-white/5 text-white/40 border border-white/5 hover:bg-white/10"
+                              )}
+                            >
+                              {sport}
+                            </button>
+                          ))}
+                        </div>
+
+                        <h4 className="text-sm font-black tracking-[0.2em] uppercase text-white/20 mb-8 flex items-center gap-3">
+                          <CalendarIcon size={14} className="text-padel-blue" /> 02. SÉLECTION DE LA DATE
                         </h4>
                         <div className="grid grid-cols-4 md:grid-cols-7 gap-3">
                           {[...Array(7)].map((_, i) => {
@@ -147,22 +324,35 @@ export const Booking = () => {
                         <h4 className="text-sm font-black tracking-[0.2em] uppercase text-white/20 mb-8 flex items-center gap-3">
                           <Clock size={14} className="text-padel-blue" /> 02. CHOIX DU CRÉNEAU
                         </h4>
-                        <div className="grid grid-cols-3 md:grid-cols-5 gap-3">
-                          {timeSlots.map((time) => (
-                            <button
-                              key={time}
-                              onClick={() => setSelectedTime(time)}
-                              className={cn(
-                                "py-4 rounded-xl font-black text-xs transition-all duration-300",
-                                selectedTime === time
-                                  ? "bg-padel-yellow text-black scale-105"
-                                  : "bg-white/5 hover:bg-white/10 text-white/40"
-                              )}
-                            >
-                              {time}
-                            </button>
-                          ))}
-                        </div>
+                        {isLoading ? (
+                          <div className="flex items-center justify-center h-24">
+                            <Loader2 className="animate-spin text-padel-blue" />
+                          </div>
+                        ) : availableTimes.length > 0 ? (
+                          <div className="grid grid-cols-3 md:grid-cols-5 gap-3">
+                            {availableTimes.map((time) => (
+                              <button
+                                key={time}
+                                onClick={() => {
+                                  setSelectedTime(time);
+                                  setError(null);
+                                }}
+                                className={cn(
+                                  "py-4 rounded-xl font-black text-xs transition-all duration-300",
+                                  selectedTime === time
+                                    ? "bg-padel-yellow text-black scale-105"
+                                    : "bg-white/5 hover:bg-white/10 text-white/40"
+                                )}
+                              >
+                                {time}
+                              </button>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="text-center py-10 text-white/20 text-xs font-black uppercase tracking-widest border border-white/5 rounded-2xl">
+                            Aucun créneau disponible pour cette date
+                          </div>
+                        )}
                       </section>
                     </motion.div>
                   )}
@@ -175,30 +365,80 @@ export const Booking = () => {
                       exit={{ opacity: 0, x: -20 }}
                       className="space-y-10 flex-grow"
                     >
+                      {/* Guest Info Section */}
+                      <section className="bg-white/[0.02] p-8 rounded-[2rem] border border-white/5 space-y-6">
+                        <div className="flex items-center justify-between mb-2">
+                          <h4 className="text-[10px] font-black tracking-[0.2em] uppercase text-padel-blue flex items-center gap-3">
+                            <UserIcon size={14} /> Informations de contact
+                          </h4>
+                          {user && (
+                            <span className="text-[8px] font-black uppercase bg-padel-blue/20 text-padel-blue px-2 py-1 rounded-full flex items-center gap-1">
+                              <Sparkles size={8} /> Compte Connecté
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="grid md:grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <label className="text-[8px] font-black uppercase text-white/20 tracking-widest ml-1">Nom complet</label>
+                            <div className="relative">
+                              <UserIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" size={14} />
+                              <input
+                                type="text"
+                                value={guestName}
+                                onChange={(e) => setGuestName(e.target.value)}
+                                placeholder="JEAN DUPONT"
+                                disabled={!!user}
+                                className="w-full bg-white/5 border border-white/5 rounded-xl py-3 pl-12 pr-4 text-xs font-bold text-white uppercase placeholder:text-white/10 focus:outline-none focus:border-padel-blue/50 transition-all disabled:opacity-50"
+                              />
+                            </div>
+                          </div>
+                          <div className="space-y-2">
+                            <label className="text-[8px] font-black uppercase text-white/20 tracking-widest ml-1">Email</label>
+                            <div className="relative">
+                              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" size={14} />
+                              <input
+                                type="email"
+                                value={guestEmail}
+                                onChange={(e) => setGuestEmail(e.target.value)}
+                                placeholder="JEAN@EXAMPLE.COM"
+                                disabled={!!user}
+                                className="w-full bg-white/5 border border-white/5 rounded-xl py-3 pl-12 pr-4 text-xs font-bold text-white uppercase placeholder:text-white/10 focus:outline-none focus:border-padel-blue/50 transition-all disabled:opacity-50"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </section>
+
                       <section>
-                        <h4 className="text-sm font-black tracking-[0.2em] uppercase text-white/20 mb-8 flex items-center gap-3">
-                          <MapPin size={14} className="text-padel-blue" /> 03. TERRAIN & CONFIGURATION
+                        <h4 className="text-[10px] font-black tracking-[0.2em] uppercase text-white/20 mb-6 flex items-center gap-3">
+                          <MapPin size={14} className="text-padel-blue" /> 03. CHOIX DU TERRAIN
                         </h4>
                         <div className="grid sm:grid-cols-2 gap-4">
-                          {courts.map((court) => (
+                          {availableCourts.map((court) => (
                             <button
-                              key={court.id}
-                              onClick={() => setSelectedCourt(court.id)}
+                              key={court.courtId}
+                              onClick={() => {
+                                setSelectedCourtId(court.courtId);
+                                setError(null);
+                              }}
                               className={cn(
                                 "p-6 rounded-3xl border transition-all duration-500 text-left relative overflow-hidden group",
-                                selectedCourt === court.id
+                                selectedCourtId === court.courtId
                                   ? "bg-padel-blue/10 border-padel-blue"
                                   : "bg-white/5 border-white/5 hover:border-white/20"
                               )}
                             >
                               <div className="flex justify-between items-start mb-4">
-                                <span className="text-[9px] font-black text-padel-blue tracking-widest uppercase">{court.tag}</span>
-                                <span className="text-lg font-black text-white">{court.price}€</span>
+                                <span className="text-[9px] font-black text-padel-blue tracking-widest uppercase">{court.type}</span>
+                                <span className="text-lg font-black text-white">
+                                  {((court.slots.find(s => s.time === selectedTime)?.price || 0) * (duration / 90)).toFixed(2)}€
+                                </span>
                               </div>
-                              <h5 className="text-xl font-display font-black text-white mb-1 uppercase">{court.name}</h5>
+                              <h5 className="text-xl font-display font-black text-white mb-1 uppercase">{court.courtName}</h5>
                               <p className="text-[10px] text-white/30 font-bold uppercase tracking-widest">Gazon WPT • LED Pro</p>
 
-                              {selectedCourt === court.id && (
+                              {selectedCourtId === court.courtId && (
                                 <div className="absolute top-0 right-0 p-2">
                                   <div className="w-2 h-2 rounded-full bg-padel-blue" />
                                 </div>
@@ -229,9 +469,16 @@ export const Booking = () => {
                         <div className="bg-white/5 p-6 rounded-3xl">
                           <h5 className="text-[10px] font-black tracking-widest text-white/30 mb-4 uppercase">Durée</h5>
                           <div className="flex gap-4">
-                            {['60MIN', '90MIN'].map(d => (
-                              <button key={d} className="flex-1 py-3 rounded-xl bg-white/5 font-black text-xs hover:bg-white/10 transition-all">
-                                {d}
+                            {[60, 90].map(d => (
+                              <button
+                                key={d}
+                                onClick={() => setDuration(d)}
+                                className={cn(
+                                  "flex-1 py-3 rounded-xl font-black text-xs transition-all",
+                                  duration === d ? "bg-padel-blue text-white" : "bg-white/5 hover:bg-white/10"
+                                )}
+                              >
+                                {d} MIN
                               </button>
                             ))}
                           </div>
@@ -252,19 +499,29 @@ export const Booking = () => {
                       </div>
                       <h4 className="text-4xl md:text-5xl font-display font-black mb-4 tracking-tighter uppercase">RÈGLEMENT CONFIRMÉ</h4>
                       <p className="text-sm text-white/30 mb-12 max-w-xs mx-auto font-medium leading-relaxed">
-                        Votre créneau est désormais réservé. Le code d'accès vous a été envoyé par SMS.
+                        Votre créneau est désormais réservé. Le code d'accès sera envoyé à l'adresse <strong>{guestEmail.toUpperCase()}</strong>.
                       </p>
                     </motion.div>
                   )}
                 </AnimatePresence>
 
-                {/* Footer Actions */}
+                {error && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mt-4 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 text-[10px] font-black uppercase tracking-widest flex items-center gap-3"
+                  >
+                    <AlertCircle size={14} />
+                    {error}
+                  </motion.div>
+                )}
+
                 <div className="mt-12 pt-8 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-6">
                   {step < 3 ? (
                     <>
                       <div className="flex flex-col">
                         <span className="text-[10px] font-black text-white/20 uppercase tracking-widest mb-1">Total Estimé</span>
-                        <div className="text-3xl font-display font-black text-white">40,00€</div>
+                        <div className="text-3xl font-display font-black text-white">{calculateTotal().toFixed(2)}€</div>
                       </div>
                       <div className="flex gap-4 w-full sm:w-auto">
                         {step > 1 && (
@@ -276,24 +533,36 @@ export const Booking = () => {
                           </button>
                         )}
                         <button
-                          onClick={nextStep}
-                          disabled={step === 1 && !selectedTime}
+                          onClick={handleNextStep}
+                          disabled={(step === 1 && !selectedTime) || isBooking}
                           className={cn(
                             "flex-1 sm:flex-none px-10 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-3 transition-all",
-                            selectedTime || step > 1 ? "bg-padel-blue text-white hover:scale-105" : "bg-white/5 text-white/20 cursor-not-allowed"
+                            (selectedTime || step > 1) && !isBooking ? "bg-padel-blue text-white hover:scale-105" : "bg-white/5 text-white/20 cursor-not-allowed"
                           )}
                         >
-                          ÉTAPE SUIVANTE <ArrowRight size={14} />
+                          {isBooking ? (
+                            <>TRAITEMENT... <Loader2 size={14} className="animate-spin" /></>
+                          ) : (
+                            <>{step === 2 ? 'CONFIRMER' : 'ÉTAPE SUIVANTE'} <ArrowRight size={14} /></>
+                          )}
                         </button>
                       </div>
                     </>
                   ) : (
-                    <button
-                      onClick={() => setStep(1)}
-                      className="w-full py-5 rounded-2xl bg-white text-black font-black text-[10px] uppercase tracking-widest hover:bg-padel-yellow transition-all"
-                    >
-                      EFFECTUER UNE AUTRE RÉSERVATION
-                    </button>
+                    <div className="flex flex-col sm:flex-row gap-4 w-full">
+                      <button
+                        onClick={() => setStep(1)}
+                        className="flex-1 py-5 rounded-2xl bg-white text-black font-black text-[10px] uppercase tracking-widest hover:bg-padel-yellow transition-all"
+                      >
+                        NOUVELLE RÉSERVATION
+                      </button>
+                      <button
+                        onClick={() => navigate(user ? '/dashboard' : '/')}
+                        className="flex-1 py-5 rounded-2xl bg-padel-blue text-white font-black text-[10px] uppercase tracking-widest hover:bg-blue-600 transition-all"
+                      >
+                        {user ? 'MON TABLEAU DE BORD' : 'RETOUR À L\'ACCUEIL'}
+                      </button>
+                    </div>
                   )}
                 </div>
               </div>
@@ -302,7 +571,6 @@ export const Booking = () => {
         </div>
       </div>
 
-      {/* Background Decor Text */}
       <div className="absolute -top-20 -right-20 text-[15rem] font-display font-black text-white/[0.01] select-none pointer-events-none -z-10 uppercase">
         BOOKING
       </div>

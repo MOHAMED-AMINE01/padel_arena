@@ -1,48 +1,45 @@
 import React, { useRef, useState } from 'react';
 import { motion } from 'motion/react';
-import { ArrowRight, CheckCircle2, Video, Target, Zap, Users, User, ArrowUpRight } from 'lucide-react';
+import { ArrowUpRight } from 'lucide-react';
 import { cn } from '../../lib/utils';
-import { PromoCodeInput } from '../player/PromoCodeInput';
+import { Link } from 'react-router-dom';
 
 const coachingTypes = [
   {
     title: "PADEL",
     desc: "3 terrains de <span class='notranslate' translate='no'>padel</span> dernière génération pour tous les niveaux.",
     icon: "01",
-    image: "/IMAGES/IMAGES CARROUSEL/pexels-criticalimagery-33226056.jpg"
+    image: "/IMAGES/IMAGES CARROUSEL/pexels-criticalimagery-33226056.jpg",
+    link: "/?sport=Padel#club"
   },
   {
     title: "PICKLEBALL",
     desc: "1 terrain polyvalent pour pratiquer le pickleball dans les meilleures conditions.",
     icon: "02",
-    image: "/IMAGES/IMG_4503.JPG"
+    image: "/IMAGES/IMG_4503.JPG",
+    link: "/?sport=Pickleball#club"
   },
   {
     title: "BADMINTON",
     desc: "Terrain adapté pour le badminton, accessible à tous les joueurs.",
     icon: "03",
-    image: "/IMAGES/Image de présentation.png"
+    image: "/IMAGES/Image de présentation.png",
+    link: "/?sport=Badminton#club"
   },
   {
     title: "SIMULATEUR DE GOLF",
     desc: "Simulateur dernière génération ultra réaliste. Accès aux plus beaux parcours du monde.",
     icon: "04",
-    image: "/IMAGES/IMAGES CARROUSEL/pexels-criticalimagery-33226057.jpg"
+    image: "/IMAGES/IMAGES CARROUSEL/pexels-criticalimagery-33226057.jpg",
+    link: "/?sport=Golf#club"
   },
   {
     title: "ÉVÉNEMENTS & TOURNOIS",
     desc: "Tournois inter-entreprises et événements toute l'année dans une ambiance conviviale.",
     icon: "05",
-    image: "/IMAGES/IMAGES CARROUSEL/pexels-criticalimagery-32897038.jpg"
+    image: "/IMAGES/IMAGES CARROUSEL/pexels-criticalimagery-32897038.jpg",
+    link: "/contact"
   }
-];
-
-const features = [
-  { title: "Analyse Vidéo", icon: <Video size={20} /> },
-  { title: "Correction Technique", icon: <Target size={20} /> },
-  { title: "Stratégie de Jeu", icon: <Zap size={20} /> },
-  { title: "Préparation Physique", icon: <Users size={20} /> },
-  { title: "Mental Coaching", icon: <User size={20} /> },
 ];
 
 export const Coaching = () => {
@@ -118,17 +115,26 @@ export const Coaching = () => {
                     {type.icon}
                   </div>
                 </div>
-                <div className="p-8 md:p-10">
+                <div className="p-8 md:p-10 flex flex-col h-full">
                   <h4 className="text-xl font-display font-black mb-4 group-hover:text-padel-blue transition-colors uppercase leading-tight">
                     {type.title}
                   </h4>
-                  <p className="text-xs md:text-sm text-white/30 font-medium leading-relaxed group-hover:text-white/50 transition-colors">
-                    {type.desc}
-                  </p>
-                  {/* Promo code input for course context */}
-                  <div className="mt-4">
-                    {/* You may want to style or position this differently */}
-                    <PromoCodeInput applicationType="course" onApply={() => { }} />
+                  <p
+                    className="text-xs md:text-sm text-white/30 font-medium leading-relaxed group-hover:text-white/50 transition-colors mb-8"
+                    dangerouslySetInnerHTML={{ __html: type.desc }}
+                  />
+
+                  <div className="mt-auto">
+                    <Link to={type.link}>
+                      <motion.button
+                        whileHover={{ scale: 1.05, backgroundColor: '#1349d3', color: '#ffffff' }}
+                        whileTap={{ scale: 0.95 }}
+                        className="w-full py-4 rounded-xl border border-white/10 text-[10px] font-black uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 group/btn"
+                      >
+                        {type.title === "ÉVÉNEMENTS & TOURNOIS" ? "NOUS CONTACTER" : "RÉSERVER"}
+                        <ArrowUpRight size={14} className="group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform" />
+                      </motion.button>
+                    </Link>
                   </div>
                 </div>
               </motion.div>
@@ -149,8 +155,6 @@ export const Coaching = () => {
             ))}
           </div>
         </div>
-
-
       </div>
     </section>
   );

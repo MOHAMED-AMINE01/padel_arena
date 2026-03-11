@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { motion, useScroll, useTransform } from 'motion/react';
-import { Mail, Phone, ChevronDown, Volume2, VolumeX } from 'lucide-react';
+import { Mail, Phone, ChevronDown } from 'lucide-react';
 import { cn } from '../lib/utils';
 
 export const Hero = () => {
   const { scrollY } = useScroll();
   const y = useTransform(scrollY, [0, 500], [0, 150]);
   const opacity = useTransform(scrollY, [0, 300], [1, 0]);
-  const [isMuted, setIsMuted] = useState(true);
+
 
   return (
     <section className="relative h-screen w-full overflow-hidden bg-[#050505] pt-12 md:pt-20">
@@ -33,19 +33,7 @@ export const Hero = () => {
         </div>
       </div>
 
-      {/* Left Vertical Section (Scroll Down) */}
-      <div className="absolute left-6 bottom-10 z-30 hidden lg:flex flex-col items-start gap-4 h-32">
-        <motion.div
-          animate={{ y: [0, 8, 0] }}
-          transition={{ duration: 2, repeat: Infinity }}
-          className="flex items-center gap-3 origin-left -rotate-90 translate-y-[-60px]"
-        >
-          <ChevronDown size={14} className="text-padel-yellow rotate-90" />
-          <span className="text-[9px] font-black uppercase tracking-[0.4em] text-white/40">
-            Défiler vers le bas
-          </span>
-        </motion.div>
-      </div>
+
 
       {/* Right Vertical Socials */}
       {/* <div className="absolute right-6 top-1/2 -translate-y-1/2 z-30 hidden xl:flex flex-col items-center gap-24">

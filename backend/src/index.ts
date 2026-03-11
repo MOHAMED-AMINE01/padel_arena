@@ -19,6 +19,10 @@ import promoCodeRoutes from './routes/promoCodeRoutes';
 import invoiceRoutes from './routes/invoiceRoutes';
 import messageRoutes from './routes/messageRoutes';
 import newsletterRoutes from './routes/newsletterRoutes';
+import newsRoutes from './routes/newsRoutes';
+import pricingRoutes from './routes/pricingRoutes';
+import uploadRoutes from './routes/uploadRoutes';
+
 
 // Load environment variables
 dotenv.config();
@@ -89,6 +93,10 @@ app.use('/api/promo-codes', promoCodeRoutes);
 app.use('/api/invoices', invoiceRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/newsletter', newsletterRoutes);
+app.use('/api/news', newsRoutes);
+app.use('/api/pricing', pricingRoutes);
+app.use('/api/upload', uploadRoutes);
+
 
 // Root Route
 app.get('/', (req: Request, res: Response) => {
