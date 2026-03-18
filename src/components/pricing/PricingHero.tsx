@@ -76,7 +76,6 @@ export const PricingHero = () => {
                         </motion.div>
                     </div>
 
-
                 </div>
             </div>
 

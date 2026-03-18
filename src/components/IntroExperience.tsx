@@ -135,7 +135,7 @@ export const IntroExperience: React.FC<IntroExperienceProps> = ({ onEnter }) => 
             className="relative w-48 h-48 md:w-64 md:h-64 rounded-full border-2 border-white/10 bg-white/5 backdrop-blur-sm flex items-center justify-center overflow-hidden z-20 transition-all duration-300 select-none outline-none"
           >
             <img
-              src="/IMAGES/Logo Padel Arena Vendôme.png"
+              src="/IMAGES/newLogo.png"
               alt="Logo"
               className="w-[85%] h-[85%] object-contain drop-shadow-[0_0_20px_rgba(255,255,255,0.3)] rounded-full select-none"
               style={{ pointerEvents: 'none' }}
@@ -173,8 +173,8 @@ export const IntroExperience: React.FC<IntroExperienceProps> = ({ onEnter }) => 
           transition={{ duration: 1.2, delay: 0.3, ease: "easeOut" }}
           className="text-center"
         >
-          <h2 className="text-lg md:text-2xl font-display font-light text-white/60 mb-8 tracking-[0.2em] uppercase max-w-xl leading-relaxed">
-            Entrez dans l’univers du padel <br />
+          <h2 className="text-lg md:text-2xl font-display font-light text-white/60 mb-8 tracking-[0.2em] uppercase max-w-3xl leading-relaxed">
+            ENTREZ DANS L’UNIVERS DU PADEL VENDÔMOIS <br />
             <span className="text-white font-black italic tracking-normal">NOUVELLE GÉNÉRATION</span>
           </h2>
         </motion.div>

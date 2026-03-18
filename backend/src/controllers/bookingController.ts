@@ -5,52 +5,60 @@ import Transaction from '../models/Transaction';
 import User from '../models/User';
 import { asyncHandler } from '../utils/asyncHandler';
 import { validateAndApplyPromoCode, incrementPromoCodeUsage } from '../services/promoCodeService';
+import { sendEmail, getEmailTemplate } from '../services/mailService';
 
 // @desc    Create new booking
 // @route   POST /api/bookings
 // @access  Public (Optional Authentication)
 export const createBooking = asyncHandler(async (req: any, res: Response) => {
-    const { courtId, startTime, endTime, userId, promoCode, guestName, guestEmail, guestPhone, players } = req.body;
+    const { courtId, startTime, endTime, userId, promoCode, guestName, guestEmail, guestPhone, players, bookingType, packName } = req.body;
 
     // 1. Basic validation
-    if (!courtId || !startTime || !endTime) {
+    if (bookingType !== 'PACK' && bookingType !== 'SUBSCRIPTION' && (!courtId || !startTime || !endTime)) {
         return res.status(400).json({ message: 'Please provide courtId, startTime and endTime' });
     }
 
     const start = new Date(startTime);
     const end = new Date(endTime);
 
-    if (start >= end) {
-        return res.status(400).json({ message: 'Start time must be before end time' });
-    }
-
-    // 2. Check if court exists and is active
-    const court = await Court.findById(courtId);
-    if (!court || !court.isActive) {
-        return res.status(404).json({ message: 'Court not found or inactive' });
-    }
-
-    // 3. CHECK FOR CONFLICTS (The core of the engine)
-    const conflict = await Booking.findOne({
-        court: courtId,
-        status: { $in: ['PENDING', 'CONFIRMED'] },
-        $or: [
-            { startTime: { $lt: end }, endTime: { $gt: start } } // Overlap logic
-        ]
-    });
-
-    if (conflict) {
-        return res.status(400).json({
-            success: false,
-            message: 'This slot is already booked. Please choose another time.'
-        });
-    }
-
-    // 4. Calculate total price
-    const durationInHours = (end.getTime() - start.getTime()) / (1000 * 60 * 60);
-    let totalPrice = Number((durationInHours * court.pricePerHour).toFixed(2));
+    let court = null;
+    let totalPrice = 0;
     let discountAmount = 0;
     let promoCodeId = null;
+
+    if (bookingType !== 'PACK' && bookingType !== 'SUBSCRIPTION') {
+        if (start >= end) {
+            return res.status(400).json({ message: 'Start time must be before end time' });
+        }
+
+        // 2. Check if court exists and is active
+        court = await Court.findById(courtId);
+        if (!court || !court.isActive) {
+            return res.status(404).json({ message: 'Court not found or inactive' });
+        }
+
+        // 3. CHECK FOR CONFLICTS (The core of the engine)
+        const conflict = await Booking.findOne({
+            court: courtId,
+            status: { $in: ['PENDING', 'CONFIRMED'] },
+            $or: [
+                { startTime: { $lt: end }, endTime: { $gt: start } } // Overlap logic
+            ]
+        });
+
+        if (conflict) {
+            return res.status(400).json({
+                success: false,
+                message: 'This slot is already booked. Please choose another time.'
+            });
+        }
+
+        // 4. Calculate total price
+        const durationInHours = (end.getTime() - start.getTime()) / (1000 * 60 * 60);
+        totalPrice = Number((durationInHours * court.pricePerHour).toFixed(2));
+
+        // 5. Link user ...
+    }
 
     // 5. Determine user (Admin can specify userId, or we look up by email for guests)
     let finalUserId = req.user?.id;
@@ -66,7 +74,7 @@ export const createBooking = asyncHandler(async (req: any, res: Response) => {
     }
 
     // 6. Handle Promo Code if provided
-    if (promoCode && finalUserId) {
+    if (promoCode && finalUserId && bookingType !== 'PACK') {
         const promoResult = await validateAndApplyPromoCode(
             promoCode,
             totalPrice,
@@ -84,8 +92,7 @@ export const createBooking = asyncHandler(async (req: any, res: Response) => {
     }
 
     // 7. Create the booking
-    const bookingData: any = {
-        court: courtId,
+    let bookingData: any = {
         startTime: start,
         endTime: end,
         totalPrice,
@@ -93,10 +100,48 @@ export const createBooking = asyncHandler(async (req: any, res: Response) => {
         players: players || 4,
         promoCode: promoCode?.toUpperCase(),
         status: 'PENDING',
-        paymentStatus: 'UNPAID'
+        paymentStatus: 'UNPAID',
+        bookingType: bookingType || 'COURT',
+        packName
     };
 
-    if (finalUserId) {
+    if (bookingType === 'PACK' || bookingType === 'SUBSCRIPTION') {
+        // Special case for packs/subs: Find or create a virtual court if needed for population integrity
+        let packCourt = await Court.findOne({ name: 'RESERVE PACKS' });
+        if (!packCourt) {
+            // Find an existing court to steal its clubManager if possible (all courts should have one)
+            const someCourt = await Court.findOne();
+            const managerId = someCourt ? someCourt.clubManager : '65f1a2b3c4d5e6f7a8b9c0d1'; // Fallback to an ObjectId if empty
+            
+            packCourt = await Court.create({
+                name: 'RESERVE PACKS',
+                type: 'INDOOR',
+                surface: 'PRO_TURF',
+                sport: 'Padel',
+                pricePerHour: 0,
+                isActive: false, // Don't show in public list
+                clubManager: managerId 
+            });
+        }
+        bookingData.court = packCourt._id;
+        bookingData.totalPrice = 0; // Price to be discussed/settled in terms
+    } else {
+        bookingData.court = courtId;
+    }
+
+    if (bookingType === 'PACK' || bookingType === 'SUBSCRIPTION') {
+        // For special requests, always store the guest info from the form
+        bookingData.guestName = guestName;
+        bookingData.guestEmail = guestEmail?.toLowerCase();
+        bookingData.guestPhone = guestPhone;
+        // Optionally link to user account if email matches
+        if (guestEmail) {
+            const existingUser = await User.findOne({ email: guestEmail.toLowerCase() });
+            if (existingUser) {
+                bookingData.user = existingUser._id;
+            }
+        }
+    } else if (finalUserId) {
         bookingData.user = finalUserId;
     } else {
         bookingData.guestName = guestName;
@@ -114,6 +159,39 @@ export const createBooking = asyncHandler(async (req: any, res: Response) => {
     const populated = await Booking.findById(booking._id)
         .populate('user', 'name email')
         .populate('court', 'name');
+
+    if ((bookingType === 'PACK' || bookingType === 'SUBSCRIPTION') && populated) {
+        const adminEmail = process.env.SMTP_EMAIL || 'admin@padelarena.fr';
+        const clientName = guestName || (populated.user as any)?.name || 'Client Inconnu';
+        const clientEmail = guestEmail || (populated.user as any)?.email || 'Inconnu';
+        const typeLabel = bookingType === 'PACK' ? 'PACK' : 'ABONNEMENT';
+        const prodName = bookingType === 'PACK' ? packName : packName; // both are stored in packName for simplicity in model
+        
+        try {
+            await sendEmail({
+                to: adminEmail,
+                subject: `🔥 NOUVELLE DEMANDE : ${typeLabel} - ${prodName}`,
+                text: `Une nouvelle demande de ${typeLabel} a été reçue.\n\n` +
+                      `Client: ${clientName}\n` +
+                      `Email: ${clientEmail}\n` +
+                      `Téléphone: ${guestPhone || 'Non précisé'}\n` +
+                      `Produit: ${prodName}\n` +
+                      `Slot souhaité: ${new Date(startTime).toLocaleString('fr-FR')}\n\n` +
+                      `Consultez la partie réservation du panel admin pour valider.`,
+                html: getEmailTemplate(
+                    `Nouveau ${typeLabel} Demandé : ${prodName}`,
+                    `Une nouvelle opportunité Arena vient d'arriver !<br><br>` +
+                    `<strong>Client:</strong> ${clientName}<br>` +
+                    `<strong>Contact:</strong> ${clientEmail} / ${guestPhone || 'N/A'}<br>` +
+                    `<strong>Produit:</strong> ${prodName}<br>` +
+                    `<strong>Slot souhaité:</strong> ${new Date(startTime).toLocaleString('fr-FR')}<br><br>` +
+                    `Veuillez vous connecter au panel admin pour traiter cette demande.`
+                )
+            });
+        } catch (mailErr) {
+            console.error('Failed to notify admin via email:', mailErr);
+        }
+    }
 
     res.status(201).json({
         success: true,

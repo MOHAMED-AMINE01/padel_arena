@@ -45,7 +45,7 @@ import { PlayerSubscription } from './pages/player/Subscription';
 import { PlayerPayments } from './pages/player/Payments';
 import { PlayerProfile } from './pages/player/Profile';
 import { PlayerSettings } from './pages/player/Settings';
-import { PlayerRanking } from './pages/player/Ranking';
+
 import { PlayerMessages } from './pages/player/Messages';
 
 import { AuthProvider } from './context/AuthContext';
@@ -167,7 +167,7 @@ export default function App() {
                       <Route path="/payments" element={<PlayerPayments />} />
                       <Route path="/profile" element={<PlayerProfile />} />
                       <Route path="/settings" element={<PlayerSettings />} />
-                      <Route path="/ranking" element={<PlayerRanking />} />
+
                       <Route path="/messages" element={<PlayerMessages />} />
                     </Route>
                   </Route>

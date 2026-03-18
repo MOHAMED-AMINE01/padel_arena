@@ -12,7 +12,7 @@ const contactInfo = [
 ];
 
 const subjects = [
-  'PRÉSERVATION DE COURT',
+  'RÉSERVATION DE COURS',
   'COACHING & ACADÉMIE',
   'OFFRES CORPORATE',
   'ÉVÉNEMENTIEL',
@@ -29,7 +29,7 @@ export const ContactForm = () => {
     lastName: '',
     email: '',
     phone: '',
-    subject: 'PRÉSERVATION DE COURT',
+    subject: 'RÉSERVATION DE COURS',
     message: ''
   });
 
@@ -60,7 +60,7 @@ export const ContactForm = () => {
         lastName: '',
         email: '',
         phone: '',
-        subject: 'PRÉSERVATION DE COURT',
+        subject: 'RÉSERVATION DE COURS',
         message: ''
       });
     } catch (err) {
@@ -217,12 +217,12 @@ export const ContactForm = () => {
                           <span className={formData.subject ? "text-white" : "text-white/20"}>
                             {formData.subject || "CHOISISSEZ UN OBJET"}
                           </span>
-                          <ArrowUpRight 
-                            size={16} 
+                          <ArrowUpRight
+                            size={16}
                             className={cn(
                               "text-white/20 transition-transform duration-300",
                               isOpen ? "rotate-45 text-padel-yellow" : ""
-                            )} 
+                            )}
                           />
                         </button>
 
@@ -246,8 +246,8 @@ export const ContactForm = () => {
                                     }}
                                     className={cn(
                                       "w-full text-left px-8 py-4 text-xs font-black uppercase tracking-widest transition-all",
-                                      formData.subject === subject 
-                                        ? "bg-padel-blue text-white" 
+                                      formData.subject === subject
+                                        ? "bg-padel-blue text-white"
                                         : "text-white/40 hover:bg-padel-blue hover:text-white"
                                     )}
                                   >

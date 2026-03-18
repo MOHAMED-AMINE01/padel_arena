@@ -12,12 +12,18 @@ import {
     Clock,
     XCircle,
     User,
+    Mail,
     MapPin,
     Calendar,
     CreditCard,
     X,
     Sparkles,
-    Trash2
+    Trash2,
+    Package,
+    Star,
+    MessageSquare,
+    ExternalLink,
+    ArrowRight
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import api from '../../lib/api';
@@ -77,6 +83,11 @@ interface Booking {
     paymentStatus?: 'UNPAID' | 'PAID' | 'REFUNDED';
     paymentMethod?: 'CASH' | 'CARD' | 'STRIPE' | 'TRANSFER';
     createdAt: string;
+    bookingType?: 'COURT' | 'PACK' | 'SUBSCRIPTION';
+    packName?: string;
+    guestName?: string;
+    guestEmail?: string;
+    guestPhone?: string;
 }
 
 // --- Subcomponents ---
@@ -112,15 +123,23 @@ const BookingDetailModal = ({ booking, onClose, onDelete, onChangeStatus }: {
                 <div className="p-8 space-y-8">
                     <div className="flex justify-between items-start">
                         <div className="space-y-1">
-                            <div className={cn(
-                                "inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full text-[8px] font-black uppercase tracking-[0.2em] border shadow-sm",
-                                booking.status === 'CONFIRMED' ? "bg-green-500/10 border-green-500/20 text-green-500" :
-                                    booking.status === 'PENDING' ? "bg-padel-blue/10 border-padel-blue/20 text-padel-blue" :
-                                        booking.status === 'CANCELLED' ? "bg-red-500/10 border-red-500/20 text-red-500" :
-                                            "bg-white/5 border-white/10 text-white/40"
-                            )}>
-                                {booking.status === 'CANCELLED' ? <XCircle size={8} /> : <CheckCircle2 size={8} />}
-                                {booking.status}
+                            <div className="flex flex-wrap gap-2 mb-2">
+                                <div className={cn(
+                                    "inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full text-[8px] font-black uppercase tracking-[0.2em] border shadow-sm",
+                                    booking.status === 'CONFIRMED' ? "bg-green-500/10 border-green-500/20 text-green-500" :
+                                        booking.status === 'PENDING' ? "bg-padel-blue/10 border-padel-blue/20 text-padel-blue" :
+                                            booking.status === 'CANCELLED' ? "bg-red-500/10 border-red-500/20 text-red-500" :
+                                                "bg-white/5 border-white/10 text-white/40"
+                                )}>
+                                    {booking.status === 'CANCELLED' ? <XCircle size={8} /> : <CheckCircle2 size={8} />}
+                                    {booking.status}
+                                </div>
+                                {booking.bookingType && booking.bookingType !== 'COURT' && (
+                                    <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full text-[8px] font-black uppercase tracking-[0.2em] border shadow-sm bg-padel-yellow/10 border-padel-yellow/20 text-padel-yellow">
+                                        <Package size={8} />
+                                        {booking.bookingType} : {booking.packName}
+                                    </div>
+                                )}
                             </div>
                             <h2 className="text-2xl font-display font-black text-white uppercase tracking-tighter leading-none">Détails de la<br />Séance</h2>
                         </div>
@@ -135,7 +154,14 @@ const BookingDetailModal = ({ booking, onClose, onDelete, onChangeStatus }: {
                                 <User size={12} />
                                 <span className="text-[8px] font-black uppercase tracking-widest">Client</span>
                             </div>
-                            <p className="text-sm font-bold text-white tracking-tight">{booking.user?.name || 'Inconnu'}</p>
+                            <p className="text-sm font-bold text-white tracking-tight">{booking.user?.name || booking.guestName || 'Inconnu'}</p>
+                        </div>
+                        <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/5 space-y-2 group hover:bg-white/[0.04] transition-all">
+                            <div className="flex items-center gap-2 text-white/20 group-hover:text-padel-blue transition-colors">
+                                <Mail size={12} />
+                                <span className="text-[8px] font-black uppercase tracking-widest">Email</span>
+                            </div>
+                            <p className="text-sm font-bold text-white tracking-tight break-all">{booking.user?.email || booking.guestEmail || 'Aucun email'}</p>
                         </div>
                         <div className="grid grid-cols-2 gap-3">
                             <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/5 space-y-2 group hover:bg-white/[0.04] transition-all">
@@ -474,7 +500,7 @@ export function AdminReservations() {
             const [bRes, uRes, cRes] = await Promise.all([
                 api.get('/bookings'),
                 api.get('/admin/users'),
-                api.get('/courts')
+                api.get('/courts?all=true')
             ]);
             setBookings(bRes.data.data);
             setUsers(uRes.data.data);
@@ -886,8 +912,11 @@ export function AdminReservations() {
                                                                                 <div className="flex items-center gap-1 min-w-0">
                                                                                     <p className={cn("text-[8px] font-black uppercase tracking-tighter truncate",
                                                                                         booking.status === 'CANCELLED' ? "text-red-400/40 line-through" : "text-white")}>
-                                                                                        {booking.user?.name || 'Inconnu'}
+                                                                                        {booking.user?.name || booking.guestName || 'Inconnu'}
                                                                                     </p>
+                                                                                    {booking.bookingType === 'PACK' && (
+                                                                                        <span className="text-[6px] font-black bg-padel-yellow text-padel-blue px-1 rounded-sm leading-none py-0.5 flex items-center">PACK</span>
+                                                                                    )}
                                                                                     {booking.status === 'CONFIRMED' && <div className="w-1 h-1 rounded-full bg-green-400" />}
                                                                                 </div>
                                                                                 <span className={cn("text-[6px] font-black uppercase shrink-0 px-1 py-0.5 rounded-md",
@@ -920,6 +949,146 @@ export function AdminReservations() {
                                     );
                                 })}
                             </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Section: Gestion des Demandes Spéciales (Packs & Abonnements) */}
+                <div className="space-y-8 px-2 mt-16 pb-20">
+                    <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-white/5 pb-8">
+                        <div className="space-y-3">
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-xl bg-padel-yellow/10 flex items-center justify-center text-padel-yellow border border-padel-yellow/20">
+                                    <Star size={20} />
+                                </div>
+                                <h3 className="text-2xl font-display font-black text-white uppercase tracking-tighter">Demandes Spéciales</h3>
+                            </div>
+                            <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em]">Gestion des Packs & Abonnements en attente de validation</p>
+                        </div>
+                    </div>
+
+                    <div className="bg-[#121215]/60 backdrop-blur-3xl border border-white/10 rounded-[2.5rem] overflow-hidden shadow-2xl relative">
+                        {/* Decorative background for the section */}
+                        <div className="absolute top-0 right-0 w-64 h-64 bg-padel-yellow/5 blur-[100px] rounded-full pointer-events-none" />
+
+                        <div className="overflow-x-auto custom-scrollbar">
+                            <table className="w-full border-collapse">
+                                <thead>
+                                    <tr className="border-b border-white/5">
+                                        <th className="px-8 py-6 text-left text-[9px] font-black text-white/20 uppercase tracking-[0.3em]">Client / Contact</th>
+                                        <th className="px-8 py-6 text-left text-[9px] font-black text-white/20 uppercase tracking-[0.3em]">Offre / Pack</th>
+                                        <th className="px-8 py-6 text-left text-[9px] font-black text-white/20 uppercase tracking-[0.3em]">Slot Souhaité</th>
+                                        <th className="px-8 py-6 text-left text-[9px] font-black text-white/20 uppercase tracking-[0.3em]">Statut</th>
+                                        <th className="px-8 py-6 text-right text-[9px] font-black text-white/20 uppercase tracking-[0.3em]">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-white/[0.03]">
+                                    {bookings.filter(b => b.bookingType === 'PACK' || b.bookingType === 'SUBSCRIPTION').length > 0 ? (
+                                        bookings.filter(b => b.bookingType === 'PACK' || b.bookingType === 'SUBSCRIPTION').map((request) => (
+                                            <tr key={request._id} className="group hover:bg-white/[0.02] transition-colors">
+                                                <td className="px-8 py-6">
+                                                    <div className="flex items-center gap-4">
+                                                        <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-white/30 font-black text-lg group-hover:scale-110 transition-transform duration-500">
+                                                            {(request.user?.name || request.guestName || '?')[0].toUpperCase()}
+                                                        </div>
+                                                        <div>
+                                                            <p className="text-sm font-black text-white uppercase tracking-tighter group-hover:text-padel-yellow transition-colors">
+                                                                {request.user?.name || request.guestName || 'Client Inconnu'}
+                                                            </p>
+                                                            <p className="text-[10px] font-bold text-white/30 uppercase tracking-widest flex items-center gap-1.5 mt-0.5">
+                                                                <MessageSquare size={10} className="text-padel-blue" />
+                                                                {request.user?.email || request.guestEmail || 'Aucun contact'}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td className="px-8 py-6">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className={cn(
+                                                            "w-8 h-8 rounded-lg flex items-center justify-center",
+                                                            request.bookingType === 'PACK' ? "bg-padel-yellow/10 text-padel-yellow" : "bg-padel-blue/10 text-padel-blue"
+                                                        )}>
+                                                            {request.bookingType === 'PACK' ? <Package size={14} /> : <Star size={14} />}
+                                                        </div>
+                                                        <div>
+                                                            <p className="text-[11px] font-black text-white uppercase tracking-widest">{request.packName || 'Offre Spéciale'}</p>
+                                                            <p className="text-[8px] font-bold text-white/20 uppercase tracking-[0.2em] mt-1">{request.bookingType}</p>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td className="px-8 py-6">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="text-center bg-white/5 border border-white/10 rounded-xl px-3 py-1.5">
+                                                            <p className="text-[7px] font-black text-white/30 uppercase leading-none mb-1">Mois</p>
+                                                            <p className="text-xs font-black text-white leading-none">
+                                                                {new Date(request.startTime).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })}
+                                                            </p>
+                                                        </div>
+                                                        <div className="h-4 w-[1px] bg-white/10" />
+                                                        <div className="text-padel-yellow">
+                                                            <p className="text-[7px] font-black uppercase opacity-30 leading-none mb-1 text-center">Début</p>
+                                                            <p className="text-xs font-black leading-none">
+                                                                {new Date(request.startTime).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }).replace(':', 'h')}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td className="px-8 py-6">
+                                                    <div className={cn(
+                                                        "inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border transition-all",
+                                                        request.status === 'CONFIRMED' ? "bg-green-500/10 border-green-500/20 text-green-500 shadow-[0_0_15px_rgba(34,197,94,0.1)]" :
+                                                            request.status === 'PENDING' ? "bg-padel-blue/10 border-padel-blue/20 text-padel-blue" :
+                                                                "bg-white/5 border-white/10 text-white/20"
+                                                    )}>
+                                                        <div className={cn("w-1.5 h-1.5 rounded-full",
+                                                            request.status === 'CONFIRMED' ? "bg-green-500 animate-pulse" :
+                                                                request.status === 'PENDING' ? "bg-padel-blue" : "bg-white/20"
+                                                        )} />
+                                                        {request.status}
+                                                    </div>
+                                                </td>
+                                                <td className="px-8 py-6">
+                                                    <div className="flex items-center justify-end gap-3">
+                                                        <button
+                                                            onClick={() => setSelectedBooking(request)}
+                                                            className="p-3 rounded-xl bg-white/5 text-white/30 hover:bg-white/10 hover:text-white transition-all shadow-sm border border-white/10"
+                                                            title="Voir Détails"
+                                                        >
+                                                            <ExternalLink size={14} />
+                                                        </button>
+
+                                                        {request.status === 'PENDING' && (
+                                                            <button
+                                                                onClick={() => handleChangeStatus(request, 'CONFIRMED')}
+                                                                className="px-6 py-3 rounded-xl bg-green-500 text-white text-[10px] font-black uppercase tracking-widest hover:bg-green-600 transition-all shadow-lg shadow-green-500/10 flex items-center gap-2"
+                                                            >
+                                                                Valider <ArrowRight size={14} />
+                                                            </button>
+                                                        )}
+
+                                                        <button
+                                                            onClick={() => setDeleteTarget(request)}
+                                                            className="p-3 rounded-xl bg-red-500/5 text-red-500/30 hover:bg-red-500/10 hover:text-red-500 transition-all border border-red-500/10"
+                                                            title="Supprimer"
+                                                        >
+                                                            <Trash2 size={14} />
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ))
+                                    ) : (
+                                        <tr>
+                                            <td colSpan={5} className="px-8 py-20 text-center">
+                                                <div className="flex flex-col items-center gap-4 opacity-10">
+                                                    <Package size={64} />
+                                                    <p className="text-[14px] font-black uppercase tracking-[0.4em]">Aucune demande spéciale en cours</p>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>

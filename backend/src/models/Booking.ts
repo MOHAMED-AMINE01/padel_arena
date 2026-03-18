@@ -15,6 +15,8 @@ export interface IBooking extends Document {
     promoCode?: string;
     discountAmount?: number;
     players?: number;
+    bookingType?: 'COURT' | 'PACK' | 'SUBSCRIPTION';
+    packName?: string;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -41,7 +43,13 @@ const BookingSchema: Schema = new Schema({
     },
     stripePaymentIntentId: { type: String },
     promoCode: { type: String },
-    discountAmount: { type: Number, default: 0 }
+    discountAmount: { type: Number, default: 0 },
+    bookingType: { 
+        type: String, 
+        enum: ['COURT', 'PACK', 'SUBSCRIPTION'], 
+        default: 'COURT' 
+    },
+    packName: { type: String }
 }, {
     timestamps: true
 });

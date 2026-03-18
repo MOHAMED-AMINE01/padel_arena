@@ -41,7 +41,7 @@ export function PlayerNavbar() {
         { label: 'Réserver', href: '/book', icon: Calendar },
         { label: 'Mes Matchs', href: '/my-reservations', icon: History },
         { label: 'Tournois', href: '/events', icon: Trophy },
-        { label: 'Abonnement', href: '/subscription', icon: Ticket },
+        { label: 'Tarifs', href: '/tarifs', icon: Ticket },
         { label: 'Support', href: '/messages', icon: MessageSquare },
     ];
 
@@ -185,15 +185,7 @@ export function PlayerNavbar() {
                                                 </div>
                                                 Mon Profil
                                             </button>
-                                            <button
-                                                onClick={() => { navigate('/ranking'); setShowProfileMenu(false); }}
-                                                className="w-full text-left px-3 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.15em] text-white/60 hover:text-white hover:bg-white/5 transition-all flex items-center gap-3 group"
-                                            >
-                                                <div className="w-7 h-7 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-padel-yellow/20 group-hover:text-padel-yellow transition-all">
-                                                    <Trophy size={14} />
-                                                </div>
-                                                Niveau & Classement
-                                            </button>
+
 
                                             <div className="h-2" />
 

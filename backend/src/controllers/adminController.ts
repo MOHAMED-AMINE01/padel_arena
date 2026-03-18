@@ -241,3 +241,60 @@ export const createUser = asyncHandler(async (req: Request, res: Response) => {
         data: user
     });
 });
+
+// @desc    Get complete user history (Bookings, Tournaments, Courses)
+// @route   GET /api/admin/users/:id/history
+// @access  Private (Admin)
+export const getUserHistory = asyncHandler(async (req: Request, res: Response) => {
+    const userId = req.params.id;
+
+    // We search across multiple collections
+    const [bookings, tournaments, courses] = await Promise.all([
+        Booking.find({ user: userId }).populate('court', 'name').sort('-startTime'),
+        require('../models/Tournament').default.find({ participants: userId }).sort('-startDate'),
+        require('../models/Course').default.find({ participants: userId }).sort('-date')
+    ]);
+
+    res.status(200).json({
+        success: true,
+        data: {
+            bookings,
+            tournaments,
+            courses
+        }
+    });
+});
+
+// @desc    Get participants for a tournament
+// @route   GET /api/admin/tournaments/:id/participants
+// @access  Private (Admin)
+export const getTournamentParticipants = asyncHandler(async (req: Request, res: Response) => {
+    const Tournament = require('../models/Tournament').default;
+    const tournament = await Tournament.findById(req.params.id).populate('participants', 'name email phone createdAt');
+    
+    if (!tournament) {
+        return res.status(404).json({ message: 'Tournoi introuvable' });
+    }
+
+    res.status(200).json({
+        success: true,
+        data: tournament.participants
+    });
+});
+
+// @desc    Get participants for a course
+// @route   GET /api/admin/courses/:id/participants
+// @access  Private (Admin)
+export const getCourseParticipants = asyncHandler(async (req: Request, res: Response) => {
+    const Course = require('../models/Course').default;
+    const course = await Course.findById(req.params.id).populate('participants', 'name email phone createdAt');
+    
+    if (!course) {
+        return res.status(404).json({ message: 'Cours introuvable' });
+    }
+
+    res.status(200).json({
+        success: true,
+        data: course.participants
+    });
+});

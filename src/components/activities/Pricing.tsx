@@ -121,7 +121,7 @@ export const Pricing = () => {
                 {plan.featured && (
                   <div className="absolute top-8 right-8">
                     <div className="px-4 py-1.5 bg-padel-blue text-white text-[8px] font-black uppercase tracking-[0.3em] rounded-full">
-                      MOST POPULAR
+                      recommandé
                     </div>
                   </div>
                 )}

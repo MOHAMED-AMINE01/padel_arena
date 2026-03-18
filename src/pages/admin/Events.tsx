@@ -280,6 +280,34 @@ export function AdminEvents({ defaultTab = 'TOURNOIS' }: { defaultTab?: 'TOURNOI
         status: 'UPCOMING'
     });
 
+    const [participantsModal, setParticipantsModal] = useState<{
+        isOpen: boolean;
+        title: string;
+        participants: any[];
+        loading: boolean;
+        type: 'TOURNOI' | 'COURS';
+    }>({
+        isOpen: false,
+        title: '',
+        participants: [],
+        loading: false,
+        type: 'TOURNOI'
+    });
+
+    const openParticipants = async (id: string, name: string, type: 'TOURNOI' | 'COURS') => {
+        setParticipantsModal({ ...participantsModal, isOpen: true, title: name, loading: true, type });
+        try {
+            const endpoint = type === 'TOURNOI'
+                ? `/admin/tournaments/${id}/participants`
+                : `/admin/courses/${id}/participants`;
+            const res = await api.get(endpoint);
+            setParticipantsModal(prev => ({ ...prev, participants: res.data.data, loading: false }));
+        } catch (err) {
+            console.error(err);
+            setParticipantsModal(prev => ({ ...prev, loading: false }));
+        }
+    };
+
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [uploading, setUploading] = useState(false);
 
@@ -642,6 +670,13 @@ export function AdminEvents({ defaultTab = 'TOURNOIS' }: { defaultTab?: 'TOURNOI
                                             {/* Quick Actions */}
                                             <div className="absolute top-4 md:top-6 right-4 md:right-6 flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0">
                                                 <button
+                                                    onClick={() => openParticipants(tourney._id, tourney.name, 'TOURNOI')}
+                                                    className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-white/10 border border-white/10 flex items-center justify-center text-white hover:bg-padel-yellow hover:text-padel-blue transition-all"
+                                                    title="Voir les inscrits"
+                                                >
+                                                    <Users size={12} className="md:w-[16px] md:h-[16px]" />
+                                                </button>
+                                                <button
                                                     onClick={() => handleEditTournament(tourney)}
                                                     className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-white/10 border border-white/10 flex items-center justify-center text-white hover:bg-padel-blue hover:border-padel-blue transition-all"
                                                 >
@@ -790,6 +825,13 @@ export function AdminEvents({ defaultTab = 'TOURNOIS' }: { defaultTab?: 'TOURNOI
 
                                             {/* Quick Actions */}
                                             <div className="absolute bottom-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300">
+                                                <button
+                                                    onClick={() => openParticipants(course._id, course.title, 'COURS')}
+                                                    className="w-8 h-8 rounded-full bg-white/10 border border-white/10 flex items-center justify-center text-white hover:bg-padel-yellow hover:text-padel-blue transition-all"
+                                                    title="Voir les inscrits"
+                                                >
+                                                    <Users size={12} />
+                                                </button>
                                                 <button
                                                     onClick={() => handleEditCourse(course)}
                                                     className="w-8 h-8 rounded-full bg-white/10 border border-white/10 flex items-center justify-center text-white hover:bg-padel-blue hover:border-padel-blue transition-all"
@@ -1422,6 +1464,95 @@ export function AdminEvents({ defaultTab = 'TOURNOIS' }: { defaultTab?: 'TOURNOI
                 message="Cette action supprimera définitivement ce cours et désinscrit tous les participants."
                 isLoading={isSubmitting}
             />
+
+            {/* Modal Participants */}
+            <AnimatePresence>
+                {participantsModal.isOpen && (
+                    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setParticipantsModal({ ...participantsModal, isOpen: false })}
+                            className="absolute inset-0 bg-black/90 backdrop-blur-xl"
+                        />
+                        <motion.div
+                            initial={{ scale: 0.95, opacity: 0, y: 30 }}
+                            animate={{ scale: 1, opacity: 1, y: 0 }}
+                            exit={{ scale: 0.95, opacity: 0, y: 30 }}
+                            className="relative w-full max-w-2xl bg-[#1A1A1E] border border-white/10 rounded-[2.5rem] overflow-hidden shadow-3xl flex flex-col max-h-[85vh]"
+                        >
+                            <div className="p-8 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
+                                <div>
+                                    <h3 className="text-xl font-black text-white uppercase tracking-tighter">
+                                        Liste des <span className="text-padel-blue">Inscrits</span>
+                                    </h3>
+                                    <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em] mt-1 line-clamp-1">{participantsModal.title}</p>
+                                </div>
+                                <button
+                                    onClick={() => setParticipantsModal({ ...participantsModal, isOpen: false })}
+                                    className="p-3 bg-white/5 rounded-xl text-white/20 hover:text-white transition-all border border-white/10"
+                                >
+                                    <X size={20} />
+                                </button>
+                            </div>
+
+                            <div className="p-8 overflow-y-auto custom-scrollbar flex-1">
+                                {participantsModal.loading ? (
+                                    <div className="flex flex-col items-center justify-center py-20 gap-4">
+                                        <Loader2 size={32} className="text-padel-blue animate-spin" />
+                                        <p className="text-[10px] font-black text-white/20 uppercase tracking-widest">Récupération des profils...</p>
+                                    </div>
+                                ) : participantsModal.participants.length === 0 ? (
+                                    <div className="flex flex-col items-center justify-center py-20 text-white/20">
+                                        <Users size={48} className="mb-4 opacity-50" />
+                                        <p className="text-[10px] font-black uppercase tracking-widest">Aucun participant pour le moment</p>
+                                    </div>
+                                ) : (
+                                    <div className="space-y-4">
+                                        <div className="grid grid-cols-2 gap-4 mb-6">
+                                            <div className="p-4 bg-white/5 rounded-2xl border border-white/5">
+                                                <p className="text-[8px] font-black text-white/20 uppercase mb-1">Total Inscrits</p>
+                                                <p className="text-2xl font-black text-white">{participantsModal.participants.length}</p>
+                                            </div>
+                                            <div className="p-4 bg-padel-blue/5 rounded-2xl border border-padel-blue/10">
+                                                <p className="text-[8px] font-black text-padel-blue uppercase mb-1">Status</p>
+                                                <p className="text-2xl font-black text-white">CONFIRMÉ</p>
+                                            </div>
+                                        </div>
+
+                                        {participantsModal.participants.map((p, idx) => (
+                                            <div key={p._id || idx} className="flex items-center gap-4 p-4 bg-white/[0.02] border border-white/5 rounded-2xl hover:bg-white/[0.04] transition-all group">
+                                                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-padel-blue/20 to-padel-blue/5 flex items-center justify-center text-padel-blue font-black text-sm border border-padel-blue/20">
+                                                    {p.name?.split(' ').map((n: string) => n[0]).join('').toUpperCase() || '??'}
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <p className="text-sm font-black text-white uppercase tracking-tight group-hover:text-padel-blue transition-colors truncate">{p.name}</p>
+                                                    <p className="text-[10px] font-bold text-white/20 truncate">{p.email}</p>
+                                                </div>
+                                                <div className="hidden sm:block text-right">
+                                                    <p className="text-[9px] font-black text-white/40 uppercase tracking-widest">{p.phone || 'N/A'}</p>
+                                                    <p className="text-[8px] font-bold text-white/10 mt-1 uppercase">Inscrit le {new Date(p.createdAt).toLocaleDateString('fr-FR')}</p>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="p-8 border-t border-white/5 bg-white/[0.01] flex justify-end">
+                                <button
+                                    onClick={() => {/* TODO: Export logic */}}
+                                    className="flex items-center gap-3 px-6 py-3 rounded-xl bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-widest text-white/40 hover:text-white transition-all group"
+                                >
+                                    <ExternalLink size={14} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                                    Exporter Liste d'appel
+                                </button>
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
 
             <style>{`
                 input[type="number"]::-webkit-inner-spin-button,

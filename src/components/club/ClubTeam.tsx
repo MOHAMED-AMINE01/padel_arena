@@ -7,25 +7,25 @@ const team = [
   {
     name: "Thomas Rivière",
     role: "Directeur du Club",
-    image: "https://picsum.photos/seed/thomas/600/800",
-    bio: "Visionnaire du padel moderne, Thomas assure que chaque membre vive l'expérience Arena au plus haut niveau." // notranslate in JSX
+    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=600&h=800&auto=format&fit=crop",
+    bio: "Visionnaire du padel moderne, Thomas assure que chaque membre vive l'expérience Arena au plus haut niveau."
   },
   {
     name: "Lucas Martin",
     role: "Head Coach",
-    image: "https://picsum.photos/seed/lucas/600/800",
+    image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=600&h=800&auto=format&fit=crop",
     bio: "Ex-joueur du circuit, Lucas transforme votre technique avec une approche analytique et passionnée."
   },
   {
     name: "Sophie Bernard",
     role: "Resp. Événements",
-    image: "https://picsum.photos/seed/sophie/600/800",
+    image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=600&h=800&auto=format&fit=crop",
     bio: "Architecte de vos tournois, elle fait de chaque rencontre un événement mémorable et parfaitement orchestré."
   },
   {
     name: "Marc Lefebvre",
     role: "Relations Club",
-    image: "https://picsum.photos/seed/marc-team/600/800",
+    image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=600&h=800&auto=format&fit=crop",
     bio: "Le gardien de l'ambiance Arena. Marc tisse les liens qui font de notre club une véritable communauté."
   }
 ];

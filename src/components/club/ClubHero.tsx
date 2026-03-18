@@ -42,9 +42,7 @@ export const ClubHero = () => {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 1.2, ease: [0.23, 1, 0.32, 1] }}
             >
-              <div className="inline-flex items-center gap-4 mb-6">
-                <span className="text-[10px] font-black tracking-[0.4em] text-padel-blue uppercase leading-none">RÉSIDENCE SPORTIVE</span>
-              </div>
+
 
               <h1 className="text-4xl sm:text-5xl md:text-7xl xl:text-8xl font-display font-black tracking-tighter leading-[0.85] uppercase mb-8">
                 L'ARÈNA <br />
@@ -69,12 +67,12 @@ export const ClubHero = () => {
                   </motion.button>
                 </Link>
 
-                
+
               </div>
             </motion.div>
           </div>
 
-          
+
         </div>
       </div>
 

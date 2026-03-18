@@ -24,7 +24,9 @@ import {
     User,
     MapPin,
     Plus,
-    Lock
+    Lock,
+    Target,
+    Zap
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import api from '../../lib/api';
@@ -60,6 +62,30 @@ export function AdminUsers() {
         name: ''
     });
     const [isRoleOpen, setIsRoleOpen] = useState(false);
+
+    // History Modal State
+    const [historyModal, setHistoryModal] = useState<{
+        isOpen: boolean;
+        user: User | null;
+        data: any;
+        loading: boolean;
+    }>({
+        isOpen: false,
+        user: null,
+        data: null,
+        loading: false
+    });
+
+    const openHistory = async (user: User) => {
+        setHistoryModal({ isOpen: true, user, data: null, loading: true });
+        try {
+            const res = await api.get(`/admin/users/${user._id}/history`);
+            setHistoryModal(prev => ({ ...prev, data: res.data.data, loading: false }));
+        } catch (err) {
+            console.error(err);
+            setHistoryModal(prev => ({ ...prev, loading: false }));
+        }
+    };
 
     // Create Modal State
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -356,13 +382,19 @@ export function AdminUsers() {
                             {/* Quick Action Matrix */}
                             <div className="flex gap-3 md:gap-4 mt-auto">
                                 <button
+                                    onClick={() => openHistory(user)}
+                                    className="flex-1 py-3 md:py-4 rounded-xl bg-white/10 border border-white/10 text-[8px] md:text-[9px] font-black uppercase tracking-widest text-padel-blue hover:bg-padel-blue hover:text-white transition-all flex items-center justify-center gap-2"
+                                >
+                                    <Eye size={12} className="md:w-3.5 md:h-3.5" /> Détails
+                                </button>
+                                <button
                                     onClick={() => {
                                         setEditingUser(user);
                                         setIsEditModalOpen(true);
                                     }}
-                                    className="flex-1 py-3 md:py-4 rounded-xl bg-white/5 border border-white/10 text-[8px] md:text-[9px] font-black uppercase tracking-widest text-white/40 hover:bg-padel-blue/10 hover:text-padel-blue hover:border-padel-blue transition-all flex items-center justify-center gap-2"
+                                    className="flex-1 py-3 md:py-4 rounded-xl bg-white/5 border border-white/10 text-[8px] md:text-[9px] font-black uppercase tracking-widest text-white/40 hover:bg-white/20 transition-all flex items-center justify-center gap-2"
                                 >
-                                    <Edit2 size={12} className="md:w-3.5 md:h-3.5" /> Modifier
+                                    <Edit2 size={12} className="md:w-3.5 md:h-3.5" />
                                 </button>
                                 <button
                                     onClick={() => handleDeleteUser(user._id, user.name)}
@@ -778,6 +810,195 @@ export function AdminUsers() {
                 message={`Attention : Vous êtes sur le point de supprimer définitivement le compte de ${deleteModal.name}. Cette opération effacera tout son historique de réservations et ses accès au réseau.`}
                 isLoading={updateLoading}
             />
+
+            {/* History Modal (Fiche Client) */}
+            <AnimatePresence>
+                {historyModal.isOpen && (
+                    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setHistoryModal({ ...historyModal, isOpen: false })}
+                            className="absolute inset-0 bg-black/90 backdrop-blur-xl"
+                        />
+                        <motion.div
+                            initial={{ scale: 0.95, opacity: 0, y: 30 }}
+                            animate={{ scale: 1, opacity: 1, y: 0 }}
+                            exit={{ scale: 0.95, opacity: 0, y: 30 }}
+                            className="relative w-full max-w-3xl bg-[#1A1A1E] border border-white/10 rounded-[2.5rem] overflow-hidden shadow-3xl flex flex-col max-h-[90vh]"
+                        >
+                            {/* Modal Header */}
+                            <div className="p-8 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
+                                <div className="flex items-center gap-6">
+                                    <div className="w-16 h-16 rounded-2xl bg-padel-blue/10 border border-padel-blue/20 flex items-center justify-center text-padel-blue font-black text-xl">
+                                        {historyModal.user?.name.split(' ').map(n => n[0]).join('')}
+                                    </div>
+                                    <div>
+                                        <h3 className="text-2xl font-black text-white uppercase tracking-tighter">
+                                            Fiche <span className="text-padel-blue">Athlète</span>
+                                        </h3>
+                                        <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em] mt-1">{historyModal.user?.name}</p>
+                                    </div>
+                                </div>
+                                <button
+                                    onClick={() => setHistoryModal({ ...historyModal, isOpen: false })}
+                                    className="p-3 bg-white/5 rounded-xl text-white/20 hover:text-white transition-all border border-white/10"
+                                >
+                                    <X size={24} />
+                                </button>
+                            </div>
+
+                            {/* Modal Content */}
+                            <div className="p-8 overflow-y-auto custom-scrollbar flex-1 space-y-10">
+                                {historyModal.loading ? (
+                                    <div className="flex flex-col items-center justify-center py-20 gap-4">
+                                        <Loader2 size={32} className="text-padel-blue animate-spin" />
+                                        <p className="text-[10px] font-black text-white/20 uppercase tracking-widest">Calcul des archives...</p>
+                                    </div>
+                                ) : !historyModal.data ? (
+                                    <div className="text-center py-20 text-white/20">
+                                        <AlertCircle size={48} className="mx-auto mb-4 opacity-50" />
+                                        <p className="text-[10px] font-black uppercase tracking-widest">Erreur de chargement des données</p>
+                                    </div>
+                                ) : (
+                                    <>
+                                        {/* Stats Grid */}
+                                        <div className="grid grid-cols-3 gap-4">
+                                            <div className="p-5 bg-white/[0.03] border border-white/5 rounded-[2rem] space-y-1">
+                                                <p className="text-[8px] font-black text-white/20 uppercase tracking-widest">Réservations</p>
+                                                <p className="text-3xl font-black text-white">{historyModal.data.bookings.length}</p>
+                                            </div>
+                                            <div className="p-5 bg-white/[0.03] border border-white/5 rounded-[2rem] space-y-1">
+                                                <p className="text-[8px] font-black text-white/20 uppercase tracking-widest">Tournois</p>
+                                                <p className="text-3xl font-black text-white">{historyModal.data.tournaments.length}</p>
+                                            </div>
+                                            <div className="p-5 bg-white/[0.03] border border-white/5 rounded-[2rem] space-y-1">
+                                                <p className="text-[8px] font-black text-white/20 uppercase tracking-widest">Cours</p>
+                                                <p className="text-3xl font-black text-white">{historyModal.data.courses.length}</p>
+                                            </div>
+                                        </div>
+
+                                        {/* Main History Feed */}
+                                        <div className="space-y-6">
+                                            {/* Bookings Section */}
+                                            <div className="space-y-4">
+                                                <h4 className="flex items-center gap-3 text-[10px] font-black text-padel-blue uppercase tracking-[0.3em]">
+                                                    <Calendar size={14} /> Historique des Courts
+                                                </h4>
+                                                {historyModal.data.bookings.length === 0 ? (
+                                                    <p className="text-[10px] text-white/10 uppercase font-black italic ml-6">Aucune réservation enregistrée</p>
+                                                ) : (
+                                                    <div className="grid grid-cols-1 gap-2">
+                                                        {historyModal.data.bookings.map((b: any) => (
+                                                            <div key={b._id} className="flex items-center justify-between p-4 bg-white/[0.02] border border-white/5 rounded-2xl group hover:bg-white/[0.04] transition-all">
+                                                                <div className="flex items-center gap-4">
+                                                                    <div className="w-10 h-10 rounded-xl bg-padel-blue/10 flex items-center justify-center text-padel-blue">
+                                                                        <MapPin size={16} />
+                                                                    </div>
+                                                                    <div>
+                                                                        <p className="text-xs font-black text-white uppercase tracking-tight">{b.court?.name || 'Court Inconnu'}</p>
+                                                                        <p className="text-[9px] font-bold text-white/20">{new Date(b.startTime).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}</p>
+                                                                    </div>
+                                                                </div>
+                                                                <div className="text-right">
+                                                                    <p className="text-[10px] font-black text-white uppercase">{new Date(b.startTime).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</p>
+                                                                    <p className="text-[8px] font-black text-padel-yellow uppercase tracking-widest mt-0.5">{b.totalPrice}€ • {b.paymentStatus}</p>
+                                                                </div>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            {/* Tournaments Section */}
+                                            <div className="space-y-4">
+                                                <h4 className="flex items-center gap-3 text-[10px] font-black text-padel-yellow uppercase tracking-[0.3em]">
+                                                    <ShieldCheck size={14} /> Engagements Compétitifs
+                                                </h4>
+                                                {historyModal.data.tournaments.length === 0 ? (
+                                                    <p className="text-[10px] text-white/10 uppercase font-black italic ml-6">Aucun tournoi disputé</p>
+                                                ) : (
+                                                    <div className="grid grid-cols-1 gap-2">
+                                                        {historyModal.data.tournaments.map((t: any) => (
+                                                            <div key={t._id} className="flex items-center justify-between p-4 bg-white/[0.02] border border-white/5 rounded-2xl group hover:bg-white/[0.04] transition-all">
+                                                                <div className="flex items-center gap-4">
+                                                                    <div className="w-10 h-10 rounded-xl bg-padel-yellow/10 flex items-center justify-center text-padel-yellow">
+                                                                        <Target size={16} />
+                                                                    </div>
+                                                                    <div>
+                                                                        <p className="text-xs font-black text-white uppercase tracking-tight">{t.name}</p>
+                                                                        <p className="text-[9px] font-bold text-white/20">{t.level}</p>
+                                                                    </div>
+                                                                </div>
+                                                                <div className="text-right">
+                                                                    <p className="text-[10px] font-black text-white uppercase">{new Date(t.startDate).toLocaleDateString('fr-FR')}</p>
+                                                                    <div className="flex items-center justify-end gap-2 mt-0.5">
+                                                                       <div className="w-1.5 h-1.5 rounded-full bg-padel-yellow animate-pulse" />
+                                                                       <p className="text-[8px] font-black text-padel-yellow uppercase tracking-widest">{t.status}</p>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            {/* Courses Section */}
+                                            <div className="space-y-4">
+                                                <h4 className="flex items-center gap-3 text-[10px] font-black text-padel-blue uppercase tracking-[0.3em]">
+                                                    <Zap size={14} className="text-padel-blue" /> Académie & Entraînement
+                                                </h4>
+                                                {historyModal.data.courses.length === 0 ? (
+                                                    <p className="text-[10px] text-white/10 uppercase font-black italic ml-6">Aucun programme suivi</p>
+                                                ) : (
+                                                    <div className="grid grid-cols-1 gap-2">
+                                                        {historyModal.data.courses.map((c: any) => (
+                                                            <div key={c._id} className="flex items-center justify-between p-4 bg-white/[0.02] border border-white/5 rounded-2xl group hover:bg-white/[0.04] transition-all">
+                                                                <div className="flex items-center gap-4">
+                                                                    <div className="w-10 h-10 rounded-xl bg-padel-blue/10 flex items-center justify-center text-padel-blue">
+                                                                        <Zap size={16} />
+                                                                    </div>
+                                                                    <div>
+                                                                        <p className="text-xs font-black text-white uppercase tracking-tight">{c.title}</p>
+                                                                        <p className="text-[9px] font-bold text-white/20">{c.level} • {c.duration}</p>
+                                                                    </div>
+                                                                </div>
+                                                                <div className="text-right">
+                                                                    <p className="text-[10px] font-black text-white uppercase">{new Date(c.date).toLocaleDateString('fr-FR')}</p>
+                                                                    <p className="text-[8px] font-black text-padel-blue uppercase tracking-widest mt-0.5">{c.price}€ • PAYÉ</p>
+                                                                </div>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </>
+                                )}
+                            </div>
+
+                            {/* Modal Footer */}
+                            <div className="p-8 border-t border-white/5 bg-white/[0.01] flex justify-between items-center">
+                                <div className="flex items-center gap-4 text-white/20">
+                                    <div className="flex flex-col">
+                                        <p className="text-[7px] font-black uppercase tracking-widest">ID Système</p>
+                                        <p className="text-[9px] font-bold tracking-tighter">{historyModal.user?._id}</p>
+                                    </div>
+                                </div>
+                                <div className="flex gap-4">
+                                    <button
+                                        onClick={() => {/* Export logic */}}
+                                        className="px-6 py-3 rounded-xl bg-white/5 border border-white/10 text-[9px] font-black uppercase tracking-widest text-white/40 hover:text-white transition-all flex items-center gap-2"
+                                    >
+                                        <Download size={14} /> Rapport .PDF
+                                    </button>
+                                </div>
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
         </motion.div>
     );
 }

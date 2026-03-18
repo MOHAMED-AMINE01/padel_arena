@@ -20,7 +20,6 @@ interface IPricing {
     weekend?: number;
     price?: string;
     annualPrice?: string;
-    features: string[];
     featured: boolean;
     color?: string;
     accent?: string;
@@ -52,9 +51,8 @@ export function AdminPlans() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [itemToDelete, setItemToDelete] = useState<IPricing | null>(null);
     const [editingItem, setEditingItem] = useState<IPricing | null>(null);
-    const [newFeature, setNewFeature] = useState('');
     const [formData, setFormData] = useState({
-        title: '', type: 'court', description: '', offPeak: 0, peak: 0, weekend: 0, price: '', annualPrice: '', features: [] as string[], featured: false, color: '', accent: '', icon: 'Target', isActive: true, order: 0
+        title: '', type: 'court', description: '', offPeak: 0, peak: 0, weekend: 0, price: '', annualPrice: '', featured: false, color: '', accent: '', icon: 'Target', isActive: true, order: 0
     });
     const [alert, setAlert] = useState<{ show: boolean; title: string; message: string; type: 'success' | 'error' }>({ show: false, title: '', message: '', type: 'success' });
 
@@ -84,7 +82,6 @@ export function AdminPlans() {
                 weekend: item.weekend || 0,
                 price: item.price || '',
                 annualPrice: item.annualPrice || '',
-                features: item.features || [],
                 featured: item.featured,
                 color: item.color || '',
                 accent: item.accent || '',
@@ -103,7 +100,6 @@ export function AdminPlans() {
                 weekend: 0,
                 price: '',
                 annualPrice: '',
-                features: [],
                 featured: false,
                 color: '',
                 accent: '',
@@ -115,8 +111,6 @@ export function AdminPlans() {
         setIsModalOpen(true);
     };
 
-    const addFeature = () => { if (newFeature.trim()) { setFormData({ ...formData, features: [...formData.features, newFeature.trim()] }); setNewFeature(''); } };
-    const removeFeature = (idx: number) => { setFormData({ ...formData, features: formData.features.filter((_, i) => i !== idx) }); };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -266,11 +260,6 @@ export function AdminPlans() {
                                     )}
                                 </div>
 
-                                {item.features.length > 0 && (
-                                    <div className="flex flex-wrap gap-2 pt-2">
-                                        {item.features.map((f, idx) => (<span key={idx} className="text-[8px] font-black bg-white/5 px-3 py-1.5 rounded-full uppercase tracking-widest border border-white/5 text-white/40">{f}</span>))}
-                                    </div>
-                                )}
                             </div>
 
                             <div className="flex flex-row xl:flex-col items-center gap-3 pt-6 xl:pt-0 w-full xl:w-auto xl:border-l xl:border-white/5 xl:pl-8 shrink-0 border-t border-white/5 xl:border-t-0 mt-4 xl:mt-0 justify-end">
@@ -410,41 +399,6 @@ export function AdminPlans() {
                                     />
                                 </div>
 
-                                <div className="space-y-8">
-                                    <label className="text-[9px] font-black text-white/30 uppercase tracking-[0.4em] ml-1 flex items-center gap-2"><Plus size={10} className="text-padel-blue" /> Points clés / Caractéristiques</label>
-                                    <div className="flex gap-4">
-                                        <input
-                                            value={newFeature}
-                                            onChange={(e) => setNewFeature(e.target.value)}
-                                            onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addFeature())}
-                                            className="flex-1 bg-white/[0.03] border border-white/10 rounded-2xl py-5 px-8 text-[11px] font-black text-white focus:border-padel-blue outline-none transition-all uppercase tracking-widest"
-                                            placeholder="AJOUTER UNE CARACTÉRISTIQUE..."
-                                        />
-                                        <button
-                                            type="button"
-                                            onClick={addFeature}
-                                            className="px-8 bg-padel-blue text-white rounded-2xl hover:bg-padel-yellow hover:text-padel-blue transition-all active:scale-95 shadow-xl shadow-padel-blue/20"
-                                        >
-                                            <ListPlus size={24} />
-                                        </button>
-                                    </div>
-                                    <div className="flex flex-wrap gap-4 mt-6">
-                                        <AnimatePresence>
-                                            {formData.features.map((f, idx) => (
-                                                <motion.span
-                                                    initial={{ opacity: 0, scale: 0.8, x: -10 }}
-                                                    animate={{ opacity: 1, scale: 1, x: 0 }}
-                                                    exit={{ opacity: 0, scale: 0.8, x: 10 }}
-                                                    key={idx}
-                                                    className="flex items-center gap-4 pl-6 pr-4 py-3 bg-white/[0.03] rounded-full text-[10px] font-black uppercase tracking-widest border border-white/10 text-white/60 hover:border-white/20 transition-colors"
-                                                >
-                                                    {f}
-                                                    <button type="button" onClick={() => removeFeature(idx)} className="w-6 h-6 flex items-center justify-center rounded-full bg-white/5 text-red-500 hover:bg-red-500 hover:text-white transition-all"><Minus size={12} /></button>
-                                                </motion.span>
-                                            ))}
-                                        </AnimatePresence>
-                                    </div>
-                                </div>
 
                                 <div className="flex flex-col sm:flex-row items-center justify-between gap-10 pt-10 border-t border-white/5">
                                     <div className="flex items-center gap-12">

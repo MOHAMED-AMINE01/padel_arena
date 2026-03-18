@@ -1,5 +1,5 @@
 import express from 'express';
-import { getAdminStats, getAllUsers, deleteUser, updateUser, createUser } from '../controllers/adminController';
+import { getAdminStats, getAllUsers, deleteUser, updateUser, createUser, getUserHistory, getTournamentParticipants, getCourseParticipants } from '../controllers/adminController';
 import { getTransactions, createTransaction, deleteTransaction } from '../controllers/transactionController';
 import { getCurrentShift, openShift, closeShift, getShiftHistory, deleteShift } from '../controllers/cashShiftController';
 import { getSubscriptions, createSubscription, updateSubscription, deleteSubscription, getSubscriptionStats, exportSubscriptions } from '../controllers/subscriptionController';
@@ -18,6 +18,11 @@ router.route('/users')
 router.route('/users/:id')
     .put(updateUser)
     .delete(deleteUser);
+router.get('/users/:id/history', getUserHistory);
+
+// Events participants
+router.get('/tournaments/:id/participants', getTournamentParticipants);
+router.get('/courses/:id/participants', getCourseParticipants);
 
 router.route('/transactions')
     .get(getTransactions)

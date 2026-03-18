@@ -41,6 +41,8 @@ interface Booking {
         type: string;
         sport?: string;
     } | null;
+    bookingType?: 'COURT' | 'PACK' | 'SUBSCRIPTION';
+    packName?: string;
 }
 
 interface Tournament {
@@ -165,17 +167,24 @@ export function PlayerDashboard() {
     // ── Derived data
     const now = new Date();
 
-    const upcomingBookings = bookings
+    // Only show real court bookings in the player dashboard (exclude PACK/SUBSCRIPTION requests)
+    const courtBookings = bookings.filter(b => !b.bookingType || b.bookingType === 'COURT');
+
+    const upcomingBookings = courtBookings
         .filter(b => new Date(b.startTime) > now && b.status !== 'CANCELLED')
         .sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
 
     const nextMatch = upcomingBookings[0] || null;
 
+    // Detect sub requests
+    const pendingSubRequest = bookings.find(b => b.bookingType === 'SUBSCRIPTION' && b.status === 'PENDING');
+    const confirmedSubRequest = bookings.find(b => b.bookingType === 'SUBSCRIPTION' && b.status === 'CONFIRMED');
+
     const stats: DashboardStats = {
-        upcoming: bookings.filter(b => new Date(b.startTime) > now && b.status !== 'CANCELLED').length,
-        totalPlayed: bookings.filter(b => new Date(b.startTime) <= now && b.status !== 'CANCELLED').length,
-        totalSpent: bookings.filter(b => b.paymentStatus === 'PAID').reduce((s, b) => s + b.totalPrice, 0),
-        cancelled: bookings.filter(b => b.status === 'CANCELLED').length,
+        upcoming: courtBookings.filter(b => new Date(b.startTime) > now && b.status !== 'CANCELLED').length,
+        totalPlayed: courtBookings.filter(b => new Date(b.startTime) <= now && b.status !== 'CANCELLED').length,
+        totalSpent: courtBookings.filter(b => b.paymentStatus === 'PAID').reduce((s, b) => s + b.totalPrice, 0),
+        cancelled: courtBookings.filter(b => b.status === 'CANCELLED').length,
     };
 
     const openTournaments = tournaments.filter(t =>
@@ -560,7 +569,7 @@ export function PlayerDashboard() {
                         <div className="relative z-10">
                             <div className="flex items-center justify-between mb-6 sm:mb-8 lg:mb-12">
                                 <div className="px-2 sm:px-3 py-1 rounded-full bg-white/10 border border-white/20 text-[8px] sm:text-[9px] font-black uppercase tracking-widest italic">
-                                    {loadingSubscription ? '...' : subscription ? 'PREMIUM' : 'NON ABONNÉ'}
+                                    {loadingSubscription ? '...' : (subscription || confirmedSubRequest) ? 'PREMIUM' : 'NON ABONNÉ'}
                                 </div>
                                 <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-white/10 flex items-center justify-center backdrop-blur-xl">
                                     <Star size={20} className="sm:w-6 sm:h-6 text-padel-yellow" />
@@ -579,14 +588,38 @@ export function PlayerDashboard() {
                                         ))}
                                     </h2>
                                     <p className="text-[9px] sm:text-[10px] font-bold text-white/50 uppercase tracking-[0.15em] sm:tracking-[0.2em] leading-relaxed italic">
-                                        {subscription.features.length > 0 
+                                        {subscription.features.length > 0
                                             ? subscription.features.slice(0, 2).join(' • ')
                                             : 'Avantages exclusifs activés'}
                                     </p>
                                 </>
+                            ) : confirmedSubRequest ? (
+                                <>
+                                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-500 text-[9px] font-black uppercase tracking-widest mb-4">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Abonnement Actif
+                                    </div>
+                                    <h2 className="text-2xl sm:text-3xl lg:text-4xl xl:text-4xl font-display font-black italic uppercase leading-[0.75] mb-4 sm:mb-6 tracking-tighter text-emerald-500">
+                                        {confirmedSubRequest.packName || 'ABONNEMENT'}
+                                    </h2>
+                                    <p className="text-[9px] sm:text-[10px] font-bold text-white/40 uppercase tracking-[0.15em] sm:tracking-[0.2em] leading-relaxed italic">
+                                        Votre abonnement a été validé par nos équipes.
+                                    </p>
+                                </>
+                            ) : pendingSubRequest ? (
+                                <>
+                                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-padel-yellow/20 border border-padel-yellow/30 text-padel-yellow text-[9px] font-black uppercase tracking-widest mb-4 animate-pulse">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-padel-yellow" /> En attente de validation
+                                    </div>
+                                    <h2 className="text-2xl sm:text-3xl lg:text-4xl xl:text-4xl font-display font-black italic uppercase leading-[0.75] mb-4 sm:mb-6 tracking-tighter text-padel-yellow">
+                                        {pendingSubRequest.packName || 'ABONNEMENT'}
+                                    </h2>
+                                    <p className="text-[9px] sm:text-[10px] font-bold text-white/40 uppercase tracking-[0.15em] sm:tracking-[0.2em] leading-relaxed italic">
+                                        Votre demande est en cours de traitement par nos équipes.
+                                    </p>
+                                </>
                             ) : (
                                 <>
-                                    <h2 className="text-3xl sm:text-4xl lg:text-5xl font-display font-black italic uppercase leading-[0.75] mb-4 sm:mb-6 tracking-tighter text-white/50">
+                                    <h2 className="text-3xl sm:text-4xl lg:text-4xl font-display font-black italic uppercase leading-[0.75] mb-4 sm:mb-6 tracking-tighter text-white/50">
                                         PAS <br /><span className="text-white/30">D'ABONNEMENT</span>
                                     </h2>
                                     <p className="text-[9px] sm:text-[10px] font-bold text-white/30 uppercase tracking-[0.15em] sm:tracking-[0.2em] leading-relaxed italic">
@@ -612,9 +645,9 @@ export function PlayerDashboard() {
                                 ))}
                             </div>
                             <div className="h-px bg-white/10" />
-                            <Link to={subscription ? "/my-reservations" : "/subscription"} className="flex items-center justify-between group/link bg-white/5 p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-white/10 hover:bg-white/10 transition-all">
+                            <Link to="/my-reservations" className="flex items-center justify-between group/link bg-white/5 p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-white/10 hover:bg-white/10 transition-all">
                                 <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.15em] sm:tracking-[0.2em] italic">
-                                    {subscription ? 'Mes réservations' : 'Voir les abonnements'}
+                                    Mes réservations
                                 </span>
                                 <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-padel-yellow text-padel-blue flex items-center justify-center group-hover/link:scale-110 transition-all shadow-lg shadow-black/20">
                                     <ChevronRight size={14} className="sm:w-[18px] sm:h-[18px]" />
