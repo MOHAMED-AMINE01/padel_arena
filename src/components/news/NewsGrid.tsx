@@ -52,7 +52,7 @@ export const NewsGrid = () => {
     const categories = ['TOUT', ...new Set(news.map(item => item.category.toUpperCase()))];
 
     return (
-        <section id="news" className="py-24 md:py-48 px-6 bg-[#050505] relative overflow-hidden">
+        <section id="news" className="py-24 md:py-24 px-6 bg-[#050505] relative overflow-hidden">
             {/* Structural Lines */}
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1px] h-full bg-white opacity-[0.02] z-0" />
 
@@ -60,11 +60,11 @@ export const NewsGrid = () => {
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-10 mb-20 md:mb-32">
                     <div className="max-w-2xl text-center md:text-left">
                         <div className="inline-flex items-center gap-4 mb-8">
-                            <span className="text-[10px] font-black tracking-[0.4em] text-padel-yellow uppercase">LATEST STORIES</span>
+                            <span className="text-[10px] font-black tracking-[0.4em] text-padel-yellow uppercase">DERNIÈRES ACTUALITÉS</span>
                         </div>
                         <h2 className="text-4xl md:text-7xl font-display font-black tracking-tighter leading-[0.9] uppercase">
                             TOUTE LA VIE <br />
-                            <span className="text-white italic">DU CLUB LIVE</span>
+                            <span className="text-white italic">DU CLUB</span>
                         </h2>
                     </div>
 

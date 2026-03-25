@@ -53,9 +53,12 @@ export const createBooking = asyncHandler(async (req: any, res: Response) => {
             });
         }
 
-        // 4. Calculate total price
+        // 4. Calculate total price dynamically
         const durationInHours = (end.getTime() - start.getTime()) / (1000 * 60 * 60);
-        totalPrice = Number((durationInHours * court.pricePerHour).toFixed(2));
+        const startHour = start.getHours();
+        const isPeak = startHour >= 17 || start.getDay() === 0 || start.getDay() === 6; // After 17h or Weekend
+        const unitPrice = isPeak ? court.peakPrice : court.offPeakPrice;
+        totalPrice = Number((durationInHours * unitPrice).toFixed(2));
 
         // 5. Link user ...
     }
@@ -204,7 +207,7 @@ export const createBooking = asyncHandler(async (req: any, res: Response) => {
 // @access  Private
 export const getMyBookings = asyncHandler(async (req: any, res: Response) => {
     const bookings = await Booking.find({ user: req.user.id })
-        .populate('court', 'name type surface pricePerHour')
+        .populate('court', 'name type surface offPeakPrice peakPrice')
         .sort('-startTime');
 
     res.status(200).json({
@@ -380,10 +383,14 @@ export const getAvailableSlots = asyncHandler(async (req: Request, res: Response
                     return (slotStart < bEnd && slotEnd > bStart);
                 });
 
+                const startHour = hour;
+                const isPeak = startHour >= 17 || slotStart.getDay() === 0 || slotStart.getDay() === 6;
+                const unitPrice = isPeak ? court.peakPrice : court.offPeakPrice;
+
                 slots.push({
                     time: `${hour.toString().padStart(2, '0')}:${min.toString().padStart(2, '0')}`,
                     available: !isBooked,
-                    price: court.pricePerHour * (slotDuration / 60)
+                    price: unitPrice * (slotDuration / 60)
                 });
             }
         }

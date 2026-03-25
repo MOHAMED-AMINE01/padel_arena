@@ -172,7 +172,7 @@ export function AdminNews() {
             <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 border-b border-white/5 pb-10">
                 <div className="space-y-4">
                     <h1 className="text-4xl md:text-7xl font-display font-black uppercase tracking-tighter leading-[0.85]">
-                        CONTRÔLE <br /> <span className="text-padel-blue drop-shadow-[0_0_30px_rgba(19,73,211,0.3)]">ACTUALITÉS</span>
+                        Actualités
                     </h1>
                     <p className="text-[10px] md:text-xs font-bold text-white/30 uppercase tracking-[0.3em] mt-4">Programmation éditoriale • Stratégie de contenu</p>
                 </div>
@@ -432,11 +432,11 @@ export function AdminNews() {
                 {itemToDelete && (
                     <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
                         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setItemToDelete(null)} className="absolute inset-0 bg-black/90 backdrop-blur-xl" />
-                        
-                        <motion.div 
-                            initial={{ scale: 0.95, opacity: 0, y: 20 }} 
-                            animate={{ scale: 1, opacity: 1, y: 0 }} 
-                            exit={{ scale: 0.95, opacity: 0, y: 20 }} 
+
+                        <motion.div
+                            initial={{ scale: 0.95, opacity: 0, y: 20 }}
+                            animate={{ scale: 1, opacity: 1, y: 0 }}
+                            exit={{ scale: 0.95, opacity: 0, y: 20 }}
                             className="relative w-full max-w-md bg-[#0c0c0e] border border-red-500/20 rounded-[2.5rem] shadow-[0_30px_60px_rgba(239,68,68,0.2)] overflow-hidden flex flex-col items-center text-center p-10"
                         >
                             <div className="w-20 h-20 bg-red-500/10 rounded-full flex items-center justify-center mb-6">
@@ -444,7 +444,7 @@ export function AdminNews() {
                             </div>
                             <h2 className="text-2xl font-display font-black text-white uppercase mb-2">Suppression définitive</h2>
                             <p className="text-[11px] font-bold text-white/40 uppercase tracking-widest mb-8 leading-relaxed max-w-[90%]">Êtes-vous sûr de vouloir supprimer <span className="text-white border-b border-white/30">"{itemToDelete.title}"</span> ? Cette action est irréversible.</p>
-                            
+
                             <div className="flex gap-4 w-full">
                                 <button onClick={() => setItemToDelete(null)} className="flex-1 px-6 py-4 bg-white/5 text-white/50 hover:bg-white/10 hover:text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] transition-all">
                                     ANNULER

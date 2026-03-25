@@ -33,7 +33,7 @@ const activities = [
   {
     id: 'Golf',
     title: 'SIMULATEUR DE GOLF',
-    image: '/IMAGES/todd-trapani-sI-p_NLBNr0-unsplash.jpg',
+    image: '/IMAGES/Simulateur golf.jpg',
     description: "Jouez sur les plus beaux parcours du monde grâce à notre simulateur de golf haute technologie.",
     buttonText: 'Réserver',
     titleColor: 'text-padel-blue',

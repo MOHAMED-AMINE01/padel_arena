@@ -50,7 +50,7 @@ export const ActivitiesHero = () => {
 
                             <h1 className="text-4xl sm:text-5xl md:text-7xl xl:text-8xl font-display font-black tracking-tighter leading-[0.85] uppercase mb-8">
                                 NOS <br />
-                                <span className="text-padel-yellow italic">ACTIVITÉS</span>
+                                <span className="text-padel-blue italic">ACTIVITÉS</span>
                             </h1>
 
                             <p className="text-base md:text-lg text-white/40 font-medium max-w-lg mb-12 leading-relaxed mx-auto md:mx-0">

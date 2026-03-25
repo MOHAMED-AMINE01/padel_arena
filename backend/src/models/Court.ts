@@ -5,7 +5,8 @@ export interface ICourt extends Document {
     type: 'INDOOR' | 'OUTDOOR' | 'Padel Panorama' | 'Padel Classic' | 'Pickleball High';
     sport: 'Padel' | 'Pickleball' | 'Badminton' | 'Basket' | 'Golf';
     surface: 'CLAY' | 'CONCRETE' | 'SYNTHETIC' | 'PRO_TURF';
-    pricePerHour: number;
+    offPeakPrice: number;
+    peakPrice: number;
     images: string[];
     description: string;
     isActive: boolean;
@@ -14,10 +15,11 @@ export interface ICourt extends Document {
 
 const CourtSchema: Schema = new Schema({
     name: { type: String, required: true },
-    type: { type: String, enum: ['INDOOR', 'OUTDOOR', 'Padel Panorama', 'Padel Classic', 'Pickleball High'], required: true },
+    type: { type: String, enum: ['INDOOR', 'OUTDOOR', 'Padel Panorama', 'Padel Classic', 'Pickleball High', 'Golf Simulator'], required: true },
     sport: { type: String, enum: ['Padel', 'Pickleball', 'Badminton', 'Basket', 'Golf'], default: 'Padel' },
     surface: { type: String, enum: ['CLAY', 'CONCRETE', 'SYNTHETIC', 'PRO_TURF'], default: 'PRO_TURF' },
-    pricePerHour: { type: Number, required: true },
+    offPeakPrice: { type: Number, required: true },
+    peakPrice: { type: Number, required: true },
     images: [{ type: String }],
     description: { type: String },
     isActive: { type: Boolean, default: true },

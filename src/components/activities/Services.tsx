@@ -6,7 +6,7 @@ import { cn } from '../../lib/utils';
 const services = [
   { title: "LOCATION RAQUETTES", icon: <CircleDot size={24} />, desc: "Testez les derniers modèles de nos marques partenaires d'élite." },
   { title: "LOCATION CHAUSSURES", icon: <Footprints size={24} />, desc: "Adhérence optimale avec des modèles spécifiques padel." },
-  { title: "VENTE DE BILLES", icon: <ShoppingBag size={24} />, desc: "Balles neuves disponibles à l'accueil pour une partie parfaite." },
+  { title: "Vente de balles", icon: <ShoppingBag size={24} />, desc: "Balles neuves disponibles à l'accueil pour une partie parfaite." },
   { title: "BOUTIQUE PRO-SHOP", icon: <ShoppingBag size={24} />, desc: "Équipez-vous avec le meilleur du matériel et textile technique." },
   { title: "VESTIAIRES PREMIUM", icon: <ShowerHead size={24} />, desc: "Service de serviettes propres et douches haut de gamme." },
   { title: "CASIERS CONNECTÉS", icon: <DoorOpen size={24} />, desc: "Sécurité totale pour vos effets personnels avec accès digital." },

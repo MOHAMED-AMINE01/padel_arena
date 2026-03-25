@@ -195,7 +195,10 @@ const ActivityItem = ({ title, time, court, status }: any) => (
                                 "bg-white/5 text-white/40 border border-white/10"
                 )}>
                     {status === 'CONFIRMED' || status === 'COMPLETED' ? <CheckCircle2 size={8} /> : status === 'CANCELLED' ? <XCircle size={8} /> : <Clock size={8} />}
-                    {status === 'COMPLETED' ? 'PAYÉ' : status}
+                    {status === 'COMPLETED' ? 'PAYÉ' : 
+                     status === 'CONFIRMED' ? 'CONFIRMÉ' :
+                     status === 'CANCELLED' ? 'ANNULÉ' :
+                     status === 'PENDING' ? 'EN ATTENTE' : status}
                 </div>
             )}
         </div>
@@ -368,7 +371,7 @@ export function AdminDashboard() {
 
                     <div>
                         <h1 className="text-5xl sm:text-6xl md:text-8xl font-display font-black text-white uppercase tracking-tighter leading-[0.85] md:leading-[0.8]">
-                            Dashboard
+                            Tableau de bord
                         </h1>
 
                     </div>
@@ -376,11 +379,11 @@ export function AdminDashboard() {
             </div>
 
             <div className="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
-                <KPICard title="Revenue Global" value={`${stats?.totalRevenue?.toLocaleString('fr-FR') || 0} €`} change={stats?.changes?.revenue} icon={CreditCard} isPositive={true} loading={loading} />
-                <KPICard title="Réservations Totales" value={stats?.bookingCount || 0} change={stats?.changes?.bookings} icon={Target} isPositive={true} color="yellow" loading={loading} />
-                <KPICard title="Occupation Jour" value={`${stats?.occupancyToday || 0}%`} icon={BarChart3} isPositive={true} color="blue" loading={loading} />
-                <KPICard title="Athlètes Inscrits" value={stats?.userCount || 0} change={stats?.changes?.users} icon={Users} isPositive={true} loading={loading} />
-                <KPICard title="Terrains Actifs" value={`${stats?.activeCourts || 0} / ${stats?.courtCount || 0}`} change={stats?.changes?.courts} icon={Building2} isPositive={true} color="green" loading={loading} />
+                <KPICard title="CA Global" value={`${stats?.totalRevenue?.toLocaleString('fr-FR') || 0} €`} change={stats?.changes?.revenue} icon={CreditCard} isPositive={true} loading={loading} />
+                <KPICard title="Réservations" value={stats?.bookingCount || 0} change={stats?.changes?.bookings} icon={Target} isPositive={true} color="yellow" loading={loading} />
+                <KPICard title="Occupation" value={`${stats?.occupancyToday || 0}%`} icon={BarChart3} isPositive={true} color="blue" loading={loading} />
+                <KPICard title="Athlètes" value={stats?.userCount || 0} change={stats?.changes?.users} icon={Users} isPositive={true} loading={loading} />
+                <KPICard title="Terrains" value={`${stats?.activeCourts || 0} / ${stats?.courtCount || 0}`} change={stats?.changes?.courts} icon={Building2} isPositive={true} color="green" loading={loading} />
             </div>
 
             <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
@@ -393,7 +396,7 @@ export function AdminDashboard() {
                         <h3 className="text-lg md:text-xl font-display font-black text-white uppercase tracking-tighter">Activité Live</h3>
                         <div className="flex items-center gap-2">
                             {loading && <Loader2 className="animate-spin text-padel-yellow" size={14} />}
-                            <div className="px-2.5 py-1 bg-padel-blue text-white text-[8px] font-black uppercase rounded-lg">SYNC OK</div>
+                            <div className="px-2.5 py-1 bg-padel-blue text-white text-[8px] font-black uppercase rounded-lg">SYNCHRO OK</div>
                         </div>
                     </div>
                     <div className="flex-1 space-y-1 max-h-[460px] overflow-y-auto custom-scrollbar pr-2 relative z-10">
@@ -442,9 +445,9 @@ export function AdminDashboard() {
                     <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-white/20 via-transparent to-black/20 pointer-events-none" />
                     <div className="relative z-10">
                         <Zap size={32} md:size={48} className="text-padel-yellow mb-6 md:mb-10" />
-                        <h2 className="text-3xl md:text-4xl font-display font-black text-white uppercase tracking-tighter leading-[0.9]">Peak <br /> Performance</h2>
+                        <h2 className="text-3xl md:text-4xl font-display font-black text-white uppercase tracking-tighter leading-[0.9]">Performance <br /> Maximale</h2>
                         <div className="mt-6 md:mt-8 space-y-2">
-                            <p className="text-[10px] md:text-xs font-black text-white/60 uppercase tracking-widest">Heure de Pointe Aujourd'hui</p>
+                            <p className="text-[10px] md:text-xs font-black text-white/60 uppercase tracking-widest">Heure d'affluence</p>
                             <p className="text-xl md:text-3xl font-black text-padel-yellow uppercase tracking-tighter">{stats?.peakHours || '—'}</p>
                         </div>
                     </div>

@@ -30,7 +30,7 @@ export const NewsPage = () => {
             <NewsGrid />
 
             {/* Newsletter Section */}
-            <section className="py-24 md:py-48 px-6 bg-[#0a0a0a] border-t border-white/[0.03] overflow-hidden relative">
+            <section className="py-24 md:py-24 px-6 bg-[#0a0a0a] border-t border-white/[0.03] overflow-hidden relative">
                 <div className="max-w-[1400px] mx-auto relative z-10 text-center">
                     <div className="inline-flex items-center gap-4 mb-8">
                         <span className="text-[10px] font-black tracking-[0.4em] text-padel-blue uppercase">KEEP IN TOUCH</span>
@@ -43,7 +43,7 @@ export const NewsPage = () => {
                         Inscrivez-vous à notre newsletter pour recevoir en avant-première nos annonces de tournois et offres exclusives.
                     </p>
 
-                    <form 
+                    <form
                         className="max-w-xl mx-auto flex flex-col sm:flex-row gap-4"
                         onSubmit={(e) => {
                             e.preventDefault();
@@ -56,7 +56,7 @@ export const NewsPage = () => {
                             required
                             className="flex-1 bg-white/5 border border-white/10 rounded-full px-8 py-5 text-[11px] font-black text-white tracking-[0.2em] focus:outline-none focus:border-padel-blue transition-colors placeholder:text-white/20 uppercase"
                         />
-                        <button 
+                        <button
                             type="submit"
                             className="px-12 py-5 bg-padel-blue text-white rounded-full font-black text-[11px] uppercase tracking-[0.3em] shadow-xl hover:bg-padel-yellow hover:text-padel-blue transition-all duration-500"
                         >

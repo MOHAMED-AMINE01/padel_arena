@@ -45,9 +45,8 @@ export const CourtPricing = () => {
   if (pricingData.length === 0) return null;
 
   const sidebarItems = [
-    { icon: <Sun size={20} />, title: "HEURES CREUSES", hours: "08:00 — 17:00", day: "Lundi au Vendredi", label: "-20% APPLIED" },
-    { icon: <Moon size={20} />, title: "HEURES PLEINES", hours: "17:00 — 23:00", day: "Lundi au Vendredi", label: "STANDARD" },
-    { icon: <Calendar size={20} />, title: "WEEK-END", hours: "ALL DAY", day: "Samedi & Dimanche", label: "PEAK RATE" }
+    { icon: <Sun size={20} />, title: "HEURES CREUSES", hours: "08:00 — 17:00", day: "Lundi au Vendredi", label: "-20%" },
+    { icon: <Moon size={20} />, title: "HEURES PLEINES", hours: "17:00 — 23:00", day: "Lundi au Vendredi", label: "STANDARD" }
   ];
 
   return (
@@ -75,7 +74,7 @@ export const CourtPricing = () => {
           <div className="hidden lg:block pb-4 text-right">
             <div className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em] mb-4 text-right">politique de prix</div>
             <p className="text-sm text-white/40 font-medium max-w-[300px] leading-relaxed">
-              Nos tarifs sont calculés par terrain pour une session de 90 minutes.
+              Nos tarifs sont calculés par terrain pour une session de 60 minutes.
             </p>
           </div>
         </div>
@@ -115,24 +114,20 @@ export const CourtPricing = () => {
                   onClick={() => setActiveType(i)}
                 >
                   <div className="p-8 md:p-12 h-full flex flex-col md:flex-row md:items-center justify-between gap-10">
-                    <div className="flex-1 text-center">
-                      <h4 className="text-2xl md:text-3xl font-display font-black uppercase tracking-tight group-hover:text-padel-blue transition-colors">
+                    <div className="flex-1 text-left">
+                      <h4 className="text-2xl md:text-2xl font-display font-black uppercase tracking-tight group-hover:text-padel-blue transition-colors">
                         {row.title}
                       </h4>
                     </div>
 
-                    <div className="grid grid-cols-3 gap-8 md:gap-12">
+                    <div className="grid grid-cols-2 gap-8 md:gap-12">
                       <div className="text-center">
-                        <p className="text-[8px] font-black text-white/20 uppercase tracking-widest mb-2">OFF-PEAK</p>
+                        <p className="text-[8px] font-black text-white/20 uppercase tracking-widest mb-2">Heure creuse</p>
                         <p className="text-2xl md:text-3xl font-display font-black text-white">{row.offPeak}€</p>
                       </div>
                       <div className="text-center">
-                        <p className="text-[8px] font-black text-white/20 uppercase tracking-widest mb-2">PEAK</p>
+                        <p className="text-[8px] font-black text-white/20 uppercase tracking-widest mb-2">Heure pleine</p>
                         <p className="text-2xl md:text-3xl font-display font-black text-padel-blue">{row.peak}€</p>
-                      </div>
-                      <div className="text-center">
-                        <p className="text-[8px] font-black text-white/20 uppercase tracking-widest mb-2">WEEKEND</p>
-                        <p className="text-2xl md:text-3xl font-display font-black text-white">{row.weekend}€</p>
                       </div>
                     </div>
                   </div>
@@ -156,8 +151,8 @@ export const CourtPricing = () => {
       </div>
 
       {/* Background Decor Text */}
-      <div className="absolute top-1/2 -right-40 text-[12rem] font-display font-black text-white/[0.01] tracking-tighter select-none pointer-events-none -z-10 -rotate-90 leading-none">
-        COURT RATES
+      <div className="absolute top-1/2 -right-40 text-[12rem] font-display font-black text-white/[0.01] tracking-tighter select-none pointer-events-none -z-10 -rotate-90 leading-none uppercase">
+        Tarifs terrains
       </div>
     </section>
   );

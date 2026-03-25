@@ -30,8 +30,9 @@ interface Court {
     _id: string;
     name: string;
     type: string;
-    sport: 'Padel' | 'Pickleball' | 'Badminton';
-    pricePerHour: number;
+    sport: 'Padel' | 'Pickleball' | 'Badminton' | 'Golf';
+    offPeakPrice: number;
+    peakPrice: number;
     description?: string;
     isActive: boolean;
     image?: string;
@@ -44,6 +45,7 @@ const typesBySport: Record<string, string[]> = {
     Padel: ['Padel Panorama', 'Padel Classic', 'Padel Indoor', 'Padel Outdoor'],
     Pickleball: ['Pickleball High', 'Pickleball Standard', 'Pickleball Indoor'],
     Badminton: ['Badminton Simple', 'Badminton Double', 'Badminton Pro'],
+    Golf: ['Golf Simulator', 'Golf Pro-Studio', 'Golf Performance Center'],
 };
 
 // Champs spécifiques par sport
@@ -57,8 +59,12 @@ const sportSpecificFields: Record<string, { label: string; key: string; type: st
         { label: 'Lignes permanentes', key: 'permanentLines', type: 'boolean' },
     ],
     Badminton: [
-        { label: 'Volants fournis', key: 'shuttlecocks', type: 'boolean' },
+        { label: 'Filets ajustables', key: 'adjustableNets', type: 'boolean' },
         { label: 'Hauteur plafond (m)', key: 'ceilingHeight', type: 'number' },
+    ],
+    Golf: [
+        { label: 'Trackman 4 Home', key: 'trackman', type: 'boolean' },
+        { label: 'Analyse Vidéo HD', key: 'videoAnalysis', type: 'boolean' },
     ],
 };
 
@@ -72,7 +78,7 @@ export function AdminCourts() {
 
     // Filter States
     const [searchTerm, setSearchTerm] = useState('');
-    const [sportFilter, setSportFilter] = useState<'ALL' | 'Padel' | 'Pickleball' | 'Badminton'>('ALL');
+    const [sportFilter, setSportFilter] = useState<'ALL' | 'Padel' | 'Pickleball' | 'Badminton' | 'Golf'>('ALL');
     const [typeFilter, setTypeFilter] = useState<string>('ALL');
     const [statusFilter, setStatusFilter] = useState<'ALL' | 'active' | 'maintenance'>('ALL');
     const [showFilters, setShowFilters] = useState(false);
@@ -84,8 +90,9 @@ export function AdminCourts() {
     const [formData, setFormData] = useState({
         name: '',
         type: 'Padel Panorama',
-        sport: 'Padel' as 'Padel' | 'Pickleball' | 'Badminton',
-        pricePerHour: 45,
+        sport: 'Padel' as 'Padel' | 'Pickleball' | 'Badminton' | 'Golf',
+        offPeakPrice: 32,
+        peakPrice: 40,
         description: '',
         isActive: true
     });
@@ -164,7 +171,7 @@ export function AdminCourts() {
             }
             setShowModal(false);
             setEditingCourt(null);
-            setFormData({ name: '', type: 'Padel Panorama', sport: 'Padel', pricePerHour: 45, description: '', isActive: true });
+            setFormData({ name: '', type: 'Padel Panorama', sport: 'Padel', offPeakPrice: 32, peakPrice: 40, description: '', isActive: true });
             fetchCourts();
         } catch (err: any) {
             setError(err.response?.data?.message || 'Une erreur est survenue.');
@@ -196,7 +203,8 @@ export function AdminCourts() {
             name: court.name,
             type: court.type,
             sport: court.sport || 'Padel',
-            pricePerHour: court.pricePerHour,
+            offPeakPrice: court.offPeakPrice,
+            peakPrice: court.peakPrice,
             description: court.description || '',
             isActive: court.isActive
         });
@@ -209,7 +217,7 @@ export function AdminCourts() {
             `"${c.name}"`,
             c.sport || 'Padel',
             `"${c.type}"`,
-            c.pricePerHour,
+            `${c.offPeakPrice}€ / ${c.peakPrice}€`,
             c.isActive ? 'Actif' : 'Maintenance',
             `"${(c.description || '').replace(/"/g, '""')}"`,
             c.createdAt ? new Date(c.createdAt).toLocaleDateString('fr-FR') : 'N/A',
@@ -276,7 +284,7 @@ export function AdminCourts() {
                     <button
                         onClick={() => {
                             setEditingCourt(null);
-                            setFormData({ name: '', type: 'Padel Panorama', sport: 'Padel', pricePerHour: 45, description: '', isActive: true });
+                            setFormData({ name: '', type: 'Padel Panorama', sport: 'Padel', offPeakPrice: 32, peakPrice: 40, description: '', isActive: true });
                             setShowModal(true);
                         }}
                         className="flex items-center justify-center gap-3 px-6 md:px-10 py-4 md:py-5 rounded-xl md:rounded-[1.5rem] bg-padel-blue text-white text-[9px] md:text-[10px] font-black uppercase tracking-widest shadow-2xl hover:bg-padel-yellow hover:text-padel-blue transition-all duration-500"
@@ -323,7 +331,7 @@ export function AdminCourts() {
                                     <div className="space-y-2">
                                         <p className="text-[9px] font-black text-white/20 uppercase tracking-widest ml-2">Discipline sportive</p>
                                         <div className="flex flex-wrap gap-2">
-                                            {(['ALL', 'Padel', 'Pickleball', 'Badminton'] as const).map(sport => (
+                                            {(['ALL', 'Padel', 'Pickleball', 'Badminton', 'Golf'] as const).map(sport => (
                                                 <button
                                                     key={sport}
                                                     onClick={() => {
@@ -336,6 +344,7 @@ export function AdminCourts() {
                                                             ? sport === 'Padel' ? "bg-padel-blue text-white"
                                                                 : sport === 'Pickleball' ? "bg-padel-yellow text-black"
                                                                     : sport === 'Badminton' ? "bg-white text-black"
+                                                                        : sport === 'Golf' ? "bg-emerald-500 text-white"
                                                                         : "bg-padel-blue text-white"
                                                             : "text-white/40 hover:bg-white/5 bg-white/5"
                                                     )}
@@ -512,9 +521,9 @@ export function AdminCourts() {
                                             <div
                                                 className="inline-flex items-center gap-1.5 mt-2 px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest border"
                                                 style={{
-                                                    color: (item as Court).sport === 'Padel' ? '#1349D3' : (item as Court).sport === 'Pickleball' ? '#FFD21F' : '#ffffff',
-                                                    backgroundColor: (item as Court).sport === 'Padel' ? '#1349D315' : (item as Court).sport === 'Pickleball' ? '#FFD21F15' : '#ffffff10',
-                                                    borderColor: (item as Court).sport === 'Padel' ? '#1349D330' : (item as Court).sport === 'Pickleball' ? '#FFD21F30' : '#ffffff20',
+                                                    color: (item as Court).sport === 'Padel' ? '#1349D3' : (item as Court).sport === 'Pickleball' ? '#FFD21F' : (item as Court).sport === 'Golf' ? '#10b981' : '#ffffff',
+                                                    backgroundColor: (item as Court).sport === 'Padel' ? '#1349D315' : (item as Court).sport === 'Pickleball' ? '#FFD21F15' : (item as Court).sport === 'Golf' ? '#10b98115' : '#ffffff10',
+                                                    borderColor: (item as Court).sport === 'Padel' ? '#1349D330' : (item as Court).sport === 'Pickleball' ? '#FFD21F30' : (item as Court).sport === 'Golf' ? '#10b98130' : '#ffffff20',
                                                 }}
                                             >
                                                 <Zap size={8} /> {(item as Court).sport}
@@ -524,19 +533,12 @@ export function AdminCourts() {
 
                                     <div className="grid grid-cols-2 gap-4 md:gap-6 mb-6 md:mb-8 relative z-10 flex-1">
                                         <div className="bg-white/[0.03] border border-white/5 p-4 md:p-6 rounded-xl md:rounded-[1.5rem] group/stat">
-                                            <p className="text-[8px] md:text-[10px] font-black text-white/20 uppercase tracking-widest mb-1.5 md:mb-2 group-hover/stat:text-padel-blue transition-colors">Tarif</p>
-                                            <p className="text-lg md:text-2xl font-black text-white tracking-tighter">{(item as Court).pricePerHour}€<span className="text-[10px] md:text-xs text-white/30 ml-0.5 md:ml-1">/h</span></p>
+                                            <p className="text-[7px] md:text-[8px] font-black text-white/20 uppercase tracking-widest mb-1.5 md:mb-2 group-hover/stat:text-padel-blue transition-colors">Heure Creuse</p>
+                                            <p className="text-lg md:text-xl font-black text-white tracking-tighter">{(item as Court).offPeakPrice}€<span className="text-[10px] md:text-xs text-white/30 ml-0.5 md:ml-1">/h</span></p>
                                         </div>
                                         <div className="bg-white/[0.03] border border-white/5 p-4 md:p-6 rounded-xl md:rounded-[1.5rem] group/stat">
-                                            <p className="text-[8px] md:text-[10px] font-black text-white/20 uppercase tracking-widest mb-1.5 md:mb-2 group-hover/stat:text-padel-yellow transition-colors">Usage 7j</p>
-                                            <p className={cn(
-                                                "text-lg md:text-2xl font-black tracking-tighter",
-                                                (courtUsage[(item as Court)._id] || 0) >= 70 ? "text-emerald-400" :
-                                                    (courtUsage[(item as Court)._id] || 0) >= 40 ? "text-padel-yellow" :
-                                                        (courtUsage[(item as Court)._id] || 0) > 0 ? "text-orange-400" : "text-white/40"
-                                            )}>
-                                                {courtUsage[(item as Court)._id] || 0}%
-                                            </p>
+                                            <p className="text-[7px] md:text-[8px] font-black text-white/20 uppercase tracking-widest mb-1.5 md:mb-2 group-hover/stat:text-padel-yellow transition-colors">Heure Pleine</p>
+                                            <p className="text-lg md:text-xl font-black text-padel-blue tracking-tighter">{(item as Court).peakPrice}€<span className="text-[10px] md:text-xs text-white/30 ml-0.5 md:ml-1">/h</span></p>
                                         </div>
                                     </div>
 
@@ -712,24 +714,44 @@ export function AdminCourts() {
                                                 </AnimatePresence>
                                             </div>
                                         </div>
+                                    <div className="grid grid-cols-2 gap-6">
                                         <div className="space-y-3">
                                             <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] ml-1 flex items-center gap-2">
-                                                <Sparkles size={12} className="text-padel-yellow" /> Tarif (€/h)
+                                                <Sparkles size={12} className="text-padel-yellow" /> Heure Creuse (€/h)
                                             </label>
                                             <div className="flex items-center justify-between bg-white/[0.03] border border-white/10 rounded-2xl p-1 h-[54px] group-hover:border-padel-yellow/30 transition-all">
-                                                <button type="button" onClick={() => setFormData(p => ({ ...p, pricePerHour: Math.max(0, p.pricePerHour - 5) }))} className="w-10 h-10 flex items-center justify-center rounded-xl bg-white/5 hover:bg-white/10 text-white/20 hover:text-white transition-all font-black text-lg">-</button>
+                                                <button type="button" onClick={() => setFormData(p => ({ ...p, offPeakPrice: Math.max(0, p.offPeakPrice - 2) }))} className="w-10 h-10 flex items-center justify-center rounded-xl bg-white/5 hover:bg-white/10 text-white/20 hover:text-white transition-all font-black text-lg">-</button>
                                                 <div className="flex items-center gap-2">
                                                     <span className="text-padel-yellow font-black text-sm">€</span>
                                                     <input
                                                         type="number" required
-                                                        value={formData.pricePerHour}
-                                                        onChange={(e) => setFormData(p => ({ ...p, pricePerHour: parseInt(e.target.value) || 0 }))}
+                                                        value={formData.offPeakPrice}
+                                                        onChange={(e) => setFormData(p => ({ ...p, offPeakPrice: parseInt(e.target.value) || 0 }))}
                                                         className="w-16 bg-transparent text-center text-lg font-black text-white focus:outline-none appearance-none"
                                                     />
                                                 </div>
-                                                <button type="button" onClick={() => setFormData(p => ({ ...p, pricePerHour: p.pricePerHour + 5 }))} className="w-10 h-10 flex items-center justify-center rounded-xl bg-white/5 hover:bg-white/10 text-white/20 hover:text-white transition-all font-black text-lg">+</button>
+                                                <button type="button" onClick={() => setFormData(p => ({ ...p, offPeakPrice: p.offPeakPrice + 2 }))} className="w-10 h-10 flex items-center justify-center rounded-xl bg-white/5 hover:bg-white/10 text-white/20 hover:text-white transition-all font-black text-lg">+</button>
                                             </div>
                                         </div>
+                                        <div className="space-y-3">
+                                            <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] ml-1 flex items-center gap-2">
+                                                <Zap size={12} className="text-padel-blue" /> Heure Pleine (€/h)
+                                            </label>
+                                            <div className="flex items-center justify-between bg-white/[0.03] border border-white/10 rounded-2xl p-1 h-[54px] group-hover:border-padel-blue/30 transition-all">
+                                                <button type="button" onClick={() => setFormData(p => ({ ...p, peakPrice: Math.max(0, p.peakPrice - 2) }))} className="w-10 h-10 flex items-center justify-center rounded-xl bg-white/5 hover:bg-white/10 text-white/20 hover:text-white transition-all font-black text-lg">-</button>
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-padel-blue font-black text-sm">€</span>
+                                                    <input
+                                                        type="number" required
+                                                        value={formData.peakPrice}
+                                                        onChange={(e) => setFormData(p => ({ ...p, peakPrice: parseInt(e.target.value) || 0 }))}
+                                                        className="w-16 bg-transparent text-center text-lg font-black text-white focus:outline-none appearance-none"
+                                                    />
+                                                </div>
+                                                <button type="button" onClick={() => setFormData(p => ({ ...p, peakPrice: p.peakPrice + 2 }))} className="w-10 h-10 flex items-center justify-center rounded-xl bg-white/5 hover:bg-white/10 text-white/20 hover:text-white transition-all font-black text-lg">+</button>
+                                            </div>
+                                        </div>
+                                    </div>
                                     </div>
 
                                     {/* ── Sport ── */}
@@ -742,12 +764,13 @@ export function AdminCourts() {
                                                 { value: 'Padel', color: '#1349D3' },
                                                 { value: 'Pickleball', color: '#FFD21F' },
                                                 { value: 'Badminton', color: '#ffffff' },
+                                                { value: 'Golf', color: '#10b981' },
                                             ].map(s => (
                                                 <button
                                                     key={s.value}
                                                     type="button"
                                                     onClick={() => {
-                                                        const newSport = s.value as 'Padel' | 'Pickleball' | 'Badminton';
+                                                        const newSport = s.value as 'Padel' | 'Pickleball' | 'Badminton' | 'Golf';
                                                         const defaultType = typesBySport[newSport][0];
                                                         setFormData(p => ({ ...p, sport: newSport, type: defaultType }));
                                                     }}

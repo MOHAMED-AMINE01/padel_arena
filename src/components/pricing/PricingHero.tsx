@@ -80,7 +80,7 @@ export const PricingHero = () => {
             </div>
 
             <div className="absolute bottom-10 left-10 text-[12rem] font-display font-black text-white/[0.01] tracking-tighter select-none pointer-events-none -z-10 leading-none">
-                PRICING
+                TARIFS
             </div>
         </section>
     );

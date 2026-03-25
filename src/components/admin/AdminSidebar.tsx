@@ -121,30 +121,20 @@ export const AdminSidebar = ({ collapsed, setCollapsed, mobileOpen, setMobileOpe
     };
 
     const renderSidebarContent = (isMobile: boolean = false) => (
-        <div className="flex flex-col h-full py-10 px-0">
+        <div className="flex flex-col h-full py-0 pb-10 px-0">
             {/* Header / Logo */}
             <div className={cn(
-                "px-8 mb-16 flex items-center justify-between",
-                (collapsed && !isMobile) && "px-0 justify-center"
+                "px-8 mb-5 flex items-center justify-between",
+                (collapsed && !isMobile) && "px-0 py-10 justify-center"
             )}>
                 {(!collapsed || isMobile) ? (
                     <Link to="/" className="flex flex-col gap-4 group">
                         <motion.img
                             src="/IMAGES/newLogo_tr.png"
                             alt="Logo"
-                            className="h-24 group-hover:scale-105 transition-all duration-700 drop-shadow-[0_0_25px_rgba(19,73,211,0.25)]"
+                            className="h-42 w-42 group-hover:scale-105 transition-all duration-700 drop-shadow-[0_0_25px_rgba(19,73,211,0.25)]"
                         />
-                        <div className="space-y-1">
-                            <div className="flex items-center gap-2">
-                                <Sparkles size={10} className="text-padel-blue" />
-                                <h3 className="text-[9px] font-black tracking-[0.4em] uppercase text-white/40 leading-none">
-                                    Elite Manager
-                                </h3>
-                            </div>
-                            <h2 className="text-sm font-black tracking-[0.1em] uppercase leading-none text-white group-hover:text-padel-blue transition-colors">
-                                Padel <span className="text-padel-blue">Arena</span>
-                            </h2>
-                        </div>
+
                     </Link>
                 ) : (
                     <Link to="/" className="w-full flex justify-center group">
@@ -158,7 +148,7 @@ export const AdminSidebar = ({ collapsed, setCollapsed, mobileOpen, setMobileOpe
             </div>
 
             {/* Menu Items */}
-            <div className="flex-1 px-4 space-y-2 overflow-y-auto custom-scrollbar">
+            <div className="flex-1 px-4 space-y-1 overflow-y-auto custom-scrollbar">
                 {managerMenu.map((item) => (
                     <SidebarItem
                         key={item.label}

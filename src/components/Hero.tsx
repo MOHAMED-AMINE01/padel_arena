@@ -66,7 +66,7 @@ export const Hero = () => {
 
           {/* Subtext */}
           <p className="text-sm md:text-base text-white/70 font-medium max-w-lg mb-12 md:mb-16 leading-relaxed">
-            Entrez dans l'arène. Un lieu de vie hybride entre technicité et convivialité. 1600 m² de sport et de performance à Vendôme. Padel, Golf Indoor et Pickleball : repoussez vos limites dans un complexe conçu pour l'impact.
+            Entrez dans l'arène. Un lieu de vie hybride entre technicité et convivialité. 1600 m² de sport  à Vendôme. Padel, Golf Indoor et Pickleball : repoussez vos limites dans un complexe conçu pour l'impact.
           </p>
 
           {/* Utility Contact Grid */}

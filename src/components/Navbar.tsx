@@ -33,8 +33,8 @@ const menuStructure = [
       {
         title: 'Loisirs & Événements',
         links: [
-          { name: 'Simulateur de Golf', href: '/activites#coaching', desc: 'Expérience ultra réaliste.', icon: Star },
-          { name: 'Tournois & Événements', href: '/activites#tournois', desc: 'Compétitions toute l\'année.', icon: Trophy },
+          { name: 'Simulateur de golf', href: '/activites#coaching', desc: 'Expérience ultra réaliste.', icon: Star },
+          { name: 'Tournois & événements', href: '/activites#tournois', desc: 'Compétitions toute l\'année.', icon: Trophy },
         ]
       },
     ]

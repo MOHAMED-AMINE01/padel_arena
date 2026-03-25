@@ -60,8 +60,8 @@ export function AdminPlans() {
         setLoading(true);
         try {
             const [pricingRes, statsRes] = await Promise.all([
-                 api.get('/pricing/all'),
-                 api.get('/admin/subscriptions/stats')
+                api.get('/pricing/all'),
+                api.get('/admin/subscriptions/stats')
             ]);
             setItems(pricingRes.data.data);
             setStats(statsRes.data.data);
@@ -154,13 +154,13 @@ export function AdminPlans() {
             <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 border-b border-white/5 pb-10">
                 <div className="space-y-4">
                     <h1 className="text-4xl md:text-7xl font-display font-black uppercase tracking-tighter leading-[0.85]">
-                        MATRICE <br /> <span className="text-padel-blue drop-shadow-[0_0_30px_rgba(19,73,211,0.3)]">TARIFAIRE</span>
+                        Tarifs
                     </h1>
                     <p className="text-[10px] md:text-xs font-bold text-white/30 uppercase tracking-[0.3em] mt-4">Optimisation Yield Management • Abonnements</p>
                 </div>
                 <button onClick={() => handleOpenModal()} className="relative overflow-hidden group flex flex-1 sm:flex-none items-center justify-center gap-3 px-10 py-5 bg-padel-blue text-white rounded-[2rem] font-black text-[10px] md:text-xs uppercase tracking-widest shadow-2xl hover:bg-padel-yellow hover:text-padel-blue transition-all active:scale-95">
                     <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out" />
-                    <Plus size={18} className="relative z-10 group-hover:rotate-90 transition-transform duration-500" /> 
+                    <Plus size={18} className="relative z-10 group-hover:rotate-90 transition-transform duration-500" />
                     <span className="relative z-10">NOUVELLE OFFRE</span>
                 </button>
             </div>
@@ -235,9 +235,8 @@ export function AdminPlans() {
                                     <h3 className="text-2xl md:text-3xl font-display font-black uppercase tracking-tighter leading-tight group-hover:text-padel-blue transition-colors">{item.title}</h3>
                                     {item.type === 'court' ? (
                                         <div className="flex gap-8 mt-4 text-[11px] font-black uppercase tracking-[0.2em]">
-                                            <div className="flex flex-col gap-1"><span className="text-white/20">OFF-PEAK</span><span className="text-white text-xl">{item.offPeak}€</span></div>
-                                            <div className="flex flex-col gap-1"><span className="text-padel-blue/40 font-black">PEAK</span><span className="text-padel-blue text-xl">{item.peak}€</span></div>
-                                            <div className="flex flex-col gap-1"><span className="text-white/20">WEEKEND</span><span className="text-white text-xl">{item.weekend}€</span></div>
+                                            <div className="flex flex-col gap-1"><span className="text-white/20 uppercase">Heure Creuse</span><span className="text-white text-xl">{item.offPeak}€</span></div>
+                                            <div className="flex flex-col gap-1"><span className="text-padel-blue/40 font-black uppercase">Heure Pleine</span><span className="text-padel-blue text-xl">{item.peak}€</span></div>
                                         </div>
                                     ) : item.type === 'subscription' ? (
                                         <div className="flex flex-col gap-2 mt-2">
@@ -316,26 +315,19 @@ export function AdminPlans() {
                                 </div>
 
                                 {formData.type === 'court' ? (
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 p-10 bg-white/[0.02] border border-white/5 rounded-[2.5rem] shadow-2xl">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-10 bg-white/[0.02] border border-white/5 rounded-[2.5rem] shadow-2xl">
                                         <div className="space-y-4">
-                                            <label className="text-[9px] font-black text-white/30 uppercase tracking-[0.4em] ml-1 flex items-center gap-2"><Sparkles size={10} className="text-white/20" /> Off-Peak</label>
+                                            <label className="text-[9px] font-black text-white/30 uppercase tracking-[0.4em] ml-1 flex items-center gap-2"><Sparkles size={10} className="text-white/20" /> Heure Creuse</label>
                                             <div className="relative">
                                                 <input type="number" value={formData.offPeak} onChange={(e) => setFormData({ ...formData, offPeak: +e.target.value })} className="w-full bg-white/[0.03] border border-white/10 rounded-2xl py-5 px-6 text-xl font-black text-white focus:border-padel-blue outline-none transition-all" />
                                                 <span className="absolute right-6 top-1/2 -translate-y-1/2 text-white/20 font-black">€</span>
                                             </div>
                                         </div>
                                         <div className="space-y-4">
-                                            <label className="text-[9px] font-black text-white/30 uppercase tracking-[0.4em] ml-1 flex items-center gap-2"><Zap size={10} className="text-padel-blue" /> Peak Hour</label>
+                                            <label className="text-[9px] font-black text-white/30 uppercase tracking-[0.4em] ml-1 flex items-center gap-2"><Zap size={10} className="text-padel-blue" /> Heure Pleine</label>
                                             <div className="relative">
-                                                <input type="number" value={formData.peak} onChange={(e) => setFormData({ ...formData, peak: +e.target.value })} className="w-full bg-white/[0.03] border border-white/10 rounded-2xl py-5 px-6 text-xl font-black text-padel-blue focus:border-padel-blue outline-none transition-all" />
+                                                <input type="number" value={formData.peak} onChange={(e) => setFormData({ ...formData, peak: +e.target.value, weekend: +e.target.value })} className="w-full bg-white/[0.03] border border-white/10 rounded-2xl py-5 px-6 text-xl font-black text-padel-blue focus:border-padel-blue outline-none transition-all" />
                                                 <span className="absolute right-6 top-1/2 -translate-y-1/2 text-padel-blue/40 font-black">€</span>
-                                            </div>
-                                        </div>
-                                        <div className="space-y-4">
-                                            <label className="text-[9px] font-black text-white/30 uppercase tracking-[0.4em] ml-1 flex items-center gap-2"><Star size={10} className="text-white/20" /> Weekend</label>
-                                            <div className="relative">
-                                                <input type="number" value={formData.weekend} onChange={(e) => setFormData({ ...formData, weekend: +e.target.value })} className="w-full bg-white/[0.03] border border-white/10 rounded-2xl py-5 px-6 text-xl font-black text-white focus:border-padel-blue outline-none transition-all" />
-                                                <span className="absolute right-6 top-1/2 -translate-y-1/2 text-white/20 font-black">€</span>
                                             </div>
                                         </div>
                                     </div>

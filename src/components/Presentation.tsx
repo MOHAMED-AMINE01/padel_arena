@@ -46,7 +46,7 @@ export const Presentation = () => {
       <div className="absolute top-1/2 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-white/5 to-transparent" />
 
       <div className="max-w-[1400px] mx-auto relative z-10">
-        <div className="grid lg:grid-cols-12 gap-16 lg:gap-24 items-center">
+        <div className="grid lg:grid-cols-14 gap-16 lg:gap-24 items-center">
 
           {/* Text Content - Left Side (7 cols) */}
           <motion.div
@@ -101,8 +101,8 @@ export const Presentation = () => {
               viewport={{ once: true }}
               transition={{ delay: 0.6 }}
             >
-              <Link 
-                to="/le-club" 
+              <Link
+                to="/le-club"
                 className="group relative inline-flex items-center gap-4 px-8 py-4 bg-transparent border border-white/10 rounded-full overflow-hidden transition-all duration-500 hover:border-padel-blue/50"
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-padel-blue to-padel-blue/80 translate-x-[-100%] group-hover:translate-x-0 transition-transform duration-500 ease-out" />
@@ -117,12 +117,12 @@ export const Presentation = () => {
           </motion.div>
 
           {/* Visual Content - Right Side (5 cols) */}
-          <div className="lg:col-span-5 relative order-1 lg:order-2">
+          <div className="lg:col-span-7 relative order-1 lg:order-2">
             <motion.div
               style={{ y, rotate }}
               className="relative z-10"
             >
-              <div className="relative aspect-[10/14] md:aspect-[4/5] overflow-hidden rounded-[2rem] md:rounded-[4rem] group">
+              <div className="relative aspect-[10/14] md:aspect-[7/4] overflow-hidden rounded-[2rem] md:rounded-[2rem] group">
                 <div className="absolute inset-0 bg-padel-blue/20 mix-blend-overlay group-hover:opacity-0 transition-opacity duration-1000 z-10" />
                 <motion.img
                   initial={{ scale: 1 }}
@@ -138,7 +138,7 @@ export const Presentation = () => {
                 <div className="absolute inset-0 border-[1px] border-white/5 rounded-[2rem] md:rounded-[4rem] m-4 pointer-events-none" />
               </div>
 
-              
+
             </motion.div>
 
             {/* Background Decorative Text (Large Stroke) */}

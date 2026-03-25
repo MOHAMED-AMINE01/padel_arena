@@ -215,7 +215,7 @@ export function AdminPromoCodes() {
 
                     <div>
                         <h1 className="text-4xl md:text-6xl lg:text-7xl font-display font-black text-white uppercase tracking-tighter leading-[0.9] md:leading-[0.85]">
-                            Codes <br /> <span className="text-padel-blue drop-shadow-[0_0_30px_rgba(19,73,211,0.3)]">Promo</span>
+                            Codes  <span className="text-padel-blue drop-shadow-[0_0_30px_rgba(19,73,211,0.3)]">Promo</span>
                         </h1>
                         <p className="text-[10px] md:text-xs font-bold text-white/30 uppercase tracking-[0.2em] md:tracking-[0.3em] mt-3 md:mt-4">Gestion des promotions • Fidélisation</p>
                     </div>

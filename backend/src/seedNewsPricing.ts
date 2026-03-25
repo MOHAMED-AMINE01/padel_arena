@@ -55,7 +55,7 @@ const newsData = [
 const pricingData = [
     // Court pricing
     {
-        title: "INDOOR PANORAMIQUE",
+        title: "PADEL",
         type: "court",
         offPeak: 32,
         peak: 40,
@@ -66,23 +66,23 @@ const pricingData = [
         order: 1
     },
     {
-        title: "OUTDOOR PREMIUM",
+        title: "SIMULATEUR DE GOLF",
         type: "court",
-        offPeak: 24,
-        peak: 32,
-        weekend: 36,
-        features: ["Gazon sablé", "Vue dégagée", "Éclairage nocturne"],
+        offPeak: 20,
+        peak: 24,
+        weekend: 28,
+        features: ["Trackman 4", "100+ parcours", "Analyse vidéo"],
         featured: false,
         isActive: true,
         order: 2
     },
     {
-        title: "PRO COMPETITION",
+        title: "PICKLEBALL & BADMINTON",
         type: "court",
-        offPeak: 36,
-        peak: 45,
-        weekend: 50,
-        features: ["Sorties de piste", "Full Panoramique", "Streaming Live incl."],
+        offPeak: 7,
+        peak: 8,
+        weekend: 10,
+        features: ["Parquet amortissant", "Filets ajustables", "Location matériel"],
         featured: false,
         isActive: true,
         order: 3

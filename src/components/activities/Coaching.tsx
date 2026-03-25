@@ -23,14 +23,14 @@ const coachingTypes = [
     title: "BADMINTON",
     desc: "Terrain adapté pour le badminton, accessible à tous les joueurs.",
     icon: "03",
-    image: "/IMAGES/Image de présentation.png",
+    image: "/IMAGES/Badminton.jpg",
     link: "/?sport=Badminton#club"
   },
   {
     title: "SIMULATEUR DE GOLF",
     desc: "Simulateur dernière génération ultra réaliste. Accès aux plus beaux parcours du monde.",
     icon: "04",
-    image: "/IMAGES/IMAGES CARROUSEL/pexels-criticalimagery-33226057.jpg",
+    image: "/IMAGES/Simulateur golf.jpg",
     link: "/?sport=Golf#club"
   },
   {

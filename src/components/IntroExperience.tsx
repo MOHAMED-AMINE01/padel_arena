@@ -175,7 +175,6 @@ export const IntroExperience: React.FC<IntroExperienceProps> = ({ onEnter }) => 
         >
           <h2 className="text-lg md:text-2xl font-display font-light text-white/60 mb-8 tracking-[0.2em] uppercase max-w-3xl leading-relaxed">
             ENTREZ DANS L’UNIVERS DU PADEL VENDÔMOIS <br />
-            <span className="text-white font-black italic tracking-normal">NOUVELLE GÉNÉRATION</span>
           </h2>
         </motion.div>
       </div>
