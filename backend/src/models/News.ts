@@ -10,6 +10,7 @@ export interface INews extends Document {
     link: string;
     isActive: boolean;
     order: number;
+    content: string;
 }
 
 const NewsSchema: Schema = new Schema({
@@ -18,6 +19,7 @@ const NewsSchema: Schema = new Schema({
     date: { type: String, required: true },
     image: { type: String },
     description: { type: String, required: true },
+    content: { type: String },
     featured: { type: Boolean, default: false },
     link: { type: String },
     isActive: { type: Boolean, default: true },

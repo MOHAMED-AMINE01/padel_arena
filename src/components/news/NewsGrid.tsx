@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { motion } from 'motion/react';
-import { Calendar, ArrowUpRight, Share2, Loader2 } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
+import { Calendar, ArrowUpRight, Share2, Loader2, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { cn } from '../../lib/utils';
 import api from '../../lib/api';
@@ -14,12 +14,15 @@ interface INews {
     description: string;
     featured: boolean;
     link: string;
+    content?: string;
 }
 
 export const NewsGrid = () => {
     const [news, setNews] = useState<INews[]>([]);
     const [loading, setLoading] = useState(true);
     const [filter, setFilter] = useState('TOUT');
+    const [selectedNews, setSelectedNews] = useState<INews | null>(null);
+    const [modalImageReady, setModalImageReady] = useState(false);
 
     useEffect(() => {
         const fetchNews = async () => {
@@ -93,10 +96,11 @@ export const NewsGrid = () => {
                             viewport={{ once: true }}
                             transition={{ delay: i * 0.1, duration: 0.8 }}
                             className={item.featured
-                                ? "lg:col-span-12 xl:col-span-8 group"
-                                : "lg:col-span-6 xl:col-span-4 group"}
+                                ? "lg:col-span-12 xl:col-span-8 group cursor-pointer"
+                                : "lg:col-span-6 xl:col-span-4 group cursor-pointer"}
+                            onClick={() => setSelectedNews(item)}
                         >
-                            <Link to={item.link || '#'} className="block cursor-pointer">
+                            <div className="block">
                                 <div className="relative aspect-video xl:aspect-auto xl:h-[500px] overflow-hidden rounded-[3rem] mb-10 shadow-2xl">
                                     <img
                                         src={item.image}
@@ -124,7 +128,6 @@ export const NewsGrid = () => {
                                             <Calendar size={12} className="text-padel-blue" />
                                             {item.date}
                                         </div>
-
                                     </div>
                                     <h3 className={item.featured
                                         ? "text-3xl md:text-5xl font-display font-black tracking-tight leading-none mb-6 group-hover:text-padel-blue transition-colors uppercase"
@@ -136,11 +139,93 @@ export const NewsGrid = () => {
                                         {item.description}
                                     </p>
                                 </div>
-                            </Link>
+                            </div>
                         </motion.div>
                     ))}
                 </div>
             </div>
+
+            {/* News Detail Modal */}
+            <AnimatePresence>
+                {selectedNews && (
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 md:p-10">
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setSelectedNews(null)}
+                            className="absolute inset-0 bg-black/95 backdrop-blur-2xl"
+                        />
+
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.9, y: 30 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.9, y: 30 }}
+                            className="relative w-full max-w-5xl max-h-[90vh] bg-[#0c0c0e] border border-white/10 rounded-[3rem] overflow-hidden flex flex-col shadow-[0_50px_100px_rgba(0,0,0,0.8)]"
+                        >
+                            <button 
+                                onClick={() => setSelectedNews(null)}
+                                className="absolute top-8 right-8 z-20 w-12 h-12 bg-white/5 hover:bg-white/10 hover:text-padel-blue rounded-full border border-white/10 flex items-center justify-center text-white transition-all backdrop-blur-xl"
+                            >
+                                <X size={20} />
+                            </button>
+
+                            <div className="overflow-y-auto custom-scrollbar flex-1">
+                                <div className="relative aspect-video overflow-hidden">
+                                    <img
+                                        src={selectedNews.image}
+                                        alt={selectedNews.title}
+                                        onLoad={() => setModalImageReady(true)}
+                                        className={cn(
+                                            "w-full h-full object-cover transition-all duration-1000",
+                                            modalImageReady ? "scale-100 opacity-100" : "scale-110 opacity-0"
+                                        )}
+                                    />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-[#0c0c0e] via-transparent to-transparent" />
+
+                                    <div className="absolute bottom-10 left-10 md:left-16 flex items-center gap-6">
+                                        <div className="px-6 py-2 bg-padel-blue/20 backdrop-blur-3xl border border-padel-blue/30 rounded-full">
+                                            <span className="text-[10px] font-black text-padel-blue uppercase tracking-widest">{selectedNews.category}</span>
+                                        </div>
+                                        <div className="flex items-center gap-2 text-[10px] font-black text-white/40 uppercase tracking-widest">
+                                            <Calendar size={12} className="text-padel-blue" />
+                                            {selectedNews.date}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="p-10 md:p-16 pt-10">
+                                    <h2 className="text-3xl md:text-6xl font-display font-black tracking-tighter leading-[0.9] uppercase mb-10">
+                                        {selectedNews.title}
+                                    </h2>
+
+                                    <div className="prose prose-invert max-w-none">
+                                        <div className="space-y-10">
+                                            {/* Short Description (Teaser) */}
+                                            <p className="text-xl md:text-2xl text-white/80 leading-relaxed font-bold italic border-l-4 border-padel-blue pl-6 py-2">
+                                                {selectedNews.description}
+                                            </p>
+
+                                            {/* Detailed Content */}
+                                            {selectedNews.content && (
+                                                <div className="space-y-6 pt-6 border-t border-white/5">
+                                                    {selectedNews.content.split('\n').map((paragraph, idx) => (
+                                                        paragraph.trim() ? (
+                                                            <p key={idx} className="text-lg text-white/40 leading-relaxed font-medium whitespace-pre-wrap">
+                                                                {paragraph}
+                                                            </p>
+                                                        ) : <div key={idx} className="h-4" />
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
         </section>
     );
 };

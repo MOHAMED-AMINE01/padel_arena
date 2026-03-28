@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
     Settings,
@@ -10,7 +10,11 @@ import {
     Mail,
     KeyRound,
     AlertCircle,
-    CheckCircle2
+    CheckCircle2,
+    MapPin,
+    Phone,
+    Clock,
+    Globe
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { useAuth } from '../../context/AuthContext';
@@ -27,10 +31,39 @@ export function AdminSettings() {
         newPassword: '',
         confirmPassword: ''
     });
+    const [siteData, setSiteData] = useState({
+        phone: '',
+        email: '',
+        address: '',
+        availability: '',
+        googleMapsUrl: ''
+    });
 
     const [loadingProfile, setLoadingProfile] = useState(false);
     const [loadingPass, setLoadingPass] = useState(false);
+    const [loadingSite, setLoadingSite] = useState(false);
     const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+
+    useEffect(() => {
+        fetchSiteSettings();
+    }, []);
+
+    const fetchSiteSettings = async () => {
+        try {
+            const res = await api.get('/content/settings');
+            if (res.data.success) {
+                setSiteData({
+                    phone: res.data.data.phone || '',
+                    email: res.data.data.email || '',
+                    address: res.data.data.address || '',
+                    availability: res.data.data.availability || '',
+                    googleMapsUrl: res.data.data.googleMapsUrl || ''
+                });
+            }
+        } catch (err) {
+            console.error('Error fetching site settings:', err);
+        }
+    };
 
     const handleUpdateProfile = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -69,6 +102,20 @@ export function AdminSettings() {
         }
     };
 
+    const handleUpdateSite = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setLoadingSite(true);
+        try {
+            await api.put('/content/settings', siteData);
+            setMessage({ type: 'success', text: 'Infos site mises à jour !' });
+        } catch (err: any) {
+            setMessage({ type: 'error', text: 'Erreur lors de la mise à jour des infos site' });
+        } finally {
+            setLoadingSite(false);
+            setTimeout(() => setMessage(null), 3000);
+        }
+    };
+
     return (
         <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -81,9 +128,9 @@ export function AdminSettings() {
 
                     <div>
                         <h1 className="text-4xl md:text-6xl lg:text-7xl font-display font-black text-white uppercase tracking-tighter leading-[0.9] md:leading-[0.85]">
-                            Profil & <br /> <span className="text-padel-yellow drop-shadow-[0_0_30px_rgba(255,210,31,0.2)]">Sécurité</span>
+                            Profil & <br /> <span className="text-padel-yellow drop-shadow-[0_0_30px_rgba(255,210,31,0.2)]">Configuration</span>
                         </h1>
-                        <p className="text-[10px] md:text-xs font-bold text-white/30 uppercase tracking-[0.2em] md:tracking-[0.3em] mt-3 md:mt-4">Gérez vos accès et informations</p>
+                        <p className="text-[10px] md:text-xs font-bold text-white/30 uppercase tracking-[0.2em] md:tracking-[0.3em] mt-3 md:mt-4">Gérez vos accès et informations du site</p>
                     </div>
                 </div>
             </div>
@@ -112,7 +159,7 @@ export function AdminSettings() {
                     <form onSubmit={handleUpdateProfile} className="bg-[#151518]/60 backdrop-blur-2xl border border-white/10 rounded-2xl md:rounded-[3rem] p-6 md:p-10 space-y-8 md:space-y-10 shadow-3xl h-full">
                         <div className="flex items-center justify-between pb-6 md:pb-8 border-b border-white/5">
                             <h3 className="text-lg md:text-xl font-black text-white uppercase tracking-tighter flex items-center gap-3 md:gap-4">
-                                <User className="text-padel-blue md:w-6 md:h-6" size={20} /> Infos Publiques
+                                <User className="text-padel-blue md:w-6 md:h-6" size={20} /> Mon Compte
                             </h3>
                         </div>
 
@@ -224,6 +271,109 @@ export function AdminSettings() {
                                     {loadingPass ? <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1 }}><Settings size={14} className="md:w-4 md:h-4" /></motion.div> : <ShieldCheck size={14} className="md:w-4 md:h-4" />}
                                     ACTUALISER LA SÉCURITÉ
                                 </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                {/* Site Section */}
+                <div className="lg:col-span-12">
+                    <form onSubmit={handleUpdateSite} className="bg-[#151518]/60 backdrop-blur-2xl border border-white/10 rounded-2xl md:rounded-[3rem] p-6 md:p-10 space-y-8 md:space-y-10 shadow-3xl">
+                        <div className="flex items-center justify-between pb-6 md:pb-8 border-b border-white/5">
+                            <h3 className="text-lg md:text-xl font-black text-white uppercase tracking-tighter flex items-center gap-3 md:gap-4">
+                                <Globe className="text-padel-yellow md:w-6 md:h-6" size={20} /> Infos Arena Sport
+                            </h3>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10">
+                            <div className="space-y-5 md:space-y-6">
+                                <div className="space-y-2 md:space-y-3">
+                                    <label className="text-[9px] md:text-[10px] font-black text-white/30 uppercase tracking-[0.2em] md:tracking-[0.3em] ml-2">Numéro de Téléphone</label>
+                                    <div className="relative group/input">
+                                        <div className="absolute left-5 md:left-6 top-1/2 -translate-y-1/2 text-white/10 group-focus-within/input:text-padel-yellow transition-colors">
+                                            <Phone size={16} className="md:w-[18px] md:h-[18px]" />
+                                        </div>
+                                        <input
+                                            type="text"
+                                            value={siteData.phone}
+                                            onChange={(e) => setSiteData({ ...siteData, phone: e.target.value })}
+                                            className="w-full bg-white/[0.03] border border-white/10 rounded-xl md:rounded-2xl pl-12 md:pl-16 pr-6 py-4 md:py-5 text-sm md:text-base text-white font-bold focus:outline-none focus:border-padel-yellow/40 focus:bg-white/[0.06] transition-all"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="space-y-2 md:space-y-3">
+                                    <label className="text-[9px] md:text-[10px] font-black text-white/30 uppercase tracking-[0.2em] md:tracking-[0.3em] ml-2">Email de Contact</label>
+                                    <div className="relative group/input">
+                                        <div className="absolute left-5 md:left-6 top-1/2 -translate-y-1/2 text-white/10 group-focus-within/input:text-padel-yellow transition-colors">
+                                            <Mail size={16} className="md:w-[18px] md:h-[18px]" />
+                                        </div>
+                                        <input
+                                            type="email"
+                                            value={siteData.email}
+                                            onChange={(e) => setSiteData({ ...siteData, email: e.target.value })}
+                                            className="w-full bg-white/[0.03] border border-white/10 rounded-xl md:rounded-2xl pl-12 md:pl-16 pr-6 py-4 md:py-5 text-sm md:text-base text-white font-bold focus:outline-none focus:border-padel-yellow/40 focus:bg-white/[0.06] transition-all"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="space-y-2 md:space-y-3">
+                                    <label className="text-[9px] md:text-[10px] font-black text-white/30 uppercase tracking-[0.2em] md:tracking-[0.3em] ml-2">Disponibilité / Horaires</label>
+                                    <div className="relative group/input">
+                                        <div className="absolute left-5 md:left-6 top-1/2 -translate-y-1/2 text-white/10 group-focus-within/input:text-padel-yellow transition-colors">
+                                            <Clock size={16} className="md:w-[18px] md:h-[18px]" />
+                                        </div>
+                                        <input
+                                            type="text"
+                                            value={siteData.availability}
+                                            onChange={(e) => setSiteData({ ...siteData, availability: e.target.value })}
+                                            className="w-full bg-white/[0.03] border border-white/10 rounded-xl md:rounded-2xl pl-12 md:pl-16 pr-6 py-4 md:py-5 text-sm md:text-base text-white font-bold focus:outline-none focus:border-padel-yellow/40 focus:bg-white/[0.06] transition-all"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="space-y-5 md:space-y-6">
+                                <div className="space-y-2 md:space-y-3">
+                                    <label className="text-[9px] md:text-[10px] font-black text-white/30 uppercase tracking-[0.2em] md:tracking-[0.3em] ml-2">Adresse Physique</label>
+                                    <div className="relative group/input">
+                                        <div className="absolute left-5 md:left-6 top-1/2 -translate-y-1/2 text-white/10 group-focus-within/input:text-padel-yellow transition-colors">
+                                            <MapPin size={16} className="md:w-[18px] md:h-[18px]" />
+                                        </div>
+                                        <input
+                                            type="text"
+                                            value={siteData.address}
+                                            onChange={(e) => setSiteData({ ...siteData, address: e.target.value })}
+                                            className="w-full bg-white/[0.03] border border-white/10 rounded-xl md:rounded-2xl pl-12 md:pl-16 pr-6 py-4 md:py-5 text-sm md:text-base text-white font-bold focus:outline-none focus:border-padel-yellow/40 focus:bg-white/[0.06] transition-all"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="space-y-2 md:space-y-3">
+                                    <label className="text-[9px] md:text-[10px] font-black text-white/30 uppercase tracking-[0.2em] md:tracking-[0.3em] ml-2">Lien Google Maps</label>
+                                    <div className="relative group/input">
+                                        <div className="absolute left-5 md:left-6 top-1/2 -translate-y-1/2 text-white/10 group-focus-within/input:text-padel-yellow transition-colors">
+                                            <ChevronRight size={16} className="md:w-[18px] md:h-[18px]" />
+                                        </div>
+                                        <input
+                                            type="text"
+                                            value={siteData.googleMapsUrl}
+                                            onChange={(e) => setSiteData({ ...siteData, googleMapsUrl: e.target.value })}
+                                            className="w-full bg-white/[0.03] border border-white/10 rounded-xl md:rounded-2xl pl-12 md:pl-16 pr-6 py-4 md:py-5 text-sm md:text-base text-white font-bold focus:outline-none focus:border-padel-yellow/40 focus:bg-white/[0.06] transition-all"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="pt-6">
+                                    <button
+                                        type="submit"
+                                        disabled={loadingSite}
+                                        className="w-full py-4 md:py-5 bg-padel-yellow text-padel-blue rounded-xl md:rounded-[1.5rem] text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] shadow-xl hover:bg-white hover:text-padel-blue active:scale-[0.98] transition-all flex items-center justify-center gap-3 group disabled:opacity-50"
+                                    >
+                                        {loadingSite ? <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1 }}><Settings size={14} className="md:w-4 md:h-4" /></motion.div> : <Save size={14} className="md:w-4 md:h-4" />}
+                                        METTRE À JOUR LES INFOS SITE
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </form>

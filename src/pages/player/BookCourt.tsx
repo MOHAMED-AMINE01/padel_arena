@@ -120,9 +120,11 @@ function formatDateAPI(date: Date) {
     return date.toISOString().split('T')[0]; // YYYY-MM-DD
 }
 
-function isPeakHour(time: string) {
+function isPeakHour(time: string, date: Date) {
     const [h] = time.split(':').map(Number);
-    return h >= 12 && h <= 22;
+    const day = date.getDay();
+    const isWeekend = day === 0 || day === 6; // 0 is Sunday, 6 is Saturday
+    return h >= 17 || isWeekend;
 }
 
 // ─── Step Labels ─────────────────────────────────────────────────────────────
@@ -299,10 +301,33 @@ export function PlayerBook() {
         }
     };
 
-    // Calculate total price based on hourly rate and selected duration
-    const hourlyPrice = selectedCourt?.slots.find(s => s.time === selectedTime)?.price ?? 0;
-    // Nouveau calcul du prix total avec réduction
-    const totalPrice = Math.max(0, (hourlyPrice * selectedDuration / 60) - promoDiscount).toFixed(2);
+    // Calculate total price based on duration segments
+    const calculateBookingPrice = useCallback((court: CourtSlots | null, startTime: string | null, duration: number) => {
+        if (!court || !startTime) return 0;
+        const startH = parseInt(startTime.split(':')[0]);
+        const startM = parseInt(startTime.split(':')[1]);
+        const startTotalMins = startH * 60 + startM;
+        const segments = duration / 30;
+        let total = 0;
+        for (let i = 0; i < segments; i++) {
+            const currentMins = startTotalMins + (i * 30);
+            const timeStr = `${String(Math.floor(currentMins / 60)).padStart(2, '0')}:${String(currentMins % 60).padStart(2, '0')}`;
+            const slot = court.slots.find(s => s.time === timeStr);
+            if (slot) {
+                // Backend slot price is for 90 mins (1.5h), so 30 mins segment is price / 3
+                total += slot.price / 3;
+            }
+        }
+        return total;
+    }, []);
+
+    const basePrice = useMemo(() => {
+        return calculateBookingPrice(selectedCourt, selectedTime, selectedDuration);
+    }, [selectedCourt, selectedTime, selectedDuration, calculateBookingPrice]);
+
+    const totalPrice = useMemo(() => {
+        return Math.max(0, basePrice - promoDiscount).toFixed(2);
+    }, [basePrice, promoDiscount]);
 
     // ── Render ────────────────────────────────────────────────────────────────
     return (
@@ -692,7 +717,7 @@ export function PlayerBook() {
                             ) : (
                                 <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-2 sm:gap-3">
                                     {mergedSlots.map((slot, i) => {
-                                        const peak = isPeakHour(slot.time);
+                                        const peak = isPeakHour(slot.time, selectedDate);
                                         return (
                                             <motion.button
                                                 key={slot.time}
@@ -723,12 +748,6 @@ export function PlayerBook() {
                                                 )}
                                                 <span className="text-base sm:text-lg md:text-xl font-display font-black text-white italic tracking-tighter leading-none group-hover:scale-110 transition-transform">
                                                     {slot.time}
-                                                </span>
-                                                <span className={cn(
-                                                    'text-[8px] sm:text-[9px] font-black uppercase tracking-widest',
-                                                    peak ? 'text-padel-yellow' : 'text-green-500'
-                                                )}>
-                                                    {slot.price.toFixed(0)}€
                                                 </span>
                                                 {!slot.available && (
                                                     <div className="absolute inset-0 flex items-center justify-center">
@@ -903,9 +922,8 @@ export function PlayerBook() {
                                 </div>
                             ) : (
                                 availableCourts.map((court, idx) => {
-                                    const courtSlot = court.slots.find(s => s.time === selectedTime);
                                     const isSelected = selectedCourt?.courtId === court.courtId;
-                                    const peak = isPeakHour(selectedTime || '');
+                                    const peak = isPeakHour(selectedTime || '', selectedDate);
                                     return (
                                         <motion.button
                                             key={court.courtId}
@@ -943,7 +961,7 @@ export function PlayerBook() {
                                             <div className="flex items-center justify-between">
                                                 <div>
                                                     <p className={cn('text-xl sm:text-2xl font-display font-black italic leading-none', peak ? 'text-padel-yellow' : 'text-white')}>
-                                                        {courtSlot?.price.toFixed(0)}€
+                                                        {calculateBookingPrice(court, selectedTime, selectedDuration).toFixed(0)}€
                                                     </p>
                                                     <p className="text-[7px] sm:text-[8px] font-black text-white/20 uppercase tracking-widest mt-1">{selectedDuration >= 60 ? Math.floor(selectedDuration / 60) + 'h' : ''}{selectedDuration % 60 > 0 ? (selectedDuration % 60) : ''} de jeu</p>
                                                 </div>
@@ -1105,7 +1123,7 @@ export function PlayerBook() {
                                         <div className="mb-8 relative z-10">
                                             <PromoCodeInput
                                                 applicationType="booking"
-                                                purchaseAmount={hourlyPrice * selectedDuration / 60}
+                                                purchaseAmount={basePrice}
                                                 onApply={(discount, code) => {
                                                     setPromoDiscount(discount);
                                                     setPromoCode(code);

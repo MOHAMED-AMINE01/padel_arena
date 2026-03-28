@@ -1,35 +1,37 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { Star, Quote } from 'lucide-react';
+import { Star, Quote, Loader2 } from 'lucide-react';
 import { cn } from '../lib/utils';
+import api from '../lib/api';
 
-const testimonials = [
-  {
-    name: "Marc D.",
-    role: "Joueur Passionné",
-    content: "Le meilleur club de la région. Les terrains panoramiques sont incroyables et l'ambiance au club house est toujours au top après les matchs.",
-    rating: 5,
-    avatar: "https://picsum.photos/seed/marc/100/100"
-  },
-  {
-    name: "Julie L.",
-    role: "Membre Académie",
-    content: "J'ai énormément progressé grâce aux coachs. Les infrastructures sont modernes et très bien entretenues. Je recommande vivement !",
-    rating: 5,
-    avatar: "https://picsum.photos/seed/julie/100/100"
-  },
-  {
-    name: "Antoine P.",
-    role: "Compétiteur P250",
-    content: "L'organisation des tournois est exemplaire. On sent que le club est géré par des passionnés qui connaissent les besoins des joueurs.",
-    rating: 5,
-    avatar: "https://picsum.photos/seed/antoine/100/100"
-  }
-];
+interface ITestimonial {
+  _id: string;
+  name: string;
+  role: string;
+  content: string;
+  rating: number;
+  avatar?: string;
+}
 
 export const Testimonials = () => {
   const [activeIndex, setActiveIndex] = useState(0);
+  const [testimonials, setTestimonials] = useState<ITestimonial[]>([]);
+  const [loading, setLoading] = useState(true);
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const fetchTestimonials = async () => {
+      try {
+        const res = await api.get('/content/testimonials');
+        setTestimonials(res.data.data);
+      } catch (err) {
+        console.error('Error fetching testimonials:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchTestimonials();
+  }, []);
 
   const handleScroll = () => {
     if (scrollRef.current) {
@@ -49,6 +51,15 @@ export const Testimonials = () => {
     }
   };
 
+  if (loading) {
+    return (
+      <section id="avis" className="py-24 md:py-40 px-6 bg-dark-bg flex flex-col items-center justify-center gap-6">
+        <Loader2 className="animate-spin text-padel-yellow" size={40} />
+        <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em]">Chargement des avis...</p>
+      </section>
+    );
+  }
+
   return (
     <section id="avis" className="py-24 md:py-40 px-6 relative overflow-hidden bg-dark-bg">
       <div className="max-w-7xl mx-auto">
@@ -67,61 +78,66 @@ export const Testimonials = () => {
         </div>
 
         <div className="relative">
-          {/* Horizontal Scroll Container for Mobile/Tablet, Grid for Desktop */}
+          {/* Main Slider */}
           <div
             ref={scrollRef}
             onScroll={handleScroll}
-            className="flex lg:grid lg:grid-cols-3 gap-6 md:gap-8 overflow-x-auto lg:overflow-x-visible snap-x snap-mandatory no-scrollbar pb-8 lg:pb-0"
+            className="flex overflow-x-auto snap-x snap-mandatory hide-scrollbar gap-6 md:gap-8 pb-12"
           >
-            {testimonials.map((t, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                className="min-w-[85vw] sm:min-w-[400px] lg:min-w-0 snap-center glass p-8 md:p-10 rounded-[2.5rem] md:rounded-[3rem] border-white/5 relative group hover:border-padel-blue/30 transition-all flex flex-col"
+            {testimonials.map((t, idx) => (
+              <div
+                key={t._id}
+                className="min-w-full md:min-w-[calc(50%-1rem)] lg:min-w-[calc(33.333%-1.5rem)] snap-center"
               >
-                <Quote className="absolute top-8 right-8 text-padel-blue/10 group-hover:text-padel-blue/20 transition-colors" size={50} />
-
-                <div className="flex gap-1 mb-6 md:mb-8">
-                  {[...Array(t.rating)].map((_, i) => (
-                    <Star key={i} size={14} className="fill-padel-blue text-padel-blue" />
-                  ))}
-                </div>
-
-                <p className="text-lg md:text-xl text-white/70 font-light leading-relaxed mb-8 md:mb-10 italic flex-grow">
-                  "{t.content}"
-                </p>
-
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 md:w-14 md:h-14 rounded-full overflow-hidden border-2 border-padel-blue/20">
-                    <img src={t.avatar} alt={t.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
-                  </div>
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: idx * 0.1 }}
+                  className="relative bg-white/[0.02] border border-white/5 p-8 md:p-10 rounded-[2.5rem] md:rounded-[3rem] group hover:border-padel-blue/30 transition-all duration-700 h-full flex flex-col justify-between"
+                >
                   <div>
-                    <h4 className="font-display font-bold text-base md:text-lg">{t.name}</h4>
-                    <p className="text-[10px] text-white/30 uppercase tracking-widest">{t.role}</p>
+                    <Quote className="absolute top-6 right-6 text-padel-blue/10 group-hover:text-padel-blue/20 transition-colors" size={60} />
+                    
+                    <div className="flex gap-1 mb-6">
+                      {[...Array(5)].map((_, i) => (
+                        <Star key={i} size={14} className={cn(i < t.rating ? "text-padel-yellow fill-padel-yellow" : "text-white/10")} />
+                      ))}
+                    </div>
+
+                    <p className="text-lg md:text-xl text-white/80 font-medium italic mb-10 leading-relaxed relative z-10 break-words">
+                      "{t.content}"
+                    </p>
                   </div>
-                </div>
-              </motion.div>
+
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-2xl overflow-hidden grayscale group-hover:grayscale-0 transition-all duration-700">
+                      <img src={t.avatar || `https://ui-avatars.com/api/?name=${t.name}&background=random`} alt={t.name} className="w-full h-full object-cover" />
+                    </div>
+                    <div>
+                      <h4 className="text-base font-black text-white uppercase tracking-tighter">{t.name}</h4>
+                      <p className="text-[10px] font-bold text-padel-blue uppercase tracking-widest">{t.role}</p>
+                    </div>
+                  </div>
+                </motion.div>
+              </div>
             ))}
           </div>
 
-          {/* Pagination dots - visible on LG/MD (optional) but specifically requested for mobile and tablet */}
-          <div className="flex lg:hidden justify-center items-center gap-3 mt-8">
-            {testimonials.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => scrollTo(i)}
-                className={cn(
-                  "h-1.5 transition-all duration-500 rounded-full",
-                  activeIndex === i
-                    ? "w-8 bg-padel-blue"
-                    : "w-1.5 bg-white/10 hover:bg-white/30"
-                )}
-              />
-            ))}
-          </div>
+          {/* Pagination - Only if more than 3 */}
+          {testimonials.length > 3 && (
+            <div className="flex justify-center gap-4 mt-8">
+              {testimonials.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => scrollTo(i)}
+                  className={cn(
+                    "h-1.5 transition-all duration-500 rounded-full",
+                    activeIndex === i ? "w-12 bg-padel-blue shadow-[0_0_15px_rgba(59,130,246,0.5)]" : "w-1.5 bg-white/10"
+                  )}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </section>

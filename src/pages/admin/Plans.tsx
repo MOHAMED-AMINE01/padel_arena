@@ -4,7 +4,7 @@ import {
     Plus, Edit2, Trash2, X, CheckCircle2, AlertCircle,
     Star, MoveUp, MoveDown, ListPlus, Minus, Target,
     Trophy, Heart, Users, Building2, Zap, Sparkles,
-    Receipt, Wallet, Type, Palette, Coins, Info, TrendingUp
+    Receipt, Wallet, Type, Palette, Coins, Info, TrendingUp, Search, Calendar, ImageIcon
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import api from '../../lib/api';
@@ -55,6 +55,20 @@ export function AdminPlans() {
         title: '', type: 'court', description: '', offPeak: 0, peak: 0, weekend: 0, price: '', annualPrice: '', featured: false, color: '', accent: '', icon: 'Target', isActive: true, order: 0
     });
     const [alert, setAlert] = useState<{ show: boolean; title: string; message: string; type: 'success' | 'error' }>({ show: false, title: '', message: '', type: 'success' });
+    const [searchTerm, setSearchTerm] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage, setItemsPerPage] = useState(8);
+
+    useEffect(() => {
+        const handleResize = () => {
+            if (window.innerWidth >= 1024) setItemsPerPage(8); // lg: 4 cols * 2 rows
+            else if (window.innerWidth >= 768) setItemsPerPage(6); // md: 3 cols * 2 rows
+            else setItemsPerPage(8); // mobile: 2 cols * 4 rows
+        };
+        handleResize();
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     const fetchItems = async () => {
         setLoading(true);
@@ -158,11 +172,23 @@ export function AdminPlans() {
                     </h1>
                     <p className="text-[10px] md:text-xs font-bold text-white/30 uppercase tracking-[0.3em] mt-4">Optimisation Yield Management • Abonnements</p>
                 </div>
-                <button onClick={() => handleOpenModal()} className="relative overflow-hidden group flex flex-1 sm:flex-none items-center justify-center gap-3 px-10 py-5 bg-padel-blue text-white rounded-[2rem] font-black text-[10px] md:text-xs uppercase tracking-widest shadow-2xl hover:bg-padel-yellow hover:text-padel-blue transition-all active:scale-95">
-                    <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out" />
-                    <Plus size={18} className="relative z-10 group-hover:rotate-90 transition-transform duration-500" />
-                    <span className="relative z-10">NOUVELLE OFFRE</span>
-                </button>
+                <div className="flex flex-col sm:flex-row gap-4 items-center">
+                    <div className="relative group w-full sm:w-64">
+                        <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-padel-blue transition-colors" size={16} />
+                        <input
+                            type="text"
+                            placeholder="RECHERCHER..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="w-full bg-white/[0.03] border border-white/10 rounded-2xl py-4 pl-14 pr-6 text-[10px] font-black uppercase tracking-widest text-white focus:border-padel-blue outline-none transition-all"
+                        />
+                    </div>
+                    <button onClick={() => handleOpenModal()} className="relative overflow-hidden group flex flex-1 sm:flex-none items-center justify-center gap-3 px-10 py-5 bg-padel-blue text-white rounded-[2rem] font-black text-[10px] md:text-xs uppercase tracking-widest shadow-2xl hover:bg-padel-yellow hover:text-padel-blue transition-all active:scale-95">
+                        <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out" />
+                        <Plus size={18} className="relative z-10 group-hover:rotate-90 transition-transform duration-500" />
+                        <span className="relative z-10">NOUVELLE OFFRE</span>
+                    </button>
+                </div>
             </div>
 
             {/* Strategic KPI Grid */}
@@ -196,81 +222,136 @@ export function AdminPlans() {
                 ))}
             </div>
 
-            <div className="grid grid-cols-1 gap-6">
+            <div className="space-y-12">
                 {loading ? (
-                    Array.from({ length: 3 }).map((_, i) => (<div key={i} className="h-40 bg-white/[0.02] border border-white/5 animate-pulse rounded-[2.5rem]" />))
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                        {Array.from({ length: itemsPerPage }).map((_, i) => (
+                            <div key={i} className="aspect-[4/5] bg-white/[0.02] border border-white/5 animate-pulse rounded-[2.5rem]" />
+                        ))}
+                    </div>
                 ) : items.length === 0 ? (
                     <div className="text-center py-32 bg-white/[0.01] border border-dashed border-white/5 rounded-[3rem]">
                         <Receipt size={48} className="mx-auto text-white/5 mb-6" />
                         <p className="text-[10px] font-black text-white/10 uppercase tracking-[0.5em]">Aucun tarif configuré</p>
                     </div>
                 ) : (
-                    items.sort((a, b) => a.order - b.order).map((item, index) => (
-                        <motion.div
-                            key={item._id}
-                            layout
-                            className="relative group bg-[#151518]/60 backdrop-blur-3xl border border-white/5 rounded-3xl md:rounded-[3rem] p-6 lg:p-10 flex flex-col xl:flex-row items-start xl:items-center gap-6 xl:gap-12 hover:border-padel-blue/20 transition-all duration-700 shadow-3xl overflow-hidden"
-                        >
-                            <div className="absolute left-2 top-1/2 -translate-y-1/2 flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <button disabled={index === 0} onClick={() => updateOrder(item._id, item.order - 1.5)} className="p-2 text-white/10 hover:text-padel-blue transition-colors"><MoveUp size={14} /></button>
-                                <button disabled={index === items.length - 1} onClick={() => updateOrder(item._id, item.order + 1.5)} className="p-2 text-white/10 hover:text-padel-blue transition-colors"><MoveDown size={14} /></button>
-                            </div>
-
-                            <div className="flex-1 space-y-6">
-                                <div className="flex items-center gap-4 flex-wrap">
-                                    <span className={cn(
-                                        "px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest border",
-                                        item.type === 'court' ? "bg-padel-blue/10 border-padel-blue/20 text-padel-blue" :
-                                            item.type === 'subscription' ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-500" :
-                                                item.type === 'pack' ? "bg-purple-500/10 border-purple-500/20 text-purple-500" :
-                                                    "bg-padel-yellow/10 border-padel-yellow/20 text-padel-yellow"
-                                    )}>
-                                        {item.type.toUpperCase()}
-                                    </span>
-                                    {item.featured && <span className="px-4 py-1.5 bg-padel-yellow/10 border border-padel-yellow/20 text-padel-yellow rounded-full text-[9px] font-black uppercase tracking-widest flex items-center gap-2"><Star size={10} className="fill-padel-yellow" /> POPULAIRE</span>}
-                                    {!item.isActive && <span className="px-4 py-1.5 bg-red-500/10 border border-red-500/20 text-red-500 rounded-full text-[9px] font-black uppercase tracking-widest">MASQUÉ</span>}
-                                </div>
-
-                                <div>
-                                    <h3 className="text-2xl md:text-3xl font-display font-black uppercase tracking-tighter leading-tight group-hover:text-padel-blue transition-colors">{item.title}</h3>
-                                    {item.type === 'court' ? (
-                                        <div className="flex gap-8 mt-4 text-[11px] font-black uppercase tracking-[0.2em]">
-                                            <div className="flex flex-col gap-1"><span className="text-white/20 uppercase">Heure Creuse</span><span className="text-white text-xl">{item.offPeak}€</span></div>
-                                            <div className="flex flex-col gap-1"><span className="text-padel-blue/40 font-black uppercase">Heure Pleine</span><span className="text-padel-blue text-xl">{item.peak}€</span></div>
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                        {items
+                            .filter(i => i.title.toLowerCase().includes(searchTerm.toLowerCase()))
+                            .sort((a, b) => a.order - b.order)
+                            .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+                            .map((item, index) => {
+                                const Icon = ICON_OPTIONS.find(o => o.value === item.icon)?.icon || Target;
+                                return (
+                                    <motion.div
+                                        key={item._id}
+                                        layout
+                                        className="relative group bg-[#151518]/40 backdrop-blur-3xl border border-white/5 rounded-[2.5rem] p-6 flex flex-col hover:border-padel-blue/20 transition-all duration-500 overflow-hidden"
+                                    >
+                                        {/* Actions Overlay */}
+                                        <div className="absolute top-4 right-4 flex gap-1 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <button onClick={() => handleOpenModal(item)} className="p-2 bg-padel-blue text-white rounded-lg hover:bg-padel-yellow hover:text-padel-blue transition-all active:scale-90">
+                                                <Edit2 size={12} />
+                                            </button>
+                                            <button onClick={() => handleDelete(item)} className="p-2 bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-all active:scale-90">
+                                                <Trash2 size={12} />
+                                            </button>
                                         </div>
-                                    ) : item.type === 'subscription' ? (
-                                        <div className="flex flex-col gap-2 mt-2">
-                                            <div className="flex items-end gap-3">
-                                                <span className="text-3xl md:text-5xl font-display font-black text-white">{item.price}€</span>
-                                                <span className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em] pb-1.5">/ MOIS</span>
+        
+                                        {/* Order Controls */}
+                                        <div className="absolute top-4 left-4 flex gap-1 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <button disabled={index === 0} onClick={() => updateOrder(item._id, item.order - 1.5)} className="p-2 bg-white/5 text-white/20 hover:text-padel-blue transition-colors outline-none"><MoveUp size={10} /></button>
+                                            <button disabled={index === items.length - 1} onClick={() => updateOrder(item._id, item.order + 1.5)} className="p-2 bg-white/5 text-white/20 hover:text-padel-blue transition-colors outline-none"><MoveDown size={10} /></button>
+                                        </div>
+        
+                                        {/* Stylized Icon Header Instead of Image */}
+                                        <div className="aspect-[4/3] rounded-[1.5rem] overflow-hidden bg-white/[0.03] mb-6 relative group/img shrink-0 border border-white/5 flex items-center justify-center group-hover:bg-padel-blue/5 transition-colors duration-700">
+                                            <div className="absolute inset-0 bg-gradient-to-br from-padel-blue/5 to-transparent group-hover:from-padel-blue/10 transition-colors" />
+                                            <div className="relative w-16 h-16 md:w-20 md:h-20 rounded-3xl bg-[#0c0c0e] border border-white/5 flex items-center justify-center text-padel-blue group-hover:scale-110 group-hover:border-padel-blue/20 transition-all duration-700 shadow-2xl shadow-black">
+                                                <Icon size={32} className="md:w-10 md:h-10" />
                                             </div>
-                                            {item.annualPrice && (
-                                                <div className="flex items-end gap-3">
-                                                    <span className="text-xl md:text-3xl font-display font-black text-white">{item.annualPrice}€</span>
-                                                    <span className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em] pb-1.5">/ AN</span>
+                                        </div>
+        
+                                        <div className="flex-1 space-y-4">
+                                            <div className="flex flex-wrap gap-2">
+                                                <span className={cn(
+                                                    "px-2.5 py-1 rounded-full text-[8px] font-black tracking-widest uppercase border",
+                                                    item.type === 'court' ? "bg-padel-blue/10 border-padel-blue/20 text-padel-blue" :
+                                                    item.type === 'subscription' ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-500" :
+                                                    item.type === 'pack' ? "bg-purple-500/10 border-purple-500/20 text-purple-500" :
+                                                    "bg-padel-yellow/10 border-padel-yellow/20 text-padel-yellow"
+                                                )}>
+                                                    {item.type}
+                                                </span>
+                                                {item.featured && <Star size={14} className="text-padel-yellow fill-padel-yellow" />}
+                                                {!item.isActive && <span className="px-2.5 py-1 bg-red-500/10 border border-red-500/20 text-red-500 rounded-full text-[8px] font-black uppercase tracking-widest">MASQUÉ</span>}
+                                            </div>
+        
+                                            <div>
+                                                <h3 className="text-sm md:text-base font-display font-black uppercase tracking-tighter leading-tight group-hover:text-padel-blue transition-colors duration-500">
+                                                    {item.title}
+                                                </h3>
+                                                <div className="mt-2 text-xl md:text-2xl font-display font-black text-white">
+                                                    {item.type === 'court' ? (
+                                                        <span className="flex items-center gap-2">
+                                                            {item.offPeak}€ <span className="text-[8px] font-black text-white/20 uppercase tracking-widest">Creuse</span>
+                                                            <span className="text-padel-blue">/</span>
+                                                            <span className="text-padel-blue">{item.peak}€</span> <span className="text-[8px] font-black text-padel-blue/40 uppercase tracking-widest">Pleine</span>
+                                                        </span>
+                                                    ) : (
+                                                        <span className="flex items-end gap-1">
+                                                            {item.price}€
+                                                            <span className="text-[8px] font-black text-white/20 uppercase tracking-widest pb-1">
+                                                                {item.type === 'subscription' ? '/ MOIS' : 'UNITAIRE'}
+                                                            </span>
+                                                        </span>
+                                                    )}
                                                 </div>
-                                            )}
+                                            </div>
+                                            <p className="text-[10px] text-white/40 line-clamp-2 leading-relaxed">{item.description}</p>
                                         </div>
-                                    ) : (
-                                        <div className="flex flex-col md:flex-row md:items-end gap-2 md:gap-4 mt-2">
-                                            <span className="text-3xl md:text-5xl font-display font-black text-white">{item.price}€</span>
-                                            <span className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em] pb-1.5">UNITAIRE</span>
-                                        </div>
+                                    </motion.div>
+                                );
+                            })}
+                    </div>
+                )}
+
+                {/* Pagination Bar */}
+                {items.filter(i => i.title.toLowerCase().includes(searchTerm.toLowerCase())).length > itemsPerPage && !loading && (
+                    <div className="flex items-center justify-center gap-4">
+                        <button
+                            disabled={currentPage === 1}
+                            onClick={() => setCurrentPage(prev => prev - 1)}
+                            className="p-4 bg-white/5 rounded-2xl text-white/20 hover:text-padel-blue hover:bg-white/10 disabled:opacity-30 transition-all active:scale-95"
+                        >
+                            <MoveUp size={20} className="-rotate-90" />
+                        </button>
+                        
+                        <div className="flex gap-2">
+                            {[...Array(Math.ceil(items.filter(i => i.title.toLowerCase().includes(searchTerm.toLowerCase())).length / itemsPerPage))].map((_, i) => (
+                                <button
+                                    key={i}
+                                    onClick={() => setCurrentPage(i + 1)}
+                                    className={cn(
+                                        "w-10 h-10 rounded-xl text-[10px] font-black transition-all",
+                                        currentPage === i + 1 
+                                            ? "bg-padel-blue text-white shadow-xl shadow-padel-blue/20 scale-110" 
+                                            : "bg-white/5 text-white/20 hover:bg-white/10 hover:text-white"
                                     )}
-                                </div>
-
-                            </div>
-
-                            <div className="flex flex-row xl:flex-col items-center gap-3 pt-6 xl:pt-0 w-full xl:w-auto xl:border-l xl:border-white/5 xl:pl-8 shrink-0 border-t border-white/5 xl:border-t-0 mt-4 xl:mt-0 justify-end">
-                                <button onClick={() => handleOpenModal(item)} className="p-4 bg-white/5 text-white/30 hover:text-white hover:bg-padel-blue rounded-[1.5rem] transition-all border border-white/10 hover:border-padel-blue flex-1 xl:flex-none flex justify-center items-center group/btn shadow-[0_0_0_rgba(19,73,211,0)] hover:shadow-[0_10px_30px_rgba(19,73,211,0.3)]">
-                                    <Edit2 size={20} className="group-hover/btn:scale-110 transition-transform" />
+                                >
+                                    {i + 1}
                                 </button>
-                                <button onClick={() => handleDelete(item)} className="p-4 bg-white/5 text-white/30 hover:text-red-500 hover:bg-red-500/10 rounded-[1.5rem] transition-all border border-white/10 hover:border-red-500 flex-1 xl:flex-none flex justify-center items-center group/btn shadow-[0_0_0_rgba(239,68,68,0)] hover:shadow-[0_10px_30px_rgba(239,68,68,0.2)]">
-                                    <Trash2 size={20} className="group-hover/btn:scale-110 transition-transform" />
-                                </button>
-                            </div>
-                        </motion.div>
-                    ))
+                            ))}
+                        </div>
+
+                        <button
+                            disabled={currentPage === Math.ceil(items.filter(i => i.title.toLowerCase().includes(searchTerm.toLowerCase())).length / itemsPerPage)}
+                            onClick={() => setCurrentPage(prev => prev + 1)}
+                            className="p-4 bg-white/5 rounded-2xl text-white/20 hover:text-padel-blue hover:bg-white/10 disabled:opacity-30 transition-all active:scale-95"
+                        >
+                            <MoveUp size={20} className="rotate-90" />
+                        </button>
+                    </div>
                 )}
             </div>
 

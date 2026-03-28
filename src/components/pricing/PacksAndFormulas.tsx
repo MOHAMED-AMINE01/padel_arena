@@ -45,11 +45,11 @@ export const PacksAndFormulas = () => {
   const [loading, setLoading] = useState(true);
   const [activeIndex, setActiveIndex] = useState(0);
   const scrollRef = useRef<HTMLDivElement>(null);
-  
+
   const [selectedPack, setSelectedPack] = useState<IPack | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [bookingStatus, setBookingStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
-  
+
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
@@ -94,10 +94,10 @@ export const PacksAndFormulas = () => {
     setSelectedPack(pack);
     setIsModalOpen(true);
     setBookingStatus('idle');
-    setFormData({ 
-      name: '', 
-      phone: '', 
-      email: '', 
+    setFormData({
+      name: '',
+      phone: '',
+      email: '',
       date: new Date().toISOString().split('T')[0],
       time: '09:00'
     });
@@ -106,7 +106,7 @@ export const PacksAndFormulas = () => {
   const handleBookingSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setBookingStatus('submitting');
-    
+
     try {
       // 1. Create a real booking entry (for the Admin Reservations panel)
       await api.post('/bookings', {
@@ -146,7 +146,7 @@ export const PacksAndFormulas = () => {
   if (packs.length === 0) return null;
 
   return (
-    <section id="packs" className="relative py-24 md:py-48 px-6 bg-[#050505] overflow-hidden border-t border-white/[0.03]">
+    <section id="packs" className="relative py-24 md:py-24 px-6 bg-[#050505] overflow-hidden border-t border-white/[0.03]">
       {/* Decorative text background */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[15rem] md:text-[25rem] font-display font-black text-white/[0.01] tracking-tighter select-none pointer-events-none -z-0 leading-none uppercase">
         SPECIALS
@@ -230,7 +230,7 @@ export const PacksAndFormulas = () => {
                     </div>
                   </div>
 
-                  <button 
+                  <button
                     onClick={() => handleOpenModal(pack)}
                     className="mt-auto w-full py-5 bg-white/[0.03] border border-white/10 text-white rounded-full font-black text-[10px] uppercase tracking-[0.3em] hover:bg-padel-blue hover:text-white hover:border-padel-blue transition-all flex items-center justify-center gap-4 group/btn shadow-xl shrink-0"
                   >
@@ -269,13 +269,20 @@ export const PacksAndFormulas = () => {
               onClick={() => setIsModalOpen(false)}
               className="absolute inset-0 bg-black/90 backdrop-blur-2xl"
             />
-            
+
             <motion.div
               initial={{ scale: 0.9, opacity: 0, y: 30 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 30 }}
               className="relative w-full max-w-xl bg-[#0A0A0A] border border-white/10 rounded-[3.5rem] overflow-hidden"
             >
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="absolute top-8 right-8 p-3 bg-white/5 rounded-2xl text-white/20 hover:text-white transition-all border border-white/10 z-50"
+              >
+                <X size={20} />
+              </button>
+
               <div className="p-10 md:p-14 space-y-10 relative z-10">
                 <div className="text-center space-y-4">
                   <div className="inline-flex py-1 px-4 bg-padel-blue/10 border border-padel-blue/20 rounded-full">
@@ -294,63 +301,63 @@ export const PacksAndFormulas = () => {
                     <div className="space-y-4">
                       <div className="relative group">
                         <User className="absolute left-6 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-padel-blue transition-colors" size={18} />
-                        <input 
+                        <input
                           required
-                          type="text" 
+                          type="text"
                           placeholder="NOM & PRÉNOM"
                           value={formData.name}
-                          onChange={(e) => setFormData({...formData, name: e.target.value})}
+                          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                           className="w-full bg-white/[0.03] border border-white/10 rounded-2xl py-5 pl-16 pr-6 text-xs font-black text-white focus:border-padel-blue outline-none transition-all uppercase tracking-widest placeholder:text-white/10"
                         />
                       </div>
                       <div className="relative group">
                         <Phone className="absolute left-6 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-padel-blue transition-colors" size={18} />
-                        <input 
+                        <input
                           required
-                          type="tel" 
+                          type="tel"
                           placeholder="NUMÉRO DE TÉLÉPHONE"
                           value={formData.phone}
-                          onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                          onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                           className="w-full bg-white/[0.03] border border-white/10 rounded-2xl py-5 pl-16 pr-6 text-xs font-black text-white focus:border-padel-blue outline-none transition-all uppercase tracking-widest placeholder:text-white/10"
                         />
                       </div>
                       <div className="relative group">
                         <Mail className="absolute left-6 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-padel-blue transition-colors" size={18} />
-                        <input 
+                        <input
                           required
-                          type="email" 
+                          type="email"
                           placeholder="ADRESSE EMAIL"
                           value={formData.email}
-                          onChange={(e) => setFormData({...formData, email: e.target.value})}
+                          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                           className="w-full bg-white/[0.03] border border-white/10 rounded-2xl py-5 pl-16 pr-6 text-xs font-black text-white focus:border-padel-blue outline-none transition-all uppercase tracking-widest placeholder:text-white/10"
                         />
                       </div>
 
                       <div className="grid grid-cols-2 gap-4">
                         <div className="relative group">
-                          <input 
+                          <input
                             required
-                            type="date" 
+                            type="date"
                             title="Date de session souhaitée"
                             value={formData.date}
-                            onChange={(e) => setFormData({...formData, date: e.target.value})}
+                            onChange={(e) => setFormData({ ...formData, date: e.target.value })}
                             className="w-full bg-white/[0.03] border border-white/10 rounded-2xl py-5 px-6 text-[10px] font-black text-white focus:border-padel-blue outline-none transition-all uppercase tracking-widest [color-scheme:dark]"
                           />
                         </div>
                         <div className="relative group">
-                          <input 
+                          <input
                             required
-                            type="time" 
+                            type="time"
                             title="Heure de session souhaitée"
                             value={formData.time}
-                            onChange={(e) => setFormData({...formData, time: e.target.value})}
+                            onChange={(e) => setFormData({ ...formData, time: e.target.value })}
                             className="w-full bg-white/[0.03] border border-white/10 rounded-2xl py-5 px-6 text-[10px] font-black text-white focus:border-padel-blue outline-none transition-all uppercase tracking-widest [color-scheme:dark]"
                           />
                         </div>
                       </div>
                     </div>
 
-                    <button 
+                    <button
                       type="submit"
                       className="w-full py-6 bg-padel-blue text-white rounded-full font-black text-[11px] uppercase tracking-[0.4em] shadow-2xl shadow-padel-blue/30 hover:bg-padel-yellow hover:text-padel-blue transition-all"
                     >
@@ -377,7 +384,7 @@ export const PacksAndFormulas = () => {
                         Un conseiller Arena reviendra vers vous sous 24h pour activer votre pack.
                       </p>
                     </div>
-                    <button 
+                    <button
                       onClick={() => setIsModalOpen(false)}
                       className="w-full py-6 bg-white/5 border border-white/10 text-white rounded-full font-black text-[11px] uppercase tracking-[0.4em] hover:bg-white/10 transition-all"
                     >
@@ -389,13 +396,6 @@ export const PacksAndFormulas = () => {
 
               {/* Decorative accent */}
               <div className="absolute top-0 right-0 w-64 h-64 bg-padel-blue/5 blur-[120px] -z-10" />
-
-              <button 
-                onClick={() => setIsModalOpen(false)}
-                className="absolute top-8 right-8 p-3 bg-white/5 rounded-2xl text-white/20 hover:text-white transition-all border border-white/10"
-              >
-                <X size={20} />
-              </button>
             </motion.div>
           </div>
         )}

@@ -23,7 +23,9 @@ import {
     Wallet,
     BadgePercent,
     Newspaper,
-    Zap
+    Zap,
+    Medal,
+    MessageSquare
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { useAuth } from '../../context/AuthContext';
@@ -109,6 +111,8 @@ export const AdminSidebar = ({ collapsed, setCollapsed, mobileOpen, setMobileOpe
         { icon: Target, label: 'Terrains', href: '/admin/courts' },
         { icon: ClipboardList, label: 'Programmes', href: '/admin/courses' },
         { icon: CalendarDays, label: 'Événements', href: '/admin/tournaments' },
+        { icon: MessageSquare, label: 'Témoignages', href: '/admin/testimonials' },
+        { icon: Medal, label: 'Équipe Arena', href: '/admin/team' },
         { icon: Wallet, label: 'Paiements', href: '/admin/payments' },
         { icon: BadgePercent, label: 'Codes Promo', href: '/admin/promo-codes' },
         { icon: Newspaper, label: 'Actualités', href: '/admin/news' },

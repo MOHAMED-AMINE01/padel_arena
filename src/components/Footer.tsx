@@ -3,8 +3,10 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Link } from 'react-router-dom';
 import { MapPin, Phone, Mail, Instagram, Facebook, Twitter, ArrowUpRight, Globe, CheckCircle2, X } from 'lucide-react';
 import { cn } from '../lib/utils';
+import { useSiteSettings } from '../hooks/useSiteSettings';
 
 export const Footer = () => {
+  const { settings } = useSiteSettings();
   const [modal, setModal] = useState<{ show: boolean; title: string; message: string; type: 'success' | 'error' }>({
     show: false,
     title: '',
@@ -90,21 +92,21 @@ export const Footer = () => {
               <h4 className="text-[10px] font-black text-white uppercase tracking-[0.4em]">CONTACT</h4>
               <ul className="space-y-4 justify-center md:justify-start">
                 <li>
-                  <div className="text-white/50 transition-colors text-[11px] font-black tracking-widest uppercase flex items-center justify-center md:justify-start group">
+                  <a href={settings.googleMapsUrl} target="_blank" rel="noopener noreferrer" className="text-white/50 hover:text-white transition-colors text-[11px] font-black tracking-widest uppercase flex items-center justify-center md:justify-start group">
                     <span className="hidden md:block w-0 h-[1px] transition-all duration-300 group-hover:mr-2" />
-                    <span className="whitespace-nowrap">123 Avenue du <span className="notranslate" translate="no">Padel</span>, 41100 Vendôme</span>
-                  </div>
-                </li>
-                <li>
-                  <a href="tel:+33200000000" className="text-white/50 hover:text-white transition-colors text-[11px] font-black tracking-widest uppercase flex items-center justify-center md:justify-start group">
-                    <span className="hidden md:block w-0 h-[1px] transition-all duration-300 group-hover:mr-2" />
-                    +33 2 00 00 00 00
+                    <span className="whitespace-nowrap">{settings.address}</span>
                   </a>
                 </li>
                 <li>
-                  <a href="mailto:contact@padelarena.fr" className="text-white/50 hover:text-white transition-colors text-[11px] font-black tracking-widest uppercase flex items-center justify-center md:justify-start group">
+                  <a href={`tel:${settings.phone.replace(/\s/g, '')}`} className="text-white/50 hover:text-white transition-colors text-[11px] font-black tracking-widest uppercase flex items-center justify-center md:justify-start group">
                     <span className="hidden md:block w-0 h-[1px] transition-all duration-300 group-hover:mr-2" />
-                    contact@padelarena.fr
+                    {settings.phone}
+                  </a>
+                </li>
+                <li>
+                  <a href={`mailto:${settings.email}`} className="text-white/50 hover:text-white transition-colors text-[11px] font-black tracking-widest uppercase flex items-center justify-center md:justify-start group leading-tight">
+                    <span className="hidden md:block w-0 h-[1px] transition-all duration-300 group-hover:mr-2" />
+                    {settings.email}
                   </a>
                 </li>
               </ul>
@@ -223,14 +225,25 @@ export const Footer = () => {
         </AnimatePresence>
 
         {/* Brand Bottom Bar */}
-        <div className="pt-12 border-t border-white/5 flex flex-col lg:flex-row justify-between items-center gap-8 text-center lg:text-left">
-          <div className="flex flex-col md:flex-row items-center gap-4 md:gap-8">
-            <p className="text-[9px] font-black text-white/70 uppercase tracking-widest">
-              © 2026 <span className="notranslate" translate="no">PADEL ARENA</span> VENDÔME. DESIGNED FOR EXCELLENCE.
-            </p>
+        <div className="pt-12 border-t border-white/[0.03] flex flex-col md:flex-row justify-between items-center gap-8">
+          <div className="flex items-center gap-8">
+            <a href={settings.socialLinks.instagram} target="_blank" rel="noopener noreferrer" className="text-white/20 hover:text-padel-blue transition-colors">
+              <Instagram size={20} />
+            </a>
+            <a href={settings.socialLinks.facebook} target="_blank" rel="noopener noreferrer" className="text-white/20 hover:text-padel-blue transition-colors">
+              <Facebook size={20} />
+            </a>
+            {settings.socialLinks.twitter !== '#' && (
+              <a href={settings.socialLinks.twitter} target="_blank" rel="noopener noreferrer" className="text-white/20 hover:text-padel-blue transition-colors">
+                <Twitter size={20} />
+              </a>
+            )}
           </div>
 
           <div className="flex flex-col md:flex-row items-center gap-6 md:gap-8 text-white/70">
+            <p className="text-[9px] font-black text-white/70 uppercase tracking-widest">
+              © 2026 <span className="notranslate" translate="no">PADEL ARENA</span> VENDÔME. DESIGNED FOR EXCELLENCE.
+            </p>
             <div className="flex gap-8">
               <a href="#" className="text-[9px] font-black text-white/70 hover:text-white uppercase tracking-widest transition-colors">MENTIONS LÉGALES</a>
               <a href="#" className="text-[9px] font-black text-white/70 hover:text-white uppercase tracking-widest transition-colors">politique de confidentialité</a>

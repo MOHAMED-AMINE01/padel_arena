@@ -1,59 +1,82 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { Instagram, Linkedin, Mail, ArrowUpRight } from 'lucide-react';
+import { Instagram, Linkedin, Mail, ArrowUpRight, Loader2 } from 'lucide-react';
 import { cn } from '../../lib/utils';
+import api from '../../lib/api';
 
-const team = [
-  {
-    name: "Thomas Rivière",
-    role: "Directeur du Club",
-    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=600&h=800&auto=format&fit=crop",
-    bio: "Visionnaire du padel moderne, Thomas assure que chaque membre vive l'expérience Arena au plus haut niveau."
-  },
-  {
-    name: "Lucas Martin",
-    role: "Head Coach",
-    image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=600&h=800&auto=format&fit=crop",
-    bio: "Ex-joueur du circuit, Lucas transforme votre technique avec une approche analytique et passionnée."
-  },
-  {
-    name: "Sophie Bernard",
-    role: "Resp. Événements",
-    image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=600&h=800&auto=format&fit=crop",
-    bio: "Architecte de vos tournois, elle fait de chaque rencontre un événement mémorable et parfaitement orchestré."
-  },
-  {
-    name: "Marc Lefebvre",
-    role: "Relations Club",
-    image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=600&h=800&auto=format&fit=crop",
-    bio: "Le gardien de l'ambiance Arena. Marc tisse les liens qui font de notre club une véritable communauté."
-  }
-];
+interface TeamMember {
+  _id: string;
+  name: string;
+  role: string;
+  image: string;
+  bio: string;
+  socialLinks: {
+    linkedin: string;
+    instagram: string;
+    email: string;
+  };
+}
 
 export const ClubTeam = () => {
+  const [team, setTeam] = useState<TeamMember[]>([]);
+  const [loading, setLoading] = useState(true);
   const [activeIndex, setActiveIndex] = useState(0);
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const fetchTeam = async () => {
+      try {
+        const res = await api.get('/content/team');
+        setTeam(res.data.data);
+      } catch (err) {
+        console.error('Error fetching team:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchTeam();
+  }, []);
 
   const handleScroll = () => {
     if (scrollRef.current) {
       const { scrollLeft, offsetWidth } = scrollRef.current;
-      const index = Math.round(scrollLeft / offsetWidth);
+      const cardWidth = window.innerWidth >= 1024 ? offsetWidth / 4 : offsetWidth;
+      const index = Math.round(scrollLeft / cardWidth);
       setActiveIndex(index);
     }
   };
 
   const scrollTo = (index: number) => {
     if (scrollRef.current) {
+      const { offsetWidth } = scrollRef.current;
+      const cardWidth = window.innerWidth >= 1024 ? (offsetWidth + 32) / 4 : offsetWidth + 24; // Including gaps
       scrollRef.current.scrollTo({
-        left: index * scrollRef.current.offsetWidth,
+        left: index * cardWidth,
         behavior: 'smooth'
       });
       setActiveIndex(index);
     }
   };
 
+  const next = () => {
+    if (activeIndex < team.length - 1) scrollTo(activeIndex + 1);
+  };
+
+  const prev = () => {
+    if (activeIndex > 0) scrollTo(activeIndex - 1);
+  };
+
+  if (loading) {
+    return (
+      <section id="equipe" className="py-24 md:py-48 px-6 bg-[#050505] flex flex-col items-center justify-center gap-6">
+        <Loader2 className="animate-spin text-padel-blue" size={40} />
+        <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em]">Découverte de l'équipe...</p>
+      </section>
+    );
+  }
+
   return (
-    <section id="equipe" className="relative py-24 md:py-48 px-6 bg-[#050505] overflow-hidden">
+    <section id="equipe" className="relative py-24 md:py-24 px-6 bg-[#050505] overflow-hidden">
       {/* Structural Lines */}
       <div className="absolute top-0 left-1/4 w-[1px] h-full bg-white opacity-[0.02] -z-10" />
       <div className="absolute top-0 right-1/4 w-[1px] h-full bg-white opacity-[0.02] -z-10" />
@@ -64,7 +87,7 @@ export const ClubTeam = () => {
             <div className="inline-flex items-center gap-4 mb-8">
               <span className="text-[10px] font-black tracking-[0.4em] text-padel-blue uppercase">NOTRE EXPERTISE</span>
             </div>
-            <h3 className="text-4xl sm:text-5xl md:text-8xl font-display font-black tracking-tighter leading-[0.9] uppercase">
+            <h3 className="text-4xl sm:text-5xl md:text-8xl font-display font-black tracking-tighter leading-[0.9] uppercase text-white">
               DES PASSIONNÉS <br />
               <span className="text-white italic">À VOTRE SERVICE</span>
             </h3>
@@ -75,16 +98,16 @@ export const ClubTeam = () => {
           <div
             ref={scrollRef}
             onScroll={handleScroll}
-            className="flex lg:grid lg:grid-cols-4 gap-6 lg:gap-8 overflow-x-auto lg:overflow-x-visible snap-x snap-mandatory no-scrollbar pb-10 lg:pb-0"
+            className="flex gap-6 lg:gap-8 overflow-x-auto snap-x snap-mandatory hide-scrollbar pb-10"
           >
             {team.map((member, i) => (
               <motion.div
-                key={i}
+                key={member._id}
                 initial={{ opacity: 0, scale: 0.9 }}
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1, duration: 0.8 }}
-                className="min-w-[80vw] sm:min-w-[340px] lg:min-w-0 snap-center group relative"
+                className="min-w-[85vw] md:min-w-[45vw] lg:min-w-[calc(25%-1.5rem)] snap-center group relative"
               >
                 <div className="relative aspect-[3/4] rounded-[2rem] overflow-hidden mb-8 border border-white/5">
                   <img
@@ -97,16 +120,35 @@ export const ClubTeam = () => {
                   {/* Hover Reveal Socials */}
                   <div className="absolute inset-0 bg-[#050505]/60 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all duration-500 flex flex-col items-center justify-center gap-6">
                     <div className="flex gap-4">
-                      <button className="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-padel-blue hover:border-padel-blue transition-all">
-                        <Instagram size={20} />
-                      </button>
-                      <button className="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-padel-blue hover:border-padel-blue transition-all">
-                        <Linkedin size={20} />
-                      </button>
+                      {member.socialLinks?.instagram && (
+                        <a
+                          href={member.socialLinks.instagram}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-padel-blue hover:border-padel-blue transition-all"
+                        >
+                          <Instagram size={20} />
+                        </a>
+                      )}
+                      {member.socialLinks?.linkedin && (
+                        <a
+                          href={member.socialLinks.linkedin}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-padel-blue hover:border-padel-blue transition-all"
+                        >
+                          <Linkedin size={20} />
+                        </a>
+                      )}
                     </div>
-                    <button className="px-6 py-2.5 bg-white text-black rounded-full font-black text-[9px] uppercase tracking-widest flex items-center gap-2 hover:bg-padel-blue hover:text-white transition-all">
-                      CONTACTER <ArrowUpRight size={12} />
-                    </button>
+                    {member.socialLinks?.email && (
+                      <a
+                        href={`mailto:${member.socialLinks.email}`}
+                        className="px-6 py-2.5 bg-white text-black rounded-full font-black text-[9px] uppercase tracking-widest flex items-center gap-2 hover:bg-padel-blue hover:text-white transition-all"
+                      >
+                        CONTACTER <ArrowUpRight size={12} />
+                      </a>
+                    )}
                   </div>
                 </div>
 
@@ -124,18 +166,37 @@ export const ClubTeam = () => {
             ))}
           </div>
 
-          {/* Pagination Indicators */}
-          <div className="flex lg:hidden justify-center items-center gap-3 mt-4">
-            {team.map((_, i) => (
+          {/* Pagination Indicators & Arrows */}
+          <div className="flex flex-col md:flex-row items-center justify-between gap-8 mt-12 pt-12 border-t border-white/5">
+            <div className="flex items-center gap-3">
+              {team.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => scrollTo(i)}
+                  className={cn(
+                    "h-1.5 transition-all duration-500 rounded-full",
+                    activeIndex === i ? "w-12 bg-padel-blue" : "w-1.5 bg-white/10 hover:bg-white/20"
+                  )}
+                />
+              ))}
+            </div>
+
+            <div className="flex items-center gap-4">
               <button
-                key={i}
-                onClick={() => scrollTo(i)}
-                className={cn(
-                  "h-1.5 transition-all duration-500 rounded-full",
-                  activeIndex === i ? "w-8 bg-padel-blue" : "w-1.5 bg-white/10"
-                )}
-              />
-            ))}
+                onClick={prev}
+                disabled={activeIndex === 0}
+                className="w-14 h-14 rounded-full border border-white/10 flex items-center justify-center text-white/40 hover:text-padel-blue hover:border-padel-blue hover:bg-padel-blue/5 transition-all disabled:opacity-20 disabled:cursor-not-allowed group/btn"
+              >
+                <ArrowUpRight size={24} className="-rotate-[135deg] group-hover/btn:scale-110 transition-transform" />
+              </button>
+              <button
+                onClick={next}
+                disabled={activeIndex >= team.length - (window.innerWidth >= 1024 ? 4 : 1)}
+                className="w-14 h-14 rounded-full border border-white/10 flex items-center justify-center text-white/40 hover:text-padel-blue hover:border-padel-blue hover:bg-padel-blue/5 transition-all disabled:opacity-20 disabled:cursor-not-allowed group/btn"
+              >
+                <ArrowUpRight size={24} className="rotate-45 group-hover/btn:scale-110 transition-transform" />
+              </button>
+            </div>
           </div>
         </div>
       </div>

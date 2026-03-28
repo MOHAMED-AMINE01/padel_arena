@@ -3,23 +3,10 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Mail, Phone, MapPin, Clock, Send, CheckCircle2, ArrowUpRight, MessageSquare, Instagram, Facebook, Loader2 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import api from '../../lib/api';
-
-const contactInfo = [
-  { icon: <MapPin size={24} />, label: "LOCALISATION", value: "123 Avenue du Padel", subValue: "41100 Vendôme, France", link: "https://maps.google.com" },
-  { icon: <Phone size={24} />, label: "LIGNE DIRECTE", value: "02 54 XX XX XX", subValue: "Disponibilité immédiate", link: "tel:+33254000000" },
-  { icon: <Mail size={24} />, label: "REQUÊTES", value: "contact@padelarena.fr", subValue: "Réponse sous 24h", link: "mailto:contact@padelarena-vendome.fr" },
-  { icon: <Clock size={24} />, label: "DISPONIBILITÉ", value: "08:00 — 23:00", subValue: "Sept jours sur sept", link: null },
-];
-
-const subjects = [
-  'RÉSERVATION DE COURS',
-  'COACHING & ACADÉMIE',
-  'OFFRES CORPORATE',
-  'ÉVÉNEMENTIEL',
-  'AUTRE'
-];
+import { useSiteSettings } from '../../hooks/useSiteSettings';
 
 export const ContactForm = () => {
+  const { settings } = useSiteSettings();
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
@@ -32,6 +19,45 @@ export const ContactForm = () => {
     subject: 'RÉSERVATION DE COURS',
     message: ''
   });
+
+  const subjects = [
+    'RÉSERVATION DE COURS',
+    'COACHING & ACADÉMIE',
+    'OFFRES CORPORATE',
+    'ÉVÉNEMENTIEL',
+    'AUTRE'
+  ];
+
+  const contactInfo = [
+    { 
+      icon: <MapPin size={24} />, 
+      label: "LOCALISATION", 
+      value: settings.address.split(',')[0], 
+      subValue: settings.address.split(',')[1]?.trim() || "Vendôme, France", 
+      link: settings.googleMapsUrl 
+    },
+    { 
+      icon: <Phone size={24} />, 
+      label: "LIGNE DIRECTE", 
+      value: settings.phone, 
+      subValue: "Disponibilité immédiate", 
+      link: `tel:${settings.phone.replace(/\s/g, '')}` 
+    },
+    { 
+      icon: <Mail size={24} />, 
+      label: "REQUÊTES", 
+      value: settings.email, 
+      subValue: "Réponse sous 24h", 
+      link: `mailto:${settings.email}` 
+    },
+    { 
+      icon: <Clock size={24} />, 
+      label: "DISPONIBILITÉ", 
+      value: settings.availability.split(',')[0], 
+      subValue: settings.availability.split(',')[1]?.trim() || "Sept jours sur sept", 
+      link: null 
+    },
+  ];
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {

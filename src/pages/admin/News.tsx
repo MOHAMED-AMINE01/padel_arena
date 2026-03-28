@@ -21,6 +21,7 @@ interface INews {
     link: string;
     isActive: boolean;
     order: number;
+    content: string;
 }
 
 const SECTIONS = [
@@ -45,7 +46,20 @@ export function AdminNews() {
     const [editingItem, setEditingItem] = useState<INews | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [uploading, setUploading] = useState(false);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage, setItemsPerPage] = useState(8);
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    useEffect(() => {
+        const updateLimit = () => {
+            if (window.innerWidth >= 1024) setItemsPerPage(8); // lg: 4x2
+            else if (window.innerWidth >= 768) setItemsPerPage(6); // md: 3x2
+            else setItemsPerPage(8); // mobile: 2x4
+        };
+        updateLimit();
+        window.addEventListener('resize', updateLimit);
+        return () => window.removeEventListener('resize', updateLimit);
+    }, []);
 
     const [formData, setFormData] = useState({
         title: '',
@@ -56,7 +70,8 @@ export function AdminNews() {
         featured: false,
         link: '/news',
         isActive: true,
-        order: 0
+        order: 0,
+        content: ''
     });
 
     const [alert, setAlert] = useState<{ show: boolean; title: string; message: string; type: 'success' | 'error' }>({
@@ -85,7 +100,8 @@ export function AdminNews() {
                 featured: item.featured,
                 link: item.link,
                 isActive: item.isActive,
-                order: item.order
+                order: item.order,
+                content: item.content || ''
             });
         } else {
             setEditingItem(null);
@@ -98,7 +114,8 @@ export function AdminNews() {
                 featured: false,
                 link: '/news',
                 isActive: true,
-                order: news.length
+                order: news.length,
+                content: ''
             });
         }
         setIsModalOpen(true);
@@ -194,73 +211,105 @@ export function AdminNews() {
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 gap-6">
+            <div className="space-y-12">
                 {loading ? (
-                    Array.from({ length: 3 }).map((_, i) => (
-                        <div key={i} className="h-40 bg-white/[0.02] border border-white/5 animate-pulse rounded-[2.5rem]" />
-                    ))
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                        {Array.from({ length: itemsPerPage }).map((_, i) => (
+                            <div key={i} className="aspect-[4/5] bg-white/[0.02] border border-white/5 animate-pulse rounded-[2.5rem]" />
+                        ))}
+                    </div>
                 ) : filteredNews.length === 0 ? (
                     <div className="text-center py-32 bg-white/[0.01] border border-dashed border-white/5 rounded-[3rem]">
                         <ImageIcon size={48} className="mx-auto text-white/5 mb-6" />
                         <p className="text-[10px] font-black text-white/10 uppercase tracking-[0.5em]">Aucun article correspondant à votre recherche</p>
                     </div>
                 ) : (
-                    filteredNews.sort((a, b) => a.order - b.order).map((item, index) => (
-                        <motion.div
-                            key={item._id}
-                            layout
-                            className="relative group bg-[#151518]/40 backdrop-blur-3xl border border-white/5 rounded-[2.5rem] p-6 pr-10 flex flex-col md:flex-row items-center gap-8 hover:border-padel-blue/20 transition-all duration-500 overflow-hidden"
-                        >
-                            <div className="absolute left-2 top-1/2 -translate-y-1/2 flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <button disabled={index === 0} onClick={() => updateOrder(item._id, item.order - 1.5)} className="p-2 text-white/10 hover:text-padel-blue transition-colors"><MoveUp size={14} /></button>
-                                <button disabled={index === news.length - 1} onClick={() => updateOrder(item._id, item.order + 1.5)} className="p-2 text-white/10 hover:text-padel-blue transition-colors"><MoveDown size={14} /></button>
-                            </div>
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                        {filteredNews.sort((a, b) => a.order - b.order)
+                            .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+                            .map((item, index) => (
+                            <motion.div
+                                key={item._id}
+                                layout
+                                className="relative group bg-[#151518]/40 backdrop-blur-3xl border border-white/5 rounded-[2.5rem] p-6 flex flex-col hover:border-padel-blue/20 transition-all duration-500 overflow-hidden"
+                            >
+                                {/* Actions Overlay */}
+                                <div className="absolute top-4 right-4 flex gap-1 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <button onClick={() => handleOpenModal(item)} className="p-2 bg-padel-blue text-white rounded-lg hover:bg-padel-yellow hover:text-padel-blue transition-all active:scale-90">
+                                        <Edit2 size={12} />
+                                    </button>
+                                    <button onClick={() => handleDelete(item)} className="p-2 bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-all active:scale-90">
+                                        <Trash2 size={12} />
+                                    </button>
+                                </div>
 
-                            <div className="w-full md:w-32 aspect-[4/3] rounded-[1.5rem] overflow-hidden bg-white/5 shrink-0 relative group/img">
-                                {item.image ? (
-                                    <img src={item.image} alt={item.title} className="w-full h-full object-cover group-hover/img:scale-110 transition-transform duration-1000" />
-                                ) : (
-                                    <div className="w-full h-full flex items-center justify-center text-white/5"><ImageIcon size={40} /></div>
-                                )}
-                            </div>
+                                {/* Order Controls (Desktop only for precision) */}
+                                <div className="absolute top-4 left-4 flex gap-1 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <button disabled={index === 0} onClick={() => updateOrder(item._id, item.order - 1.5)} className="p-2 bg-white/5 text-white/20 hover:text-padel-blue transition-colors outline-none"><MoveUp size={10} /></button>
+                                    <button disabled={index === news.length - 1} onClick={() => updateOrder(item._id, item.order + 1.5)} className="p-2 bg-white/5 text-white/20 hover:text-padel-blue transition-colors outline-none"><MoveDown size={10} /></button>
+                                </div>
 
-                            <div className="flex-1 space-y-4">
-                                <div className="flex items-center gap-4">
-                                    <span className="px-4 py-1.5 bg-padel-blue/10 border border-padel-blue/20 text-padel-blue rounded-full text-[9px] font-black uppercase tracking-widest">{item.category}</span>
-                                    {item.featured && (
-                                        <span className="px-4 py-1.5 bg-padel-yellow/10 border border-padel-yellow/20 text-padel-yellow rounded-full text-[9px] font-black uppercase tracking-widest flex items-center gap-2">
-                                            <Star size={10} className="fill-padel-yellow" /> À LA UNE
-                                        </span>
+                                <div className="aspect-[4/3] rounded-[1.5rem] overflow-hidden bg-white/5 mb-6 relative group/img shrink-0">
+                                    {item.image ? (
+                                        <img src={item.image} alt={item.title} className="w-full h-full object-cover group-hover/img:scale-110 transition-transform duration-1000" />
+                                    ) : (
+                                        <div className="w-full h-full flex items-center justify-center text-white/5"><ImageIcon size={40} /></div>
                                     )}
-                                    <span className={cn(
-                                        "px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest border",
-                                        item.isActive ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-500" : "bg-red-500/10 border-red-500/20 text-red-500"
-                                    )}>
-                                        {item.isActive ? 'ACTIF' : 'INVISIBLE'}
-                                    </span>
                                 </div>
 
-                                <div>
-                                    <h3 className="text-xl md:text-2xl font-display font-black uppercase tracking-tighter leading-tight group-hover:text-padel-blue transition-colors duration-500">{item.title}</h3>
-                                    <div className="flex items-center gap-6 mt-3 text-[10px] text-white/30 font-black uppercase tracking-widest">
-                                        <p className="flex items-center gap-2"><Calendar size={10} /> {item.date}</p>
-                                        <div className="w-1 h-1 rounded-full bg-white/10" />
-                                        <p className="flex items-center gap-2"><ExternalLink size={10} /> {SECTIONS.find(s => s.value === item.link)?.label || item.link}</p>
+                                <div className="flex-1 space-y-4">
+                                    <div className="flex flex-wrap gap-2">
+                                        <span className="px-2.5 py-1 bg-padel-blue/10 border border-padel-blue/20 text-padel-blue rounded-full text-[8px] font-black tracking-widest uppercase">{item.category}</span>
+                                        {item.featured && <Star size={14} className="text-padel-yellow fill-padel-yellow" />}
                                     </div>
-                                </div>
-                                <p className="text-xs text-white/40 line-clamp-2 leading-relaxed max-w-2xl">{item.description}</p>
-                            </div>
 
-                            <div className="flex flex-row md:flex-col items-center gap-4 border-l border-white/5 pl-8 shrink-0">
-                                <button onClick={() => handleOpenModal(item)} className="p-4 bg-white/5 text-white/30 hover:text-white hover:bg-padel-blue rounded-2xl transition-all border border-white/10 hover:border-padel-blue">
-                                    <Edit2 size={18} />
+                                    <div>
+                                        <h3 className="text-sm md:text-base font-display font-black uppercase tracking-tighter leading-tight line-clamp-2 group-hover:text-padel-blue transition-colors duration-500">{item.title}</h3>
+                                        <p className="flex items-center gap-1.5 text-[8px] text-white/20 font-black uppercase tracking-widest mt-2"><Calendar size={10} /> {item.date}</p>
+                                    </div>
+                                    <p className="text-[10px] text-white/40 line-clamp-2 leading-relaxed">{item.description}</p>
+                                </div>
+                            </motion.div>
+                        ))}
+                    </div>
+                )}
+
+                {/* Pagination Bar */}
+                {filteredNews.length > itemsPerPage && !loading && (
+                    <div className="flex items-center justify-center gap-4">
+                        <button
+                            disabled={currentPage === 1}
+                            onClick={() => setCurrentPage(prev => prev - 1)}
+                            className="p-4 bg-white/5 rounded-2xl text-white/20 hover:text-padel-blue hover:bg-white/10 disabled:opacity-30 transition-all active:scale-95"
+                        >
+                            <MoveUp size={20} className="-rotate-90" />
+                        </button>
+                        
+                        <div className="flex gap-2">
+                            {[...Array(Math.ceil(filteredNews.length / itemsPerPage))].map((_, i) => (
+                                <button
+                                    key={i}
+                                    onClick={() => setCurrentPage(i + 1)}
+                                    className={cn(
+                                        "w-10 h-10 rounded-xl text-[10px] font-black transition-all",
+                                        currentPage === i + 1 
+                                            ? "bg-padel-blue text-white shadow-xl shadow-padel-blue/20 scale-110" 
+                                            : "bg-white/5 text-white/20 hover:bg-white/10 hover:text-white"
+                                    )}
+                                >
+                                    {i + 1}
                                 </button>
-                                <button onClick={() => handleDelete(item)} className="p-4 bg-white/5 text-white/30 hover:text-red-500 hover:bg-red-500/10 rounded-2xl transition-all border border-white/10 hover:border-red-500">
-                                    <Trash2 size={18} />
-                                </button>
-                            </div>
-                        </motion.div>
-                    ))
+                            ))}
+                        </div>
+
+                        <button
+                            disabled={currentPage === Math.ceil(filteredNews.length / itemsPerPage)}
+                            onClick={() => setCurrentPage(prev => prev + 1)}
+                            className="p-4 bg-white/5 rounded-2xl text-white/20 hover:text-padel-blue hover:bg-white/10 disabled:opacity-30 transition-all active:scale-95"
+                        >
+                            <MoveDown size={20} className="-rotate-90" />
+                        </button>
+                    </div>
                 )}
             </div>
 
@@ -317,13 +366,6 @@ export function AdminNews() {
                                                 />
                                             </div>
                                         </div>
-
-                                        <CustomSelect
-                                            label="Action du lien (Destination)"
-                                            options={SECTION_OPTIONS}
-                                            value={formData.link}
-                                            onChange={(val) => setFormData({ ...formData, link: val })}
-                                        />
                                     </div>
 
                                     {/* Right Column - Image Upload */}
@@ -366,14 +408,26 @@ export function AdminNews() {
                                 </div>
 
                                 <div className="space-y-4">
-                                    <label className="text-[9px] font-black text-white/30 uppercase tracking-[0.4em] ml-1 flex items-center gap-2"><ClipboardList size={10} className="text-padel-blue" /> Contenu court (Description)</label>
+                                    <label className="text-[9px] font-black text-white/30 uppercase tracking-[0.4em] ml-1 flex items-center gap-2"><ClipboardList size={10} className="text-padel-blue" /> Résumé court (Pour la liste)</label>
                                     <textarea
                                         required
-                                        rows={4}
+                                        rows={2}
                                         value={formData.description}
                                         onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                                        className="w-full bg-white/[0.03] border border-white/10 rounded-2xl py-5 px-6 text-sm font-medium text-white/70 focus:border-padel-blue focus:ring-1 focus:ring-padel-blue/50 outline-none transition-all resize-none leading-relaxed custom-scrollbar"
+                                        placeholder="L'essentiel en une phrase..."
+                                    />
+                                </div>
+
+                                <div className="space-y-4">
+                                    <label className="text-[9px] font-black text-white/30 uppercase tracking-[0.4em] ml-1 flex items-center gap-2"><Layout size={10} className="text-padel-blue" /> Contenu détaillé (Pour le Modal)</label>
+                                    <textarea
+                                        required
+                                        rows={8}
+                                        value={formData.content}
+                                        onChange={(e) => setFormData({ ...formData, content: e.target.value })}
                                         className="w-full bg-white/[0.03] border border-white/10 rounded-[2rem] py-6 px-8 text-sm font-medium text-white/70 focus:border-padel-blue focus:ring-1 focus:ring-padel-blue/50 outline-none transition-all resize-none leading-relaxed custom-scrollbar"
-                                        placeholder="L'essentiel de l'actu en quelques lignes..."
+                                        placeholder="Décrivez l'actualité en détails ici..."
                                     />
                                 </div>
 

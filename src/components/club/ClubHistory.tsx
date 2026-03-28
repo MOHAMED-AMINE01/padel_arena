@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'motion/react';
 
 const timeline = [
-  { year: "2022", title: "LA GENÈSE", desc: "Né d'une passion profonde pour le padel, le projet voit le jour avec l'ambition de redéfinir les standards du sport." }, // notranslate in JSX
+  { year: "2022", title: "LA GENÈSE", desc: "Né d'une passion profonde pour le padel, le projet voit le jour avec l'ambition de redéfinir les standards du sport." },
   { year: "2023", title: "CONCEPTION", desc: "Immersion dans l'architecture et sélection rigoureuse des meilleurs matériaux pour nos infrastructures." },
   { year: "2024", title: "OUVERTURE", desc: "Ouverture officielle des portes. L'Arène Vendôme accueille ses premiers membres dans un cadre unique." },
   { year: "2025", title: "EXPANSION", desc: "Lancement de l'Académie et intégration de nouveaux terrains panoramiques pour répondre à la demande." },
@@ -11,7 +11,7 @@ const timeline = [
 
 export const ClubHistory = () => {
   return (
-    <section id="histoire" className="relative py-24 md:py-48 px-6 bg-[#050505] overflow-hidden">
+    <section id="histoire" className="relative py-24 md:py-24 px-6 bg-[#050505] overflow-hidden">
       {/* Editorial Grid Lines */}
       <div className="absolute inset-0 pointer-events-none opacity-[0.03]">
         <div className="max-w-[1400px] mx-auto h-full w-full flex justify-between border-x border-white">
@@ -24,8 +24,8 @@ export const ClubHistory = () => {
       <div className="max-w-[1400px] mx-auto relative z-10">
         <div className="grid lg:grid-cols-12 gap-16 lg:gap-24">
 
-          {/* Side Title (4 cols) - Sticky on Desktop, Static on Mobile */}
-          <div className="lg:col-span-5 xl:col-span-4 lg:sticky lg:top-24 h-fit text-center lg:text-left">
+          {/* Side Title (4 cols) - Sticky on Desktop */}
+          <div className="lg:col-span-5 xl:col-span-4 lg:sticky lg:top-32 h-fit text-center lg:text-left">
             <div className="inline-flex items-center gap-4 mb-8">
               <span className="text-[10px] font-black tracking-[0.4em] text-padel-blue uppercase">NOTRE PARCOURS</span>
             </div>

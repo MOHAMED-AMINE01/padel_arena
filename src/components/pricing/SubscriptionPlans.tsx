@@ -151,7 +151,7 @@ export const SubscriptionPlans = () => {
   if (plans.length === 0) return null;
 
   return (
-    <section id="abonnements" className="relative py-24 md:py-48 px-6 bg-[#050505] overflow-hidden border-t border-white/[0.03]">
+    <section id="abonnements" className="relative py-24 md:py-24 px-6 bg-[#050505] overflow-hidden border-t border-white/[0.03]">
       {/* Structural Decor */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1px] h-full bg-white opacity-[0.02] z-0" />
 
@@ -399,7 +399,7 @@ export const SubscriptionPlans = () => {
                             type="text"
                             placeholder="NOM & PRÉNOM"
                             value={formData.name}
-                            onChange={(e) => setFormData({...formData, name: e.target.value})}
+                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                             className="w-full bg-white/[0.03] border border-white/10 rounded-2xl py-4 pl-14 pr-5 text-xs font-black text-white focus:border-padel-blue outline-none transition-all uppercase tracking-widest placeholder:text-white/10"
                           />
                         </div>
@@ -410,7 +410,7 @@ export const SubscriptionPlans = () => {
                             type="tel"
                             placeholder="NUMÉRO DE TÉLÉPHONE"
                             value={formData.phone}
-                            onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                             className="w-full bg-white/[0.03] border border-white/10 rounded-2xl py-4 pl-14 pr-5 text-xs font-black text-white focus:border-padel-blue outline-none transition-all uppercase tracking-widest placeholder:text-white/10"
                           />
                         </div>
@@ -421,7 +421,7 @@ export const SubscriptionPlans = () => {
                             type="email"
                             placeholder="ADRESSE EMAIL"
                             value={formData.email}
-                            onChange={(e) => setFormData({...formData, email: e.target.value})}
+                            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                             className="w-full bg-white/[0.03] border border-white/10 rounded-2xl py-4 pl-14 pr-5 text-xs font-black text-white focus:border-padel-blue outline-none transition-all uppercase tracking-widest placeholder:text-white/10"
                           />
                         </div>
@@ -433,7 +433,7 @@ export const SubscriptionPlans = () => {
                               type="date"
                               title="Date de début souhaitée"
                               value={formData.date}
-                              onChange={(e) => setFormData({...formData, date: e.target.value})}
+                              onChange={(e) => setFormData({ ...formData, date: e.target.value })}
                               className="w-full bg-white/[0.03] border border-white/10 rounded-2xl py-4 pl-12 pr-3 text-[10px] font-black text-white focus:border-padel-blue outline-none transition-all [color-scheme:dark]"
                             />
                           </div>
@@ -444,7 +444,7 @@ export const SubscriptionPlans = () => {
                               type="time"
                               title="Heure préférée"
                               value={formData.time}
-                              onChange={(e) => setFormData({...formData, time: e.target.value})}
+                              onChange={(e) => setFormData({ ...formData, time: e.target.value })}
                               className="w-full bg-white/[0.03] border border-white/10 rounded-2xl py-4 pl-12 pr-3 text-[10px] font-black text-white focus:border-padel-blue outline-none transition-all [color-scheme:dark]"
                             />
                           </div>

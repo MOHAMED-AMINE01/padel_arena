@@ -50,7 +50,7 @@ export const CourtPricing = () => {
   ];
 
   return (
-    <section id="terrains" className="relative py-24 md:py-48 px-6 bg-[#050505] overflow-hidden">
+    <section id="terrains" className="relative py-24 md:py-24 px-6 bg-[#050505] overflow-hidden">
       {/* Editorial Grid Lines */}
       <div className="absolute inset-0 pointer-events-none opacity-[0.02]">
         <div className="max-w-[1400px] mx-auto h-full w-full flex justify-between border-x border-white">

@@ -42,7 +42,7 @@ export function PlayerProfile() {
     const [saving, setSaving] = useState(false);
     const [success, setSuccess] = useState(false);
     const [error, setError] = useState('');
-    
+
     // Form state
     const [formData, setFormData] = useState({
         name: '',
@@ -50,7 +50,7 @@ export function PlayerProfile() {
         phone: '',
         address: ''
     });
-    
+
     // Password state
     const [passwordData, setPasswordData] = useState({
         oldPassword: '',
@@ -65,14 +65,14 @@ export function PlayerProfile() {
     const [passwordLoading, setPasswordLoading] = useState(false);
     const [passwordError, setPasswordError] = useState('');
     const [passwordSuccess, setPasswordSuccess] = useState(false);
-    
+
     // Notifications state
     const [notifications, setNotifications] = useState({
         match: true,
         news: false,
         promo: true
     });
-    
+
     // Preferences state
     const [selectedSports, setSelectedSports] = useState<string[]>(['Padel']);
     const availableSports = ['Padel', 'Pickleball', 'Badminton'];
@@ -106,7 +106,7 @@ export function PlayerProfile() {
                 notifications,
                 preferences: { sports: selectedSports }
             });
-            
+
             setSuccess(true);
             if (refreshUser) refreshUser();
             setTimeout(() => setSuccess(false), 3000);
@@ -136,7 +136,7 @@ export function PlayerProfile() {
                 oldPassword: passwordData.oldPassword,
                 newPassword: passwordData.newPassword
             });
-            
+
             setPasswordSuccess(true);
             setPasswordData({ oldPassword: '', newPassword: '', confirmPassword: '' });
             setTimeout(() => setPasswordSuccess(false), 3000);
@@ -148,8 +148,8 @@ export function PlayerProfile() {
     };
 
     const toggleSport = (sport: string) => {
-        setSelectedSports(prev => 
-            prev.includes(sport) 
+        setSelectedSports(prev =>
+            prev.includes(sport)
                 ? prev.filter(s => s !== sport)
                 : [...prev, sport]
         );
@@ -171,7 +171,7 @@ export function PlayerProfile() {
                         Personnalisez votre expérience et gérez vos préférences.
                     </p>
                 </div>
-                <motion.button 
+                <motion.button
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={handleSave}
@@ -250,74 +250,74 @@ export function PlayerProfile() {
 
                         {/* Password Section - Only for local auth users */}
                         {(user as any)?.authProvider !== 'google' && (
-                        <div className="pt-6 lg:pt-8 border-t border-white/5">
-                            <h3 className="text-[10px] sm:text-xs font-black text-white uppercase tracking-[0.3em] mb-4 sm:mb-6 flex items-center gap-2 sm:gap-3">
-                                <Lock size={14} className="text-padel-blue sm:w-4 sm:h-4" /> Changer le mot de passe
-                            </h3>
-                            
-                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
-                                {[
-                                    { label: 'Mot de passe actuel', field: 'oldPassword', show: showPasswords.old, toggleKey: 'old' },
-                                    { label: 'Nouveau', field: 'newPassword', show: showPasswords.new, toggleKey: 'new' },
-                                    { label: 'Confirmation', field: 'confirmPassword', show: showPasswords.confirm, toggleKey: 'confirm' },
-                                ].map((item, i) => (
-                                    <div key={i} className="space-y-2 sm:space-y-3">
-                                        <label className="text-[9px] sm:text-[10px] font-black text-white/30 uppercase tracking-[0.15em]">
-                                            {item.label}
-                                        </label>
-                                        <div className="relative">
-                                            <input
-                                                type={item.show ? 'text' : 'password'}
-                                                value={passwordData[item.field as keyof typeof passwordData]}
-                                                onChange={(e) => setPasswordData(prev => ({ ...prev, [item.field]: e.target.value }))}
-                                                className="w-full bg-white/[0.03] border border-white/10 rounded-xl sm:rounded-2xl py-3 sm:py-4 px-4 sm:px-5 pr-10 sm:pr-12 text-xs sm:text-sm font-bold text-white outline-none focus:border-padel-blue transition-all"
-                                                placeholder="••••••••"
-                                            />
-                                            <button
-                                                type="button"
-                                                onClick={() => setShowPasswords(prev => ({ ...prev, [item.toggleKey]: !prev[item.toggleKey as keyof typeof prev] }))}
-                                                className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 text-white/30 hover:text-white transition-colors"
-                                            >
-                                                {item.show ? <EyeOff size={16} /> : <Eye size={16} />}
-                                            </button>
+                            <div className="pt-6 lg:pt-8 border-t border-white/5">
+                                <h3 className="text-[10px] sm:text-xs font-black text-white uppercase tracking-[0.3em] mb-4 sm:mb-6 flex items-center gap-2 sm:gap-3">
+                                    <Lock size={14} className="text-padel-blue sm:w-4 sm:h-4" /> Changer le mot de passe
+                                </h3>
+
+                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
+                                    {[
+                                        { label: 'Mot de passe actuel', field: 'oldPassword', show: showPasswords.old, toggleKey: 'old' },
+                                        { label: 'Nouveau', field: 'newPassword', show: showPasswords.new, toggleKey: 'new' },
+                                        { label: 'Confirmation', field: 'confirmPassword', show: showPasswords.confirm, toggleKey: 'confirm' },
+                                    ].map((item, i) => (
+                                        <div key={i} className="space-y-2 sm:space-y-3">
+                                            <label className="text-[9px] sm:text-[10px] font-black text-white/30 uppercase tracking-[0.15em]">
+                                                {item.label}
+                                            </label>
+                                            <div className="relative">
+                                                <input
+                                                    type={item.show ? 'text' : 'password'}
+                                                    value={passwordData[item.field as keyof typeof passwordData]}
+                                                    onChange={(e) => setPasswordData(prev => ({ ...prev, [item.field]: e.target.value }))}
+                                                    className="w-full bg-white/[0.03] border border-white/10 rounded-xl sm:rounded-2xl py-3 sm:py-4 px-4 sm:px-5 pr-10 sm:pr-12 text-xs sm:text-sm font-bold text-white outline-none focus:border-padel-blue transition-all"
+                                                    placeholder="••••••••"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setShowPasswords(prev => ({ ...prev, [item.toggleKey]: !prev[item.toggleKey as keyof typeof prev] }))}
+                                                    className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 text-white/30 hover:text-white transition-colors"
+                                                >
+                                                    {item.show ? <EyeOff size={16} /> : <Eye size={16} />}
+                                                </button>
+                                            </div>
                                         </div>
-                                    </div>
-                                ))}
+                                    ))}
+                                </div>
+
+                                {/* Password Error/Success */}
+                                <AnimatePresence>
+                                    {passwordError && (
+                                        <motion.p
+                                            initial={{ opacity: 0 }}
+                                            animate={{ opacity: 1 }}
+                                            exit={{ opacity: 0 }}
+                                            className="text-red-500 text-[10px] sm:text-xs font-bold mt-3"
+                                        >
+                                            {passwordError}
+                                        </motion.p>
+                                    )}
+                                    {passwordSuccess && (
+                                        <motion.p
+                                            initial={{ opacity: 0 }}
+                                            animate={{ opacity: 1 }}
+                                            exit={{ opacity: 0 }}
+                                            className="text-green-500 text-[10px] sm:text-xs font-bold mt-3 flex items-center gap-2"
+                                        >
+                                            <CheckCircle2 size={14} /> Mot de passe mis à jour!
+                                        </motion.p>
+                                    )}
+                                </AnimatePresence>
+
+                                <button
+                                    onClick={handlePasswordChange}
+                                    disabled={passwordLoading || !passwordData.oldPassword || !passwordData.newPassword}
+                                    className="mt-4 sm:mt-6 flex items-center gap-2 px-5 sm:px-6 py-2.5 sm:py-3 rounded-xl bg-white/5 border border-white/10 text-white/60 hover:text-white hover:bg-white/10 transition-all text-[10px] sm:text-xs font-black uppercase tracking-widest disabled:opacity-30"
+                                >
+                                    {passwordLoading ? <Loader2 size={14} className="animate-spin" /> : <Lock size={14} />}
+                                    Modifier
+                                </button>
                             </div>
-
-                            {/* Password Error/Success */}
-                            <AnimatePresence>
-                                {passwordError && (
-                                    <motion.p
-                                        initial={{ opacity: 0 }}
-                                        animate={{ opacity: 1 }}
-                                        exit={{ opacity: 0 }}
-                                        className="text-red-500 text-[10px] sm:text-xs font-bold mt-3"
-                                    >
-                                        {passwordError}
-                                    </motion.p>
-                                )}
-                                {passwordSuccess && (
-                                    <motion.p
-                                        initial={{ opacity: 0 }}
-                                        animate={{ opacity: 1 }}
-                                        exit={{ opacity: 0 }}
-                                        className="text-green-500 text-[10px] sm:text-xs font-bold mt-3 flex items-center gap-2"
-                                    >
-                                        <CheckCircle2 size={14} /> Mot de passe mis à jour!
-                                    </motion.p>
-                                )}
-                            </AnimatePresence>
-
-                            <button
-                                onClick={handlePasswordChange}
-                                disabled={passwordLoading || !passwordData.oldPassword || !passwordData.newPassword}
-                                className="mt-4 sm:mt-6 flex items-center gap-2 px-5 sm:px-6 py-2.5 sm:py-3 rounded-xl bg-white/5 border border-white/10 text-white/60 hover:text-white hover:bg-white/10 transition-all text-[10px] sm:text-xs font-black uppercase tracking-widest disabled:opacity-30"
-                            >
-                                {passwordLoading ? <Loader2 size={14} className="animate-spin" /> : <Lock size={14} />}
-                                Modifier
-                            </button>
-                        </div>
                         )}
                     </div>
                 </div>
@@ -325,7 +325,7 @@ export function PlayerProfile() {
                 {/* Right: Preferences */}
                 <div className="lg:col-span-4 space-y-4 sm:space-y-6 lg:space-y-8">
                     {/* Notifications */}
-                    <div className="bg-[#151518] border border-white/10 rounded-2xl sm:rounded-[2rem] p-6 sm:p-8 lg:p-10">
+                    {/* <div className="bg-[#151518] border border-white/10 rounded-2xl sm:rounded-[2rem] p-6 sm:p-8 lg:p-10">
                         <h3 className="text-[10px] sm:text-xs font-black text-white uppercase tracking-[0.3em] sm:tracking-[0.4em] mb-6 sm:mb-8 lg:mb-10 flex items-center gap-2 sm:gap-3">
                             <Bell size={16} className="text-padel-yellow sm:w-[18px] sm:h-[18px]" /> Notifications
                         </h3>
@@ -348,7 +348,7 @@ export function PlayerProfile() {
                                 </div>
                             ))}
                         </div>
-                    </div>
+                    </div> */}
 
                     {/* Sports Preferences */}
                     <div className="bg-[#151518] border border-white/10 rounded-2xl sm:rounded-[2rem] p-6 sm:p-8 lg:p-10">
@@ -362,8 +362,8 @@ export function PlayerProfile() {
                                     onClick={() => toggleSport(sport)}
                                     className={cn(
                                         "px-4 sm:px-5 py-2.5 sm:py-3 rounded-lg sm:rounded-xl text-[9px] sm:text-[10px] font-black uppercase tracking-wider sm:tracking-widest border transition-all",
-                                        selectedSports.includes(sport) 
-                                            ? "bg-padel-blue/10 border-padel-blue text-padel-blue" 
+                                        selectedSports.includes(sport)
+                                            ? "bg-padel-blue/10 border-padel-blue text-padel-blue"
                                             : "bg-white/5 border-white/5 text-white/30 hover:border-white/20"
                                     )}
                                 >

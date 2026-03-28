@@ -22,6 +22,7 @@ import newsletterRoutes from './routes/newsletterRoutes';
 import newsRoutes from './routes/newsRoutes';
 import pricingRoutes from './routes/pricingRoutes';
 import uploadRoutes from './routes/uploadRoutes';
+import contentRoutes from './routes/contentRoutes';
 
 
 // Load environment variables
@@ -96,6 +97,7 @@ app.use('/api/newsletter', newsletterRoutes);
 app.use('/api/news', newsRoutes);
 app.use('/api/pricing', pricingRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/content', contentRoutes);
 
 
 // Root Route

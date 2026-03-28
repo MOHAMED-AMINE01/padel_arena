@@ -34,6 +34,8 @@ import { AdminCourts } from './pages/admin/Courts';
 import { AdminEvents } from './pages/admin/Events';
 import { AdminNews } from './pages/admin/News';
 import { AdminPlans } from './pages/admin/Plans';
+import { AdminTestimonials } from './pages/admin/Testimonials';
+import { AdminTeam } from './pages/admin/Team';
 
 // PLAYER PAGES
 import { PlayerLayout } from './components/player/PlayerLayout';
@@ -153,6 +155,8 @@ export default function App() {
                       <Route path="newsletter" element={<AdminNewsletter />} />
                       <Route path="news" element={<AdminNews />} />
                       <Route path="plans" element={<AdminPlans />} />
+                      <Route path="testimonials" element={<AdminTestimonials />} />
+                      <Route path="team" element={<AdminTeam />} />
                     </Route>
                   </Route>
 

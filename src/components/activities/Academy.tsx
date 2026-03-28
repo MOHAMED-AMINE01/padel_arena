@@ -46,7 +46,7 @@ export const Academy = () => {
   };
 
   return (
-    <section id="academy" className="relative py-24 md:py-48 px-6 bg-[#050505] overflow-hidden border-t border-white/[0.03]">
+    <section id="academy" className="relative py-24 md:py-24 px-6 bg-[#050505] overflow-hidden border-t border-white/[0.03]">
       {/* Editorial Grid Lines */}
       <div className="absolute inset-0 pointer-events-none opacity-[0.03]">
         <div className="max-w-[1400px] mx-auto h-full w-full flex justify-between border-x border-white">
@@ -93,7 +93,7 @@ export const Academy = () => {
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80" />
 
-                  <div className="absolute top-10 left-10 w-14 h-14 rounded-2xl bg-white/5 backdrop-blur-3xl flex items-center justify-center border border-white/10 group-hover:bg-padel-blue group-hover:border-padel-blue transition-all duration-500">
+                  <div className="absolute top-10 left-10 w-14 h-14 rounded-2xl bg-white/5 backdrop-blur-3xl flex items-center justify-center border border-white/10 group-hover:bg-padel-blue group-hover:text-white group-hover:border-padel-blue transition-all duration-500">
                     {section.icon}
                   </div>
 
@@ -115,18 +115,7 @@ export const Academy = () => {
                     ))}
                   </div>
 
-                  <div className="flex items-end">
-                    <Link to="/contact" className="w-full">
-                      <motion.button
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        className="w-full py-5 rounded-2xl bg-white/5 border border-white/10 text-[10px] font-black tracking-[0.3em] uppercase transition-all flex items-center justify-center gap-4 hover:bg-padel-blue hover:border-padel-blue group/btn"
-                      >
-                        S'INSCRIRE
-                        <ArrowUpRight size={18} className="group-hover/btn:translate-x-1 transition-transform" />
-                      </motion.button>
-                    </Link>
-                  </div>
+
                 </div>
               </motion.div>
             ))}

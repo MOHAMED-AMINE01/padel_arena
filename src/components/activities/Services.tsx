@@ -35,7 +35,7 @@ export const Services = () => {
   };
 
   return (
-    <section id="services" className="relative py-24 md:py-48 px-6 bg-[#050505] overflow-hidden border-t border-white/[0.03]">
+    <section id="services" className="relative py-24 md:py-24 px-6 bg-[#050505] overflow-hidden border-t border-white/[0.03]">
       {/* Structural Lines */}
       <div className="absolute top-0 left-1/4 w-[1px] h-full bg-white opacity-[0.02] z-0" />
       <div className="absolute top-0 right-1/4 w-[1px] h-full bg-white opacity-[0.02] z-0" />

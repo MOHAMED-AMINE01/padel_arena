@@ -2,12 +2,13 @@ import React, { useState } from 'react';
 import { motion, useScroll, useTransform } from 'motion/react';
 import { Mail, Phone, ChevronDown } from 'lucide-react';
 import { cn } from '../lib/utils';
+import { useSiteSettings } from '../hooks/useSiteSettings';
 
 export const Hero = () => {
+  const { settings } = useSiteSettings();
   const { scrollY } = useScroll();
   const y = useTransform(scrollY, [0, 500], [0, 150]);
   const opacity = useTransform(scrollY, [0, 300], [1, 0]);
-
 
   return (
     <section className="relative h-screen w-full overflow-hidden bg-[#050505] pt-12 md:pt-20">
@@ -32,21 +33,6 @@ export const Hero = () => {
           <div className="w-[1px] h-full bg-white mr-[20%]" />
         </div>
       </div>
-
-
-
-      {/* Right Vertical Socials */}
-      {/* <div className="absolute right-6 top-1/2 -translate-y-1/2 z-30 hidden xl:flex flex-col items-center gap-24">
-        {['FACEBOOK', 'INSTAGRAM'].map((social) => (
-          <a
-            key={social}
-            href="#"
-            className="text-[9px] font-black uppercase tracking-[0.5em] text-white/80 hover:text-padel-blue transition-all rotate-90 origin-center py-4"
-          >
-            {social}
-          </a>
-        ))}
-      </div> */}
 
       {/* Main Content Area */}
       <div className="relative z-20 h-full max-w-[1500px] mx-auto px-8 md:px-12 flex flex-col justify-center">
@@ -77,9 +63,9 @@ export const Hero = () => {
                 <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-padel-blue/20 group-hover:border-padel-blue transition-colors">
                   <Mail size={16} className="text-white/40 group-hover:text-white" />
                 </div>
-                <span className="text-sm md:text-base font-bold text-white transition-colors">
-                  contact@padelarena.fr
-                </span>
+                <a href={`mailto:${settings.email}`} className="text-sm md:text-base font-bold text-white transition-colors hover:text-padel-blue">
+                  {settings.email}
+                </a>
               </div>
             </div>
 
@@ -89,9 +75,9 @@ export const Hero = () => {
                 <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-padel-blue/20 group-hover:border-padel-blue transition-colors">
                   <Phone size={16} className="text-white/40 group-hover:text-white" />
                 </div>
-                <span className="text-sm md:text-base font-bold text-white transition-colors">
-                  +33 2 00 00 00 00
-                </span>
+                <a href={`tel:${settings.phone.replace(/\s/g, '')}`} className="text-sm md:text-base font-bold text-white transition-colors hover:text-padel-blue">
+                  {settings.phone}
+                </a>
               </div>
             </div>
           </div>
