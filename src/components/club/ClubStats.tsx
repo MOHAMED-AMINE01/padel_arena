@@ -3,7 +3,7 @@ import { motion } from 'motion/react';
 import { Trophy, Users, Star, Target, Activity } from 'lucide-react';
 
 const stats = [
-  { label: "PISTES DE PADEL", value: "03", icon: <Target size={18} />, color: "text-padel-blue" },
+  { label: "TERRAINS DE PADEL", value: "03", icon: <Target size={18} />, color: "text-padel-blue" },
   { label: "M² DE SURFACE", value: "1600", icon: <Activity size={18} />, color: "text-white" },
   { label: "DISCIPLINES INDOOR", value: "04", icon: <Star size={18} />, color: "text-padel-yellow" },
   { label: "CLUB-HOUSE BAR", value: "01", icon: <Trophy size={18} />, color: "text-white" },

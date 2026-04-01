@@ -61,7 +61,7 @@ export const Testimonials = () => {
   }
 
   return (
-    <section id="avis" className="py-24 md:py-40 px-6 relative overflow-hidden bg-dark-bg">
+    <section id="avis" className="py-24 md:py-24 px-6 relative overflow-hidden bg-dark-bg">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-16 md:mb-24">
           <motion.div
@@ -97,7 +97,7 @@ export const Testimonials = () => {
                 >
                   <div>
                     <Quote className="absolute top-6 right-6 text-padel-blue/10 group-hover:text-padel-blue/20 transition-colors" size={60} />
-                    
+
                     <div className="flex gap-1 mb-6">
                       {[...Array(5)].map((_, i) => (
                         <Star key={i} size={14} className={cn(i < t.rating ? "text-padel-yellow fill-padel-yellow" : "text-white/10")} />

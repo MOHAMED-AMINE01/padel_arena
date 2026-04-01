@@ -26,16 +26,6 @@ const activities = [
     cta: "PRENDRE RDV"
   },
   {
-    title: "ÉTAPES",
-    subtitle: "INTENSIF",
-    icon: <Sparkles size={24} />,
-    image: "/IMAGES/oskar-hagberg-uJlPtLTZT7c-unsplash.jpg",
-    desc: "Vivez l'expérience d'un pro pendant un week-end avec nos stages thématiques en immersion totale.",
-    tag: "IMMERSION",
-    link: "/contact",
-    cta: "S'INSCRIRE"
-  },
-  {
     title: "ÉVÉNEMENTS",
     subtitle: "ENTREPRISE",
     icon: <Briefcase size={24} />,
@@ -167,7 +157,7 @@ export const Activities = () => {
   };
 
   return (
-    <section id="activites" className="py-16 sm:py-24 md:py-48 px-4 sm:px-6 relative overflow-hidden bg-[#050505]">
+    <section id="activites" className="py-16 sm:py-24 md:py-24 px-4 sm:px-6 relative overflow-hidden bg-[#050505]">
       {/* Editorial Grid Lines */}
       <div className="absolute inset-0 pointer-events-none opacity-[0.03]">
         <div className="max-w-[1400px] mx-auto h-full w-full flex justify-between border-x border-white">
@@ -186,7 +176,7 @@ export const Activities = () => {
               viewport={{ once: true }}
               className="inline-flex items-center gap-4 mb-8"
             >
-              <span className="text-[10px] font-black tracking-[0.4em] text-padel-blue uppercase">SERVICES EXCLUSIFS</span>
+              <span className="text-[10px] font-black tracking-[0.4em] text-padel-blue uppercase">Nos services</span>
             </motion.div>
 
             <motion.h3
@@ -216,9 +206,10 @@ export const Activities = () => {
         </div>
 
         {/* Dynamic Grid Layout - Desktop */}
-        <div className="hidden sm:grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 lg:gap-10">
+        <div className="hidden sm:grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 lg:gap-35">
           {activities.map((activity, i) => (
-            <ActivityCard key={i} activity={activity} index={i} />
+            <ActivityCard key={i} activity={activity} index={i}
+            />
           ))}
         </div>
 

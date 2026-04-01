@@ -5,7 +5,7 @@
 @font-face {
   font-family: 'Garet';
   src: url('/fonts/Garet-Book.woff2') format('woff2'),
-       url('/fonts/Garet-Book.woff') format('woff');
+    url('/fonts/Garet-Book.woff') format('woff');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -14,7 +14,7 @@
 @font-face {
   font-family: 'Garet';
   src: url('/fonts/Garet-Medium.woff2') format('woff2'),
-       url('/fonts/Garet-Medium.woff') format('woff');
+    url('/fonts/Garet-Medium.woff') format('woff');
   font-weight: 500;
   font-style: normal;
   font-display: swap;
@@ -23,7 +23,7 @@
 @font-face {
   font-family: 'Garet';
   src: url('/fonts/Garet-Bold.woff2') format('woff2'),
-       url('/fonts/Garet-Bold.woff') format('woff');
+    url('/fonts/Garet-Bold.woff') format('woff');
   font-weight: 700;
   font-style: normal;
   font-display: swap;
@@ -32,15 +32,16 @@
 @font-face {
   font-family: 'Garet';
   src: url('/fonts/Garet-Heavy.woff2') format('woff2'),
-       url('/fonts/Garet-Heavy.woff') format('woff');
+    url('/fonts/Garet-Heavy.woff') format('woff');
   font-weight: 900;
   font-style: normal;
   font-display: swap;
 }
 
+/* E0AC69 */
 @theme {
   --color-padel-blue: #1349d3;
-  --color-padel-yellow: #ffd21f;
+  --color-padel-yellow: #E2725B;
   --color-neon-green: #39FF14;
   --color-dark-bg: #0E0E11;
   --font-display: "Garet", "Inter", sans-serif;
@@ -94,16 +95,22 @@
   h1 {
     font-size: clamp(1.25rem, 1rem + 1.5vw, 2.5rem);
   }
+
   h2 {
     font-size: clamp(1rem, 0.85rem + 1vw, 1.75rem);
   }
+
   h3 {
     font-size: clamp(0.9rem, 0.75rem + 0.75vw, 1.4rem);
   }
+
   h4 {
     font-size: clamp(0.8rem, 0.7rem + 0.5vw, 1.2rem);
   }
-  p, span, div {
+
+  p,
+  span,
+  div {
     font-size: inherit;
   }
 }

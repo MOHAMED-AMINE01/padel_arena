@@ -10,6 +10,9 @@ import { ActivitiesPage } from './pages/ActivitiesPage';
 import { BookingPage } from './pages/BookingPage';
 import { PricingPage } from './pages/PricingPage';
 import { ContactPage } from './pages/ContactPage';
+import { MentionsLegalesPage } from './pages/MentionsLegalesPage';
+import { PolitiqueConfidentialitePage } from './pages/PolitiqueConfidentialitePage';
+import { CookiesPage } from './pages/CookiesPage';
 
 import { NewsPage } from './pages/NewsPage';
 import { AuthPage } from './pages/AuthPage';
@@ -129,6 +132,9 @@ export default function App() {
                     <Route path="/tarifs" element={<PricingPage />} />
                     <Route path="/contact" element={<ContactPage />} />
                     <Route path="/actualites" element={<NewsPage />} />
+                    <Route path="/mentions-legales" element={<MentionsLegalesPage />} />
+                    <Route path="/politique-confidentialite" element={<PolitiqueConfidentialitePage />} />
+                    <Route path="/cookies" element={<CookiesPage />} />
                   </Route>
 
                   {/* AUTH PAGE (Redirects if already logged in) */}

@@ -84,7 +84,7 @@ export const Infrastructure = () => {
   };
 
   return (
-    <section className="py-16 md:py-32 bg-dark-bg relative overflow-hidden">
+    <section className="py-16 md:py-24 bg-dark-bg relative overflow-hidden">
       {/* Background Decor */}
       <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-padel-blue/20 to-transparent" />
       <div className="absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-padel-yellow/20 to-transparent" />
@@ -205,13 +205,13 @@ export const Infrastructure = () => {
                             </p>
 
                             {/* CTA inside active slide */}
-                            <Link to='/auth'>
+                            <Link to='/reservation'>
                               <motion.button
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
                                 className="mt-8 px-6 py-2.5 bg-padel-yellow text-padel-blue rounded-full font-black text-[10px] uppercase tracking-widest shadow-xl"
                               >
-                                S'INSCRIRE MAINTENANT
+                                RÉSERVER MAINTENANT
                               </motion.button>
                             </Link>
                           </div>

@@ -28,12 +28,12 @@ export const Presentation = () => {
     {
       icon: <Shield className="text-white" size={24} />,
       title: "7/7 Jours de sport et de détente",
-      desc: "Un lieu de vie hybride où l'on vient pour le jeu, on reste pour l'ambiance."
+      desc: "Un lieu de vie hybride où l'on vient pour le jeu et où l'on reste pour l'ambiance."
     }
   ];
 
   return (
-    <section className="relative py-24 md:py-48 px-6 overflow-hidden bg-dark-bg">
+    <section className="relative py-24 md:py-24 px-6 overflow-hidden bg-dark-bg">
       {/* Editorial Background Elements */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="max-w-[1400px] mx-auto h-full w-full flex justify-between border-x border-white/[0.03]">
@@ -58,7 +58,7 @@ export const Presentation = () => {
           >
             <div className="inline-flex items-center gap-4 mb-10 group">
               <span className="text-[10px] font-black tracking-[0.4em] text-padel-blue uppercase">
-                BIENVENUE CHEZ NOUS
+                BIENVENUE CHEZ VOUS
               </span>
             </div>
 
@@ -128,7 +128,7 @@ export const Presentation = () => {
                   initial={{ scale: 1 }}
                   whileInView={{ scale: 1 }}
                   transition={{ duration: 2, ease: "easeOut" }}
-                  src="/IMAGES/IMG_4501.JPG"
+                  src="/IMAGES/presentation2.jpeg"
                   alt="Infrastructure Padel Arena"
                   className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
                 />

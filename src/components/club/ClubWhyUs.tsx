@@ -59,7 +59,7 @@ export const ClubWhyUs = () => {
   };
 
   return (
-    <section id="why-us" className="relative py-24 md:py-48 px-6 bg-[#050505]">
+    <section id="why-us" className="relative py-24 md:py-24 px-6 bg-[#050505]">
       {/* Structural Lines */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1px] h-full bg-white opacity-[0.03] z-0" />
 
@@ -75,7 +75,7 @@ export const ClubWhyUs = () => {
             </h3>
           </div>
 
-          
+
         </div>
 
         {/* Horizontal Scroll for Mobile/Tablet */}

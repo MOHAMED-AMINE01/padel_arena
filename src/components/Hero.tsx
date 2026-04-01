@@ -70,7 +70,7 @@ export const Hero = () => {
             </div>
 
             <div className="group">
-              <p className="text-padel-yellow text-[9px] font-black uppercase tracking-[0.3em] mb-4">appelez-nous</p>
+              <p className="text-padel-yellow text-[9px] font-black uppercase tracking-[0.3em] mb-4">Contactez-nous</p>
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-padel-blue/20 group-hover:border-padel-blue transition-colors">
                   <Phone size={16} className="text-white/40 group-hover:text-white" />

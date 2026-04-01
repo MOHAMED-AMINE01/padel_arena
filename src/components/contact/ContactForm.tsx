@@ -29,33 +29,33 @@ export const ContactForm = () => {
   ];
 
   const contactInfo = [
-    { 
-      icon: <MapPin size={24} />, 
-      label: "LOCALISATION", 
-      value: settings.address.split(',')[0], 
-      subValue: settings.address.split(',')[1]?.trim() || "Vendôme, France", 
-      link: settings.googleMapsUrl 
+    {
+      icon: <MapPin size={24} />,
+      label: "LOCALISATION",
+      value: settings.address.split(',')[0],
+      subValue: settings.address.split(',')[1]?.trim() || "Vendôme, France",
+      link: settings.googleMapsUrl
     },
-    { 
-      icon: <Phone size={24} />, 
-      label: "LIGNE DIRECTE", 
-      value: settings.phone, 
-      subValue: "Disponibilité immédiate", 
-      link: `tel:${settings.phone.replace(/\s/g, '')}` 
+    {
+      icon: <Phone size={24} />,
+      label: "LIGNE DIRECTE",
+      value: settings.phone,
+      subValue: "Disponibilité immédiate",
+      link: `tel:${settings.phone.replace(/\s/g, '')}`
     },
-    { 
-      icon: <Mail size={24} />, 
-      label: "REQUÊTES", 
-      value: settings.email, 
-      subValue: "Réponse sous 24h", 
-      link: `mailto:${settings.email}` 
+    {
+      icon: <Mail size={24} />,
+      label: "REQUÊTES",
+      value: settings.email,
+      subValue: "Réponse sous 24h",
+      link: `mailto:${settings.email}`
     },
-    { 
-      icon: <Clock size={24} />, 
-      label: "DISPONIBILITÉ", 
-      value: settings.availability.split(',')[0], 
-      subValue: settings.availability.split(',')[1]?.trim() || "Sept jours sur sept", 
-      link: null 
+    {
+      icon: <Clock size={24} />,
+      label: "DISPONIBILITÉ",
+      value: settings.availability.split(',')[0],
+      subValue: settings.availability.split(',')[1]?.trim() || "Sept jours sur sept",
+      link: null
     },
   ];
 
@@ -131,7 +131,7 @@ export const ContactForm = () => {
                 Une demande spécifique ? Notre équipe d'experts est à votre disposition pour orchestrer votre expérience Padel Arena.
               </p>
 
-              <div className="grid sm:grid-cols-2 gap-8 mb-16 text-left">
+              <div className="grid sm:grid-cols-2 gap-25 mb-16 text-left">
                 {contactInfo.map((info, i) => (
                   <div key={i} className="group cursor-default">
                     <div className="flex items-center gap-3 mb-4 text-padel-yellow justify-center sm:justify-start">

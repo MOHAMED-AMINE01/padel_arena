@@ -305,54 +305,7 @@ export const SubscriptionPlans = () => {
           </div>
         </div>
 
-        {/* ROI Simulator Section */}
-        <div className="grid lg:grid-cols-2 gap-16 lg:gap-32 items-center px-6 md:px-16 py-16 md:py-24 glass rounded-[4rem] border-white/5 pb-32 md:pb-24">
-          <div>
-            <h4 className="text-3xl md:text-5xl font-display font-black text-white uppercase tracking-tighter leading-none mb-10">
-              OPTIMISEZ <br /> <span className="text-padel-blue italic">VOTRE BUDGET</span>
-            </h4>
-            <p className="text-sm md:text-lg text-white/30 font-medium leading-relaxed mb-12">
-              Plus vous jouez, plus vous économisez. Utilisez notre simulateur pour visualiser instantanément la rentabilité de votre abonnement Arena.
-            </p>
 
-            <div className="space-y-10">
-              <div>
-                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-2 mb-4">
-                  <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">SESSIONS HEBDOMADAIRES</span>
-                  <span className="text-lg md:text-xl font-display font-black text-padel-blue uppercase">~4 Sessions</span>
-                </div>
-                <div className="h-[2px] w-full bg-white/5 rounded-full relative overflow-hidden">
-                  <div className="absolute top-0 left-0 h-full w-[40%] bg-padel-blue shadow-[0_0_20px_rgba(19,73,211,0.5)]" />
-                </div>
-              </div>
-              <div className="grid grid-cols-1 xs:grid-cols-2 gap-8">
-                <div className="space-y-2">
-                  <p className="text-[8px] font-black text-white/20 uppercase tracking-widest">ÉCONOMIE MOYENNE</p>
-                  <p className="text-3xl md:text-4xl font-display font-black text-white">45€<span className="text-xs text-padel-blue">/MOIS</span></p>
-                </div>
-                <div className="space-y-2 xs:border-l border-white/5 xs:pl-8">
-                  <p className="text-[8px] font-black text-white/20 uppercase tracking-widest">RENTABILITÉ</p>
-                  <p className="text-3xl md:text-4xl font-display font-black text-padel-yellow truncate">IMMÉDIATE</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="relative aspect-square md:aspect-auto md:h-[400px] rounded-[3rem] overflow-hidden group">
-            <img
-              src="/IMAGES/IMAGES CARROUSEL/pexels-criticalimagery-33226057.jpg"
-              alt="Economy"
-              className="w-full h-full object-cover grayscale-[40%] group-hover:grayscale-0 group-hover:scale-105 transition-all duration-1000"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80" />
-            <div className="absolute bottom-6 left-6 right-6 glass p-6 md:p-8 rounded-3xl border-white/10 backdrop-blur-3xl">
-              <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em] mb-4">STATISTIQUE ARENA</p>
-              <p className="text-xl md:text-2xl font-display font-black text-white uppercase leading-tight">
-                <span className="text-padel-blue">88%</span> DES JOUEURS RÉCURRENTS <br className="hidden sm:block" /> PASSENT À L'ABONNEMENT.
-              </p>
-            </div>
-          </div>
-        </div>
       </div>
 
       {/* Subscription Modal Contextuel */}

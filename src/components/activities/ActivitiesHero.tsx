@@ -45,7 +45,7 @@ export const ActivitiesHero = () => {
                             transition={{ duration: 0.8 }}
                         >
                             <div className="inline-flex items-center gap-3 mb-6">
-                                <span className="text-[10px] font-black tracking-[0.4em] text-padel-blue uppercase leading-none">VIVEZ L'EXPÉRIENCE</span>
+                                <span className="text-[10px] font-black tracking-[0.4em] text-padel-blue uppercase leading-none">VIVEZ UNE EXPÉRIENCE</span>
                             </div>
 
                             <h1 className="text-4xl sm:text-5xl md:text-7xl xl:text-8xl font-display font-black tracking-tighter leading-[0.85] uppercase mb-8">
@@ -54,7 +54,7 @@ export const ActivitiesHero = () => {
                             </h1>
 
                             <p className="text-base md:text-lg text-white/40 font-medium max-w-lg mb-12 leading-relaxed mx-auto md:mx-0">
-                                Un complexe multisport pensé pour le plaisir et la convivialité. Entrez dans l'arène.
+                                Un complexe multisport pensé pour le plaisir et la convivialité. Entrez dans l'arène Padel Arena.
                             </p>
 
                             <div className="flex flex-col sm:flex-row items-center md:items-start gap-8 justify-center md:justify-start">

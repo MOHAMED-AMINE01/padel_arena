@@ -5,6 +5,7 @@ import { Footer } from './Footer';
 import ScrollToTop from './ScrollToTop';
 import BackToTop from './BackToTop';
 import FloatingSocials from './FloatingSocials';
+import { CookieConsent } from './CookieConsent';
 
 export const PublicLayout = () => {
     return (
@@ -21,6 +22,8 @@ export const PublicLayout = () => {
                 <FloatingSocials />
                 <BackToTop />
             </div>
+
+            <CookieConsent />
         </>
     );
 };

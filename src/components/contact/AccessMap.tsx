@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'motion/react';
 import { MapPin, Car, Bus, Accessibility, Navigation, ArrowUpRight, Globe } from 'lucide-react';
 import { cn } from '../../lib/utils';
+import { useSiteSettings } from '../../hooks/useSiteSettings';
 
 const transportInfo = [
   { icon: <Car size={20} />, title: "STATIONNEMENT", desc: "Parking privé sécurisé 50 places réservé aux membres.", label: "FREE PARKING" },
@@ -10,8 +11,10 @@ const transportInfo = [
 ];
 
 export const AccessMap = () => {
+  const { settings } = useSiteSettings();
+
   return (
-    <section id="acces" className="relative py-24 md:py-48 px-6 bg-[#050505] overflow-hidden border-t border-white/[0.03]">
+    <section id="acces" className="relative py-24 md:py-24 px-6 bg-[#050505] overflow-hidden border-t border-white/[0.03]">
       {/* Structural Decor */}
       <div className="absolute top-0 right-[15%] w-[1px] h-full bg-white opacity-[0.02] z-0" />
 
@@ -55,17 +58,19 @@ export const AccessMap = () => {
                 ))}
               </div>
 
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="w-full sm:w-auto group relative px-10 py-6 bg-padel-blue text-white rounded-full font-black text-[10px] uppercase tracking-[0.4em] overflow-hidden shadow-2xl transition-all"
-              >
-                <span className="relative z-10 flex items-center justify-center gap-4 group-hover:text-padel-blue transition-colors">
-                  ITINÉRAIRE GOOGLE MAPS
-                  <Navigation size={16} />
-                </span>
-                <div className="absolute inset-0 bg-padel-yellow translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
-              </motion.button>
+              <a href={settings.googleMapsUrl} target="_blank" rel="noopener noreferrer">
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="w-full sm:w-auto group relative px-10 py-6 bg-padel-blue text-white rounded-full font-black text-[10px] uppercase tracking-[0.4em] overflow-hidden shadow-2xl transition-all"
+                >
+                  <span className="relative z-10 flex items-center justify-center gap-4 group-hover:text-padel-blue transition-colors">
+                    ITINÉRAIRE GOOGLE MAPS
+                    <Navigation size={16} />
+                  </span>
+                  <div className="absolute inset-0 bg-padel-yellow translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
+                </motion.button>
+              </a>
             </motion.div>
           </div>
 
@@ -77,56 +82,59 @@ export const AccessMap = () => {
               transition={{ duration: 1 }}
               className="relative aspect-video lg:aspect-square xl:aspect-[4/5] rounded-[4rem] overflow-hidden border border-white/10 shadow-[0_50px_100px_rgba(0,0,0,0.5)] group"
             >
-              {/* Cinematic Map Visual */}
-              <div className="absolute inset-0 bg-[#111]">
-                <img
-                  src="/IMAGES/ACTIVITIES - COACHING/pexels-atbo-245208.jpg"
-                  alt="Vendôme City View"
-                  className="w-full h-full object-cover opacity-20 grayscale brightness-50 group-hover:scale-110 transition-transform duration-[2s]"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-transparent" />
+              {/* Minimalist Map Visual */}
+              <div className="absolute inset-0 bg-[#0c0c0e]">
+                {/* Grid Overlay */}
+                <div className="absolute inset-0 opacity-[0.15]" style={{ backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
 
-                {/* Overlay Elements */}
-                <div className="absolute top-10 left-10 glass px-6 py-4 rounded-2xl border-white/10 backdrop-blur-3xl z-20">
-                  <div className="flex items-center gap-4 text-white">
-                    <Globe size={18} className="text-padel-blue" />
-                    <div>
-                      <p className="text-[10px] font-black uppercase tracking-widest text-padel-blue leading-none mb-1">CITY COORDINATES</p>
-                      <p className="text-xs font-bold leading-none">47.7928° N, 1.0660° E</p>
-                    </div>
+                {/* Subtle corner glows */}
+                <div className="absolute top-0 right-0 w-96 h-96 bg-padel-blue/10 rounded-full blur-[100px] pointer-events-none" />
+                <div className="absolute bottom-0 left-0 w-96 h-96 bg-padel-blue/10 rounded-full blur-[100px] pointer-events-none" />
+
+                {/* Top Left Coordinates */}
+                <div className="absolute top-12 left-12 z-20 flex items-start gap-4 text-white">
+                  <Globe size={22} className="text-padel-blue shrink-0" strokeWidth={1.5} />
+                  <div className="pt-0.5">
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-padel-blue leading-tight mb-1">CITY COORDINATES</p>
+                    <p className="text-sm font-bold leading-none tracking-widest">47.7928° N, 1.0660° E</p>
                   </div>
                 </div>
 
                 {/* Marker System */}
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30">
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30 flex flex-col items-center">
                   <div className="relative">
-                    <div className="absolute -top-24 left-1/2 -translate-x-1/2 glass px-6 py-4 rounded-2xl border-padel-blue/30 backdrop-blur-3xl shadow-[0_30px_60px_rgba(19,73,211,0.3)] whitespace-nowrap">
-                      <p className="text-[9px] font-black text-white/30 tracking-[0.3em] uppercase mb-2">DESTINATION</p>
+                    {/* Glow behind the box */}
+                    <div className="absolute inset-0 bg-padel-blue/20 blur-[50px] rounded-[2rem]" />
+
+                    {/* Destination Box */}
+                    <div className="relative bg-[#121212] px-8 py-5 rounded-3xl shadow-2xl border border-white/[0.03] whitespace-nowrap mb-6 z-10">
+                      <p className="text-[9px] font-black text-white/40 tracking-[0.3em] uppercase mb-1">DESTINATION</p>
                       <p className="text-xl font-display font-black text-white uppercase tracking-tighter">PADEL ARENA <span className="text-padel-blue">VENDÔME</span></p>
-                      <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-padel-blue/20 rotate-45 border-r border-b border-padel-blue/30" />
+
+                      {/* Diamond connecting to pin */}
+                      <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-[#121212] border-b border-r border-white/[0.03] rotate-45" />
                     </div>
+                  </div>
 
-                    {/* Pulsing rings */}
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-padel-blue/20 rounded-full animate-ping opacity-20" />
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 bg-padel-blue/30 rounded-full animate-pulse opacity-40" />
-
-                    <div className="relative w-12 h-12 bg-padel-blue rounded-full flex items-center justify-center text-white shadow-[0_0_40px_rgba(19,73,211,0.6)] rotate-12">
-                      <MapPin size={24} />
+                  {/* Pulsing Pin */}
+                  <div className="relative">
+                    <div className="absolute inset-0 bg-padel-blue rounded-full animate-ping opacity-20" />
+                    <div className="relative w-14 h-14 bg-padel-blue/20 rounded-full flex items-center justify-center p-2 shadow-[0_0_40px_rgba(19,73,211,0.5)]">
+                      <div className="w-full h-full bg-padel-blue rounded-full flex items-center justify-center text-white">
+                        <MapPin size={22} strokeWidth={2} />
+                      </div>
                     </div>
                   </div>
                 </div>
-
-                {/* Grid Overlay for Map Feel */}
-                <div className="absolute inset-0 opacity-[0.05] pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
               </div>
 
               {/* Action Overlay */}
               <div className="absolute bottom-10 left-10 right-10 flex items-center justify-between z-30 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
                 <div className="text-[10px] font-black text-white uppercase tracking-[0.5em] italic">VENDÔME ELITE SPORTS HUB</div>
                 <div className="flex gap-4">
-                  <div className="w-10 h-10 rounded-full glass border-white/20 flex items-center justify-center text-white cursor-pointer hover:bg-white hover:text-black transition-all">
+                  <a href={settings.googleMapsUrl} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full glass border-white/20 flex items-center justify-center text-white cursor-pointer hover:bg-white hover:text-black transition-all">
                     <ArrowUpRight size={18} />
-                  </div>
+                  </a>
                 </div>
               </div>
             </motion.div>

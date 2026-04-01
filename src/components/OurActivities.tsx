@@ -6,7 +6,7 @@ const activities = [
   {
     id: 'Padel',
     title: 'PADEL',
-    image: '/IMAGES/IMG_4502.JPG',
+    image: '/IMAGES/vincenzo-morelli-ZO4pHKtpn4c-unsplash.jpg',
     description: "Découvrez le sport qui fait sensation ! Des courts modernes avec des parois en verre pour une expérience de jeu optimale.",
     buttonText: 'Réserver',
     titleColor: 'text-padel-blue',
@@ -24,7 +24,7 @@ const activities = [
   {
     id: 'Basket',
     title: 'BASKET 3X3',
-    image: '/IMAGES/artur-kornakov-ArI-foyWnfA-unsplash.jpg',
+    image: '/IMAGES/rajesh-rajput-uxT88tEadFg-unsplash.jpg',
     description: "Découvrez notre terrain de basket 3×3, un espace d'exception chargé d'histoire. Utilisé lors des Jeux Olympiques 2024, ce court officiel offre des conditions de jeu haut de gamme, fidèles aux standards internationaux.",
     buttonText: 'Réserver',
     titleColor: 'text-padel-blue',
@@ -94,7 +94,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({ activity, index }) => {
 
 export const OurActivities = () => {
   return (
-    <section className="py-20 md:py-32 px-6 bg-[#0a0a0a]">
+    <section className="py-20 md:py-24 px-6 bg-[#0a0a0a]">
       <div className="max-w-[1400px] mx-auto">
         {/* Header */}
         <motion.div

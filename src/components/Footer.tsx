@@ -51,7 +51,6 @@ export const Footer = () => {
               <ul className="space-y-4">
                 {[
                   { name: 'PRÉSENTATION', href: '/le-club#presentation' },
-                  { name: 'VISION', href: '/le-club#vision' },
                   { name: 'L\'ÉQUIPE', href: '/le-club#equipe' },
                   { name: 'ACTIVITÉS', href: '/activites' },
                   { name: 'CONTACT', href: '/contact' }
@@ -71,9 +70,8 @@ export const Footer = () => {
               <h4 className="text-[10px] font-black text-white uppercase tracking-[0.4em]">DÉCOUVRIR</h4>
               <ul className="space-y-4">
                 {[
-                  { name: 'TERRAINS', href: '/activites#installations' },
+                  { name: 'ACTUALITÉS', href: '/actualites' },
                   { name: 'ACTIVITÉS', href: '/activites' },
-                  { name: 'TOURNOIS', href: '/activites#tournois' },
                   { name: 'RÉSERVATION', href: '/reservation' },
                   { name: 'TARIFS', href: '/tarifs' }
                 ].map((link) => (
@@ -227,31 +225,19 @@ export const Footer = () => {
         {/* Brand Bottom Bar */}
         <div className="pt-12 border-t border-white/[0.03] flex flex-col md:flex-row justify-between items-center gap-8">
           <div className="flex items-center gap-8">
-            <a href={settings.socialLinks.instagram} target="_blank" rel="noopener noreferrer" className="text-white/20 hover:text-padel-blue transition-colors">
-              <Instagram size={20} />
-            </a>
-            <a href={settings.socialLinks.facebook} target="_blank" rel="noopener noreferrer" className="text-white/20 hover:text-padel-blue transition-colors">
-              <Facebook size={20} />
-            </a>
-            {settings.socialLinks.twitter !== '#' && (
-              <a href={settings.socialLinks.twitter} target="_blank" rel="noopener noreferrer" className="text-white/20 hover:text-padel-blue transition-colors">
-                <Twitter size={20} />
-              </a>
-            )}
-          </div>
-
-          <div className="flex flex-col md:flex-row items-center gap-6 md:gap-8 text-white/70">
             <p className="text-[9px] font-black text-white/70 uppercase tracking-widest">
               © 2026 <span className="notranslate" translate="no">PADEL ARENA</span> VENDÔME. DESIGNED FOR EXCELLENCE.
             </p>
+          </div>
+
+          <div className="flex flex-col md:flex-row items-center gap-6 md:gap-8 text-white/70">
+
             <div className="flex gap-8">
-              <a href="#" className="text-[9px] font-black text-white/70 hover:text-white uppercase tracking-widest transition-colors">MENTIONS LÉGALES</a>
-              <a href="#" className="text-[9px] font-black text-white/70 hover:text-white uppercase tracking-widest transition-colors">politique de confidentialité</a>
+              <Link to="/mentions-legales" className="text-[9px] font-black text-white/70 hover:text-white uppercase tracking-widest transition-colors">MENTIONS LÉGALES</Link>
+              <Link to="/politique-confidentialite" className="text-[9px] font-black text-white/70 hover:text-white uppercase tracking-widest transition-colors">politique de confidentialité</Link>
+              <Link to="/cookies" className="text-[9px] font-black text-white/70 hover:text-white uppercase tracking-widest transition-colors">gestion des cookies</Link>
             </div>
-            <div className="flex items-center gap-2 group cursor-default">
-              <span className="text-[9px] font-black tracking-widest uppercase group-hover:text-padel-blue transition-colors">VENDÔME, FR</span>
-              <Globe size={12} className="group-hover:rotate-45 transition-transform duration-700" />
-            </div>
+
           </div>
         </div>
       </div>

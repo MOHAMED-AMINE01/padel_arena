@@ -49,7 +49,7 @@ export const PricingHero = () => {
                             </h1>
 
                             <p className="text-base md:text-lg text-white/40 font-medium max-w-lg mb-12 leading-relaxed mx-auto md:mx-0">
-                                Des formules simples pour chaque usage. De la session libre aux forfaits réguliers, choisissez le format qui convient à votre rythme de jeu.
+                                Des formules simples pour chaque usage. De la session libre aux forfaits réguliers, choisissez le format qui convient à votre rythme.
                             </p>
 
                             <div className="flex flex-col sm:flex-row items-center md:items-start gap-8 justify-center md:justify-start">

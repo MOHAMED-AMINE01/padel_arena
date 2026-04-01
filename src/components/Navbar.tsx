@@ -266,8 +266,7 @@ export const Navbar = () => {
               <motion.button
                 whileHover={{
                   scale: 1.05,
-                  boxShadow: "0 10px 30px rgba(255, 210, 31, 0.4)",
-                  backgroundColor: "#ffd21f"
+                  boxShadow: "0 10px 30px rgba(230, 70, 2, 0.4)",
                 }}
                 whileTap={{ scale: 0.98 }}
                 className="px-10 py-4 bg-padel-yellow text-padel-blue font-display font-black text-xs rounded-full uppercase tracking-[0.25em] shadow-xl border-none transition-all duration-300 hover:bg-padel-yellow/80"

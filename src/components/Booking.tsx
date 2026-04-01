@@ -182,7 +182,7 @@ export const Booking = () => {
   };
 
   return (
-    <section id="club" className="relative py-24 md:py-40 px-6 overflow-hidden bg-dark-bg">
+    <section id="club" className="relative py-24 md:py-24 px-6 overflow-hidden bg-dark-bg">
       <div className="absolute inset-0 pointer-events-none opacity-[0.03]">
         <div className="max-w-[1400px] mx-auto h-full w-full flex justify-between border-x border-white">
           <div className="w-[1px] h-full bg-white ml-[25%]" />
