@@ -23,6 +23,7 @@ import newsRoutes from './routes/newsRoutes';
 import pricingRoutes from './routes/pricingRoutes';
 import uploadRoutes from './routes/uploadRoutes';
 import contentRoutes from './routes/contentRoutes';
+import paymentRoutes from './routes/paymentRoutes';
 
 
 // Load environment variables
@@ -58,6 +59,10 @@ app.use((req, res, next) => {
 
 // Cookie parser and JSON body
 app.use(cookieParser());
+
+// IMPORTANT: Payment routes must come BEFORE express.json() for the webhook to get the raw body
+app.use('/api/payments', paymentRoutes);
+
 app.use(express.json({ limit: '10kb' }));
 app.use(morgan('dev'));
 

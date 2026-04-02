@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
-import { Target, Trophy, Users, Heart, Building2, ArrowUpRight, Plus, Sparkles, Loader2, X, CheckCircle2, Phone, Mail, User } from 'lucide-react';
+import { Target, Trophy, Users, Heart, Building2, ArrowUpRight, Plus, Sparkles, Loader2, X, CheckCircle2, Phone, Mail, User, CreditCard } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import api from '../../lib/api';
 
@@ -108,19 +108,39 @@ export const PacksAndFormulas = () => {
     setBookingStatus('submitting');
 
     try {
-      // 1. Create a real booking entry (for the Admin Reservations panel)
-      await api.post('/bookings', {
+      // 1. Create a real booking entry
+      const priceValue = parseFloat(selectedPack?.price || '0');
+      const res = await api.post('/bookings', {
         guestName: formData.name,
         guestPhone: formData.phone,
         guestEmail: formData.email,
         startTime: `${formData.date}T${formData.time}:00`,
-        endTime: `${formData.date}T${formData.time}:00`, // Duration can be set in admin
+        endTime: `${formData.date}T${formData.time}:00`,
         bookingType: 'PACK',
         packName: selectedPack?.title,
-        players: 4 // default
+        players: 4,
+        totalPrice: isNaN(priceValue) ? 0 : priceValue
       });
 
-      // 2. Also send as message for redundancy/tracking
+      const booking = res.data.data;
+
+      // 2. If it has a numeric price, go to Stripe
+      if (!isNaN(priceValue) && priceValue > 0) {
+        const stripeRes = await api.post('/payments/create-checkout-session', {
+          bookingId: booking._id,
+          courtName: `PACK : ${selectedPack?.title}`,
+          amount: priceValue,
+          customerEmail: formData.email,
+          successUrl: `${window.location.origin}/booking-success?session_id={CHECKOUT_SESSION_ID}` 
+        });
+
+        if (stripeRes.data.url) {
+          window.location.href = stripeRes.data.url;
+          return;
+        }
+      }
+
+      // 3. Fallback for manual or DEVIS
       await api.post('/messages', {
         senderName: formData.name,
         senderEmail: formData.email,
@@ -357,11 +377,29 @@ export const PacksAndFormulas = () => {
                       </div>
                     </div>
 
+                    <div className="flex flex-col items-center gap-4 px-6 py-6 bg-white/[0.02] border border-white/5 rounded-[2.5rem] relative overflow-hidden group mb-6">
+                           <div className="absolute top-0 right-0 p-4 opacity-[0.03] rotate-12 transition-transform group-hover:rotate-0">
+                             <CreditCard size={40} />
+                           </div>
+                           <div className="flex items-center gap-3">
+                             <div className="w-8 h-8 rounded-full bg-padel-blue flex items-center justify-center text-white shadow-lg shadow-padel-blue/20">
+                               <CreditCard size={14} />
+                             </div>
+                             <div className="text-left">
+                               <p className="text-[10px] font-black text-white uppercase tracking-widest leading-none mb-1">Paiement 100% Sécurisé</p>
+                               <p className="text-[8px] font-black text-padel-blue uppercase tracking-[0.2em] leading-none">VIA STRIPE CONNECT</p>
+                             </div>
+                           </div>
+                           <p className="text-[8px] md:text-[9px] font-black text-white/20 uppercase tracking-widest leading-relaxed text-center">
+                             VOUS ALLEZ ÊTRE REDIRIGÉ VERS LA PLATEFORME SÉCURISÉE <span className="text-white/40 font-bold tracking-normal italic">STRIPE</span> POUR FINALISER VOTRE RÉGLEMENT.
+                           </p>
+                    </div>
                     <button
                       type="submit"
+                      disabled={bookingStatus === 'submitting'}
                       className="w-full py-6 bg-padel-blue text-white rounded-full font-black text-[11px] uppercase tracking-[0.4em] shadow-2xl shadow-padel-blue/30 hover:bg-padel-yellow hover:text-padel-blue transition-all"
                     >
-                      CONFIRMER MA RÉSERVATION
+                      {bookingStatus === 'submitting' ? <Loader2 className="animate-spin mx-auto" size={16} /> : 'PAYER VIA STRIPE'}
                     </button>
                   </form>
                 )}

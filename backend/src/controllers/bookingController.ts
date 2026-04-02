@@ -6,6 +6,7 @@ import User from '../models/User';
 import { asyncHandler } from '../utils/asyncHandler';
 import { validateAndApplyPromoCode, incrementPromoCodeUsage } from '../services/promoCodeService';
 import { sendEmail, getEmailTemplate } from '../services/mailService';
+import { refundPayment } from './paymentController';
 
 // @desc    Create new booking
 // @route   POST /api/bookings
@@ -127,7 +128,7 @@ export const createBooking = asyncHandler(async (req: any, res: Response) => {
             });
         }
         bookingData.court = packCourt._id;
-        bookingData.totalPrice = 0; // Price to be discussed/settled in terms
+        bookingData.totalPrice = req.body.totalPrice || 0;
     } else {
         bookingData.court = courtId;
     }
@@ -162,39 +163,6 @@ export const createBooking = asyncHandler(async (req: any, res: Response) => {
     const populated = await Booking.findById(booking._id)
         .populate('user', 'name email')
         .populate('court', 'name');
-
-    if ((bookingType === 'PACK' || bookingType === 'SUBSCRIPTION') && populated) {
-        const adminEmail = process.env.SMTP_EMAIL || 'admin@padelarena.fr';
-        const clientName = guestName || (populated.user as any)?.name || 'Client Inconnu';
-        const clientEmail = guestEmail || (populated.user as any)?.email || 'Inconnu';
-        const typeLabel = bookingType === 'PACK' ? 'PACK' : 'ABONNEMENT';
-        const prodName = bookingType === 'PACK' ? packName : packName; // both are stored in packName for simplicity in model
-        
-        try {
-            await sendEmail({
-                to: adminEmail,
-                subject: `🔥 NOUVELLE DEMANDE : ${typeLabel} - ${prodName}`,
-                text: `Une nouvelle demande de ${typeLabel} a été reçue.\n\n` +
-                      `Client: ${clientName}\n` +
-                      `Email: ${clientEmail}\n` +
-                      `Téléphone: ${guestPhone || 'Non précisé'}\n` +
-                      `Produit: ${prodName}\n` +
-                      `Slot souhaité: ${new Date(startTime).toLocaleString('fr-FR')}\n\n` +
-                      `Consultez la partie réservation du panel admin pour valider.`,
-                html: getEmailTemplate(
-                    `Nouveau ${typeLabel} Demandé : ${prodName}`,
-                    `Une nouvelle opportunité Arena vient d'arriver !<br><br>` +
-                    `<strong>Client:</strong> ${clientName}<br>` +
-                    `<strong>Contact:</strong> ${clientEmail} / ${guestPhone || 'N/A'}<br>` +
-                    `<strong>Produit:</strong> ${prodName}<br>` +
-                    `<strong>Slot souhaité:</strong> ${new Date(startTime).toLocaleString('fr-FR')}<br><br>` +
-                    `Veuillez vous connecter au panel admin pour traiter cette demande.`
-                )
-            });
-        } catch (mailErr) {
-            console.error('Failed to notify admin via email:', mailErr);
-        }
-    }
 
     res.status(201).json({
         success: true,
@@ -292,23 +260,54 @@ export const updateBooking = asyncHandler(async (req: any, res: Response) => {
 // @route   DELETE /api/bookings/:id
 // @access  Private
 export const cancelBooking = asyncHandler(async (req: any, res: Response) => {
-    const booking = await Booking.findById(req.params.id);
+    const booking = await Booking.findById(req.params.id).populate('user');
 
     if (!booking) {
         return res.status(404).json({ message: 'Booking not found' });
     }
 
-    // Check ownership (only the user who booked or an admin can cancel)
-    if (booking.user?.toString() !== req.user.id && req.user.role !== 'ADMIN') {
+    // Check ownership
+    const bookingUserId = (booking.user as any)?._id?.toString() || booking.user?.toString();
+    console.log(`[Cancel] Booking User: ${bookingUserId}, Request User: ${req.user.id}, Role: ${req.user.role}`);
+    
+    if (bookingUserId !== req.user.id && req.user.role !== 'ADMIN') {
         return res.status(401).json({ message: 'Not authorized to cancel this booking' });
     }
 
-    // If Admin, delete permanently if requested (or by default in this context)
+    // If Admin, delete permanently if requested
     if (req.user.role === 'ADMIN') {
+        // Refund if paid via Stripe
+        if (booking.paymentStatus === 'PAID' && booking.stripePaymentIntentId) {
+            console.log(`🔄 Admin: Initiating refund for booking ${booking._id}`);
+            await refundPayment(booking.stripePaymentIntentId);
+        }
+
+        // Send Email to Client before deleting
+        try {
+            const clientEmail = (booking.user as any)?.email || booking.guestEmail;
+            const clientName = (booking.user as any)?.name || booking.guestName || 'Client';
+            if (clientEmail) {
+                await sendEmail({
+                    to: clientEmail,
+                    subject: '❌ Réservation Annulée - Padel Arena',
+                    text: `Bonjour ${clientName}, votre réservation a été annulée par l'administration.`,
+                    html: getEmailTemplate(
+                        "Réservation Annulée",
+                        `Bonjour ${clientName},<br><br>` +
+                        `Nous vous informons que votre réservation a été annulée par l'administration.<br>` +
+                        `${booking.paymentStatus === 'PAID' ? "Un remboursement a été déclenché sur votre compte." : ""}<br><br>` +
+                        `À bientôt sur les pistes !`
+                    )
+                });
+            }
+        } catch (e) {
+            console.error('Error sending cancellation email (Admin):', e);
+        }
+
         await booking.deleteOne();
         return res.status(200).json({
             success: true,
-            message: 'Booking deleted permanently'
+            message: 'Booking deleted permanently (and refunded if paid online)'
         });
     }
 
@@ -320,8 +319,44 @@ export const cancelBooking = asyncHandler(async (req: any, res: Response) => {
         return res.status(400).json({ message: 'Cancellation is only allowed up to 24h before' });
     }
 
+    // Handle Stripe Refund if paid online
+    if (booking.paymentStatus === 'PAID' && booking.stripePaymentIntentId) {
+        console.log(`🔄 Initiating refund for booking ${booking._id}`);
+        const refundResult = await refundPayment(booking.stripePaymentIntentId);
+        
+        if (refundResult.success) {
+            booking.paymentStatus = 'REFUNDED';
+        } else {
+            console.error(`❌ Refund failed: ${refundResult.error}`);
+            // Optionally, we could still allow cancellation but mark for manual refund or error
+        }
+    }
+
     booking.status = 'CANCELLED';
     await booking.save();
+
+    // Send Email to Client
+    try {
+        const clientEmail = (booking.user as any)?.email || booking.guestEmail;
+        const clientName = (booking.user as any)?.name || booking.guestName || 'Client';
+        
+        if (clientEmail) {
+            await sendEmail({
+                to: clientEmail,
+                subject: '❌ Confirmation d\'Annulation - Padel Arena',
+                text: `Bonjour ${clientName}, votre réservation a été annulée avec succès.`,
+                html: getEmailTemplate(
+                    "Annulation Confirmée",
+                    `Bonjour ${clientName},<br><br>` +
+                    `Votre réservation a été annulée comme demandé.<br>` +
+                    `${booking.paymentStatus === 'REFUNDED' ? "Votre remboursement a été traité avec succès." : ""}<br><br>` +
+                    `À bientôt sur les pistes !`
+                )
+            });
+        }
+    } catch (e) {
+        console.error('Error sending cancellation email:', e);
+    }
 
     res.status(200).json({
         success: true,

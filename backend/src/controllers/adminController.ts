@@ -276,9 +276,24 @@ export const getTournamentParticipants = asyncHandler(async (req: Request, res: 
         return res.status(404).json({ message: 'Tournoi introuvable' });
     }
 
+    // Enrich participants with payment info
+    const participantsData = await Promise.all(tournament.participants.map(async (u: any) => {
+        const booking = await Booking.findOne({ 
+            user: u._id, 
+            tournament: tournament._id,
+            bookingType: 'TOURNAMENT'
+        }).select('paymentStatus totalAmount status');
+
+        return {
+            ...u.toObject(),
+            paymentStatus: booking?.paymentStatus || 'UNPAID', // If no booking, assume manual or free
+            bookingStatus: booking?.status || 'N/A'
+        };
+    }));
+
     res.status(200).json({
         success: true,
-        data: tournament.participants
+        data: participantsData
     });
 });
 
@@ -293,8 +308,23 @@ export const getCourseParticipants = asyncHandler(async (req: Request, res: Resp
         return res.status(404).json({ message: 'Cours introuvable' });
     }
 
+    // Enrich participants with payment info
+    const participantsData = await Promise.all(course.participants.map(async (u: any) => {
+        const booking = await Booking.findOne({ 
+            user: u._id, 
+            course: course._id,
+            bookingType: 'COURSE'
+        }).select('paymentStatus totalAmount status');
+
+        return {
+            ...u.toObject(),
+            paymentStatus: booking?.paymentStatus || 'UNPAID',
+            bookingStatus: booking?.status || 'N/A'
+        };
+    }));
+
     res.status(200).json({
         success: true,
-        data: course.participants
+        data: participantsData
     });
 });

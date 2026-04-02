@@ -15,7 +15,9 @@ export interface IBooking extends Document {
     promoCode?: string;
     discountAmount?: number;
     players?: number;
-    bookingType?: 'COURT' | 'PACK' | 'SUBSCRIPTION';
+    bookingType?: 'COURT' | 'PACK' | 'SUBSCRIPTION' | 'COACHING' | 'COURSE' | 'TOURNAMENT';
+    course?: mongoose.Types.ObjectId;
+    tournament?: mongoose.Types.ObjectId;
     packName?: string;
     createdAt: Date;
     updatedAt: Date;
@@ -46,9 +48,11 @@ const BookingSchema: Schema = new Schema({
     discountAmount: { type: Number, default: 0 },
     bookingType: { 
         type: String, 
-        enum: ['COURT', 'PACK', 'SUBSCRIPTION'], 
+        enum: ['COURT', 'PACK', 'SUBSCRIPTION', 'COACHING', 'COURSE', 'TOURNAMENT'], 
         default: 'COURT' 
     },
+    course: { type: Schema.Types.ObjectId, ref: 'Course' },
+    tournament: { type: Schema.Types.ObjectId, ref: 'Tournament' },
     packName: { type: String }
 }, {
     timestamps: true

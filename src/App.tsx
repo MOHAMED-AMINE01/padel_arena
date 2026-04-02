@@ -15,6 +15,7 @@ import { PolitiqueConfidentialitePage } from './pages/PolitiqueConfidentialitePa
 import { CookiesPage } from './pages/CookiesPage';
 
 import { NewsPage } from './pages/NewsPage';
+import { BookingSuccess } from './pages/BookingSuccess';
 import { AuthPage } from './pages/AuthPage';
 import { ForgotPasswordPage } from './pages/ForgotPasswordPage';
 import { ResetPasswordPage } from './pages/ResetPasswordPage';
@@ -132,6 +133,8 @@ export default function App() {
                     <Route path="/tarifs" element={<PricingPage />} />
                     <Route path="/contact" element={<ContactPage />} />
                     <Route path="/actualites" element={<NewsPage />} />
+                    <Route path="/booking-success" element={<BookingSuccess />} />
+                    <Route path="/succes" element={<BookingSuccess />} />
                     <Route path="/mentions-legales" element={<MentionsLegalesPage />} />
                     <Route path="/politique-confidentialite" element={<PolitiqueConfidentialitePage />} />
                     <Route path="/cookies" element={<CookiesPage />} />

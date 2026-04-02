@@ -1517,7 +1517,7 @@ export function AdminEvents({ defaultTab = 'TOURNOIS' }: { defaultTab?: 'TOURNOI
                                             </div>
                                             <div className="p-4 bg-padel-blue/5 rounded-2xl border border-padel-blue/10">
                                                 <p className="text-[8px] font-black text-padel-blue uppercase mb-1">Status</p>
-                                                <p className="text-2xl font-black text-white">CONFIRMÉ</p>
+                                                <p className="text-2xl font-black text-white">DÉPLOIEMENT</p>
                                             </div>
                                         </div>
 
@@ -1528,7 +1528,15 @@ export function AdminEvents({ defaultTab = 'TOURNOIS' }: { defaultTab?: 'TOURNOI
                                                 </div>
                                                 <div className="flex-1 min-w-0">
                                                     <p className="text-sm font-black text-white uppercase tracking-tight group-hover:text-padel-blue transition-colors truncate">{p.name}</p>
-                                                    <p className="text-[10px] font-bold text-white/20 truncate">{p.email}</p>
+                                                    <div className="flex items-center gap-2 mt-1">
+                                                        <p className="text-[10px] font-bold text-white/20 truncate">{p.email}</p>
+                                                        <span className={cn(
+                                                            "px-2 py-0.5 rounded-md text-[7px] font-black uppercase tracking-widest border shrink-0",
+                                                            p.paymentStatus === 'PAID' ? "bg-green-500/10 text-green-500 border-green-500/20" : "bg-red-500/10 text-red-500 border-red-500/20"
+                                                        )}>
+                                                            {p.paymentStatus === 'PAID' ? 'PAYÉ' : 'À RÉGLER'}
+                                                        </span>
+                                                    </div>
                                                 </div>
                                                 <div className="hidden sm:block text-right">
                                                     <p className="text-[9px] font-black text-white/40 uppercase tracking-widest">{p.phone || 'N/A'}</p>

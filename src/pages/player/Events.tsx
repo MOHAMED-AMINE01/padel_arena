@@ -118,7 +118,13 @@ export function PlayerEvents() {
     const handleJoinCourse = async (courseId: string) => {
         setJoiningCourse(courseId);
         try {
-            await api.post(`/courses/${courseId}/join`, { promoCode: promos[courseId]?.code });
+            const res = await api.post(`/courses/${courseId}/join`, { promoCode: promos[courseId]?.code });
+            
+            if (res.data.requiresPayment && res.data.url) {
+                window.location.href = res.data.url;
+                return;
+            }
+
             setCourseSuccess(courseId);
             setTimeout(() => setCourseSuccess(null), 3000);
             fetchCourses();
@@ -132,7 +138,13 @@ export function PlayerEvents() {
     const handleJoinTournament = async (tournamentId: string) => {
         setJoiningTournament(tournamentId);
         try {
-            await api.post(`/tournaments/${tournamentId}/join`, { promoCode: promos[tournamentId]?.code });
+            const res = await api.post(`/tournaments/${tournamentId}/join`, { promoCode: promos[tournamentId]?.code });
+            
+            if (res.data.requiresPayment && res.data.url) {
+                window.location.href = res.data.url;
+                return;
+            }
+
             setTournamentSuccess(tournamentId);
             setTimeout(() => setTournamentSuccess(null), 3000);
             fetchTournaments();

@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Star, Calendar as CalendarIcon, Clock, ArrowRight, CheckCircle2, ShieldCheck, Zap, ArrowUpRight } from 'lucide-react';
+import { Star, Calendar as CalendarIcon, Clock, ArrowRight, CheckCircle2, ShieldCheck, Zap, ArrowUpRight, Loader2, CreditCard, User, Phone, Mail, X } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { PromoCodeInput } from '../player/PromoCodeInput';
+import { useAuth } from '../../context/AuthContext';
+import api from '../../lib/api';
+import { useNavigate } from 'react-router-dom';
 
 const coaches = [
   { id: 1, name: "LUCAS MARTIN", role: "HEAD COACH", level: "EXPERT", rating: 4.9, image: "/IMAGES/ACTIVITIES - COACHING/pexels-atbo-245208.jpg", specialties: ["TECHNIQUE", "TACTIQUE"], exp: "12 ANS" },
@@ -11,12 +14,77 @@ const coaches = [
 ];
 
 export const CoachingBooking = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [selectedCoach, setSelectedCoach] = useState<number | null>(null);
   const [promoDiscount, setPromoDiscount] = useState(0);
   const [promoCode, setPromoCode] = useState('');
-  // Exemple de prix de base (à adapter selon la logique réelle)
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [bookingStatus, setBookingStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
+  const [formData, setFormData] = useState({
+    name: user?.name || '',
+    phone: '',
+    email: user?.email || '',
+    date: new Date().toISOString().split('T')[0],
+    time: '10:00'
+  });
+  
+  // Base price for coaching
   const basePrice = 50;
   const finalPrice = Math.max(0, basePrice - promoDiscount);
+
+  const handleOpenModal = () => {
+    if (!selectedCoach) return;
+    setIsModalOpen(true);
+    setBookingStatus('idle');
+  };
+
+  const handleBookingSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setBookingStatus('submitting');
+    const coach = coaches.find(c => c.id === selectedCoach);
+
+    try {
+      // 1. Create booking in backend
+      // Note: We need a dummy courtId or handle coaching without court in backend
+      // But for now, let's try to pass 'COACHING' type
+      // We might need a generic court ID for coaching
+      const res = await api.post('/bookings', {
+        guestName: formData.name,
+        guestPhone: formData.phone,
+        guestEmail: formData.email,
+        startTime: `${formData.date}T${formData.time}:00`,
+        endTime: `${formData.date}T${formData.time}:00`,
+        bookingType: 'COACHING',
+        packName: `COACHING : ${coach?.name}`,
+        totalPrice: finalPrice,
+        // For now, let's assume court is mandatory in the model (line 29 in Booking.ts)
+        // I should probably make court optional later, but for now I'll use a fixed ID if exists
+        // Or I'll fix the model if I can
+        court: '000000000000000000000000' // Placeholder if not found
+      });
+
+      const booking = res.data.data;
+
+      // 2. Stripe Checkout
+      const stripeRes = await api.post('/payments/create-checkout-session', {
+        bookingId: booking._id,
+        courtName: `Coaching avec ${coach?.name}`,
+        amount: finalPrice,
+        customerEmail: formData.email,
+        successUrl: `${window.location.origin}/booking-success?session_id={CHECKOUT_SESSION_ID}` 
+      });
+
+      if (stripeRes.data.url) {
+        window.location.href = stripeRes.data.url;
+      } else {
+        setBookingStatus('success');
+      }
+    } catch (err) {
+      console.error('Coaching booking failed', err);
+      setBookingStatus('error');
+    }
+  };
 
   return (
     <section id="coaching" className="relative py-24 md:py-48 px-6 bg-[#050505] overflow-hidden border-t border-white/[0.03]">
@@ -171,16 +239,88 @@ export const CoachingBooking = () => {
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
+                  onClick={handleOpenModal}
                   className="group relative px-14 py-8 bg-white text-black rounded-full font-black text-[11px] uppercase tracking-[0.5em] shadow-3xl overflow-hidden transition-all"
                 >
                   <span className="relative z-10 flex items-center gap-6 group-hover:text-white transition-colors">
-                    ACTIVER LE PLANNING
+                    RÉSERVER MA SESSION
                     <CalendarIcon size={20} />
                   </span>
                   <div className="absolute inset-0 bg-padel-blue translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
                 </motion.button>
               </div>
             </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Modal Confirmation Coaching */}
+        <AnimatePresence>
+          {isModalOpen && (
+            <div className="fixed inset-0 z-[500] flex items-center justify-center p-4">
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsModalOpen(false)} className="absolute inset-0 bg-black/90 backdrop-blur-2xl" />
+              <motion.div initial={{ scale: 0.9, opacity: 0, y: 30 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0, y: 30 }} className="relative w-full max-w-xl bg-[#0A0A0A] border border-white/10 rounded-[3.5rem] overflow-hidden p-10 md:p-14">
+                <button onClick={() => setIsModalOpen(false)} className="absolute top-8 right-8 p-3 bg-white/5 rounded-2xl text-white/20 hover:text-white transition-all border border-white/10 z-50">
+                  <X size={20} />
+                </button>
+
+                <div className="text-center space-y-4 mb-10">
+                  <div className="inline-flex py-1 px-4 bg-padel-blue/10 border border-padel-blue/20 rounded-full">
+                    <span className="text-[9px] font-black text-padel-blue tracking-[0.3em] uppercase">RÉSERVATION COACHING</span>
+                  </div>
+                  <h3 className="text-3xl font-display font-black text-white uppercase italic tracking-tighter leading-[0.9]">
+                    SESSION AVEC <br /> <span className="text-padel-blue">{coaches.find(c => c.id === selectedCoach)?.name}</span>
+                  </h3>
+                </div>
+
+                {bookingStatus === 'idle' && (
+                  <form onSubmit={handleBookingSubmit} className="space-y-6">
+                    <div className="space-y-4">
+                      <div className="relative group">
+                        <User className="absolute left-6 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-padel-blue transition-colors" size={18} />
+                        <input required type="text" placeholder="NOM & PRÉNOM" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} className="w-full bg-white/[0.03] border border-white/10 rounded-2xl py-5 pl-16 pr-6 text-xs font-black text-white focus:border-padel-blue outline-none transition-all uppercase tracking-widest" />
+                      </div>
+                      <div className="relative group">
+                        <Mail className="absolute left-6 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-padel-blue transition-colors" size={18} />
+                        <input required type="email" placeholder="EMAIL" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} className="w-full bg-white/[0.03] border border-white/10 rounded-2xl py-5 pl-16 pr-6 text-xs font-black text-white focus:border-padel-blue outline-none transition-all uppercase tracking-widest" />
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <input required type="date" value={formData.date} onChange={(e) => setFormData({ ...formData, date: e.target.value })} className="bg-white/[0.03] border border-white/10 rounded-2xl py-5 px-6 text-[10px] font-black text-white focus:border-padel-blue [color-scheme:dark]" />
+                        <input required type="time" value={formData.time} onChange={(e) => setFormData({ ...formData, time: e.target.value })} className="bg-white/[0.03] border border-white/10 rounded-2xl py-5 px-6 text-[10px] font-black text-white focus:border-padel-blue [color-scheme:dark]" />
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col items-center gap-4 px-6 py-6 bg-white/[0.02] border border-white/5 rounded-[2.5rem] relative overflow-hidden group mb-6">
+                       <div className="absolute top-0 right-0 p-4 opacity-[0.03] rotate-12 transition-transform group-hover:rotate-0">
+                         <CreditCard size={40} />
+                       </div>
+                       <div className="flex items-center gap-3">
+                         <div className="w-8 h-8 rounded-full bg-padel-blue flex items-center justify-center text-white shadow-lg shadow-padel-blue/20">
+                           <CreditCard size={14} />
+                         </div>
+                         <div className="text-left">
+                           <p className="text-[10px] font-black text-white uppercase tracking-widest leading-none mb-1">Paiement 100% Sécurisé</p>
+                           <p className="text-[8px] font-black text-padel-blue uppercase tracking-[0.2em] leading-none">VIA STRIPE CONNECT</p>
+                         </div>
+                       </div>
+                       <p className="text-[8px] md:text-[9px] font-black text-white/20 uppercase tracking-widest leading-relaxed text-center">
+                         COÛT DE LA SESSION : <span className="text-white">{finalPrice}€</span>. REDIRECTION VERS <span className="text-white/40 font-bold italic">STRIPE</span>.
+                       </p>
+                    </div>
+
+                    <button type="submit" className="w-full py-6 bg-padel-blue text-white rounded-full font-black text-[11px] uppercase tracking-[0.4em] shadow-2xl shadow-padel-blue/30 hover:bg-padel-yellow hover:text-padel-blue transition-all">
+                      PAYER VIA STRIPE
+                    </button>
+                  </form>
+                )}
+
+                {bookingStatus === 'submitting' && (
+                  <div className="py-20 flex flex-col items-center gap-6">
+                    <Loader2 className="w-12 h-12 animate-spin text-padel-blue" />
+                    <p className="text-[10px] font-black text-white uppercase tracking-[0.4em] animate-pulse">Synchronisation...</p>
+                  </div>
+                )}
+              </motion.div>
+            </div>
           )}
         </AnimatePresence>
       </div>

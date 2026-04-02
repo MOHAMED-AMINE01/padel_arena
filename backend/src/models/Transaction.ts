@@ -21,7 +21,7 @@ const TransactionSchema: Schema = new Schema({
     description: { type: String, required: true },
     method: { type: String, enum: ['CASH', 'CARD', 'STRIPE', 'TRANSFER'], default: 'CASH' },
     status: { type: String, enum: ['COMPLETED', 'PENDING', 'FAILED'], default: 'COMPLETED' },
-    managedBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    managedBy: { type: Schema.Types.ObjectId, ref: 'User', required: false },
     customerName: { type: String },
     category: { type: String, default: 'General' },
     booking: { type: Schema.Types.ObjectId, ref: 'Booking' },

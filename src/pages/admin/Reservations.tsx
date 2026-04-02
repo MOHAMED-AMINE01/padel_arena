@@ -239,9 +239,10 @@ const BookingDetailModal = ({ booking, onClose, onDelete, onChangeStatus }: {
     );
 };
 
-const CreateBookingModal = ({ users, courts, onClose, onFinish }: {
+const CreateBookingModal = ({ users, courts, bookings, onClose, onFinish }: {
     users: any[];
     courts: any[];
+    bookings: Booking[];
     onClose: () => void;
     onFinish: (data: any) => void;
 }) => {
@@ -252,6 +253,34 @@ const CreateBookingModal = ({ users, courts, onClose, onFinish }: {
     const [duration, setDuration] = useState(1.5);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+
+    // Pre-calculate disabled slots for the selected court and date
+    const disabledSlots = useMemo(() => {
+        if (!selectedCourt || !selectedDate) return [];
+
+        const dayBookings = bookings.filter(b => {
+            if (b.status === 'CANCELLED') return false;
+            if (b.court?._id !== selectedCourt) return false;
+            
+            const bDate = new Date(b.startTime).toISOString().split('T')[0];
+            return bDate === selectedDate;
+        });
+
+        const taken = new Set<string>();
+        dayBookings.forEach(b => {
+            const start = new Date(b.startTime);
+            const end = new Date(b.endTime);
+            let current = new Date(start);
+            
+            while (current < end) {
+                const h = current.getHours().toString().padStart(2, '0');
+                const m = current.getMinutes().toString().padStart(2, '0');
+                taken.add(`${h}:${m}`);
+                current.setMinutes(current.getMinutes() + 30);
+            }
+        });
+        return Array.from(taken);
+    }, [selectedCourt, selectedDate, bookings]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -372,6 +401,7 @@ const CreateBookingModal = ({ users, courts, onClose, onFinish }: {
                                 value={startTime}
                                 onChange={setStartTime}
                                 icon={Clock}
+                                disabledSlots={disabledSlots}
                             />
                         </div>
 
@@ -468,6 +498,7 @@ export function AdminReservations() {
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [deleteTarget, setDeleteTarget] = useState<Booking | null>(null);
     const [deleting, setDeleting] = useState(false);
+    const [specialPage, setSpecialPage] = useState(1);
 
     // Generate visible days based on view mode
     const getVisibleDays = (date: Date, mode: ViewMode): Date[] => {
@@ -979,114 +1010,171 @@ export function AdminReservations() {
                                         <th className="px-8 py-6 text-left text-[9px] font-black text-white/20 uppercase tracking-[0.3em]">Offre / Pack</th>
                                         <th className="px-8 py-6 text-left text-[9px] font-black text-white/20 uppercase tracking-[0.3em]">Slot Souhaité</th>
                                         <th className="px-8 py-6 text-left text-[9px] font-black text-white/20 uppercase tracking-[0.3em]">Statut</th>
+                                        <th className="px-8 py-6 text-left text-[9px] font-black text-white/20 uppercase tracking-[0.3em]">Finance</th>
                                         <th className="px-8 py-6 text-right text-[9px] font-black text-white/20 uppercase tracking-[0.3em]">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-white/[0.03]">
-                                    {bookings.filter(b => b.bookingType === 'PACK' || b.bookingType === 'SUBSCRIPTION').length > 0 ? (
-                                        bookings.filter(b => b.bookingType === 'PACK' || b.bookingType === 'SUBSCRIPTION').map((request) => (
-                                            <tr key={request._id} className="group hover:bg-white/[0.02] transition-colors">
-                                                <td className="px-8 py-6">
-                                                    <div className="flex items-center gap-4">
-                                                        <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-white/30 font-black text-lg group-hover:scale-110 transition-transform duration-500">
-                                                            {(request.user?.name || request.guestName || '?')[0].toUpperCase()}
-                                                        </div>
-                                                        <div>
-                                                            <p className="text-sm font-black text-white uppercase tracking-tighter group-hover:text-padel-yellow transition-colors">
-                                                                {request.user?.name || request.guestName || 'Client Inconnu'}
-                                                            </p>
-                                                            <p className="text-[10px] font-bold text-white/30 uppercase tracking-widest flex items-center gap-1.5 mt-0.5">
-                                                                <MessageSquare size={10} className="text-padel-blue" />
-                                                                {request.user?.email || request.guestEmail || 'Aucun contact'}
-                                                            </p>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td className="px-8 py-6">
-                                                    <div className="flex items-center gap-3">
-                                                        <div className={cn(
-                                                            "w-8 h-8 rounded-lg flex items-center justify-center",
-                                                            request.bookingType === 'PACK' ? "bg-padel-yellow/10 text-padel-yellow" : "bg-padel-blue/10 text-padel-blue"
-                                                        )}>
-                                                            {request.bookingType === 'PACK' ? <Package size={14} /> : <Star size={14} />}
-                                                        </div>
-                                                        <div>
-                                                            <p className="text-[11px] font-black text-white uppercase tracking-widest">{request.packName || 'Offre Spéciale'}</p>
-                                                            <p className="text-[8px] font-bold text-white/20 uppercase tracking-[0.2em] mt-1">{request.bookingType}</p>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td className="px-8 py-6">
-                                                    <div className="flex items-center gap-3">
-                                                        <div className="text-center bg-white/5 border border-white/10 rounded-xl px-3 py-1.5">
-                                                            <p className="text-[7px] font-black text-white/30 uppercase leading-none mb-1">Mois</p>
-                                                            <p className="text-xs font-black text-white leading-none">
-                                                                {new Date(request.startTime).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })}
-                                                            </p>
-                                                        </div>
-                                                        <div className="h-4 w-[1px] bg-white/10" />
-                                                        <div className="text-padel-yellow">
-                                                            <p className="text-[7px] font-black uppercase opacity-30 leading-none mb-1 text-center">Début</p>
-                                                            <p className="text-xs font-black leading-none">
-                                                                {new Date(request.startTime).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }).replace(':', 'h')}
-                                                            </p>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td className="px-8 py-6">
-                                                    <div className={cn(
-                                                        "inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border transition-all",
-                                                        request.status === 'CONFIRMED' ? "bg-green-500/10 border-green-500/20 text-green-500 shadow-[0_0_15px_rgba(34,197,94,0.1)]" :
-                                                            request.status === 'PENDING' ? "bg-padel-blue/10 border-padel-blue/20 text-padel-blue" :
-                                                                "bg-white/5 border-white/10 text-white/20"
-                                                    )}>
-                                                        <div className={cn("w-1.5 h-1.5 rounded-full",
-                                                            request.status === 'CONFIRMED' ? "bg-green-500 animate-pulse" :
-                                                                request.status === 'PENDING' ? "bg-padel-blue" : "bg-white/20"
-                                                        )} />
-                                                        {request.status}
-                                                    </div>
-                                                </td>
-                                                <td className="px-8 py-6">
-                                                    <div className="flex items-center justify-end gap-3">
-                                                        <button
-                                                            onClick={() => setSelectedBooking(request)}
-                                                            className="p-3 rounded-xl bg-white/5 text-white/30 hover:bg-white/10 hover:text-white transition-all shadow-sm border border-white/10"
-                                                            title="Voir Détails"
-                                                        >
-                                                            <ExternalLink size={14} />
-                                                        </button>
+                                    {(() => {
+                                        const specialRequests = bookings.filter(b => b.bookingType === 'PACK' || b.bookingType === 'SUBSCRIPTION');
+                                        const itemsPerPage = 5;
+                                        const totalPages = Math.ceil(specialRequests.length / itemsPerPage);
+                                        
+                                        const indexOfLastItem = specialPage * itemsPerPage;
+                                        const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+                                        const currentItems = specialRequests.slice(indexOfFirstItem, indexOfLastItem);
 
-                                                        {request.status === 'PENDING' && (
-                                                            <button
-                                                                onClick={() => handleChangeStatus(request, 'CONFIRMED')}
-                                                                className="px-6 py-3 rounded-xl bg-green-500 text-white text-[10px] font-black uppercase tracking-widest hover:bg-green-600 transition-all shadow-lg shadow-green-500/10 flex items-center gap-2"
-                                                            >
-                                                                Valider <ArrowRight size={14} />
-                                                            </button>
-                                                        )}
+                                        const colSpan = 6; // Updated for added column
 
-                                                        <button
-                                                            onClick={() => setDeleteTarget(request)}
-                                                            className="p-3 rounded-xl bg-red-500/5 text-red-500/30 hover:bg-red-500/10 hover:text-red-500 transition-all border border-red-500/10"
-                                                            title="Supprimer"
-                                                        >
-                                                            <Trash2 size={14} />
-                                                        </button>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        ))
-                                    ) : (
-                                        <tr>
-                                            <td colSpan={5} className="px-8 py-20 text-center">
-                                                <div className="flex flex-col items-center gap-4 opacity-10">
-                                                    <Package size={64} />
-                                                    <p className="text-[14px] font-black uppercase tracking-[0.4em]">Aucune demande spéciale en cours</p>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    )}
+                                        if (specialRequests.length === 0) {
+                                            return (
+                                                <tr>
+                                                    <td colSpan={colSpan} className="px-8 py-20 text-center">
+                                                        <div className="flex flex-col items-center gap-4 opacity-10">
+                                                            <Package size={64} />
+                                                            <p className="text-[14px] font-black uppercase tracking-[0.4em]">Aucune demande spéciale en cours</p>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            );
+                                        }
+
+                                        return (
+                                            <>
+                                                {currentItems.map((request) => (
+                                                    <tr key={request._id} className="group hover:bg-white/[0.02] transition-colors">
+                                                        <td className="px-8 py-6">
+                                                            <div className="flex items-center gap-4">
+                                                                <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-white/30 font-black text-lg group-hover:scale-110 transition-transform duration-500">
+                                                                    {(request.user?.name || request.guestName || '?')[0].toUpperCase()}
+                                                                </div>
+                                                                <div>
+                                                                    <p className="text-sm font-black text-white uppercase tracking-tighter group-hover:text-padel-yellow transition-colors">
+                                                                        {request.user?.name || request.guestName || 'Client Inconnu'}
+                                                                    </p>
+                                                                    <p className="text-[10px] font-bold text-white/30 uppercase tracking-widest flex items-center gap-1.5 mt-0.5">
+                                                                        <MessageSquare size={10} className="text-padel-blue" />
+                                                                        {request.user?.email || request.guestEmail || 'Aucun contact'}
+                                                                    </p>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                        <td className="px-8 py-6">
+                                                            <div className="flex items-center gap-3">
+                                                                <div className={cn(
+                                                                    "w-8 h-8 rounded-lg flex items-center justify-center",
+                                                                    request.bookingType === 'PACK' ? "bg-padel-yellow/10 text-padel-yellow" : "bg-padel-blue/10 text-padel-blue"
+                                                                )}>
+                                                                    {request.bookingType === 'PACK' ? <Package size={14} /> : <Star size={14} />}
+                                                                </div>
+                                                                <div>
+                                                                    <p className="text-[11px] font-black text-white uppercase tracking-widest">{request.packName || 'Offre Spéciale'}</p>
+                                                                    <p className="text-[8px] font-bold text-white/20 uppercase tracking-[0.2em] mt-1">{request.bookingType}</p>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                        <td className="px-8 py-6">
+                                                            <div className="flex items-center gap-3">
+                                                                <div className="text-center bg-white/5 border border-white/10 rounded-xl px-3 py-1.5">
+                                                                    <p className="text-[7px] font-black text-white/30 uppercase leading-none mb-1">Mois</p>
+                                                                    <p className="text-xs font-black text-white leading-none">
+                                                                        {new Date(request.startTime).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })}
+                                                                    </p>
+                                                                </div>
+                                                                <div className="h-4 w-[1px] bg-white/10" />
+                                                                <div className="text-padel-yellow">
+                                                                    <p className="text-[7px] font-black uppercase opacity-30 leading-none mb-1 text-center">Début</p>
+                                                                    <p className="text-xs font-black leading-none">
+                                                                        {new Date(request.startTime).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }).replace(':', 'h')}
+                                                                    </p>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                        <td className="px-8 py-6">
+                                                            <div className={cn(
+                                                                "inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border transition-all",
+                                                                request.status === 'CONFIRMED' ? "bg-green-500/10 border-green-500/20 text-green-500 shadow-[0_0_15px_rgba(34,197,94,0.1)]" :
+                                                                    request.status === 'PENDING' ? "bg-padel-blue/10 border-padel-blue/20 text-padel-blue" :
+                                                                        "bg-white/5 border-white/10 text-white/20"
+                                                            )}>
+                                                                <div className={cn("w-1.5 h-1.5 rounded-full",
+                                                                    request.status === 'CONFIRMED' ? "bg-green-500 animate-pulse" :
+                                                                        request.status === 'PENDING' ? "bg-padel-blue" : "bg-white/20"
+                                                                )} />
+                                                                {request.status}
+                                                            </div>
+                                                        </td>
+                                                        <td className="px-8 py-6">
+                                                            <div className={cn(
+                                                                "inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest border",
+                                                                request.paymentStatus === 'PAID' ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-500" : "bg-padel-blue/5 border-padel-blue/10 text-padel-blue/40"
+                                                            )}>
+                                                                <CreditCard size={12} className={cn(request.paymentStatus === 'PAID' ? "text-emerald-500" : "text-padel-blue/40")} />
+                                                                {request.paymentStatus === 'PAID' ? 'PAYÉ via STRIPE' : 'EN ATTENTE STRIPE'}
+                                                            </div>
+                                                        </td>
+                                                        <td className="px-8 py-6">
+                                                            <div className="flex items-center justify-end gap-3">
+                                                                <button
+                                                                    onClick={() => setSelectedBooking(request)}
+                                                                    className="p-3 rounded-xl bg-white/5 text-white/30 hover:bg-white/10 hover:text-white transition-all shadow-sm border border-white/10"
+                                                                    title="Voir Détails"
+                                                                >
+                                                                    <ExternalLink size={14} />
+                                                                </button>
+
+                                                                {request.status === 'PENDING' && (
+                                                                    <button
+                                                                        onClick={() => handleChangeStatus(request, 'CONFIRMED')}
+                                                                        className="px-6 py-3 rounded-xl bg-green-500 text-white text-[10px] font-black uppercase tracking-widest hover:bg-green-600 transition-all shadow-lg shadow-green-500/10 flex items-center gap-2"
+                                                                    >
+                                                                        Valider <ArrowRight size={14} />
+                                                                    </button>
+                                                                )}
+
+                                                                <button
+                                                                    onClick={() => setDeleteTarget(request)}
+                                                                    className="p-3 rounded-xl bg-red-500/5 text-red-500/30 hover:bg-red-500/10 hover:text-red-500 transition-all border border-red-500/10"
+                                                                    title="Supprimer"
+                                                                >
+                                                                    <Trash2 size={14} />
+                                                                </button>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                                
+                                                {/* Pagination Row */}
+                                                {totalPages > 1 && (
+                                                    <tr>
+                                                        <td colSpan={6} className="px-8 py-4 bg-black/40">
+                                                            <div className="flex items-center justify-between">
+                                                                <p className="text-[9px] font-black text-white/10 uppercase tracking-widest">
+                                                                    Page {specialPage} de {totalPages}
+                                                                </p>
+                                                                <div className="flex gap-2">
+                                                                    <button 
+                                                                        disabled={specialPage === 1}
+                                                                        onClick={() => setSpecialPage(c => c - 1)}
+                                                                        className="p-2 rounded-lg bg-white/5 border border-white/5 text-white disabled:opacity-20 hover:bg-white/10 transition-all"
+                                                                    >
+                                                                        <ChevronLeft size={14} />
+                                                                    </button>
+                                                                    <button 
+                                                                        disabled={specialPage === totalPages}
+                                                                        onClick={() => setSpecialPage(c => c + 1)}
+                                                                        className="p-2 rounded-lg bg-white/5 border border-white/5 text-white disabled:opacity-20 hover:bg-white/10 transition-all"
+                                                                    >
+                                                                        <ChevronRight size={14} />
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                )}
+                                            </>
+                                        );
+                                    })()}
                                 </tbody>
                             </table>
                         </div>
@@ -1110,6 +1198,7 @@ export function AdminReservations() {
                     <CreateBookingModal
                         users={users}
                         courts={courts}
+                        bookings={bookings}
                         onClose={() => setIsCreateModalOpen(false)}
                         onFinish={handleCreateBooking}
                     />

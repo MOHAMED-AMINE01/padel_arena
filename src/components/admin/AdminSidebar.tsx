@@ -105,7 +105,6 @@ export const AdminSidebar = ({ collapsed, setCollapsed, mobileOpen, setMobileOpe
         { icon: LayoutDashboard, label: 'Dashboard', href: '/admin' },
         { icon: Users, label: 'Adhérents', href: '/admin/users' },
         { icon: CalendarCheck2, label: 'Réservations', href: '/admin/reservations' },
-        { icon: Receipt, label: 'Facturation', href: '/admin/billing' },
         { icon: Mail, label: 'Boîte Mail', href: '/admin/mailbox' },
         { icon: Sparkles, label: 'Newsletter', href: '/admin/newsletter' },
         { icon: Target, label: 'Terrains', href: '/admin/courts' },

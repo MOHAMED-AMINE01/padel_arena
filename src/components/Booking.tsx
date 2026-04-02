@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Calendar as CalendarIcon, Clock, Users, ChevronRight, CheckCircle2, MapPin, ArrowRight, Zap, AlertCircle, Loader2, User as UserIcon, Mail, Phone, Sparkles, Target } from 'lucide-react';
+import { Calendar as CalendarIcon, Clock, Users, ChevronRight, CheckCircle2, MapPin, ArrowRight, Zap, AlertCircle, Loader2, User as UserIcon, Mail, Phone, Sparkles, Target, CreditCard } from 'lucide-react';
 import { cn } from '../lib/utils';
 import api from '../lib/api';
 import { useAuth } from '../context/AuthContext';
@@ -98,16 +98,17 @@ export const Booking = () => {
     fetchAvailability();
   }, [selectedDate, selectedSport]);
 
-  const availableTimes = useMemo(() => {
-    const times = new Set<string>();
+  const timeSlots = useMemo(() => {
+    const slotsMap = new Map<string, boolean>();
     availability.forEach(court => {
       court.slots.forEach(slot => {
-        if (slot.available) {
-          times.add(slot.time);
-        }
+        const isCurrentAvailable = slotsMap.get(slot.time) || false;
+        slotsMap.set(slot.time, isCurrentAvailable || slot.available);
       });
     });
-    return Array.from(times).sort();
+    return Array.from(slotsMap.entries())
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([time, available]) => ({ time, available }));
   }, [availability]);
 
   const availableCourts = useMemo(() => {
@@ -165,10 +166,30 @@ export const Booking = () => {
         });
 
         if (response.data.success) {
-          setStep(3);
+          const bookingId = response.data.data._id;
+          
+          // Create Stripe Checkout Session
+          const totalAmount = calculateTotal();
+          const court = availability.find(c => c.courtId === selectedCourtId);
+
+          const stripeRes = await api.post('/payments/create-checkout-session', {
+            bookingId: bookingId,
+            courtName: court?.courtName || 'Terrain de Padel',
+            amount: totalAmount,
+            customerEmail: guestEmail,
+            successUrl: `${window.location.origin}/booking-success?session_id={CHECKOUT_SESSION_ID}`,
+            cancelUrl: window.location.href
+          });
+
+          if (stripeRes.data.url) {
+            // Redirect to Stripe
+            window.location.href = stripeRes.data.url;
+          } else {
+            setStep(3);
+          }
         }
       } catch (err: any) {
-        console.error('Booking failed', err);
+        console.error('Booking/Payment failed', err);
         setError(err.response?.data?.message || 'La réservation a échoué. Ce créneau est peut-être déjà pris.');
       } finally {
         setIsBooking(false);
@@ -225,12 +246,12 @@ export const Booking = () => {
                 <div className="space-y-4">
                   <div className="flex justify-between items-center text-[10px] font-black tracking-widest uppercase">
                     <span className="text-white/20">Aujourd'hui</span>
-                    <span className="text-padel-yellow">{availableTimes.length} Créneaux Libres</span>
+                    <span className="text-padel-yellow">{timeSlots.filter(s => s.available).length} Créneaux Libres</span>
                   </div>
                   <div className="w-full h-1 bg-white/5 rounded-full overflow-hidden">
                     <div
                       className="h-full bg-padel-blue transition-all duration-1000"
-                      style={{ width: `${(availableTimes.length / 20) * 100}%` }}
+                      style={{ width: `${(timeSlots.filter(s => s.available).length / 20) * 100}%` }}
                     />
                   </div>
                 </div>
@@ -328,23 +349,26 @@ export const Booking = () => {
                           <div className="flex items-center justify-center h-24">
                             <Loader2 className="animate-spin text-padel-blue" />
                           </div>
-                        ) : availableTimes.length > 0 ? (
+                        ) : timeSlots.length > 0 ? (
                           <div className="grid grid-cols-3 md:grid-cols-5 gap-3">
-                            {availableTimes.map((time) => (
+                            {timeSlots.map((slot) => (
                               <button
-                                key={time}
+                                key={slot.time}
+                                disabled={!slot.available}
                                 onClick={() => {
-                                  setSelectedTime(time);
+                                  setSelectedTime(slot.time);
                                   setError(null);
                                 }}
                                 className={cn(
                                   "py-4 rounded-xl font-black text-xs transition-all duration-300",
-                                  selectedTime === time
+                                  selectedTime === slot.time
                                     ? "bg-padel-yellow text-black scale-105"
-                                    : "bg-white/5 hover:bg-white/10 text-white/40"
+                                    : slot.available 
+                                      ? "bg-white/5 hover:bg-white/10 text-white/40"
+                                      : "bg-white/[0.02] text-white/5 cursor-not-allowed border-dashed border border-white/5"
                                 )}
                               >
-                                {time}
+                                {slot.time}
                               </button>
                             ))}
                           </div>
@@ -504,6 +528,26 @@ export const Booking = () => {
                     </motion.div>
                   )}
                 </AnimatePresence>
+
+                {step === 2 && (
+                  <div className="mt-8 p-6 bg-white/[0.02] border border-white/5 rounded-3xl flex flex-col items-center text-center gap-4 relative overflow-hidden group">
+                     <div className="absolute top-0 right-0 p-4 opacity-[0.03] rotate-12 transition-transform group-hover:rotate-0">
+                       <CreditCard size={40} />
+                     </div>
+                     <div className="flex items-center gap-3">
+                       <div className="w-8 h-8 rounded-full bg-padel-blue flex items-center justify-center text-white shadow-lg shadow-padel-blue/20">
+                         <CreditCard size={14} />
+                       </div>
+                       <div className="text-left">
+                         <p className="text-[10px] font-black text-white uppercase tracking-widest leading-none mb-1">Paiement 100% Sécurisé</p>
+                         <p className="text-[8px] font-black text-padel-blue uppercase tracking-[0.2em] leading-none">VIA STRIPE CONNECT</p>
+                       </div>
+                     </div>
+                     <p className="text-[9px] font-black text-white/20 uppercase tracking-[0.2em] leading-relaxed max-w-xs">
+                       VOUS ALLEZ ÊTRE REDIRIGÉ VERS LA PLATEFORME SÉCURISÉE DE PAIEMENT <span className="text-white/40">STRIPE</span> POUR FINALISER VOTRE RÉSERVERATION.
+                     </p>
+                  </div>
+                )}
 
                 {error && (
                   <motion.div

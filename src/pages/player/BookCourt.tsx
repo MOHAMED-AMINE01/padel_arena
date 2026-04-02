@@ -292,7 +292,26 @@ export function PlayerBook() {
                 promoCode: promoCode || undefined
             });
 
-            setBookingRef(res.data.data._id?.toString().slice(-6).toUpperCase() || 'OK');
+            const booking = res.data.data;
+
+            if (paymentMethod === 'online') {
+                // Stripe Checkout
+                const stripeRes = await api.post('/payments/create-checkout-session', {
+                    bookingId: booking._id,
+                    courtName: selectedCourt.courtName,
+                    amount: parseFloat(totalPrice),
+                    customerEmail: user?.email,
+                    successUrl: `${window.location.origin}/booking-success?session_id={CHECKOUT_SESSION_ID}`,
+                    cancelUrl: window.location.href
+                });
+
+                if (stripeRes.data.url) {
+                    window.location.href = stripeRes.data.url;
+                    return; // Don't show local success yet
+                }
+            }
+
+            setBookingRef(booking._id?.toString().slice(-6).toUpperCase() || 'OK');
             setIsConfirmed(true);
         } catch (err: any) {
             setBookError(err?.response?.data?.message || 'Erreur lors de la réservation. Réessayez.');
@@ -735,23 +754,28 @@ export function PlayerBook() {
                                                 className={cn(
                                                     'relative p-3 sm:p-4 md:p-5 rounded-xl sm:rounded-2xl md:rounded-[1.75rem] border flex flex-col items-center gap-1.5 sm:gap-2 md:gap-2.5 transition-all duration-500 group overflow-hidden',
                                                     !slot.available
-                                                        ? 'bg-white/[0.01] border-white/5 opacity-20 cursor-not-allowed'
+                                                        ? 'bg-white/[0.01] border-white/5 opacity-40 cursor-not-allowed border-dashed'
                                                         : peak
                                                             ? 'bg-[#151518]/60 border-white/8 hover:bg-padel-yellow/10 hover:border-padel-yellow/40 shadow-lg cursor-pointer'
                                                             : 'bg-[#151518]/60 border-white/8 hover:bg-padel-blue/10 hover:border-padel-blue/40 shadow-lg cursor-pointer'
                                                 )}
                                             >
                                                 {slot.available && peak && (
-                                                    <div className="absolute top-2 right-2">
+                                                    <div className="absolute top-1.5 right-1.5">
                                                         <Flame size={10} className="text-padel-yellow animate-pulse" />
+                                                    </div>
+                                                )}
+                                                {slot.available && !peak && (
+                                                    <div className="absolute top-1.5 right-1.5">
+                                                        <div className="w-1 h-1 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
                                                     </div>
                                                 )}
                                                 <span className="text-base sm:text-lg md:text-xl font-display font-black text-white italic tracking-tighter leading-none group-hover:scale-110 transition-transform">
                                                     {slot.time}
                                                 </span>
                                                 {!slot.available && (
-                                                    <div className="absolute inset-0 flex items-center justify-center">
-                                                        <X size={18} className="text-white/20" />
+                                                    <div className="absolute inset-0 flex items-center justify-center bg-black/10">
+                                                        <X size={18} className="text-white/10" />
                                                     </div>
                                                 )}
                                             </motion.button>
@@ -1149,32 +1173,29 @@ export function PlayerBook() {
                                     </div>
 
                                     <div className="relative z-10 space-y-4">
-                                        {/* Payment method toggle */}
-                                        <div>
-                                            <p className="text-[8px] font-black uppercase tracking-widest text-white/40 mb-2 ml-4 italic">Mode de règlement</p>
-                                            <div className="flex gap-1.5 sm:gap-2 bg-black/20 p-1.5 rounded-2xl">
-                                                <button
-                                                    onClick={() => setPaymentMethod('online')}
-                                                    className={cn(
-                                                        'flex-1 py-3 rounded-xl text-[8px] sm:text-[9px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2',
-                                                        paymentMethod === 'online' ? 'bg-white text-padel-blue shadow-lg' : 'text-white/40 hover:text-white'
-                                                    )}
-                                                >
-                                                    <CreditCard size={12} /> En ligne
-                                                </button>
-                                                <button
-                                                    onClick={() => setPaymentMethod('club')}
-                                                    className={cn(
-                                                        'flex-1 py-3 rounded-xl text-[8px] sm:text-[9px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2',
-                                                        paymentMethod === 'club' ? 'bg-white text-padel-blue shadow-lg' : 'text-white/40 hover:text-white'
-                                                    )}
-                                                >
-                                                    <Ticket size={12} /> Au club
-                                                </button>
+                                        <div className="overflow-hidden">
+                                            <div className="flex flex-col items-center gap-3 p-5 bg-white/5 border border-white/10 rounded-2xl relative overflow-hidden group">
+                                                <div className="absolute top-0 right-0 p-3 opacity-[0.03] rotate-12 group-hover:rotate-0 transition-transform">
+                                                    <CreditCard size={32} />
+                                                </div>
+                                                <div className="flex items-center gap-4 w-full">
+                                                    <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-padel-blue shadow-lg shrink-0">
+                                                        <CreditCard size={18} />
+                                                    </div>
+                                                    <div className="text-left">
+                                                        <p className="text-[10px] font-black text-white uppercase tracking-widest leading-none mb-1.5 italic">Paiement 100% Sécurisé</p>
+                                                        <p className="text-[8px] font-black text-white/40 uppercase tracking-[0.2em] leading-none italic">VIA STRIPE CONNECT</p>
+                                                    </div>
+                                                </div>
+                                                <div className="h-px w-full bg-white/5 my-1" />
+                                                <div className="text-left w-full">
+                                                    <p className="text-[8px] sm:text-[9px] font-black text-white/20 uppercase tracking-widest leading-relaxed italic text-center px-2">
+                                                        VOUS ALLEZ ÊTRE REDIRIGÉ VERS LA PLATEFORME SÉCURISÉE <span className="text-white/40 font-bold tracking-normal italic">STRIPE</span> POUR FINALISER VOTRE RÉGLEMENT.
+                                                    </p>
+                                                </div>
                                             </div>
                                         </div>
 
-                                        {/* Book Button */}
                                         {bookError && (
                                             <motion.div
                                                 initial={{ opacity: 0, scale: 0.95 }}
@@ -1195,24 +1216,15 @@ export function PlayerBook() {
                                         >
                                             {loadingBook ? (
                                                 <>
-                                                    <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 0.8, ease: 'linear' }}>
+                                                    <div className="animate-spin">
                                                         <Loader2 size={18} />
-                                                    </motion.div>
+                                                    </div>
                                                     <span>Traitement...</span>
                                                 </>
                                             ) : (
                                                 <>
-                                                    {paymentMethod === 'online' ? (
-                                                        <>
-                                                            <CreditCard size={18} className="group-hover:rotate-12 transition-transform" />
-                                                            <span>Confirmer & Payer</span>
-                                                        </>
-                                                    ) : (
-                                                        <>
-                                                            <Target size={18} className="group-hover:scale-110 transition-transform" />
-                                                            <span>Réserver maintenant</span>
-                                                        </>
-                                                    )}
+                                                    <CreditCard size={18} className="group-hover:rotate-12 transition-transform" />
+                                                    <span>Payer via Stripe</span>
                                                 </>
                                             )}
                                         </motion.button>

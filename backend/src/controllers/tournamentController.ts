@@ -2,6 +2,12 @@ import { Request, Response } from 'express';
 import Tournament from '../models/Tournament';
 import { asyncHandler } from '../utils/asyncHandler';
 import { validateAndApplyPromoCode, incrementPromoCodeUsage } from '../services/promoCodeService';
+import Booking from '../models/Booking';
+import Court from '../models/Court';
+import Stripe from 'stripe';
+import { refundPayment } from './paymentController';
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
 
 // @desc    Get all tournaments
 // @route   GET /api/tournaments
@@ -93,7 +99,10 @@ export const joinTournament = asyncHandler(async (req: any, res: Response) => {
         return res.status(400).json({ message: 'Vous êtes déjà inscrit à ce tournoi.' });
     }
 
+    let discountAmount = 0;
+    let finalFee = tournament.entryFee;
     let promoCodeId = null;
+
     if (promoCode) {
         const promoResult = await validateAndApplyPromoCode(
             promoCode,
@@ -104,16 +113,84 @@ export const joinTournament = asyncHandler(async (req: any, res: Response) => {
 
         if (promoResult.isValid) {
             promoCodeId = promoResult.promoCodeId;
+            discountAmount = promoResult.discountAmount;
+            finalFee = Math.max(0, tournament.entryFee - discountAmount);
         } else {
             return res.status(400).json({ success: false, message: promoResult.message });
         }
     }
 
-    // Actually, join logic might need more detail (teams of 2, etc.)
-    // For now, let's keep it simple: just add the user
-    tournament.participants.push(req.user.id);
-    tournament.currentTeams += 0.5; // If it's single user joining, 2 users = 1 team?
+    // --- STRIPE INTEGRATION ---
+    if (finalFee > 0) {
+        // Find virtual court
+        let eventCourt = await Court.findOne({ name: 'ÉVÉNEMENTS & ACADÉMIE' });
+        if (!eventCourt) {
+            const someCourt = await Court.findOne();
+            eventCourt = await Court.create({
+                name: 'ÉVÉNEMENTS & ACADÉMIE',
+                type: 'INDOOR',
+                surface: 'PRO_TURF',
+                sport: 'Padel',
+                offPeakPrice: 0,
+                peakPrice: 0,
+                isActive: false,
+                clubManager: someCourt?.clubManager || '65f1a2b3c4d5e6f7a8b9c0d1'
+            });
+        }
 
+        // Create PENDING booking
+        const booking = await Booking.create({
+            user: req.user.id,
+            court: eventCourt._id,
+            startTime: tournament.startDate,
+            endTime: tournament.endDate,
+            totalPrice: finalFee,
+            discountAmount,
+            promoCode: promoCode?.toUpperCase(),
+            bookingType: 'TOURNAMENT',
+            tournament: tournament._id,
+            status: 'PENDING',
+            paymentStatus: 'UNPAID'
+        });
+
+        // Create Stripe Session
+        const session = await stripe.checkout.sessions.create({
+            payment_method_types: ['card'],
+            line_items: [{
+                price_data: {
+                    currency: 'eur',
+                    product_data: {
+                        name: `Inscription Tournoi : ${tournament.name}`,
+                        description: `Date: ${new Date(tournament.startDate).toLocaleDateString('fr-FR')}`,
+                    },
+                    unit_amount: Math.round(finalFee * 100),
+                },
+                quantity: 1,
+            }],
+            mode: 'payment',
+            success_url: `${process.env.CLIENT_URL}/succes?session_id={CHECKOUT_SESSION_ID}`,
+            cancel_url: `${process.env.CLIENT_URL}/tournois`,
+            customer_email: req.user.email,
+            metadata: {
+                bookingId: booking._id.toString(),
+                type: 'TOURNAMENT_REGISTRATION'
+            }
+        });
+
+        if (promoCodeId) {
+            await incrementPromoCodeUsage(promoCodeId, req.user.id);
+        }
+
+        return res.status(200).json({
+            success: true,
+            requiresPayment: true,
+            url: session.url
+        });
+    }
+
+    // Free entry logic
+    tournament.participants.push(req.user.id);
+    tournament.currentTeams += 0.5;
     await tournament.save();
 
     if (promoCodeId) {
@@ -148,6 +225,29 @@ export const leaveTournament = asyncHandler(async (req: any, res: Response) => {
         return res.status(400).json({ message: 'Vous n\'êtes pas inscrit à ce tournoi.' });
     }
 
+    // Handle automated refund if there's a paid booking
+    const booking = await Booking.findOne({
+        user: req.user.id,
+        tournament: tournament._id,
+        status: 'CONFIRMED'
+    });
+
+    let refundStatus = "";
+    if (booking && booking.paymentStatus === 'PAID' && booking.stripePaymentIntentId) {
+        const refundResult = await refundPayment(booking.stripePaymentIntentId);
+        if (refundResult.success) {
+            booking.status = 'CANCELLED';
+            booking.paymentStatus = 'REFUNDED';
+            await booking.save();
+            refundStatus = " Un remboursement a été traité.";
+        } else {
+             console.error(`❌ Tournament Refund Error: ${refundResult.error}`);
+        }
+    } else if (booking) {
+        booking.status = 'CANCELLED';
+        await booking.save();
+    }
+
     tournament.participants.splice(participantIndex, 1);
     tournament.currentTeams = Math.max(0, tournament.currentTeams - 0.5);
 
@@ -155,7 +255,7 @@ export const leaveTournament = asyncHandler(async (req: any, res: Response) => {
 
     res.status(200).json({
         success: true,
-        message: 'Désinscription réussie.',
+        message: `Désinscription réussie.${refundStatus}`,
         data: tournament
     });
 });

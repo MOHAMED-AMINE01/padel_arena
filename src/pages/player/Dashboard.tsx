@@ -331,7 +331,7 @@ export function PlayerDashboard() {
                                             <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity" />
                                         </motion.div>
                                         <div className="min-w-0">
-                                            <h4 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-display font-black text-white italic uppercase tracking-tighter mb-2 sm:mb-3 lg:mb-4 leading-none truncate">
+                                            <h4 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-display font-black text-white italic uppercase tracking-tighter mb-2 sm:mb-3 lg:mb-4 leading-none truncate">
                                                 {nextMatch.court?.name || 'TERRAIN'} <span style={{ color: sportColor }}>⚡</span>
                                             </h4>
                                             <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-2 sm:mb-3">

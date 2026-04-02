@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Clock, ChevronDown } from 'lucide-react';
+import { Clock, ChevronDown, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '../../lib/utils';
 
@@ -7,12 +7,14 @@ interface PremiumTimePickerProps {
     value: string;
     onChange: (value: string) => void;
     icon?: React.ElementType;
+    disabledSlots?: string[];
 }
 
 export const PremiumTimePicker: React.FC<PremiumTimePickerProps> = ({
     value,
     onChange,
-    icon: Icon = Clock
+    icon: Icon = Clock,
+    disabledSlots = []
 }) => {
     const [isOpen, setIsOpen] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
@@ -78,21 +80,34 @@ export const PremiumTimePicker: React.FC<PremiumTimePickerProps> = ({
                         className="absolute z-[300] left-0 right-0 mt-2 p-2 bg-[#1a1a1e] border border-white/10 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] backdrop-blur-3xl max-h-[240px] overflow-y-auto custom-scrollbar"
                     >
                         <div className="grid grid-cols-3 gap-1">
-                            {timeSlots.map((time) => (
-                                <button
-                                    key={time}
-                                    type="button"
-                                    onClick={() => handleSelect(time)}
-                                    className={cn(
-                                        "py-2 px-1 rounded-lg text-[10px] font-black uppercase tracking-tighter transition-all",
-                                        value === time
-                                            ? "bg-padel-blue text-white shadow-lg shadow-padel-blue/20 scale-[1.05]"
-                                            : "text-white/20 hover:text-white hover:bg-white/5"
-                                    )}
-                                >
-                                    {time.replace(':', 'h')}
-                                </button>
-                            ))}
+                            {timeSlots.map((time) => {
+                                const isDisabled = disabledSlots.includes(time);
+                                return (
+                                    <button
+                                        key={time}
+                                        type="button"
+                                        disabled={isDisabled}
+                                        onClick={() => handleSelect(time)}
+                                        className={cn(
+                                            "py-2 px-1 rounded-lg text-[10px] font-black uppercase tracking-tighter transition-all relative",
+                                            value === time
+                                                ? "bg-padel-blue text-white shadow-lg shadow-padel-blue/20 scale-[1.05]"
+                                                : isDisabled
+                                                    ? "text-white/5 bg-white/[0.01] cursor-not-allowed"
+                                                    : "text-white/20 hover:text-white hover:bg-white/5"
+                                        )}
+                                    >
+                                        <span className={cn(isDisabled && "opacity-20")}>
+                                            {time.replace(':', 'h')}
+                                        </span>
+                                        {isDisabled && (
+                                            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                                <X size={10} className="text-white/10" />
+                                            </div>
+                                        )}
+                                    </button>
+                                );
+                            })}
                         </div>
                     </motion.div>
                 )}

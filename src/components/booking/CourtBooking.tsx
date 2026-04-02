@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from 'motion/react';
-import { Calendar as CalendarIcon, Clock, LayoutGrid, Users, CreditCard, CheckCircle2, ChevronRight, ChevronLeft, Info, ArrowUpRight, ShieldCheck, Zap, Target, Gauge, MousePointer2, Timer, Loader2 } from 'lucide-react';
+import { Calendar as CalendarIcon, Clock, LayoutGrid, Users, CreditCard, CheckCircle2, ChevronRight, ChevronLeft, Info, ArrowUpRight, ShieldCheck, Zap, Target, Gauge, MousePointer2, Timer, Loader2, X } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { cn } from '../../lib/utils';
@@ -189,14 +189,17 @@ export const CourtBooking = () => {
     fetchAvailability();
   }, [bookingData.date, bookingData.sport]);
 
-  const availableTimes = useMemo(() => {
-    const times = new Set<string>();
+  const timeSlots = useMemo(() => {
+    const slotsMap = new Map<string, boolean>();
     availability.forEach(court => {
       court.slots.forEach(slot => {
-        if (slot.available) times.add(slot.time);
+        const isCurrentAvailable = slotsMap.get(slot.time) || false;
+        slotsMap.set(slot.time, isCurrentAvailable || slot.available);
       });
     });
-    return Array.from(times).sort();
+    return Array.from(slotsMap.entries())
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([time, available]) => ({ time, available }));
   }, [availability]);
 
   const availableCourts = useMemo(() => {
@@ -229,6 +232,7 @@ export const CourtBooking = () => {
     if (currentStep === 5) {
       // Handle Final Booking Submission
       try {
+        console.log('Initiating guest booking submission...');
         setIsBooking(true);
         setError(null);
 
@@ -247,11 +251,35 @@ export const CourtBooking = () => {
         });
 
         if (response.data.success) {
-          setCurrentStep(6);
+          console.log('Booking successful, creating Stripe session...', response.data.data._id);
+          const booking = response.data.data;
+          const totalAmount = calculateTotal();
+          const court = availableCourts.find(c => c._id === bookingData.courtId);
+
+          // Create Stripe Checkout Session
+          const stripeRes = await api.post('/payments/create-checkout-session', {
+            bookingId: booking._id,
+            courtName: court?.name,
+            amount: parseFloat(totalAmount),
+            customerEmail: bookingData.guestEmail,
+            successUrl: `${window.location.origin}/booking-success?session_id={CHECKOUT_SESSION_ID}` 
+          });
+
+          if (stripeRes.data.url) {
+            window.location.href = stripeRes.data.url;
+          } else {
+            setCurrentStep(6); // Fallback
+          }
         }
       } catch (err: any) {
-        console.error('Booking failed', err);
-        setError(err.response?.data?.message || 'La réservation a échoué. Ce créneau est peut-être déjà pris.');
+        console.error('CRITICAL: Booking or Payment failed', err);
+        const errorMsg = err.response?.data?.message || 'La réservation ou le paiement a échoué.';
+        setError(errorMsg);
+        
+        // Log detailed error for debugging
+        if (err.response) {
+          console.error('Server responded with:', err.response.data);
+        }
       } finally {
         setIsBooking(false);
       }
@@ -409,25 +437,38 @@ export const CourtBooking = () => {
                       <div className="flex items-center justify-center py-20">
                         <Loader2 className="w-8 h-8 animate-spin text-padel-blue" />
                       </div>
-                    ) : availableTimes.length === 0 ? (
+                    ) : timeSlots.length === 0 ? (
                       <div className="flex flex-col items-center justify-center py-16 text-center">
                         <Clock size={48} className="text-white/10 mb-4" />
                         <p className="text-white/30 text-sm font-bold uppercase tracking-widest">Aucun créneau disponible</p>
                       </div>
                     ) : (
                       <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
-                        {availableTimes.map(t => (
+                        {timeSlots.map(slot => (
                           <button
-                            key={t}
-                            onClick={() => setBookingData({ ...bookingData, time: t })}
+                            key={slot.time}
+                            disabled={!slot.available}
+                            onClick={() => setBookingData({ ...bookingData, time: slot.time })}
                             className={cn(
                               "p-5 md:p-6 rounded-2xl border transition-all text-center group relative overflow-hidden",
-                              bookingData.time === t
+                              bookingData.time === slot.time
                                 ? "bg-padel-blue border-padel-blue text-white shadow-xl"
-                                : "bg-white/[0.02] border-white/5 text-white/40 hover:border-white/15"
+                                : slot.available
+                                  ? "bg-white/[0.03] border-white/10 text-white/60 hover:border-padel-blue/50 hover:bg-padel-blue/5 hover:text-white"
+                                  : "bg-white/[0.01] border-white/5 text-white/10 cursor-not-allowed border-dashed opacity-40"
                             )}
                           >
-                            <span className="text-lg md:text-xl font-display font-black">{t}</span>
+                            <span className="text-lg md:text-xl font-display font-black transition-transform group-hover:scale-110">{slot.time}</span>
+                            
+                            {slot.available ? (
+                              <div className="absolute top-2 right-2">
+                                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
+                              </div>
+                            ) : (
+                              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                <X size={20} className="text-white/10" />
+                              </div>
+                            )}
                           </button>
                         ))}
                       </div>
@@ -530,7 +571,7 @@ export const CourtBooking = () => {
                   </motion.div>
                 )}
 
-                {currentStep === 6 && (
+                {currentStep === 5 && (
                   <motion.div key="s5" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="flex flex-col items-center justify-center py-6">
                     <div className="glass p-10 rounded-[3rem] border-white/10 bg-gradient-to-br from-padel-blue/10 to-transparent w-full max-w-md text-center">
                       <CreditCard size={40} className="mx-auto text-padel-blue mb-6 opacity-40" />
@@ -567,15 +608,35 @@ export const CourtBooking = () => {
                           <span className="text-padel-blue text-lg">{calculateTotal()}€</span>
                         </div>
                       </div>
-                      <div className="flex items-center justify-center gap-3 p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
-                        <ShieldCheck size={14} className="text-emerald-500" />
-                        <span className="text-[7px] font-black text-emerald-500 uppercase tracking-widest leading-none">AES-256 SECURED</span>
+                      <div className="space-y-6">
+                        <div className="flex items-center justify-center gap-3 p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
+                          <ShieldCheck size={14} className="text-emerald-500" />
+                          <span className="text-[7px] font-black text-emerald-500 uppercase tracking-widest leading-none">PROTECTION DES DONNÉES AES-256</span>
+                        </div>
+
+                        <div className="flex flex-col items-center gap-4 px-6 py-6 bg-white/[0.02] border border-white/5 rounded-[2.5rem] relative overflow-hidden group">
+                           <div className="absolute top-0 right-0 p-4 opacity-[0.03] rotate-12 transition-transform group-hover:rotate-0">
+                             <CreditCard size={40} />
+                           </div>
+                           <div className="flex items-center gap-3">
+                             <div className="w-8 h-8 rounded-full bg-padel-blue flex items-center justify-center text-white shadow-lg shadow-padel-blue/20">
+                               <CreditCard size={14} />
+                             </div>
+                             <div className="text-left">
+                               <p className="text-[10px] font-black text-white uppercase tracking-widest leading-none mb-1">Paiement 100% Sécurisé</p>
+                               <p className="text-[8px] font-black text-padel-blue uppercase tracking-[0.2em] leading-none">VIA STRIPE CONNECT</p>
+                             </div>
+                           </div>
+                           <p className="text-[8px] md:text-[9px] font-black text-white/20 uppercase tracking-widest leading-relaxed">
+                             VOUS ALLEZ ÊTRE REDIRIGÉ VERS LA PLATEFORME SÉCURISÉE DE PAIEMENT <span className="text-white/40">STRIPE</span> POUR FINALISER VOTRE RÉGLEMENT.
+                           </p>
+                        </div>
                       </div>
                     </div>
                   </motion.div>
                 )}
 
-                {currentStep === 7 && (
+                {currentStep === 6 && (
                   <motion.div key="s6" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="flex flex-col items-center justify-center text-center py-10">
                     <div className="w-20 h-20 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-500 mb-6 border border-emerald-500/20 shadow-lg shadow-emerald-500/20">
                       <CheckCircle2 size={36} className="animate-pulse" />
@@ -621,9 +682,9 @@ export const CourtBooking = () => {
                     >
                       <span className="relative z-10 flex items-center gap-4 group-hover/btn:text-padel-blue transition-colors">
                         {isBooking ? (
-                          <>SYNCHRONISATION... <Loader2 size={16} className="animate-spin" /></>
+                          <><Loader2 className="animate-spin mr-2" size={14} /> TRAITEMENT...</>
                         ) : (
-                          <>{currentStep === 5 ? "VALIDER RÉSERVATION" : "SUIVANT"} <ArrowUpRight size={18} /></>
+                          <>{currentStep === 5 ? 'PAYER VIA STRIPE' : 'ÉTAPE SUIVANTE'} <ArrowUpRight size={18} /></>
                         )}
                       </span>
                       {isStepComplete(currentStep) && !isBooking && <div className="absolute inset-0 bg-padel-yellow translate-y-full group-hover/btn:translate-y-0 transition-transform duration-500" />}

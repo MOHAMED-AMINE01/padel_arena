@@ -5,8 +5,8 @@ import { cn } from '../../lib/utils';
 import { useSiteSettings } from '../../hooks/useSiteSettings';
 
 const transportInfo = [
-  { icon: <Car size={20} />, title: "STATIONNEMENT", desc: "Parking privé sécurisé 50 places réservé aux membres.", label: "FREE PARKING" },
-  { icon: <Bus size={20} />, title: "RÉSEAU URBAIN", desc: "Ligne A - Arrêt 'Arena Sport' à 200m du complexe.", label: "PUBLIC TRANSPORT" },
+  { icon: <Car size={20} />, title: "STATIONNEMENT", desc: "Parking privé sécurisé réservé aux membres.", label: "FREE PARKING" },
+  { icon: <Bus size={20} />, title: "RÉSEAU URBAIN", desc: "Arrêt de bus proximité.", label: "PUBLIC TRANSPORT" },
   { icon: <Accessibility size={20} />, title: "ACCESSIBILITÉ", desc: "Infrastructures totalement adaptées aux PMR.", label: "FULL ACCESS" },
 ];
 

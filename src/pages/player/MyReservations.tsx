@@ -633,18 +633,18 @@ export function PlayerReservations() {
                     >
                         <AnimatePresence mode="popLayout">
                             {filtered.length === 0 ? (
-                                <React.Fragment key="empty">
+                                <motion.div key="empty" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                                     <EmptyState tab={activeTab} />
-                                </React.Fragment>
+                                </motion.div>
                             ) : (
                                 paginatedBookings.map(booking => (
-                                    <React.Fragment key={booking._id}>
+                                    <motion.div key={booking._id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                                         <BookingCard
                                             booking={booking}
                                             onCancel={(id) => setCancelModal({ open: true, id })}
                                             cancelling={cancelling && cancelModal.id === booking._id}
                                         />
-                                    </React.Fragment>
+                                    </motion.div>
                                 ))
                             )}
                         </AnimatePresence>

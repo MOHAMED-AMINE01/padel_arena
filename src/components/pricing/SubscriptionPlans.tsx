@@ -2,7 +2,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { Check, ArrowUpRight, Star, Zap, Trophy, Loader2, Target, Heart, Users, Building2, X, ShieldCheck, Sparkles, Phone, Mail, User, CalendarDays, Clock } from 'lucide-react';
+import { Check, ArrowUpRight, Star, Zap, Trophy, Loader2, Target, Heart, Users, Building2, X, ShieldCheck, Sparkles, Phone, Mail, User, CalendarDays, Clock, CreditCard } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import api from '../../lib/api';
 
@@ -120,8 +120,10 @@ export const SubscriptionPlans = () => {
     if (!modal.plan) return;
     setSubmitting(modal.plan._id);
     try {
-      // Create a Booking Request for Admin visibility
-      await api.post('/bookings', {
+      const amount = isAnnual ? (modal.plan.price * 12 * 0.8) : modal.plan.price;
+
+      // 1. Create a Booking Request
+      const res = await api.post('/bookings', {
         guestName: formData.name,
         guestEmail: formData.email,
         guestPhone: formData.phone,
@@ -129,10 +131,25 @@ export const SubscriptionPlans = () => {
         endTime: `${formData.date}T${formData.time}:00`,
         bookingType: 'SUBSCRIPTION',
         packName: modal.plan.name,
+        totalPrice: parseFloat(amount.toString())
       });
 
-      // Show success — admin will contact client to finalize
-      setModal({ isOpen: true, type: 'success', message: 'Votre demande a été envoyée avec succès.' });
+      const booking = res.data.data;
+
+      // 2. Create Stripe Checkout Session
+      const stripeRes = await api.post('/payments/create-checkout-session', {
+        bookingId: booking._id,
+        courtName: `Abonnement : ${modal.plan.name}`,
+        amount: parseFloat(amount.toString()),
+        customerEmail: formData.email,
+        successUrl: `${window.location.origin}/booking-success?session_id={CHECKOUT_SESSION_ID}` 
+      });
+
+      if (stripeRes.data.url) {
+        window.location.href = stripeRes.data.url;
+      } else {
+        setModal({ isOpen: true, type: 'success', message: 'Votre demande a été envoyée avec succès.' });
+      }
     } catch (err: any) {
       setModal({ isOpen: true, type: 'error', message: err.response?.data?.message || "Erreur lors de l'envoi de la demande." });
     } finally {
@@ -404,6 +421,23 @@ export const SubscriptionPlans = () => {
                         </div>
                       </div>
 
+                      <div className="flex flex-col items-center gap-4 px-6 py-6 bg-white/[0.02] border border-white/5 rounded-[2.5rem] relative overflow-hidden group mb-6">
+                           <div className="absolute top-0 right-0 p-4 opacity-[0.03] rotate-12 transition-transform group-hover:rotate-0">
+                             <CreditCard size={40} />
+                           </div>
+                           <div className="flex items-center gap-3">
+                             <div className="w-8 h-8 rounded-full bg-padel-blue flex items-center justify-center text-white shadow-lg shadow-padel-blue/20">
+                               <CreditCard size={14} />
+                             </div>
+                             <div className="text-left">
+                               <p className="text-[10px] font-black text-white uppercase tracking-widest leading-none mb-1">Paiement 100% Sécurisé</p>
+                               <p className="text-[8px] font-black text-padel-blue uppercase tracking-[0.2em] leading-none">VIA STRIPE CONNECT</p>
+                             </div>
+                           </div>
+                           <p className="text-[8px] md:text-[9px] font-black text-white/20 uppercase tracking-widest leading-relaxed text-center">
+                             VOUS ALLEZ ÊTRE REDIRIGÉ VERS LA PLATEFORME SÉCURISÉE <span className="text-white/40 font-bold tracking-normal italic">STRIPE</span> POUR FINALISER VOTRE RÉGLEMENT.
+                           </p>
+                        </div>
                       <div className="grid grid-cols-2 gap-3 pt-2">
                         <button
                           type="button"
@@ -417,7 +451,7 @@ export const SubscriptionPlans = () => {
                           disabled={submitting !== null}
                           className="py-4 bg-padel-blue rounded-full text-[10px] font-black uppercase tracking-widest text-white hover:scale-105 transition-all shadow-xl shadow-padel-blue/40 flex items-center justify-center gap-2"
                         >
-                          {submitting ? <Loader2 className="animate-spin" size={14} /> : 'CONFIRMER'}
+                          {submitting ? <Loader2 className="animate-spin" size={14} /> : 'PAYER VIA STRIPE'}
                         </button>
                       </div>
                     </form>
