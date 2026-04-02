@@ -72,6 +72,10 @@ app.get('/api/debug/health', (req, res) => {
         status: 'ok',
         env: process.env.NODE_ENV,
         hasJwtSecret: !!process.env.JWT_SECRET,
+        hasStripeKey: !!process.env.STRIPE_SECRET_KEY,
+        stripeKeyPrefix: process.env.STRIPE_SECRET_KEY?.substring(0, 8) || 'NOT SET',
+        hasStripeWebhookSecret: !!process.env.STRIPE_WEBHOOK_SECRET,
+        clientUrl: process.env.CLIENT_URL || 'NOT SET',
         allowedOrigins: process.env.ALLOWED_ORIGINS,
         receivedOrigin: req.headers.origin,
         hasAuthHeader: !!req.headers.authorization
