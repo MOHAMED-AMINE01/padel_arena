@@ -7,6 +7,6 @@ const router = express.Router();
 router.post('/create-checkout-session', express.json(), createCheckoutSession);
 
 // Webhook route - Stripe calls this (Needs RAW body handling in index.ts)
-router.post('/webhook', express.raw({ type: 'application/json' }), handleWebhook);
+router.post('/webhook', handleWebhook);
 
 export default router;

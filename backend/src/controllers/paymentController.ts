@@ -92,8 +92,10 @@ export const handleWebhook = async (req: Request, res: Response) => {
 
   try {
     // Verify webhook signature (CRITICAL: Needs RAW body)
+    const payload = (req as any).rawBody || req.body;
+    
     event = stripe.webhooks.constructEvent(
-      req.body, 
+      payload, 
       sig as string, 
       process.env.STRIPE_WEBHOOK_SECRET as string
     );

@@ -60,11 +60,20 @@ app.use((req, res, next) => {
 // Cookie parser and JSON body
 app.use(cookieParser());
 
-// IMPORTANT: Payment routes must come BEFORE express.json() for the webhook to get the raw body
-app.use('/api/payments', paymentRoutes);
+// IMPORTANT: Payment routes need the RAW body for Stripe Signature Verification
+// Vercel auto-parses JSON, so we use `express.json`'s verify option to capture raw data
+app.use(express.json({ 
+    limit: '10kb',
+    verify: (req: any, res: Response, buf: Buffer) => {
+        if (req.originalUrl && req.originalUrl.includes('/api/payments/webhook')) {
+            req.rawBody = buf.toString('utf8');
+        }
+    }
+}));
 
-app.use(express.json({ limit: '10kb' }));
+app.use('/api/payments', paymentRoutes);
 app.use(morgan('dev'));
+
 
 // Debug endpoint to verify environment and headers (remove in final production)
 app.get('/api/debug/health', (req, res) => {
