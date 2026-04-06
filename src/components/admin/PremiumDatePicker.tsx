@@ -51,7 +51,10 @@ export const PremiumDatePicker: React.FC<PremiumDatePickerProps> = ({
 
     const handleDateSelect = (day: number) => {
         const selectedDate = new Date(viewDate.getFullYear(), viewDate.getMonth(), day);
-        onChange(selectedDate.toISOString().split('T')[0]);
+        const y = selectedDate.getFullYear();
+        const m = (selectedDate.getMonth() + 1).toString().padStart(2, '0');
+        const d = selectedDate.getDate().toString().padStart(2, '0');
+        onChange(`${y}-${m}-${d}`);
         setIsOpen(false);
     };
 
@@ -210,7 +213,10 @@ export const PremiumDatePicker: React.FC<PremiumDatePickerProps> = ({
                                 onClick={() => {
                                     const today = new Date();
                                     setViewDate(today);
-                                    onChange(today.toISOString().split('T')[0]);
+                                    const y = today.getFullYear();
+                                    const m = (today.getMonth() + 1).toString().padStart(2, '0');
+                                    const d = today.getDate().toString().padStart(2, '0');
+                                    onChange(`${y}-${m}-${d}`);
                                     setIsOpen(false);
                                 }}
                                 className="w-full py-4 rounded-2xl bg-white/[0.03] border border-white/5 text-[9px] font-black text-white/40 hover:text-padel-blue hover:bg-padel-blue/5 hover:border-padel-blue/20 uppercase tracking-[0.3em] transition-all"

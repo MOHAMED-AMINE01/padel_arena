@@ -56,8 +56,8 @@ export const createBooking = asyncHandler(async (req: any, res: Response) => {
 
         // 4. Calculate total price dynamically
         const durationInHours = (end.getTime() - start.getTime()) / (1000 * 60 * 60);
-        const startHour = start.getHours();
-        const isPeak = startHour >= 17 || start.getDay() === 0 || start.getDay() === 6; // After 17h or Weekend
+        const startHour = start.getUTCHours();
+        const isPeak = startHour >= 17 || start.getUTCDay() === 0 || start.getUTCDay() === 6; // After 17h UTC or Weekend UTC
         const unitPrice = isPeak ? court.peakPrice : court.offPeakPrice;
         totalPrice = Number((durationInHours * unitPrice).toFixed(2));
 
@@ -116,7 +116,7 @@ export const createBooking = asyncHandler(async (req: any, res: Response) => {
             // Find an existing court to steal its clubManager if possible (all courts should have one)
             const someCourt = await Court.findOne();
             const managerId = someCourt ? someCourt.clubManager : '65f1a2b3c4d5e6f7a8b9c0d1'; // Fallback to an ObjectId if empty
-            
+
             packCourt = await Court.create({
                 name: 'RESERVE PACKS',
                 type: 'INDOOR',
@@ -124,7 +124,7 @@ export const createBooking = asyncHandler(async (req: any, res: Response) => {
                 sport: 'Padel',
                 pricePerHour: 0,
                 isActive: false, // Don't show in public list
-                clubManager: managerId 
+                clubManager: managerId
             });
         }
         bookingData.court = packCourt._id;
@@ -269,9 +269,13 @@ export const cancelBooking = asyncHandler(async (req: any, res: Response) => {
     // Check ownership
     const bookingUserId = (booking.user as any)?._id?.toString() || booking.user?.toString();
     console.log(`[Cancel] Booking User: ${bookingUserId}, Request User: ${req.user.id}, Role: ${req.user.role}`);
-    
-    if (bookingUserId !== req.user.id && req.user.role !== 'ADMIN') {
-        return res.status(401).json({ message: 'Not authorized to cancel this booking' });
+
+    // NEW RULE: Players cannot cancel by themselves anymore (as requested)
+    if (req.user.role !== 'ADMIN') {
+        return res.status(403).json({ 
+            success: false,
+            message: "Les annulations ne peuvent être effectuées que par l'administration du club. Merci de nous contacter pour toute modification." 
+        });
     }
 
     // If Admin, delete permanently if requested
@@ -323,7 +327,7 @@ export const cancelBooking = asyncHandler(async (req: any, res: Response) => {
     if (booking.paymentStatus === 'PAID' && booking.stripePaymentIntentId) {
         console.log(`🔄 Initiating refund for booking ${booking._id}`);
         const refundResult = await refundPayment(booking.stripePaymentIntentId);
-        
+
         if (refundResult.success) {
             booking.paymentStatus = 'REFUNDED';
         } else {
@@ -339,7 +343,7 @@ export const cancelBooking = asyncHandler(async (req: any, res: Response) => {
     try {
         const clientEmail = (booking.user as any)?.email || booking.guestEmail;
         const clientName = (booking.user as any)?.name || booking.guestName || 'Client';
-        
+
         if (clientEmail) {
             await sendEmail({
                 to: clientEmail,
@@ -375,8 +379,9 @@ export const getAvailableSlots = asyncHandler(async (req: Request, res: Response
     }
 
     const searchDate = new Date(date as string);
-    const startOfDay = new Date(searchDate.setHours(0, 0, 0, 0));
-    const endOfDay = new Date(searchDate.setHours(23, 59, 59, 999));
+    // Use UTC for all calculations to match MongoDB storage
+    const startOfDay = new Date(Date.UTC(searchDate.getUTCFullYear(), searchDate.getUTCMonth(), searchDate.getUTCDate(), 0, 0, 0, 0));
+    const endOfDay = new Date(Date.UTC(searchDate.getUTCFullYear(), searchDate.getUTCMonth(), searchDate.getUTCDate(), 23, 59, 59, 999));
 
     // 1. Find all courts for this sport
     const courts = await Court.find({ sport: sport as string, isActive: true });
@@ -394,9 +399,9 @@ export const getAvailableSlots = asyncHandler(async (req: Request, res: Response
             startTime: { $gte: startOfDay, $lte: endOfDay }
         }).sort('startTime');
 
-        // Define operating hours (e.g., 08:00 to 23:00)
+        // Define operating hours (e.g., 08:00 to 22:00)
         const slots = [];
-        const slotDuration = 90; // minutes
+        const slotDuration = 30; // minutes (check every 30-min block)
         const opStart = 8;
         const opEnd = 22; // Last slot starts at 22:00
 
@@ -406,26 +411,26 @@ export const getAvailableSlots = asyncHandler(async (req: Request, res: Response
                 if (hour === opEnd && min > 0) break; // Don't start a slot at 22:30
 
                 const slotStart = new Date(startOfDay);
-                slotStart.setHours(hour, min, 0, 0);
+                slotStart.setUTCHours(hour, min, 0, 0);
 
                 const slotEnd = new Date(slotStart);
-                slotEnd.setMinutes(slotStart.getMinutes() + slotDuration);
+                slotEnd.setUTCMinutes(slotStart.getUTCMinutes() + slotDuration);
 
-                // Check for conflict
+                // Check for conflict: a slot is unavailable if any part of it is booked
                 const isBooked = bookings.some(b => {
                     const bStart = new Date(b.startTime);
                     const bEnd = new Date(b.endTime);
                     return (slotStart < bEnd && slotEnd > bStart);
                 });
 
-                const startHour = hour;
-                const isPeak = startHour >= 17 || slotStart.getDay() === 0 || slotStart.getDay() === 6;
+                const startHour = slotStart.getUTCHours();
+                const isPeak = startHour >= 17 || slotStart.getUTCDay() === 0 || slotStart.getUTCDay() === 6;
                 const unitPrice = isPeak ? court.peakPrice : court.offPeakPrice;
 
                 slots.push({
                     time: `${hour.toString().padStart(2, '0')}:${min.toString().padStart(2, '0')}`,
                     available: !isBooked,
-                    price: unitPrice * (slotDuration / 60)
+                    price: unitPrice // Price per hour (standard unit)
                 });
             }
         }

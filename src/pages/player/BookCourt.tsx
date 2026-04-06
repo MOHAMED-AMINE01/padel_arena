@@ -95,13 +95,31 @@ const SPORTS_META: Record<string, {
         players: '2–4 joueurs',
         features: ['Volants fournis', 'Salle climatisée', 'Parquet pro'],
     },
+    Basket: {
+        color: '#FF6B35',
+        gradient: 'from-orange-500/20 to-orange-900/5',
+        tags: ['Olympique', '3×3'],
+        longDesc: 'Basketball 3×3 sur un court olympique. Intensité maximale.',
+        icon: <Target size={32} />,
+        players: '3–6 joueurs',
+        features: ['Court officiel', 'Panier pro', 'Éclairage LED'],
+    },
+    Golf: {
+        color: '#2ECC71',
+        gradient: 'from-green-500/20 to-green-900/5',
+        tags: ['Premium', 'Simulateur'],
+        longDesc: 'Les plus beaux parcours du monde en simulateur haute définition.',
+        icon: <Star size={32} />,
+        players: '1–4 joueurs',
+        features: ['Simulateur HD', 'Clubs fournis', 'Parcours mondiaux'],
+    },
 };
 
 // Fallback sports if no courts exist yet in DB
-const FALLBACK_SPORTS = ['Padel', 'Pickleball', 'Badminton'];
+const FALLBACK_SPORTS = ['Padel', 'Pickleball', 'Badminton', 'Basket', 'Golf'];
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
-function generateDateRange(count = 8) {
+function generateDateRange(count = 21) {
     const days: Date[] = [];
     const today = new Date();
     for (let i = 0; i < count; i++) {
@@ -162,8 +180,8 @@ export function PlayerBook() {
     const [selectedCourt, setSelectedCourt] = useState<CourtSlots | null>(null);
     const [paymentMethod, setPaymentMethod] = useState<'online' | 'club'>('online');
 
-    // ── Data — Sports are always fixed for this venue: Padel, Pickleball, Badminton
-    const [dates] = useState<Date[]>(generateDateRange(8));
+    // ── Data — Sports are always fixed for this venue: 5 disciplines
+    const [dates] = useState<Date[]>(generateDateRange(21));
     const [courtSlots, setCourtSlots] = useState<CourtSlots[]>([]);
 
     // ── Loading / Errors
@@ -278,17 +296,16 @@ export function PlayerBook() {
         setBookError(null);
 
         try {
-            // Build startTime & endTime
-            const [h, m] = selectedTime.split(':').map(Number);
-            const start = new Date(selectedDate);
-            start.setHours(h, m, 0, 0);
-            const end = new Date(start);
-            end.setMinutes(end.getMinutes() + selectedDuration);
+            // Force UTC: selected time stored as-is in UTC to avoid offset issues
+            const _dd = [selectedDate.getFullYear(), String(selectedDate.getMonth() + 1).padStart(2, '0'), String(selectedDate.getDate()).padStart(2, '0')].join('-');
+            const startTimeStr = `${_dd}T${selectedTime}:00.000Z`;
+            const _startMs = new Date(startTimeStr).getTime();
+            const endTimeStr = new Date(_startMs + selectedDuration * 60000).toISOString();
 
             const res = await api.post('/bookings', {
                 courtId: selectedCourt.courtId,
-                startTime: start.toISOString(),
-                endTime: end.toISOString(),
+                startTime: startTimeStr,
+                endTime: endTimeStr,
                 promoCode: promoCode || undefined
             });
 
@@ -333,8 +350,8 @@ export function PlayerBook() {
             const timeStr = `${String(Math.floor(currentMins / 60)).padStart(2, '0')}:${String(currentMins % 60).padStart(2, '0')}`;
             const slot = court.slots.find(s => s.time === timeStr);
             if (slot) {
-                // Backend slot price is for 90 mins (1.5h), so 30 mins segment is price / 3
-                total += slot.price / 3;
+                // Backend slot price is now price per hour, so 30 mins segment is price / 2
+                total += slot.price / 2;
             }
         }
         return total;

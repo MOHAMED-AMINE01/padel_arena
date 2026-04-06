@@ -132,9 +132,12 @@ export const CourtBooking = () => {
   const [isBooking, setIsBooking] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const today = new Date();
+  const initDate = [today.getFullYear(), (today.getMonth()+1).toString().padStart(2, '0'), today.getDate().toString().padStart(2, '0')].join('-');
+
   const [bookingData, setBookingData] = useState({
     sport: 'Padel' as 'Padel' | 'Pickleball' | 'Badminton' | 'Basket' | 'Golf',
-    date: new Date().toISOString().split('T')[0],
+    date: initDate,
     time: null as string | null,
     duration: 90, // minutes
     courtId: null as string | null,
@@ -218,7 +221,7 @@ export const CourtBooking = () => {
     const court = availableCourts.find(c => c._id === bookingData.courtId);
     if (!court || !bookingData.duration) return '0.00';
 
-    const basePrice = court.price * (bookingData.duration / 90);
+    const basePrice = court.price * (bookingData.duration / 60);
     const optionsPrice = bookingData.options.reduce((acc, opt) => {
       if (opt === 'RACKET') return acc + 6;
       if (opt === 'BALLS') return acc + 12;
@@ -236,13 +239,15 @@ export const CourtBooking = () => {
         setIsBooking(true);
         setError(null);
 
-        const startTime = new Date(`${bookingData.date}T${bookingData.time}:00`);
-        const endTime = new Date(startTime.getTime() + bookingData.duration * 60000);
+        // Force UTC: append Z so "10:00" is stored as 10:00 UTC in MongoDB
+        const startTimeStr = `${bookingData.date}T${bookingData.time}:00.000Z`;
+        const startMs = new Date(startTimeStr).getTime();
+        const endTimeStr = new Date(startMs + bookingData.duration * 60000).toISOString();
 
         const response = await api.post('/bookings', {
           courtId: bookingData.courtId,
-          startTime: startTime.toISOString(),
-          endTime: endTime.toISOString(),
+          startTime: startTimeStr,
+          endTime: endTimeStr,
           guestName: bookingData.guestName,
           guestEmail: bookingData.guestEmail,
           guestPhone: bookingData.guestPhone,
@@ -413,7 +418,7 @@ export const CourtBooking = () => {
                     <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
                       {[...Array(14)].map((_, i) => {
                         const d = new Date(); d.setDate(d.getDate() + i);
-                        const dStr = d.toISOString().split('T')[0];
+                        const dStr = [d.getFullYear(), (d.getMonth()+1).toString().padStart(2, '0'), d.getDate().toString().padStart(2, '0')].join('-');
                         const isS = bookingData.date === dStr;
                         return (
                           <button key={i} onClick={() => setBookingData({ ...bookingData, date: dStr })} className={cn("p-6 rounded-[2rem] border transition-all flex flex-col items-center", isS ? "bg-padel-blue border-padel-blue text-white shadow-xl" : "bg-white/[0.02] border-white/5 text-white/40 hover:border-white/10")}>
@@ -502,7 +507,7 @@ export const CourtBooking = () => {
                                 "inline-flex px-6 py-2 rounded-full border text-[10px] font-black transition-all duration-500",
                                 bookingData.courtId === c._id ? "bg-padel-blue border-padel-blue text-white" : "bg-white/5 border-white/10 text-padel-blue"
                               )}>
-                                {(c.price * (60 / 90)).toFixed(2)}€ / HEURE
+                                {c.price.toFixed(2)}€ / HEURE
                               </div>
                             </div>
                             {bookingData.courtId === c._id && (
@@ -558,7 +563,7 @@ export const CourtBooking = () => {
                         <div>
                           <label className="text-[9px] font-black text-white/20 uppercase tracking-widest mb-4 block">DURÉE SESSION</label>
                           <div className="flex gap-4 mb-8">
-                            {[60, 90].map(d => (
+                            {[60, 90, 120].map(d => (
                               <button key={d} onClick={() => setBookingData({ ...bookingData, duration: d })} className={cn("px-8 py-4 rounded-xl border transition-all text-xs font-black", bookingData.duration === d ? "bg-padel-blue border-padel-blue text-white shadow-xl" : "bg-white/5 border-white/5 text-white/30")}>
                                 {d} MIN
                               </button>

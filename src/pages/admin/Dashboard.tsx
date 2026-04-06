@@ -223,7 +223,8 @@ const LogsModal = ({ isOpen, onClose, bookings }: { isOpen: boolean; onClose: ()
     const filteredBookings = useMemo(() => {
         if (!selectedDate) return bookings;
         return bookings.filter(b => {
-            const date = new Date(b.createdAt).toISOString().split('T')[0];
+            const dC = new Date(b.createdAt);
+            const date = [dC.getFullYear(), (dC.getMonth()+1).toString().padStart(2, '0'), dC.getDate().toString().padStart(2, '0')].join('-');
             return date === selectedDate;
         });
     }, [bookings, selectedDate]);
@@ -264,7 +265,7 @@ const LogsModal = ({ isOpen, onClose, bookings }: { isOpen: boolean; onClose: ()
                             <div className="flex items-center gap-4">
                                 <div className="flex-1">
                                     <PremiumDatePicker
-                                        value={selectedDate || new Date().toISOString().split('T')[0]}
+                                        value={selectedDate || [new Date().getFullYear(), (new Date().getMonth()+1).toString().padStart(2, '0'), new Date().getDate().toString().padStart(2, '0')].join('-')}
                                         onChange={setSelectedDate}
                                     />
                                 </div>

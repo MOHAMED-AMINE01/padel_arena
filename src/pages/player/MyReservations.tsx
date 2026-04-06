@@ -227,27 +227,9 @@ function BookingCard({
                     {/* Action buttons */}
                     {upcoming && (
                         <div className="flex gap-2 sm:gap-3 flex-wrap xl:flex-nowrap">
-                            {cancelable ? (
-                                <motion.button
-                                    whileHover={{ scale: 1.05 }}
-                                    whileTap={{ scale: 0.95 }}
-                                    onClick={() => onCancel(booking._id)}
-                                    disabled={cancelling}
-                                    className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-6 py-2.5 sm:py-4 rounded-xl sm:rounded-2xl bg-red-500/5 border border-red-500/10 text-red-500/40 text-[8px] sm:text-[9px] font-black uppercase tracking-wider sm:tracking-widest hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/30 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-                                >
-                                    {cancelling ? (
-                                        <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 0.8, ease: 'linear' }}>
-                                            <Loader2 size={12} className="sm:w-[14px] sm:h-[14px]" />
-                                        </motion.div>
-                                    ) : (
-                                        <><Trash2 size={12} className="sm:w-[14px] sm:h-[14px]" /> Annuler</>
-                                    )}
-                                </motion.button>
-                            ) : (
-                                <div className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-3 rounded-lg sm:rounded-xl bg-white/[0.02] border border-white/5 text-[7px] sm:text-[8px] font-black text-white/20 uppercase tracking-wider sm:tracking-widest italic">
-                                    <ShieldCheck size={10} className="sm:w-[11px] sm:h-[11px]" /> Non annulable
-                                </div>
-                            )}
+                            <div className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-3 rounded-lg sm:rounded-xl bg-white/[0.02] border border-white/5 text-[7px] sm:text-[8px] font-black text-white/20 uppercase tracking-wider sm:tracking-widest italic">
+                                <ShieldCheck size={10} className="sm:w-[11px] sm:h-[11px]" /> Réservation Active
+                            </div>
                         </div>
                     )}
                 </div>
@@ -293,68 +275,7 @@ function EmptyState({ tab }: { tab: string }) {
     );
 }
 
-// ─── Cancel Modal ─────────────────────────────────────────────────────────────
-function CancelModal({
-    onConfirm,
-    onClose,
-    loading
-}: {
-    onConfirm: () => void;
-    onClose: () => void;
-    loading: boolean;
-}) {
-    return (
-        <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[200] flex items-center justify-center p-4"
-        >
-            <div className="absolute inset-0 bg-black/80 backdrop-blur-2xl" onClick={onClose} />
-            <motion.div
-                initial={{ scale: 0.9, y: 20 }}
-                animate={{ scale: 1, y: 0 }}
-                exit={{ scale: 0.9, y: 20 }}
-                className="relative z-10 bg-[#1a1a1e] border border-white/10 rounded-2xl sm:rounded-[3rem] p-6 sm:p-10 max-w-md w-full shadow-2xl text-center mx-4"
-            >
-                <motion.div
-                    animate={{ rotate: [0, -5, 5, -3, 3, 0] }}
-                    transition={{ duration: 0.5, delay: 0.1 }}
-                    className="w-14 h-14 sm:w-20 sm:h-20 bg-red-500/10 rounded-xl sm:rounded-[2rem] flex items-center justify-center mx-auto mb-5 sm:mb-8 border border-red-500/20"
-                >
-                    <AlertTriangle size={28} className="text-red-500 sm:w-10 sm:h-10" />
-                </motion.div>
-                <h3 className="text-xl sm:text-3xl font-display font-black text-white italic uppercase tracking-tighter mb-2 sm:mb-3">Annuler ce match ?</h3>
-                <p className="text-white/30 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.2em] sm:tracking-[0.3em] leading-relaxed mb-6 sm:mb-10 italic px-2">
-                    Cette action est irréversible. La réservation sera annulée et tu ne pourras pas récupérer ce créneau.
-                </p>
-                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-                    <button
-                        onClick={onClose}
-                        className="flex-1 py-3.5 sm:py-5 rounded-xl sm:rounded-2xl bg-white/5 border border-white/10 text-white/60 text-[9px] sm:text-[10px] font-black uppercase tracking-widest hover:text-white hover:bg-white/10 transition-all"
-                    >
-                        Garder
-                    </button>
-                    <motion.button
-                        whileHover={{ scale: 1.03 }}
-                        whileTap={{ scale: 0.97 }}
-                        onClick={onConfirm}
-                        disabled={loading}
-                        className="flex-1 py-3.5 sm:py-5 rounded-xl sm:rounded-2xl bg-red-500/10 border border-red-500/20 text-red-400 text-[9px] sm:text-[10px] font-black uppercase tracking-widest hover:bg-red-500/20 hover:text-red-300 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                    >
-                        {loading ? (
-                            <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 0.8, ease: 'linear' }}>
-                                <Loader2 size={14} className="sm:w-4 sm:h-4" />
-                            </motion.div>
-                        ) : (
-                            <><Trash2 size={14} className="sm:w-4 sm:h-4" /> <span className="hidden sm:inline">Confirmer l'annulation</span><span className="sm:hidden">Annuler</span></>
-                        )}
-                    </motion.button>
-                </div>
-            </motion.div>
-        </motion.div>
-    );
-}
+
 
 // ─── Main Component ──────────────────────────────────────────────────────────
 export function PlayerReservations() {
@@ -388,24 +309,7 @@ export function PlayerReservations() {
 
     useEffect(() => { fetchBookings(); }, [fetchBookings]);
 
-    // ── Cancel booking
-    const handleCancel = async () => {
-        if (!cancelModal.id) return;
-        setCancelling(true);
-        try {
-            await api.delete(`/bookings/${cancelModal.id}`);
-            setBookings(prev => prev.map(b =>
-                b._id === cancelModal.id ? { ...b, status: 'CANCELLED' as const } : b
-            ));
-            setCancelSuccess(true);
-            setCancelModal({ open: false, id: null });
-            setTimeout(() => setCancelSuccess(false), 3000);
-        } catch {
-            // error handled by modal
-        } finally {
-            setCancelling(false);
-        }
-    };
+
 
     // ── Filter by tab
     const filtered = bookings.filter(b => {
@@ -442,16 +346,7 @@ export function PlayerReservations() {
     return (
         <div className="space-y-10 pb-20">
 
-            {/* ── Cancel Modal ── */}
-            <AnimatePresence>
-                {cancelModal.open && (
-                    <CancelModal
-                        onConfirm={handleCancel}
-                        onClose={() => setCancelModal({ open: false, id: null })}
-                        loading={cancelling}
-                    />
-                )}
-            </AnimatePresence>
+
 
             {/* ── Success Toast ── */}
             <AnimatePresence>

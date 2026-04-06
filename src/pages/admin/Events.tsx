@@ -85,20 +85,32 @@ const TacticalDateTimePicker = ({ value, onChange, label, icon: Icon, color = 'b
     const monthNames = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
 
     const handleDateSelect = (day: number) => {
-        const newDate = new Date(viewDate);
-        newDate.setDate(day);
+        const nd = new Date(viewDate);
+        nd.setDate(day);
         if (selectedDate) {
-            newDate.setHours(selectedDate.getHours());
-            newDate.setMinutes(selectedDate.getMinutes());
+            nd.setHours(selectedDate.getHours());
+            nd.setMinutes(selectedDate.getMinutes());
         }
-        onChange(newDate.toISOString().slice(0, 16));
+        
+        const yv = nd.getFullYear();
+        const mv = (nd.getMonth() + 1).toString().padStart(2, '0');
+        const dv = nd.getDate().toString().padStart(2, '0');
+        const hv = nd.getHours().toString().padStart(2, '0');
+        const minv = nd.getMinutes().toString().padStart(2, '0');
+        onChange(`${yv}-${mv}-${dv}T${hv}:${minv}`);
     };
 
     const handleTimeChange = (type: 'hours' | 'minutes', val: number) => {
         const newDate = selectedDate ? new Date(selectedDate) : new Date(viewDate);
         if (type === 'hours') newDate.setHours(val);
         else newDate.setMinutes(val);
-        onChange(newDate.toISOString().slice(0, 16));
+        
+        const yv = newDate.getFullYear();
+        const mv = (newDate.getMonth() + 1).toString().padStart(2, '0');
+        const dv = newDate.getDate().toString().padStart(2, '0');
+        const hv = newDate.getHours().toString().padStart(2, '0');
+        const minv = newDate.getMinutes().toString().padStart(2, '0');
+        onChange(`${yv}-${mv}-${dv}T${hv}:${minv}`);
     };
 
     const accentColor = color === 'blue' ? 'text-padel-blue' : color === 'yellow' ? 'text-padel-yellow' : 'text-red-500';

@@ -246,9 +246,12 @@ const CreateBookingModal = ({ users, courts, bookings, onClose, onFinish }: {
     onClose: () => void;
     onFinish: (data: any) => void;
 }) => {
+    const today = new Date();
+    const todayStr = [today.getFullYear(), (today.getMonth()+1).toString().padStart(2, '0'), today.getDate().toString().padStart(2, '0')].join('-');
+    
     const [selectedUser, setSelectedUser] = useState('');
     const [selectedCourt, setSelectedCourt] = useState('');
-    const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+    const [selectedDate, setSelectedDate] = useState(todayStr);
     const [startTime, setStartTime] = useState('09:00');
     const [duration, setDuration] = useState(1.5);
     const [loading, setLoading] = useState(false);
@@ -262,7 +265,8 @@ const CreateBookingModal = ({ users, courts, bookings, onClose, onFinish }: {
             if (b.status === 'CANCELLED') return false;
             if (b.court?._id !== selectedCourt) return false;
             
-            const bDate = new Date(b.startTime).toISOString().split('T')[0];
+            const dStart = new Date(b.startTime);
+            const bDate = [dStart.getFullYear(), (dStart.getMonth()+1).toString().padStart(2, '0'), dStart.getDate().toString().padStart(2, '0')].join('-');
             return bDate === selectedDate;
         });
 
@@ -292,15 +296,15 @@ const CreateBookingModal = ({ users, courts, bookings, onClose, onFinish }: {
 
         setLoading(true);
         try {
-            const startStr = `${selectedDate}T${startTime}:00`;
+            const startStr = `${selectedDate}T${startTime}:00.000Z`;
             const startDate = new Date(startStr);
             const endDate = new Date(startDate.getTime() + duration * 60 * 60 * 1000);
 
             await onFinish({
                 userId: selectedUser,
                 courtId: selectedCourt,
-                startTime: startDate,
-                endTime: endDate
+                startTime: startStr,
+                endTime: endDate.toISOString()
             });
             onClose();
         } catch (err: any) {

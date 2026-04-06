@@ -1,0 +1,1 @@
+fetch('https://padel-arena-backend.vercel.app/api/payments/webhook', { method: 'POST', headers: {'Content-Type': 'application/json', 'stripe-signature': 'fake'}, body: '{}' }).then(r => r.text()).then(console.log).catch(console.error);
