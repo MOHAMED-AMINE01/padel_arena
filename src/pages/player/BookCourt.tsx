@@ -135,7 +135,11 @@ function formatDateLabel(date: Date) {
 }
 
 function formatDateAPI(date: Date) {
-    return date.toISOString().split('T')[0]; // YYYY-MM-DD
+    return [
+        date.getFullYear(),
+        String(date.getMonth() + 1).padStart(2, '0'),
+        String(date.getDate()).padStart(2, '0')
+    ].join('-');
 }
 
 function isPeakHour(time: string, date: Date) {
@@ -217,20 +221,43 @@ export function PlayerBook() {
     const mergedSlots = React.useMemo(() => {
         if (courtSlots.length === 0) return [];
         const timeMap: Record<string, { available: boolean; price: number }> = {};
+        const now = new Date();
+        
+        // Format today as YYYY-MM-DD in local time
+        const todayStr = [
+            now.getFullYear(),
+            String(now.getMonth() + 1).padStart(2, '0'),
+            String(now.getDate()).padStart(2, '0')
+        ].join('-');
+        
+        const isToday = formatDateAPI(selectedDate) === todayStr;
+
         courtSlots.forEach(c => {
             c.slots.forEach(s => {
+                let isAvailable = s.available;
+
+                // Check if slot is in the past for today
+                if (isToday && isAvailable) {
+                    const [hours, minutes] = s.time.split(':').map(Number);
+                    const slotTime = new Date();
+                    slotTime.setHours(hours, minutes, 0, 0);
+                    if (slotTime < now) {
+                        isAvailable = false;
+                    }
+                }
+
                 if (!timeMap[s.time]) {
-                    timeMap[s.time] = { available: s.available, price: s.price };
+                    timeMap[s.time] = { available: isAvailable, price: s.price };
                 } else {
                     // If any court has it available, mark it available
-                    if (s.available) timeMap[s.time].available = true;
+                    if (isAvailable) timeMap[s.time].available = true;
                     // Use min price
                     if (s.price < timeMap[s.time].price) timeMap[s.time].price = s.price;
                 }
             });
         });
         return Object.entries(timeMap).map(([time, v]) => ({ time, ...v })).sort((a, b) => a.time.localeCompare(b.time));
-    }, [courtSlots]);
+    }, [courtSlots, selectedDate]);
 
     // Slots for selected court in step 3
     const selectedCourtSlots = React.useMemo(() => {

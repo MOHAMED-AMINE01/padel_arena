@@ -201,10 +201,7 @@ export const ClubTeam = () => {
         </div>
       </div>
 
-      {/* Decorative Badge Background */}
-      <div className="absolute top-20 right-0 text-[20rem] font-display font-black text-white/[0.01] select-none pointer-events-none -z-10 leading-none">
-        TEAM
-      </div>
+
     </section>
   );
 };

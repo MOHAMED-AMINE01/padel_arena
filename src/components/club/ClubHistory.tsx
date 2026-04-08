@@ -82,10 +82,7 @@ export const ClubHistory = () => {
         </div>
       </div>
 
-      {/* Decorative Large Text */}
-      <div className="absolute top-1/2 -right-40 -translate-y-1/2 text-[15rem] font-display font-black text-white/[0.01] tracking-tighter select-none pointer-events-none -z-10 rotate-90 leading-none">
-        TIMELINE
-      </div>
+
     </section>
   );
 };

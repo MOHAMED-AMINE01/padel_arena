@@ -85,10 +85,7 @@ export const ClubVirtualTour = () => {
         </div>
       </div>
 
-      {/* Decorative Text */}
-      <div className="absolute bottom-10 right-10 text-[10rem] font-display font-black text-white/[0.01] tracking-tighter select-none pointer-events-none -z-10 leading-none">
-        INTERACTIVE
-      </div>
+
     </section>
   );
 };

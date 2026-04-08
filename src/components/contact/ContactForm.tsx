@@ -166,10 +166,7 @@ export const ContactForm = () => {
               transition={{ duration: 0.8, delay: 0.2 }}
               className="glass p-10 md:p-16 rounded-[4rem] border-white/5 relative shadow-2xl overflow-hidden"
             >
-              {/* Form decor */}
-              <div className="absolute top-0 right-0 p-16 opacity-[0.02] text-[15rem] font-display font-black select-none pointer-events-none -z-0">
-                @
-              </div>
+
 
               <AnimatePresence mode="wait">
                 {!isSubmitted ? (
@@ -336,10 +333,7 @@ export const ContactForm = () => {
         </div>
       </div>
 
-      {/* Decorative background text */}
-      <div className="absolute bottom-10 right-10 text-[15rem] font-display font-black text-white/[0.01] tracking-tighter select-none pointer-events-none -z-0 leading-none uppercase">
-        CONTACT
-      </div>
+
     </section>
   );
 };

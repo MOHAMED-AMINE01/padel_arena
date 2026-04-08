@@ -91,11 +91,7 @@ export const FinalCTA = () => {
           </div> */}
         </motion.div>
 
-        {/* Decorative elements outside the main box */}
-        <div className="absolute -top-10 -left-10 w-40 h-40 border border-padel-blue/10 rounded-full animate-pulse-slow -z-10" />
-        <div className="absolute -bottom-20 -right-20 text-[10rem] md:text-[15rem] font-display font-black text-white/[0.01] select-none pointer-events-none -z-10 leading-none">
-          ELITE
-        </div>
+
       </div>
     </section>
   );

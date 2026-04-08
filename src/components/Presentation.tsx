@@ -122,7 +122,7 @@ export const Presentation = () => {
               style={{ y, rotate }}
               className="relative z-10"
             >
-              <div className="relative aspect-[10/14] md:aspect-[7/4] overflow-hidden rounded-[2rem] md:rounded-[2rem] group">
+              <div className="relative aspect-[4/4] md:aspect-[7/4] overflow-hidden rounded-[2rem] md:rounded-[2rem] group">
                 <div className="absolute inset-0 bg-padel-blue/20 mix-blend-overlay group-hover:opacity-0 transition-opacity duration-1000 z-10" />
                 <motion.img
                   initial={{ scale: 1 }}
@@ -141,10 +141,7 @@ export const Presentation = () => {
 
             </motion.div>
 
-            {/* Background Decorative Text (Large Stroke) */}
-            <div className="absolute -top-20 -right-20 lg:-right-40 text-[10rem] md:text-[15rem] font-display font-black text-white/[0.02] tracking-tighter select-none pointer-events-none leading-none -z-10">
-              ARENA
-            </div>
+
 
             {/* Outline Circle */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[140%] h-[140%] border border-white/[0.02] rounded-full pointer-events-none" />

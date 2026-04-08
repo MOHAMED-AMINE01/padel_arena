@@ -25,7 +25,10 @@ export const CoachingBooking = () => {
     name: user?.name || '',
     phone: '',
     email: user?.email || '',
-    date: new Date().toISOString().split('T')[0],
+    date: (() => {
+      const d = new Date();
+      return [d.getFullYear(), String(d.getMonth() + 1).padStart(2, '0'), String(d.getDate()).padStart(2, '0')].join('-');
+    })(),
     time: '10:00'
   });
   

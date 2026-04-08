@@ -194,16 +194,39 @@ export const CourtBooking = () => {
 
   const timeSlots = useMemo(() => {
     const slotsMap = new Map<string, boolean>();
+    const now = new Date();
+    
+    // Format today as YYYY-MM-DD in local time
+    const todayStr = [
+      now.getFullYear(),
+      String(now.getMonth() + 1).padStart(2, '0'),
+      String(now.getDate()).padStart(2, '0')
+    ].join('-');
+    
+    const isToday = bookingData.date === todayStr;
+
     availability.forEach(court => {
       court.slots.forEach(slot => {
+        let isAvailable = slot.available;
+        
+        // If it's today, check if the slot is in the past
+        if (isToday && isAvailable) {
+          const [hours, minutes] = slot.time.split(':').map(Number);
+          const slotTime = new Date();
+          slotTime.setHours(hours, minutes, 0, 0);
+          if (slotTime < now) {
+            isAvailable = false;
+          }
+        }
+
         const isCurrentAvailable = slotsMap.get(slot.time) || false;
-        slotsMap.set(slot.time, isCurrentAvailable || slot.available);
+        slotsMap.set(slot.time, isCurrentAvailable || isAvailable);
       });
     });
     return Array.from(slotsMap.entries())
       .sort(([a], [b]) => a.localeCompare(b))
       .map(([time, available]) => ({ time, available }));
-  }, [availability]);
+  }, [availability, bookingData.date]);
 
   const availableCourts = useMemo(() => {
     if (!bookingData.time) return [];

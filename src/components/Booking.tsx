@@ -24,7 +24,10 @@ export const Booking = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [step, setStep] = useState(1);
-  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+  const [selectedDate, setSelectedDate] = useState(() => {
+    const d = new Date();
+    return [d.getFullYear(), String(d.getMonth() + 1).padStart(2, '0'), String(d.getDate()).padStart(2, '0')].join('-');
+  });
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [selectedCourtId, setSelectedCourtId] = useState<string | null>(null);
   const [players, setPlayers] = useState(4);
@@ -100,16 +103,42 @@ export const Booking = () => {
 
   const timeSlots = useMemo(() => {
     const slotsMap = new Map<string, boolean>();
+    const now = new Date();
+    
+    // Format today as YYYY-MM-DD in local time
+    const todayStr = [
+      now.getFullYear(),
+      String(now.getMonth() + 1).padStart(2, '0'),
+      String(now.getDate()).padStart(2, '0')
+    ].join('-');
+    
+    const isToday = selectedDate === todayStr;
+
     availability.forEach(court => {
       court.slots.forEach(slot => {
+        let isAvailable = slot.available;
+        
+        // If it's today, check if the slot is in the past
+        if (isToday && isAvailable) {
+          const [hours, minutes] = slot.time.split(':').map(Number);
+          const slotTime = new Date();
+          slotTime.setHours(hours, minutes, 0, 0);
+          
+          // Use a small buffer if needed, but here we strictly follow "past hours"
+          // We compare the slot time with the current time
+          if (slotTime < now) {
+            isAvailable = false;
+          }
+        }
+
         const isCurrentAvailable = slotsMap.get(slot.time) || false;
-        slotsMap.set(slot.time, isCurrentAvailable || slot.available);
+        slotsMap.set(slot.time, isCurrentAvailable || isAvailable);
       });
     });
     return Array.from(slotsMap.entries())
       .sort(([a], [b]) => a.localeCompare(b))
       .map(([time, available]) => ({ time, available }));
-  }, [availability]);
+  }, [availability, selectedDate]);
 
   const availableCourts = useMemo(() => {
     if (!selectedTime) return [];
@@ -322,7 +351,7 @@ export const Booking = () => {
                           {[...Array(7)].map((_, i) => {
                             const date = new Date();
                             date.setDate(date.getDate() + i);
-                            const dateStr = date.toISOString().split('T')[0];
+                            const dateStr = [date.getFullYear(), String(date.getMonth() + 1).padStart(2, '0'), String(date.getDate()).padStart(2, '0')].join('-');
                             const isSelected = selectedDate === dateStr;
                             return (
                               <button
