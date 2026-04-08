@@ -53,7 +53,7 @@ interface ExistingBooking {
 
 const steps = [
   { id: 'sport', title: 'DISCIPLINE', icon: <Target size={16} />, desc: "CHOIX DU SPORT" },
-  { id: 'date', title: 'CHRONOS', icon: <CalendarIcon size={16} />, desc: "CALIBRAGE TEMPOREL" },
+  { id: 'date', title: 'DATE', icon: <CalendarIcon size={16} />, desc: "CALIBRAGE TEMPOREL" },
   { id: 'time', title: 'CRÉNEAU', icon: <Clock size={16} />, desc: "SYNCHRONISATION SLOT" },
   { id: 'court', title: 'ARENA', icon: <LayoutGrid size={16} />, desc: "ZONE D'OPÉRATION" },
   { id: 'contact', title: 'SQUAD', icon: <Users size={16} />, desc: "UNITÉ DE COMBAT" },
@@ -133,7 +133,7 @@ export const CourtBooking = () => {
   const [error, setError] = useState<string | null>(null);
 
   const today = new Date();
-  const initDate = [today.getFullYear(), (today.getMonth()+1).toString().padStart(2, '0'), today.getDate().toString().padStart(2, '0')].join('-');
+  const initDate = [today.getFullYear(), (today.getMonth() + 1).toString().padStart(2, '0'), today.getDate().toString().padStart(2, '0')].join('-');
 
   const [bookingData, setBookingData] = useState({
     sport: 'Padel' as 'Padel' | 'Pickleball' | 'Badminton' | 'Basket' | 'Golf',
@@ -195,20 +195,20 @@ export const CourtBooking = () => {
   const timeSlots = useMemo(() => {
     const slotsMap = new Map<string, boolean>();
     const now = new Date();
-    
+
     // Format today as YYYY-MM-DD in local time
     const todayStr = [
       now.getFullYear(),
       String(now.getMonth() + 1).padStart(2, '0'),
       String(now.getDate()).padStart(2, '0')
     ].join('-');
-    
+
     const isToday = bookingData.date === todayStr;
 
     availability.forEach(court => {
       court.slots.forEach(slot => {
         let isAvailable = slot.available;
-        
+
         // If it's today, check if the slot is in the past
         if (isToday && isAvailable) {
           const [hours, minutes] = slot.time.split(':').map(Number);
@@ -290,7 +290,7 @@ export const CourtBooking = () => {
             courtName: court?.name,
             amount: parseFloat(totalAmount),
             customerEmail: bookingData.guestEmail,
-            successUrl: `${window.location.origin}/booking-success?session_id={CHECKOUT_SESSION_ID}` 
+            successUrl: `${window.location.origin}/booking-success?session_id={CHECKOUT_SESSION_ID}`
           });
 
           if (stripeRes.data.url) {
@@ -303,7 +303,7 @@ export const CourtBooking = () => {
         console.error('CRITICAL: Booking or Payment failed', err);
         const errorMsg = err.response?.data?.message || 'La réservation ou le paiement a échoué.';
         setError(errorMsg);
-        
+
         // Log detailed error for debugging
         if (err.response) {
           console.error('Server responded with:', err.response.data);
@@ -441,7 +441,7 @@ export const CourtBooking = () => {
                     <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
                       {[...Array(14)].map((_, i) => {
                         const d = new Date(); d.setDate(d.getDate() + i);
-                        const dStr = [d.getFullYear(), (d.getMonth()+1).toString().padStart(2, '0'), d.getDate().toString().padStart(2, '0')].join('-');
+                        const dStr = [d.getFullYear(), (d.getMonth() + 1).toString().padStart(2, '0'), d.getDate().toString().padStart(2, '0')].join('-');
                         const isS = bookingData.date === dStr;
                         return (
                           <button key={i} onClick={() => setBookingData({ ...bookingData, date: dStr })} className={cn("p-6 rounded-[2rem] border transition-all flex flex-col items-center", isS ? "bg-padel-blue border-padel-blue text-white shadow-xl" : "bg-white/[0.02] border-white/5 text-white/40 hover:border-white/10")}>
@@ -487,7 +487,7 @@ export const CourtBooking = () => {
                             )}
                           >
                             <span className="text-lg md:text-xl font-display font-black transition-transform group-hover:scale-110">{slot.time}</span>
-                            
+
                             {slot.available ? (
                               <div className="absolute top-2 right-2">
                                 <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
@@ -643,21 +643,21 @@ export const CourtBooking = () => {
                         </div>
 
                         <div className="flex flex-col items-center gap-4 px-6 py-6 bg-white/[0.02] border border-white/5 rounded-[2.5rem] relative overflow-hidden group">
-                           <div className="absolute top-0 right-0 p-4 opacity-[0.03] rotate-12 transition-transform group-hover:rotate-0">
-                             <CreditCard size={40} />
-                           </div>
-                           <div className="flex items-center gap-3">
-                             <div className="w-8 h-8 rounded-full bg-padel-blue flex items-center justify-center text-white shadow-lg shadow-padel-blue/20">
-                               <CreditCard size={14} />
-                             </div>
-                             <div className="text-left">
-                               <p className="text-[10px] font-black text-white uppercase tracking-widest leading-none mb-1">Paiement 100% Sécurisé</p>
-                               <p className="text-[8px] font-black text-padel-blue uppercase tracking-[0.2em] leading-none">VIA STRIPE CONNECT</p>
-                             </div>
-                           </div>
-                           <p className="text-[8px] md:text-[9px] font-black text-white/20 uppercase tracking-widest leading-relaxed">
-                             VOUS ALLEZ ÊTRE REDIRIGÉ VERS LA PLATEFORME SÉCURISÉE DE PAIEMENT <span className="text-white/40">STRIPE</span> POUR FINALISER VOTRE RÉGLEMENT.
-                           </p>
+                          <div className="absolute top-0 right-0 p-4 opacity-[0.03] rotate-12 transition-transform group-hover:rotate-0">
+                            <CreditCard size={40} />
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-full bg-padel-blue flex items-center justify-center text-white shadow-lg shadow-padel-blue/20">
+                              <CreditCard size={14} />
+                            </div>
+                            <div className="text-left">
+                              <p className="text-[10px] font-black text-white uppercase tracking-widest leading-none mb-1">Paiement 100% Sécurisé</p>
+                              <p className="text-[8px] font-black text-padel-blue uppercase tracking-[0.2em] leading-none">VIA STRIPE CONNECT</p>
+                            </div>
+                          </div>
+                          <p className="text-[8px] md:text-[9px] font-black text-white/20 uppercase tracking-widest leading-relaxed">
+                            VOUS ALLEZ ÊTRE REDIRIGÉ VERS LA PLATEFORME SÉCURISÉE DE PAIEMENT <span className="text-white/40">STRIPE</span> POUR FINALISER VOTRE RÉGLEMENT.
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -686,14 +686,24 @@ export const CourtBooking = () => {
                     {error}
                   </div>
                 )}
-                <div className="flex justify-between items-center">
-                  <button onClick={prevStep} disabled={currentStep === 0} className={cn("flex items-center gap-3 text-[10px] font-black uppercase tracking-widest transition-all", currentStep === 0 ? "opacity-0" : "text-white/20 hover:text-white")}>
-                    <div className="w-10 h-10 rounded-full glass border border-white/10 flex items-center justify-center"><ChevronLeft size={18} /></div>
-                    RETOUR
-                  </button>
-                  <div className="flex items-center gap-8">
+                <div className="flex flex-row items-center gap-4 sm:gap-0 sm:justify-between">
+                  <div className="flex-1 sm:flex-none flex justify-start">
+                    <button
+                      onClick={prevStep}
+                      disabled={currentStep === 0}
+                      className={cn(
+                        "w-full sm:w-auto flex items-center justify-center gap-3 px-6 py-5 rounded-full border border-white/5 bg-white/5 text-[10px] font-black uppercase tracking-widest transition-all",
+                        currentStep === 0 ? "hidden" : "text-white/20 hover:text-white"
+                      )}
+                    >
+                      <ChevronLeft size={18} />
+                      <span className="hidden sm:inline">RETOUR</span>
+                    </button>
+                  </div>
+
+                  <div className="flex-1 sm:flex-none flex flex-row items-center justify-end gap-8">
                     {currentStep >= 3 && (
-                      <div className="hidden md:flex flex-col text-right">
+                      <div className="hidden sm:flex flex-col text-right">
                         <span className="text-[8px] font-black text-white/20 uppercase tracking-widest">TOTAL</span>
                         <span className="text-xl font-display font-black text-padel-blue">{calculateTotal()}€</span>
                       </div>
@@ -704,15 +714,18 @@ export const CourtBooking = () => {
                       onClick={nextStep}
                       disabled={!isStepComplete(currentStep) || isBooking}
                       className={cn(
-                        "px-14 py-5 rounded-full font-black text-[10px] tracking-[0.3em] uppercase transition-all duration-500 relative overflow-hidden group/btn",
+                        "w-full sm:w-auto px-6 sm:px-14 py-5 rounded-full font-black text-[10px] tracking-[0.2em] sm:tracking-[0.3em] uppercase transition-all duration-500 relative overflow-hidden group/btn",
                         isStepComplete(currentStep) && !isBooking ? "bg-padel-blue text-white shadow-2xl" : "bg-white/5 text-white/10 border border-white/5 cursor-not-allowed"
                       )}
                     >
-                      <span className="relative z-10 flex items-center gap-4 group-hover/btn:text-padel-blue transition-colors">
+                      <span className="relative z-10 flex items-center justify-center gap-2 sm:gap-4 group-hover/btn:text-padel-blue transition-colors">
                         {isBooking ? (
-                          <><Loader2 className="animate-spin mr-2" size={14} /> TRAITEMENT...</>
+                          <><Loader2 className="animate-spin mr-2" size={14} /> <span className="text-[8px] sm:text-[10px]">TRAITEMENT...</span></>
                         ) : (
-                          <>{currentStep === 5 ? 'PAYER VIA STRIPE' : 'ÉTAPE SUIVANTE'} <ArrowUpRight size={18} /></>
+                          <>
+                            <span className="whitespace-nowrap">{currentStep === 5 ? 'PAYER' : 'SUIVANT'}</span>
+                            <ArrowUpRight size={18} />
+                          </>
                         )}
                       </span>
                       {isStepComplete(currentStep) && !isBooking && <div className="absolute inset-0 bg-padel-yellow translate-y-full group-hover/btn:translate-y-0 transition-transform duration-500" />}
@@ -732,8 +745,6 @@ export const CourtBooking = () => {
         </div>
       </div>
 
-      {/* Background Decor Layer */}
-      <div className="absolute -bottom-20 -right-10 text-[20rem] font-display font-black text-white/[0.01] tracking-tighter select-none pointer-events-none uppercase">{steps[currentStep]?.title || "ARENA"}</div>
     </section>
   );
 };

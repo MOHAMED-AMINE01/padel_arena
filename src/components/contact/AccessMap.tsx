@@ -77,7 +77,7 @@ export const AccessMap = () => {
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
               transition={{ duration: 1 }}
-              className="relative aspect-video lg:aspect-[16/10] xl:aspect-[3/2] rounded-[3rem] overflow-hidden border border-white/10 shadow-[0_50px_100px_rgba(0,0,0,0.5)] group"
+              className="relative aspect-[4/4] lg:aspect-[16/10] xl:aspect-[3/2] rounded-[3rem] overflow-hidden border border-white/10 shadow-[0_50px_100px_rgba(0,0,0,0.5)] group"
             >
               {/* Real Interactive Map */}
               <div className="absolute inset-0 bg-[#0c0c0e]">

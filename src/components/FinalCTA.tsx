@@ -57,22 +57,22 @@ export const FinalCTA = () => {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
-              <Link to="/#club">
+              <Link to="/#club" className="sm:w-auto">
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className="w-full sm:w-auto px-12 py-5 bg-padel-yellow text-padel-blue rounded-full font-black text-xs uppercase tracking-[0.2em] shadow-[0_20px_40px_rgba(255,210,31,0.2)] hover:bg-white transition-all flex items-center justify-center gap-3"
+                  className="px-12 py-5 bg-padel-yellow text-padel-blue rounded-full font-black text-xs uppercase tracking-[0.2em] shadow-[0_20px_40px_rgba(255,210,31,0.2)] hover:bg-white transition-all flex items-center justify-center gap-3"
                 >
                   RÉSERVER MAINTENANT
                   <ArrowRight size={16} />
                 </motion.button>
               </Link>
 
-              <Link to="/auth">
+              <Link to="/auth" className="sm:w-auto">
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className="w-full sm:w-auto px-12 py-5 bg-white/5 border border-white/10 text-white rounded-full font-black text-xs uppercase tracking-[0.2em] backdrop-blur-md hover:bg-white hover:text-black transition-all"
+                  className="px-12 py-5 bg-white/5 border border-white/10 text-white rounded-full font-black text-xs uppercase tracking-[0.2em] backdrop-blur-md hover:bg-white hover:text-black transition-all"
                 >
                   DEVENIR MEMBRE
                 </motion.button>

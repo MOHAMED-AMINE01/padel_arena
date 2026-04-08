@@ -6,7 +6,7 @@ import { Plus, Maximize2, X } from 'lucide-react';
 const images = [
   { src: "/IMAGES/IMAGES CARROUSEL/pexels-criticalimagery-33226056.jpg", size: "tall" },
   { src: "/IMAGES/IMG_4503.JPG", size: "wide" },
-  { src: "/IMAGES/Image de présentation.png", size: "square" },
+  { src: "/IMAGES/home.jpeg", size: "square" },
   { src: "/IMAGES/IMAGES CARROUSEL/pexels-criticalimagery-33226057.jpg", size: "tall" },
   { src: "/IMAGES/IMAGES CARROUSEL/pexels-criticalimagery-32897038.jpg", size: "square" },
   { src: "/IMAGES/IMAGES CARROUSEL/pexels-criticalimagery-34285600.jpg", size: "wide" },

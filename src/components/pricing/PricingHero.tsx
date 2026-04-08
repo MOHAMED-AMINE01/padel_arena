@@ -62,7 +62,7 @@ export const PricingHero = () => {
                                             el.scrollIntoView({ behavior: 'smooth' });
                                         }
                                     }}
-                                    className="w-full sm:w-auto group relative px-10 py-5 bg-padel-blue text-white rounded-full font-black text-[10px] uppercase tracking-[0.3em] overflow-hidden shadow-2xl transition-all cursor-pointer"
+                                    className="sm:w-auto group relative px-12 py-5 bg-padel-blue text-white rounded-full font-black text-[10px] uppercase tracking-[0.3em] overflow-hidden shadow-2xl transition-all cursor-pointer"
                                 >
                                     <span className="relative z-10 flex items-center justify-center gap-3">
                                         voir nos tarifs

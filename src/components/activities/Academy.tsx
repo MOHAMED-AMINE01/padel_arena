@@ -140,7 +140,7 @@ export const Academy = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
           {[
             { title: "PLANNING DYNAMIQUE", icon: <Timer size={24} />, desc: "Consultez et réservez vos créneaux en temps réel sur l'app." },
-            { title: "ACCOMPAGNEMENT PRO", icon: <GraduationCap size={24} />, desc: "Un suivi pédagogique sur-mesure pour chaque élève." },
+            { title: "ACCOMPAGNEMENT", icon: <GraduationCap size={24} />, desc: "Un suivi pédagogique sur-mesure pour chaque élève." },
             { title: "PROGRESS TRACKING", icon: <TrendingUp size={24} />, desc: "Visualisez votre évolution via des rapports analytiques." }
           ].map((item, i) => (
             <motion.div

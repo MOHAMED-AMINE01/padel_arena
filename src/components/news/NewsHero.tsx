@@ -62,7 +62,7 @@ export const NewsHero = () => {
                                     onClick={scrollToNews}
                                     whileHover={{ scale: 1.05 }}
                                     whileTap={{ scale: 0.95 }}
-                                    className="w-full sm:w-auto group relative px-8 py-4 bg-padel-blue text-white rounded-full font-black text-[10px] uppercase tracking-[0.2em] overflow-hidden shadow-xl transition-all"
+                                    className="group relative px-10 py-4 bg-padel-blue text-white rounded-full font-black text-[10px] uppercase tracking-[0.2em] overflow-hidden shadow-xl transition-all"
                                 >
                                     <span className="relative z-10 flex items-center justify-center gap-3">
                                         DÉCOUVRIR

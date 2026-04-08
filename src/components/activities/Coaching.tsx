@@ -34,11 +34,11 @@ const coachingTypes = [
     link: "/?sport=Golf#club"
   },
   {
-    title: "ÉVÉNEMENTS & TOURNOIS",
-    desc: "Tournois inter-entreprises et événements toute l'année dans une ambiance conviviale.",
+    title: "BASKET 3X3",
+    desc: "Un terrain d'exception aux normes internationales pour pratiquer le basket 3x3 dans des conditions professionnelles.",
     icon: "05",
-    image: "/IMAGES/IMAGES CARROUSEL/pexels-criticalimagery-32897038.jpg",
-    link: "/contact"
+    image: "/IMAGES/rajesh-rajput-uxT88tEadFg-unsplash.jpg",
+    link: "/?sport=Basket#club"
   }
 ];
 
@@ -131,7 +131,7 @@ export const Coaching = () => {
                         whileTap={{ scale: 0.95 }}
                         className="w-full py-4 rounded-xl border border-white/10 text-[10px] font-black uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 group/btn"
                       >
-                        {type.title === "ÉVÉNEMENTS & TOURNOIS" ? "NOUS CONTACTER" : "RÉSERVER"}
+                        RÉSERVER
                         <ArrowUpRight size={14} className="group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform" />
                       </motion.button>
                     </Link>

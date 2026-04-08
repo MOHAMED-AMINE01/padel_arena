@@ -51,10 +51,6 @@ export const Services = () => {
               <span className="text-padel-blue italic">SÉRÉNITÉ</span>
             </h3>
           </div>
-          <div className="hidden lg:block pb-4 text-right">
-            <div className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em] mb-4">ELITE STANDARDS</div>
-            <p className="text-4xl font-display font-black text-white uppercase italic opacity-20">SERVICES</p>
-          </div>
         </div>
 
         {/* Services Grid with Mobile Scroll */}

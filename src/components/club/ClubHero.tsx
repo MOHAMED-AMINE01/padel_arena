@@ -54,11 +54,11 @@ export const ClubHero = () => {
               </p>
 
               <div className="flex flex-col sm:flex-row items-center md:items-start gap-8 justify-center md:justify-start">
-                <Link to="/reservation" className="w-full sm:w-auto">
+                <Link to="/reservation" className="sm:w-auto">
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    className="w-full group relative px-8 py-4 bg-padel-blue text-white rounded-full font-black text-[10px] uppercase tracking-[0.2em] overflow-hidden shadow-xl transition-all"
+                    className="group relative px-10 py-4 bg-padel-blue text-white rounded-full font-black text-[10px] uppercase tracking-[0.2em] overflow-hidden shadow-xl transition-all"
                   >
                     <span className="relative z-10 flex items-center justify-center gap-3 notranslate" translate="no">
                       RÉSERVER

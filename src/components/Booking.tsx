@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Calendar as CalendarIcon, Clock, Users, ChevronRight, CheckCircle2, MapPin, ArrowRight, Zap, AlertCircle, Loader2, User as UserIcon, Mail, Phone, Sparkles, Target, CreditCard } from 'lucide-react';
+import { Calendar as CalendarIcon, Clock, Users, ChevronLeft, ChevronRight, CheckCircle2, MapPin, ArrowRight, Zap, AlertCircle, Loader2, User as UserIcon, Mail, Phone, Sparkles, Target, CreditCard } from 'lucide-react';
 import { cn } from '../lib/utils';
 import api from '../lib/api';
 import { useAuth } from '../context/AuthContext';
@@ -589,34 +589,38 @@ export const Booking = () => {
                   </motion.div>
                 )}
 
-                <div className="mt-12 pt-8 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-6">
+                <div className="mt-12 pt-8 border-t border-white/5 flex flex-row items-center justify-between gap-4">
                   {step < 3 ? (
                     <>
-                      <div className="flex flex-col">
+                      <div className="hidden sm:flex flex-col text-left">
                         <span className="text-[10px] font-black text-white/20 uppercase tracking-widest mb-1">Total Estimé</span>
                         <div className="text-3xl font-display font-black text-white">{calculateTotal().toFixed(2)}€</div>
                       </div>
-                      <div className="flex gap-4 w-full sm:w-auto">
+                      <div className="flex flex-row gap-4 w-full sm:w-auto">
                         {step > 1 && (
                           <button
                             onClick={prevStep}
-                            className="flex-1 sm:flex-none px-8 py-4 rounded-2xl bg-white/5 font-black text-[10px] uppercase tracking-widest hover:bg-white/10 transition-all"
+                            className="flex-1 sm:flex-none px-6 sm:px-8 py-4 rounded-2xl bg-white/5 font-black text-[10px] uppercase tracking-widest hover:bg-white/10 transition-all flex items-center justify-center"
                           >
-                            RETOUR
+                            <ChevronLeft size={16} className="sm:mr-2" />
+                            <span className="hidden sm:inline">RETOUR</span>
                           </button>
                         )}
                         <button
                           onClick={handleNextStep}
                           disabled={(step === 1 && !selectedTime) || isBooking}
                           className={cn(
-                            "flex-1 sm:flex-none px-10 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-3 transition-all",
+                            "flex-1 sm:flex-none px-6 sm:px-10 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 sm:gap-3 transition-all",
                             (selectedTime || step > 1) && !isBooking ? "bg-padel-blue text-white hover:scale-105" : "bg-white/5 text-white/20 cursor-not-allowed"
                           )}
                         >
                           {isBooking ? (
-                            <>TRAITEMENT... <Loader2 size={14} className="animate-spin" /></>
+                            <><Loader2 size={14} className="animate-spin" /> <span className="text-[8px] sm:text-[10px]">...</span></>
                           ) : (
-                            <>{step === 2 ? 'CONFIRMER' : 'ÉTAPE SUIVANTE'} <ArrowRight size={14} /></>
+                            <>
+                              <span className="whitespace-nowrap">{step === 2 ? 'PAYER' : 'SUIVANT'}</span> 
+                              <ArrowRight size={14} />
+                            </>
                           )}
                         </button>
                       </div>
