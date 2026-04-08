@@ -59,8 +59,8 @@ const ActivityCard: React.FC<ActivityCardProps> = ({ activity, index }) => {
     <motion.div
       initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.6, delay: index * 0.1 }}
+      viewport={{ once: true, amount: 0.2 }}
+      transition={{ duration: 0.5, delay: index * 0.05 }}
       className="relative group rounded-2xl overflow-hidden aspect-[4/3] md:aspect-[16/12]"
     >
       {/* Background Image */}
@@ -100,8 +100,8 @@ export const OurActivities = () => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
+          viewport={{ once: true, amount: 0.2 }}
+          transition={{ duration: 0.5 }}
           className="text-center mb-12 md:mb-16"
         >
           <h2 className="text-4xl md:text-6xl font-display font-black tracking-tight uppercase mb-4">
@@ -124,8 +124,8 @@ export const OurActivities = () => {
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
+          viewport={{ once: true, amount: 0.2 }}
+          transition={{ duration: 0.5 }}
           className="text-center"
         >
           <h3 className="text-4xl md:text-6xl lg:text-7xl font-display font-black tracking-tight uppercase mb-4">

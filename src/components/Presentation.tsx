@@ -52,8 +52,8 @@ export const Presentation = () => {
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 1.2, ease: [0.23, 1, 0.32, 1] }}
+            viewport={{ once: true, amount: 0.2 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
             className="lg:col-span-7 order-2 lg:order-1"
           >
             <div className="inline-flex items-center gap-4 mb-10 group">
@@ -78,8 +78,8 @@ export const Presentation = () => {
                   key={i}
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: 0.2 + (i * 0.1) }}
+                  viewport={{ once: true, amount: 0.2 }}
+                  transition={{ delay: 0.1 + (i * 0.05), duration: 0.5 }}
                   className="relative pl-10 group"
                 >
                   <div className="absolute left-0 top-1 text-padel-blue group-hover:scale-110 transition-transform duration-500">

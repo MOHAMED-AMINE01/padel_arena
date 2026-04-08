@@ -67,7 +67,8 @@ export const Testimonials = () => {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
+            viewport={{ once: true, amount: 0.1 }}
+            transition={{ duration: 0.5 }}
           >
             <h2 className="text-sm font-display font-bold text-padel-blue tracking-[0.5em] uppercase mb-6">Témoignages</h2>
             <h3 className="text-4xl md:text-8xl font-display font-black tracking-tighter leading-none">
@@ -92,7 +93,8 @@ export const Testimonials = () => {
                 <motion.div
                   initial={{ opacity: 0, scale: 0.95 }}
                   whileInView={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: idx * 0.1 }}
+                  viewport={{ once: true, amount: 0.1 }}
+                  transition={{ delay: idx * 0.05, duration: 0.4 }}
                   className="relative bg-white/[0.02] border border-white/5 p-8 md:p-10 rounded-[2.5rem] md:rounded-[3rem] group hover:border-padel-blue/30 transition-all duration-700 h-full flex flex-col justify-between"
                 >
                   <div>

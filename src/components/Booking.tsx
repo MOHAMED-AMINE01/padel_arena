@@ -249,8 +249,8 @@ export const Booking = () => {
             <motion.div
               initial={{ opacity: 0, x: -30 }}
               whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 1.2, ease: [0.23, 1, 0.32, 1] }}
+              viewport={{ once: true, amount: 0.2 }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
             >
               <div className="inline-flex items-center gap-4 mb-8">
                 <span className="text-[10px] font-black tracking-[0.4em] text-padel-blue uppercase">RÉSERVATION LIVE</span>
@@ -293,8 +293,8 @@ export const Booking = () => {
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 1, delay: 0.2 }}
+              viewport={{ once: true, amount: 0.2 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
               className="glass rounded-[2.5rem] md:rounded-[4rem] border-white/10 overflow-hidden shadow-[0_50px_100px_rgba(0,0,0,0.4)]"
             >
               <div className="px-8 md:px-12 py-8 bg-white/[0.03] border-b border-white/5 flex items-center justify-between">

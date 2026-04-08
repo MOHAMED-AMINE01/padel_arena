@@ -95,8 +95,8 @@ export const Infrastructure = () => {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="inline-flex items-center gap-3 py-1.5 px-4 rounded-full bg-padel-blue/5 border border-padel-blue/10 mb-6"
+            viewport={{ once: true, amount: 0.2 }}
+            transition={{ duration: 0.5 }}
           >
             <div className="w-1 h-1 rounded-full bg-padel-blue animate-pulse" />
             <span className="text-[9px] font-black tracking-[0.4em] text-padel-blue uppercase">NOTRE ARENA</span>
@@ -105,8 +105,8 @@ export const Infrastructure = () => {
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.1 }}
+            viewport={{ once: true, amount: 0.2 }}
+            transition={{ duration: 0.5 }}
             className="text-4xl md:text-6xl lg:text-7xl font-display font-black tracking-tighter leading-[0.9] uppercase"
           >
             CHAQUE MATCH EST <br />
@@ -181,7 +181,7 @@ export const Infrastructure = () => {
                         <motion.div
                           initial={{ opacity: 0, y: 20 }}
                           animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: 0.3, duration: 0.6 }}
+                          transition={{ delay: 0.2, duration: 0.4 }}
                           className="absolute inset-0 flex flex-col justify-end p-6 md:p-12 text-center z-10"
                         >
                           <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black via-black/60 to-transparent" />

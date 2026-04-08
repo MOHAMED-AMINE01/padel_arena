@@ -19,7 +19,7 @@ export const Hero = () => {
         <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent z-10" />
         <motion.img
           style={{ y, scale: 1.05 }}
-          src="/IMAGES/Image de présentation.png"
+          src="/IMAGES/home.jpeg"
           alt="Padel Arena"
           className="w-full h-full object-cover grayscale-[20%]"
         />
