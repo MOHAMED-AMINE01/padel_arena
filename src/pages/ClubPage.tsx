@@ -5,7 +5,6 @@ import { ClubHero } from '../components/club/ClubHero';
 import { ClubConcept } from '../components/club/ClubConcept';
 import { ClubStats } from '../components/club/ClubStats';
 import { ClubWhyUs } from '../components/club/ClubWhyUs';
-import { ClubHistory } from '../components/club/ClubHistory';
 import { ClubInstallations } from '../components/club/ClubInstallations';
 import { ClubTeam } from '../components/club/ClubTeam';
 import { ClubValues } from '../components/club/ClubValues';
@@ -38,7 +37,6 @@ export const ClubPage = () => {
       <ClubConcept />
       <ClubStats />
       <ClubWhyUs />
-      <ClubHistory />
       {/* <ClubInstallations /> */}
       <ClubTeam />
       {/* <ClubValues /> */}

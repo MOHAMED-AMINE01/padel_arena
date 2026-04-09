@@ -56,11 +56,7 @@ interface ActivityCardProps {
 
 const ActivityCard: React.FC<ActivityCardProps> = ({ activity, index }) => {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 30 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.2 }}
-      transition={{ duration: 0.5, delay: index * 0.05 }}
+    <div
       className="relative group rounded-2xl overflow-hidden aspect-[4/3] md:aspect-[16/12]"
     >
       {/* Background Image */}
@@ -88,7 +84,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({ activity, index }) => {
           {activity.buttonText}
         </Link>
       </div>
-    </motion.div>
+    </div>
   );
 };
 
@@ -97,13 +93,7 @@ export const OurActivities = () => {
     <section className="py-20 md:py-24 px-6 bg-[#0a0a0a]">
       <div className="max-w-[1400px] mx-auto">
         {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.2 }}
-          transition={{ duration: 0.5 }}
-          className="text-center mb-12 md:mb-16"
-        >
+        <div className="text-center mb-10 md:mb-12">
           <h2 className="text-4xl md:text-6xl font-display font-black tracking-tight uppercase mb-4">
             <span className="text-white">NOS </span>
             <span className="text-padel-blue">ACTIVITÉS</span>
@@ -111,30 +101,32 @@ export const OurActivities = () => {
           <p className="text-white/60 text-base md:text-lg">
             Quatre sports, une seule destination. Choisissez votre passion.
           </p>
-        </motion.div>
+        </div>
 
         {/* Activity Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 mb-16 md:mb-24">
           {activities.map((activity, index) => (
-            <ActivityCard key={activity.id} activity={activity} index={index} />
+            <motion.div
+              key={activity.id}
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true, amount: 0.01 }}
+              transition={{ duration: 0.3 }}
+            >
+              <ActivityCard activity={activity} index={index} />
+            </motion.div>
           ))}
         </div>
 
         {/* Bottom Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.2 }}
-          transition={{ duration: 0.5 }}
-          className="text-center"
-        >
+        <div className="text-center">
           <h3 className="text-4xl md:text-6xl lg:text-7xl font-display font-black tracking-tight uppercase mb-4">
             <span className="text-padel-blue">1600 M²</span> <span className="">D'ACTIVITÉS !</span>
           </h3>
           <p className="text-white/60 text-base md:text-lg">
             5 sports, une seule destination. Choisissez votre passion.
           </p>
-        </motion.div>
+        </div>
       </div>
     </section>
   );

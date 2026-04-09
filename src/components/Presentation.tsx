@@ -50,10 +50,10 @@ export const Presentation = () => {
 
           {/* Text Content - Left Side (7 cols) */}
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 15 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.2 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
+            viewport={{ once: true, margin: "200px" }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
             className="lg:col-span-7 order-2 lg:order-1"
           >
             <div className="inline-flex items-center gap-4 mb-10 group">
@@ -76,10 +76,10 @@ export const Presentation = () => {
               {values.map((v, i) => (
                 <motion.div
                   key={i}
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 10 }}
                   whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, amount: 0.2 }}
-                  transition={{ delay: 0.1 + (i * 0.05), duration: 0.5 }}
+                  viewport={{ once: true, margin: "200px" }}
+                  transition={{ delay: i * 0.05, duration: 0.4 }}
                   className="relative pl-10 group"
                 >
                   <div className="absolute left-0 top-1 text-padel-blue group-hover:scale-110 transition-transform duration-500">

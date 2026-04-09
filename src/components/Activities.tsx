@@ -78,10 +78,10 @@ const ActivityCard: React.FC<{ activity: Activity, index: number }> = ({ activit
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 40 }}
+      initial={{ opacity: 0, y: 15 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.1 }}
-      transition={{ duration: 0.5, delay: index * 0.05, ease: "easeOut" }}
+      viewport={{ once: true, margin: "200px" }}
+      transition={{ duration: 0.4, delay: index * 0.05, ease: "easeOut" }}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
@@ -182,8 +182,8 @@ export const Activities = () => {
             <motion.h3
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.1 }}
-              transition={{ duration: 0.5 }}
+              viewport={{ once: true, margin: "200px" }}
+              transition={{ duration: 0.4 }}
               className="text-5xl md:text-7xl lg:text-8xl font-display font-black tracking-tighter leading-[0.9] uppercase"
             >
               VIVEZ LE <span className="notranslate" translate="no">PADEL</span> <br />
