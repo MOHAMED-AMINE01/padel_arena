@@ -142,10 +142,25 @@ export const Booking = () => {
 
   const availableCourts = useMemo(() => {
     if (!selectedTime) return [];
-    return availability.filter(court =>
-      court.slots.find(s => s.time === selectedTime && s.available)
-    );
-  }, [selectedTime, availability]);
+    
+    return availability.filter(court => {
+      // Check if all needed 30-min slots are available for the selected duration
+      const [startH, startM] = selectedTime.split(':').map(Number);
+      const startTotalMinutes = startH * 60 + startM;
+      const numSegments = duration / 30;
+
+      for (let i = 0; i < numSegments; i++) {
+        const currentTotalMinutes = startTotalMinutes + i * 30;
+        const h = Math.floor(currentTotalMinutes / 60);
+        const m = currentTotalMinutes % 60;
+        const timeStr = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+        
+        const slot = court.slots.find(s => s.time === timeStr);
+        if (!slot || !slot.available) return false;
+      }
+      return true;
+    });
+  }, [selectedTime, availability, duration]);
 
   const calculateTotal = () => {
     if (!selectedCourtId || !selectedTime) return 0;
@@ -153,7 +168,7 @@ export const Booking = () => {
     if (!court) return 0;
     const slot = court.slots.find(s => s.time === selectedTime);
     const basePrice = slot ? slot.price : 0;
-    return (basePrice * (duration / 90));
+    return (basePrice * (duration / 60));
   };
 
   const handleNextStep = async () => {
@@ -485,7 +500,7 @@ export const Booking = () => {
                               <div className="flex justify-between items-start mb-4">
                                 <span className="text-[9px] font-black text-padel-blue tracking-widest uppercase">{court.type}</span>
                                 <span className="text-lg font-black text-white">
-                                  {((court.slots.find(s => s.time === selectedTime)?.price || 0) * (duration / 90)).toFixed(2)}€
+                                  {((court.slots.find(s => s.time === selectedTime)?.price || 0) * (duration / 60)).toFixed(2)}€
                                 </span>
                               </div>
                               <h5 className="text-xl font-display font-black text-white mb-1 uppercase">{court.courtName}</h5>
@@ -522,7 +537,7 @@ export const Booking = () => {
                         <div className="bg-white/5 p-6 rounded-3xl">
                           <h5 className="text-[10px] font-black tracking-widest text-white/30 mb-4 uppercase">Durée</h5>
                           <div className="flex gap-4">
-                            {[60, 90].map(d => (
+                            {[60, 90, 120].map(d => (
                               <button
                                 key={d}
                                 onClick={() => setDuration(d)}
