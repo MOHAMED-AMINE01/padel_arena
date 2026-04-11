@@ -43,6 +43,8 @@ interface Booking {
     } | null;
     bookingType?: 'COURT' | 'PACK' | 'SUBSCRIPTION';
     packName?: string;
+    timeStr: string;
+    dateStr: string;
 }
 
 interface Tournament {
@@ -341,7 +343,7 @@ export function PlayerDashboard() {
                                                 </span>
                                                 <span className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 lg:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl bg-white/[0.03] border border-white/5 text-[8px] sm:text-[9px] font-black text-padel-yellow uppercase tracking-widest italic">
                                                     <Clock size={10} className="sm:w-3 sm:h-3" />
-                                                    {formatRelativeDate(nextMatch.startTime)} • {formatTime(nextMatch.startTime)}
+                                                    {nextMatch.dateStr} • {nextMatch.timeStr.replace(':', 'h')}
                                                 </span>
                                                 <span className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 lg:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl bg-white/[0.03] border border-white/5 text-[8px] sm:text-[9px] font-black text-white/30 uppercase tracking-widest italic">
                                                     <Timer size={10} className="sm:w-3 sm:h-3" />
@@ -443,7 +445,7 @@ export function PlayerDashboard() {
                                                         {b.court?.name || 'Terrain'}
                                                     </p>
                                                     <p className="text-[8px] sm:text-[9px] font-black text-white/25 uppercase tracking-widest mt-1">
-                                                        {formatRelativeDate(b.startTime)} • {formatTime(b.startTime)}
+                                                        {b.dateStr} • {b.timeStr.replace(':', 'h')}
                                                     </p>
                                                 </div>
                                             </div>

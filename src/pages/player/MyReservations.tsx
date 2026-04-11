@@ -47,6 +47,8 @@ interface Booking {
         pricePerHour: number;
     } | null;
     createdAt: string;
+    dateStr: string;
+    timeStr: string;
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -186,11 +188,11 @@ function BookingCard({
                         <div className="flex flex-wrap items-center gap-2 sm:gap-4 md:gap-6">
                             <span className="flex items-center gap-1.5 sm:gap-2 text-[9px] sm:text-[10px] font-black text-white/40 uppercase tracking-wider sm:tracking-widest italic">
                                 <Calendar size={11} className="text-padel-blue shrink-0 sm:w-[13px] sm:h-[13px]" />
-                                {formatDate(booking.startTime)}
+                                {booking.dateStr}
                             </span>
                             <span className="flex items-center gap-1.5 sm:gap-2 text-[9px] sm:text-[10px] font-black text-white/40 uppercase tracking-wider sm:tracking-widest italic">
                                 <Clock size={11} className="text-padel-blue shrink-0 sm:w-[13px] sm:h-[13px]" />
-                                {formatTime(booking.startTime)} → {formatTime(booking.endTime)}
+                                {booking.timeStr.replace(':', 'h')}
                             </span>
                             <span className="hidden sm:flex items-center gap-2 text-[10px] font-black text-white/25 uppercase tracking-widest">
                                 <Timer size={13} />

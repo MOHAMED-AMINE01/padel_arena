@@ -88,6 +88,8 @@ interface Booking {
     guestName?: string;
     guestEmail?: string;
     guestPhone?: string;
+    timeStr: string;
+    dateStr: string;
 }
 
 // --- Subcomponents ---
@@ -178,12 +180,12 @@ const BookingDetailModal = ({ booking, onClose, onDelete, onChangeStatus }: {
                                         <span className="text-[8px] font-black uppercase tracking-widest">Planifié</span>
                                     </div>
                                     <p className="text-[10px] font-black text-white uppercase tracking-tighter">
-                                        {new Date(booking.startTime).toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' })}
+                                        {booking.dateStr}
                                     </p>
                                 </div>
                                 <div className="text-right">
                                     <p className="text-lg font-black text-padel-yellow leading-none">
-                                        {new Date(booking.startTime).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }).replace(':', 'h')}
+                                        {booking.timeStr.replace(':', 'h')}
                                     </p>
                                 </div>
                             </div>
@@ -202,36 +204,52 @@ const BookingDetailModal = ({ booking, onClose, onDelete, onChangeStatus }: {
                     </div>
 
                     <div className="flex flex-col gap-2 pt-2">
-                        {booking.status === 'PENDING' && (
-                            <button
-                                onClick={() => onChangeStatus('CONFIRMED')}
-                                className="w-full py-5 bg-green-500 text-white rounded-xl text-[10px] font-black uppercase tracking-[0.2em] shadow-lg shadow-green-500/20 hover:scale-[1.02] transition-all"
-                            >
-                                Valider la séance
-                            </button>
-                        )}
-                        {booking.status === 'CONFIRMED' && (
-                            <button
-                                onClick={() => onChangeStatus('COMPLETED')}
-                                className="w-full py-5 bg-padel-blue text-white rounded-xl text-[10px] font-black uppercase tracking-[0.2em] shadow-lg shadow-padel-blue/20 hover:scale-[1.02] transition-all"
-                            >
-                                Clôturer la séance
-                            </button>
-                        )}
-                        {booking.status !== 'CANCELLED' && (
-                            <button
-                                onClick={() => onChangeStatus('CANCELLED')}
-                                className="w-full py-4 bg-transparent border border-white/10 text-white/20 rounded-xl text-[9px] font-black uppercase tracking-[0.2em] hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/20 transition-all"
-                            >
-                                Annuler la réservation
-                            </button>
-                        )}
-                        <button
-                            onClick={onDelete}
-                            className="w-full py-3 text-[8px] font-black text-white/5 hover:text-red-500 uppercase tracking-[0.3em] transition-all"
-                        >
-                            Supprimer définitivement
-                        </button>
+                        {(() => {
+                            const now = new Date();
+                            const hoursUntilStart = (new Date(booking.startTime).getTime() - now.getTime()) / (1000 * 60 * 60);
+                            const canCancel = hoursUntilStart >= 24;
+
+                            return (
+                                <>
+                                    {booking.status === 'PENDING' && (
+                                        <button
+                                            onClick={() => onChangeStatus('CONFIRMED')}
+                                            className="w-full py-5 bg-green-500 text-white rounded-xl text-[10px] font-black uppercase tracking-[0.2em] shadow-lg shadow-green-500/20 hover:scale-[1.02] transition-all"
+                                        >
+                                            Valider la séance
+                                        </button>
+                                    )}
+                                    {booking.status === 'CONFIRMED' && (
+                                        <button
+                                            onClick={() => onChangeStatus('COMPLETED')}
+                                            className="w-full py-5 bg-padel-blue text-white rounded-xl text-[10px] font-black uppercase tracking-[0.2em] shadow-lg shadow-padel-blue/20 hover:scale-[1.02] transition-all"
+                                        >
+                                            Clôturer la séance
+                                        </button>
+                                    )}
+                                    {booking.status !== 'CANCELLED' && (
+                                        <button
+                                            disabled={!canCancel}
+                                            onClick={() => onChangeStatus('CANCELLED')}
+                                            className={cn(
+                                                "w-full py-4 border rounded-xl text-[9px] font-black uppercase tracking-[0.2em] transition-all",
+                                                canCancel 
+                                                    ? "bg-transparent border-white/10 text-white/20 hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/20" 
+                                                    : "bg-white/5 border-white/5 text-white/5 cursor-not-allowed opacity-50"
+                                            )}
+                                        >
+                                            {canCancel ? "Annuler la réservation" : "Annulation impossible (< 24h)"}
+                                        </button>
+                                    )}
+                                    <button
+                                        onClick={onDelete}
+                                        className="w-full py-3 text-[8px] font-black text-white/5 hover:text-red-500 uppercase tracking-[0.3em] transition-all"
+                                    >
+                                        {canCancel ? "Supprimer définitivement" : "Supprimer sans remboursement"}
+                                    </button>
+                                </>
+                            );
+                        })()}
                     </div>
                 </div>
             </motion.div>
@@ -296,15 +314,22 @@ const CreateBookingModal = ({ users, courts, bookings, onClose, onFinish }: {
 
         setLoading(true);
         try {
-            const startStr = `${selectedDate}T${startTime}:00.000Z`;
-            const startDate = new Date(startStr);
+            const [y, m, dayVal] = selectedDate.split('-').map(Number);
+            const [hh, mm] = startTime.split(':').map(Number);
+            const explicitDateStr = `${String(dayVal).padStart(2, '0')}/${String(m).padStart(2, '0')}/${y}`;
+            
+            // Construct absolute UTC start time
+            const startDate = new Date(Date.UTC(y, m - 1, dayVal, hh, mm));
+            const startStr = startDate.toISOString();
             const endDate = new Date(startDate.getTime() + duration * 60 * 60 * 1000);
 
             await onFinish({
                 userId: selectedUser,
                 courtId: selectedCourt,
                 startTime: startStr,
-                endTime: endDate.toISOString()
+                endTime: endDate.toISOString(),
+                timeStr: startTime,
+                dateStr: explicitDateStr
             });
             onClose();
         } catch (err: any) {
@@ -492,6 +517,7 @@ export function AdminReservations() {
     const [bookings, setBookings] = useState<Booking[]>([]);
     const [users, setUsers] = useState<any[]>([]);
     const [courts, setCourts] = useState<any[]>([]);
+    const [globalRevenue, setGlobalRevenue] = useState<number>(0);
     const [loading, setLoading] = useState(true);
     const [currentDate, setCurrentDate] = useState(new Date());
     const [viewMode, setViewMode] = useState<ViewMode>('Semaine');
@@ -532,14 +558,16 @@ export function AdminReservations() {
     const fetchData = async () => {
         setLoading(true);
         try {
-            const [bRes, uRes, cRes] = await Promise.all([
+            const [bRes, uRes, cRes, statsRes] = await Promise.all([
                 api.get('/bookings'),
                 api.get('/admin/users'),
-                api.get('/courts?all=true')
+                api.get('/courts?all=true'),
+                api.get('/admin/stats')
             ]);
             setBookings(bRes.data.data);
             setUsers(uRes.data.data);
             setCourts(cRes.data.data);
+            setGlobalRevenue(statsRes.data.data.totalRevenue || 0);
         } catch (err) {
             console.error('Error fetching data:', err);
         } finally {
@@ -594,13 +622,19 @@ export function AdminReservations() {
         if (viewMode === 'Jour') nextDate.setDate(currentDate.getDate() + direction);
         else if (viewMode === 'Semaine') nextDate.setDate(currentDate.getDate() + (direction * 7));
         else nextDate.setMonth(currentDate.getMonth() + direction);
-        setCurrentDate(nextDate);
+                        setCurrentDate(nextDate);
     };
 
     const getBookingsForDay = (day: Date) => {
         return filteredBookings.filter(b => {
+            if (b.dateStr) {
+                const parts = b.dateStr.split('/');
+                if (parts.length === 3) {
+                    return parseInt(parts[0]) === day.getDate() && (parseInt(parts[1]) - 1) === day.getMonth() && parseInt(parts[2]) === day.getFullYear();
+                }
+            }
             const d = new Date(b.startTime);
-            return d.getDate() === day.getDate() && d.getMonth() === day.getMonth() && d.getFullYear() === day.getFullYear();
+            return d.getUTCDate() === day.getDate() && d.getUTCMonth() === day.getMonth() && d.getUTCFullYear() === day.getFullYear();
         });
     };
 
@@ -610,15 +644,14 @@ export function AdminReservations() {
     const kpis = useMemo(() => {
         const today = new Date().toDateString();
         const todaysBookings = bookings.filter(b => new Date(b.startTime).toDateString() === today && b.status !== 'CANCELLED');
-        const totalRevenue = bookings.filter(b => b.status === 'CONFIRMED' || b.status === 'COMPLETED').reduce((acc, b) => acc + b.totalPrice, 0);
 
         return {
             todayCount: todaysBookings.length,
-            totalRevenue: totalRevenue.toLocaleString(),
+            totalRevenue: globalRevenue.toLocaleString(),
             pending: bookings.filter(b => b.status === 'PENDING').length,
             totalAll: bookings.length
         };
-    }, [bookings]);
+    }, [bookings, globalRevenue]);
 
     // Derived: Filtered bookings
     const filteredBookings = useMemo(() => {
@@ -907,7 +940,9 @@ export function AdminReservations() {
                                                             subLane.map(booking => {
                                                                 const bStart = new Date(booking.startTime);
                                                                 const bEnd = new Date(booking.endTime);
-                                                                const startHour = bStart.getHours() + bStart.getMinutes() / 60;
+                                                                const startHour = booking.timeStr 
+                                                                     ? parseInt(booking.timeStr.split(':')[0]) + parseInt(booking.timeStr.split(':')[1] || '0') / 60
+                                                                     : bStart.getUTCHours() + bStart.getUTCMinutes() / 60;
                                                                 const durationH = (bEnd.getTime() - bStart.getTime()) / 3600000;
                                                                 const leftPct = ((startHour - hours[0]) / hours.length) * 100;
                                                                 const widthPct = (durationH / hours.length) * 100;
@@ -969,7 +1004,7 @@ export function AdminReservations() {
                                                                                     </p>
                                                                                 </div>
                                                                                 <p className="text-[7px] text-white/10 font-bold">
-                                                                                    {bStart.getHours()}h{bStart.getMinutes() || '00'}
+                                                                                    {booking.timeStr.replace(':', 'h')}
                                                                                 </p>
                                                                             </div>
                                                                         </div>
@@ -1082,14 +1117,17 @@ export function AdminReservations() {
                                                                 <div className="text-center bg-white/5 border border-white/10 rounded-xl px-3 py-1.5">
                                                                     <p className="text-[7px] font-black text-white/30 uppercase leading-none mb-1">Mois</p>
                                                                     <p className="text-xs font-black text-white leading-none">
-                                                                        {new Date(request.startTime).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })}
+                                                                         {request.dateStr || new Date(request.startTime).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })}
                                                                     </p>
                                                                 </div>
                                                                 <div className="h-4 w-[1px] bg-white/10" />
                                                                 <div className="text-padel-yellow">
                                                                     <p className="text-[7px] font-black uppercase opacity-30 leading-none mb-1 text-center">Début</p>
                                                                     <p className="text-xs font-black leading-none">
-                                                                        {new Date(request.startTime).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }).replace(':', 'h')}
+                                                                         {request.timeStr || (() => {
+                                                                             const d = new Date(request.startTime);
+                                                                             return `${String(d.getUTCHours()).padStart(2, '0')}h${String(d.getUTCMinutes()).padStart(2, '0')}`;
+                                                                         })()}
                                                                     </p>
                                                                 </div>
                                                             </div>

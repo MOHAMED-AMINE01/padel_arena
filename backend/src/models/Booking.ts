@@ -19,6 +19,8 @@ export interface IBooking extends Document {
     course?: mongoose.Types.ObjectId;
     tournament?: mongoose.Types.ObjectId;
     packName?: string;
+    timeStr?: string;  // Explicit local time string (e.g. "18:30")
+    dateStr?: string;  // Explicit local date string (e.g. "09/04/2026")
     createdAt: Date;
     updatedAt: Date;
 }
@@ -31,6 +33,8 @@ const BookingSchema: Schema = new Schema({
     court: { type: Schema.Types.ObjectId, ref: 'Court', required: true },
     startTime: { type: Date, required: true },
     endTime: { type: Date, required: true },
+    timeStr: { type: String },
+    dateStr: { type: String },
     totalPrice: { type: Number, required: true },
     players: { type: Number, default: 4 },
     status: {

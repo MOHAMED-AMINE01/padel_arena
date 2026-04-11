@@ -12,7 +12,21 @@ import { refundPayment } from './paymentController';
 // @route   POST /api/bookings
 // @access  Public (Optional Authentication)
 export const createBooking = asyncHandler(async (req: any, res: Response) => {
-    const { courtId, startTime, endTime, userId, promoCode, guestName, guestEmail, guestPhone, players, bookingType, packName } = req.body;
+    const {
+        courtId,
+        startTime,
+        endTime,
+        userId,
+        promoCode,
+        guestName,
+        guestEmail,
+        guestPhone,
+        players,
+        bookingType,
+        packName,
+        timeStr,
+        dateStr
+    } = req.body;
 
     // 1. Basic validation
     if (bookingType !== 'PACK' && bookingType !== 'SUBSCRIPTION' && (!courtId || !startTime || !endTime)) {
@@ -26,6 +40,35 @@ export const createBooking = asyncHandler(async (req: any, res: Response) => {
     let totalPrice = 0;
     let discountAmount = 0;
     let promoCodeId = null;
+
+    // ✅ FORCE RECONSTRUCTION: Ensure we always have timeStr and dateStr
+    let calibratedStart = start;
+    let calibratedEnd = end;
+
+    let finalTimeStr = timeStr;
+    let finalDateStr = dateStr;
+
+    if (!finalTimeStr || !finalDateStr) {
+        // If missing, derive from startTime but treat it AS UTC to maintain our "Literal UTC" standard
+        const hours = start.getUTCHours();
+        const mins = start.getUTCMinutes();
+        const d = start.getUTCDate();
+        const m = start.getUTCMonth() + 1;
+        const y = start.getUTCFullYear();
+
+        if (!finalTimeStr) finalTimeStr = `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}`;
+        if (!finalDateStr) finalDateStr = `${String(d).padStart(2, '0')}/${String(m).padStart(2, '0')}/${y}`;
+
+        // Re-calibrate to ensure Date object is exactly UTC at that time
+        calibratedStart = new Date(Date.UTC(y, m - 1, d, hours, mins));
+    } else {
+        const [day, month, year] = finalDateStr.split('/').map(Number);
+        const [hour, min] = finalTimeStr.split(':').map(Number);
+        calibratedStart = new Date(Date.UTC(year, month - 1, day, hour, min));
+    }
+
+    const durationMs = end.getTime() - start.getTime();
+    calibratedEnd = new Date(calibratedStart.getTime() + durationMs);
 
     if (bookingType !== 'PACK' && bookingType !== 'SUBSCRIPTION') {
         if (start >= end) {
@@ -43,7 +86,7 @@ export const createBooking = asyncHandler(async (req: any, res: Response) => {
             court: courtId,
             status: { $in: ['PENDING', 'CONFIRMED'] },
             $or: [
-                { startTime: { $lt: end }, endTime: { $gt: start } } // Overlap logic
+                { startTime: { $lt: calibratedEnd }, endTime: { $gt: calibratedStart } } // Overlap logic
             ]
         });
 
@@ -54,11 +97,12 @@ export const createBooking = asyncHandler(async (req: any, res: Response) => {
             });
         }
 
-        // 4. Calculate total price dynamically
-        const durationInHours = (end.getTime() - start.getTime()) / (1000 * 60 * 60);
-        const startHour = start.getUTCHours();
-        const isPeak = startHour >= 17 || start.getUTCDay() === 0 || start.getUTCDay() === 6; // After 17h UTC or Weekend UTC
+        // "calibratedStart" is now explicitly stored as pseudo-UTC matching local time
+        const localHour = calibratedStart.getUTCHours();
+
+        const isPeak = localHour >= 17 || calibratedStart.getUTCDay() === 0 || calibratedStart.getUTCDay() === 6;
         const unitPrice = isPeak ? court.peakPrice : court.offPeakPrice;
+        const durationInHours = (calibratedEnd.getTime() - calibratedStart.getTime()) / (1000 * 60 * 60);
         totalPrice = Number((durationInHours * unitPrice).toFixed(2));
 
         // 5. Link user ...
@@ -73,7 +117,7 @@ export const createBooking = asyncHandler(async (req: any, res: Response) => {
         // Silent Linking: check if email exists in User database
         const existingUser = await User.findOne({ email: guestEmail.toLowerCase() });
         if (existingUser) {
-            finalUserId = existingUser._id;
+            finalUserId = existingUser._id.toString();
         }
     }
 
@@ -96,9 +140,14 @@ export const createBooking = asyncHandler(async (req: any, res: Response) => {
     }
 
     // 7. Create the booking
+    console.log('📝 BOOKING CREATE DEBUG ━━━━━━━━━━━━━━━━━━━');
+    console.log('timeStr from frontend:', timeStr);
+    console.log('dateStr from frontend:', dateStr);
+    console.log('calibratedStart UTC:', calibratedStart.toISOString());
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     let bookingData: any = {
-        startTime: start,
-        endTime: end,
+        startTime: calibratedStart,
+        endTime: calibratedEnd,
         totalPrice,
         discountAmount,
         players: players || 4,
@@ -106,7 +155,9 @@ export const createBooking = asyncHandler(async (req: any, res: Response) => {
         status: 'PENDING',
         paymentStatus: 'UNPAID',
         bookingType: bookingType || 'COURT',
-        packName
+        packName,
+        timeStr: finalTimeStr,
+        dateStr: finalDateStr
     };
 
     if (bookingType === 'PACK' || bookingType === 'SUBSCRIPTION') {
@@ -175,13 +226,24 @@ export const createBooking = asyncHandler(async (req: any, res: Response) => {
 // @access  Private
 export const getMyBookings = asyncHandler(async (req: any, res: Response) => {
     const bookings = await Booking.find({ user: req.user.id })
-        .populate('court', 'name type surface offPeakPrice peakPrice')
+        .populate('court', 'name')
         .sort('-startTime');
+
+    // SAFE BACKFILL: Ensure every booking has timeStr/dateStr for "String-Only" frontend
+    const sanitizedBookings = bookings.map(b => {
+        const obj = b.toObject();
+        if (!obj.timeStr || !obj.dateStr) {
+            const d = new Date(obj.startTime);
+            if (!obj.timeStr) obj.timeStr = `${String(d.getUTCHours()).padStart(2, '0')}:${String(d.getUTCMinutes()).padStart(2, '0')}`;
+            if (!obj.dateStr) obj.dateStr = `${String(d.getUTCDate()).padStart(2, '0')}/${String(d.getUTCMonth() + 1).padStart(2, '0')}/${d.getUTCFullYear()}`;
+        }
+        return obj;
+    });
 
     res.status(200).json({
         success: true,
-        count: bookings.length,
-        data: bookings
+        count: sanitizedBookings.length,
+        data: sanitizedBookings
     });
 });
 
@@ -194,10 +256,21 @@ export const getAllBookings = asyncHandler(async (req: any, res: Response) => {
         .populate('court', 'name')
         .sort('-startTime');
 
+    // SAFE BACKFILL: Ensure every booking has timeStr/dateStr for "String-Only" frontend
+    const sanitizedBookings = bookings.map(b => {
+        const obj = b.toObject();
+        if (!obj.timeStr || !obj.dateStr) {
+            const d = new Date(obj.startTime);
+            if (!obj.timeStr) obj.timeStr = `${String(d.getUTCHours()).padStart(2, '0')}:${String(d.getUTCMinutes()).padStart(2, '0')}`;
+            if (!obj.dateStr) obj.dateStr = `${String(d.getUTCDate()).padStart(2, '0')}/${String(d.getUTCMonth() + 1).padStart(2, '0')}/${d.getUTCFullYear()}`;
+        }
+        return obj;
+    });
+
     res.status(200).json({
         success: true,
-        count: bookings.length,
-        data: bookings
+        count: sanitizedBookings.length,
+        data: sanitizedBookings
     });
 });
 
@@ -272,18 +345,29 @@ export const cancelBooking = asyncHandler(async (req: any, res: Response) => {
 
     // NEW RULE: Players cannot cancel by themselves anymore (as requested)
     if (req.user.role !== 'ADMIN') {
-        return res.status(403).json({ 
+        return res.status(403).json({
             success: false,
-            message: "Les annulations ne peuvent être effectuées que par l'administration du club. Merci de nous contacter pour toute modification." 
+            message: "Les annulations ne peuvent être effectuées que par l'administration du club. Merci de nous contacter pour toute modification."
         });
     }
 
+    const now = new Date();
+    const hoursUntilStart = (new Date(booking.startTime).getTime() - now.getTime()) / (1000 * 60 * 60);
+    const canRefund = hoursUntilStart >= 24;
+
     // If Admin, delete permanently if requested
     if (req.user.role === 'ADMIN') {
-        // Refund if paid via Stripe
-        if (booking.paymentStatus === 'PAID' && booking.stripePaymentIntentId) {
-            console.log(`🔄 Admin: Initiating refund for booking ${booking._id}`);
-            await refundPayment(booking.stripePaymentIntentId);
+        const hasRefunded = (booking.paymentStatus === 'PAID' && booking.stripePaymentIntentId && canRefund);
+        
+        // Refund ONLY if paid via Stripe AND it's a future booking (> 24h)
+        if (hasRefunded) {
+            console.log(`🔄 Admin: Initiating refund for booking ${booking._id} (Lead time: ${hoursUntilStart.toFixed(1)}h)`);
+            await refundPayment(booking.stripePaymentIntentId as string);
+        }
+
+        // Drop the revenue from global stats if it's a future booking being cancelled
+        if (canRefund) {
+            await Transaction.updateMany({ booking: booking._id }, { status: 'REFUNDED' });
         }
 
         // Send Email to Client before deleting
@@ -297,9 +381,9 @@ export const cancelBooking = asyncHandler(async (req: any, res: Response) => {
                     text: `Bonjour ${clientName}, votre réservation a été annulée par l'administration.`,
                     html: getEmailTemplate(
                         "Réservation Annulée",
-                        `Bonjour ${clientName},<br><br>` +
-                        `Nous vous informons que votre réservation a été annulée par l'administration.<br>` +
-                        `${booking.paymentStatus === 'PAID' ? "Un remboursement a été déclenché sur votre compte." : ""}<br><br>` +
+                        `Bonjour ${clientName},\n\n` +
+                        `Nous vous informons que votre réservation a été annulée par l'administration.\n` +
+                        `${hasRefunded ? "Un remboursement a été déclenché sur votre compte." : ""}\n\n` +
                         `À bientôt sur les pistes !`
                     )
                 });
@@ -311,13 +395,19 @@ export const cancelBooking = asyncHandler(async (req: any, res: Response) => {
         await booking.deleteOne();
         return res.status(200).json({
             success: true,
-            message: 'Booking deleted permanently (and refunded if paid online)'
+            message: `Réservation supprimée ${hasRefunded ? 'et remboursée' : ''}`
+        });
+    }
+
+    // BLOCK: Normal users or fallback cases cannot cancel past bookings
+    if (new Date(booking.startTime).getTime() < now.getTime()) {
+        return res.status(400).json({ 
+            success: false,
+            message: "Vous ne pouvez pas annuler une séance déjà passée." 
         });
     }
 
     // Check if it's too late to cancel (e.g., 24h before)
-    const now = new Date();
-    const hoursUntilStart = (booking.startTime.getTime() - now.getTime()) / (1000 * 60 * 60);
 
     if (hoursUntilStart < 24) {
         return res.status(400).json({ message: 'Cancellation is only allowed up to 24h before' });
@@ -326,7 +416,7 @@ export const cancelBooking = asyncHandler(async (req: any, res: Response) => {
     // Handle Stripe Refund if paid online
     if (booking.paymentStatus === 'PAID' && booking.stripePaymentIntentId) {
         console.log(`🔄 Initiating refund for booking ${booking._id}`);
-        const refundResult = await refundPayment(booking.stripePaymentIntentId);
+        const refundResult = await refundPayment(booking.stripePaymentIntentId as string);
 
         if (refundResult.success) {
             booking.paymentStatus = 'REFUNDED';
@@ -338,6 +428,9 @@ export const cancelBooking = asyncHandler(async (req: any, res: Response) => {
 
     booking.status = 'CANCELLED';
     await booking.save();
+
+    // Void the finance transaction so it doesn't count as revenue
+    await Transaction.updateMany({ booking: booking._id }, { status: 'REFUNDED' });
 
     // Send Email to Client
     try {
@@ -351,9 +444,9 @@ export const cancelBooking = asyncHandler(async (req: any, res: Response) => {
                 text: `Bonjour ${clientName}, votre réservation a été annulée avec succès.`,
                 html: getEmailTemplate(
                     "Annulation Confirmée",
-                    `Bonjour ${clientName},<br><br>` +
-                    `Votre réservation a été annulée comme demandé.<br>` +
-                    `${booking.paymentStatus === 'REFUNDED' ? "Votre remboursement a été traité avec succès." : ""}<br><br>` +
+                    `Bonjour ${clientName},\n\n` +
+                    `Votre réservation a été annulée comme demandé.\n` +
+                    `${booking.paymentStatus === 'REFUNDED' ? "Votre remboursement a été traité avec succès." : ""}\n\n` +
                     `À bientôt sur les pistes !`
                 )
             });
@@ -391,6 +484,7 @@ export const getAvailableSlots = asyncHandler(async (req: Request, res: Response
     }
 
     // 2. For each court, calculate availability
+    const dObj = new Date(date as string);
     const results = await Promise.all(courts.map(async (court) => {
         // Get all bookings for this court today
         const bookings = await Booking.find({
@@ -408,23 +502,20 @@ export const getAvailableSlots = asyncHandler(async (req: Request, res: Response
         for (let hour = opStart; hour <= opEnd; hour++) {
             // Minutes 0 or 30
             for (let min of [0, 30]) {
-                if (hour === opEnd && min > 0) break; // Don't start a slot at 22:30
+                // pseudo-UTC matching local time
+                const localStart = new Date(Date.UTC(dObj.getUTCFullYear(), dObj.getUTCMonth(), dObj.getUTCDate(), hour, min));
 
-                const slotStart = new Date(startOfDay);
-                slotStart.setUTCHours(hour, min, 0, 0);
+                const slotEnd = new Date(localStart);
+                slotEnd.setUTCMinutes(localStart.getUTCMinutes() + slotDuration);
 
-                const slotEnd = new Date(slotStart);
-                slotEnd.setUTCMinutes(slotStart.getUTCMinutes() + slotDuration);
-
-                // Check for conflict: a slot is unavailable if any part of it is booked
+                // Check for conflict
                 const isBooked = bookings.some(b => {
                     const bStart = new Date(b.startTime);
                     const bEnd = new Date(b.endTime);
-                    return (slotStart < bEnd && slotEnd > bStart);
+                    return (localStart < bEnd && slotEnd > bStart);
                 });
 
-                const startHour = slotStart.getUTCHours();
-                const isPeak = startHour >= 17 || slotStart.getUTCDay() === 0 || slotStart.getUTCDay() === 6;
+                const isPeak = hour >= 17 || localStart.getUTCDay() === 0 || localStart.getUTCDay() === 6;
                 const unitPrice = isPeak ? court.peakPrice : court.offPeakPrice;
 
                 slots.push({

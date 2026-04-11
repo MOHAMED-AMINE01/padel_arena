@@ -195,13 +195,23 @@ export const Booking = () => {
         setIsBooking(true);
         setError(null);
 
-        const startTime = new Date(`${selectedDate}T${selectedTime}:00`);
+        const [y, m, d_val] = selectedDate.split('-').map(Number);
+        const [hh, mm] = selectedTime.split(':').map(Number);
+        
+        // Construct Date using UTC to maintain "Pretend UTC is Local" standard
+        const startTime = new Date(Date.UTC(y, m - 1, d_val, hh, mm));
         const endTime = new Date(startTime.getTime() + duration * 60000);
+
+        // Explicit strings for email (no automation requested by user)
+        const d_parts = selectedDate.split('-');
+        const formattedDate = `${d_parts[2]}/${d_parts[1]}/${d_parts[0]}`;
 
         const response = await api.post('/bookings', {
           courtId: selectedCourtId,
           startTime: startTime.toISOString(),
           endTime: endTime.toISOString(),
+          timeStr: selectedTime,
+          dateStr: formattedDate,
           guestName,
           guestEmail,
           guestPhone,
@@ -498,7 +508,23 @@ export const Booking = () => {
                               )}
                             >
                               <div className="flex justify-between items-start mb-4">
-                                <span className="text-[9px] font-black text-padel-blue tracking-widest uppercase">{court.type}</span>
+                                <div className="flex flex-col gap-1">
+                                  <span className="text-[9px] font-black text-padel-blue tracking-widest uppercase">{court.type}</span>
+                                  {(() => {
+                                    const [h] = (selectedTime || "").split(':').map(Number);
+                                    const d = new Date(selectedDate);
+                                    const day = d.getDay();
+                                    const isPeak = h >= 17 || day === 0 || day === 6;
+                                    return (
+                                      <span className={cn(
+                                        "text-[7px] font-black px-1.5 py-0.5 rounded-full uppercase tracking-widest w-fit",
+                                        isPeak ? "bg-padel-yellow/20 text-padel-yellow" : "bg-green-500/10 text-green-500"
+                                      )}>
+                                        {isPeak ? "Heures Pleines" : "Tarif Réduit"}
+                                      </span>
+                                    );
+                                  })()}
+                                </div>
                                 <span className="text-lg font-black text-white">
                                   {((court.slots.find(s => s.time === selectedTime)?.price || 0) * (duration / 60)).toFixed(2)}€
                                 </span>

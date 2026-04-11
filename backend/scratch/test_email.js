@@ -1,57 +1,23 @@
-import path from 'path';
-import nodemailer from 'nodemailer';
+require('dotenv').config({ path: '../.env' });
+if (!process.env.SMTP_EMAIL) {
+    require('dotenv').config({ path: '.env' });
+}
+const nodemailer = require('nodemailer');
+const path = require('path');
+
+const logoPath = path.resolve(__dirname, '../../public/IMAGES/newLogo_tr.png');
 
 const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST || 'smtp.gmail.com',
     port: parseInt(process.env.SMTP_PORT || '587'),
-    secure: false, // true for 465, false for other ports
+    secure: false,
     auth: {
         user: process.env.SMTP_EMAIL,
         pass: process.env.SMTP_PASSWORD
     }
 });
 
-interface MailOptions {
-    to: string;
-    subject: string;
-    text: string;
-    html?: string;
-    attachments?: any[];
-}
-
-export const sendEmail = async (options: MailOptions) => {
-    try {
-        const logoPath = path.join(process.cwd(), '..', 'public', 'IMAGES', 'newLogo_tr.png');
-
-        const mailOptions: any = {
-            from: `"Padel Arena" <${process.env.SMTP_EMAIL}>`,
-            to: options.to,
-            subject: options.subject,
-            text: options.text,
-            html: options.html || options.text.replace(/\n/g, '<br>'),
-            attachments: [
-                {
-                    filename: 'logo.png',
-                    path: logoPath,
-                    cid: 'logo' // same cid value as in the html img src
-                },
-                ...(options.attachments || [])
-            ]
-        };
-
-        const info = await transporter.sendMail(mailOptions);
-        console.log('✅ Email sent: %s', info.messageId);
-        return info;
-    } catch (error) {
-        console.error('❌ Error sending email:', error);
-        throw error;
-    }
-};
-
-/**
- * Generates a premium HTML template for emails
- */
-export const getEmailTemplate = (title: string, content: string) => {
+const getEmailTemplate = (title, content) => {
     return `
     <!DOCTYPE html>
     <html>
@@ -81,7 +47,7 @@ export const getEmailTemplate = (title: string, content: string) => {
                 background: linear-gradient(180deg, #151518 0%, #0D0D10 100%);
             }
             .logo { 
-                height: 100px;
+                height: 70px;
                 width: auto;
                 margin-bottom: 24px;
                 filter: drop-shadow(0 0 10px rgba(0,102,255,0.3));
@@ -156,19 +122,12 @@ export const getEmailTemplate = (title: string, content: string) => {
     <body>
         <div class="container">
             <div class="header">
-                <a href="${process.env.CLIENT_URL || '#'}">
-                    <img src="cid:logo" alt="Padel Arena" class="logo">
-                </a>
+                <img src="cid:logo" alt="Padel Arena" class="logo">
             </div>
             <div class="content">
                 <div class="title">${title}</div>
                 <div class="inner-content">
-                    ${content.split('\n').map(p => {
-        const trimmed = p.trim();
-        if (!trimmed) return '<div class="divider"></div>';
-        const withBold = trimmed.replace(/\*\*(.*?)\*\*/g, '<span class="highlight">$1</span>');
-        return `<p class="paragraph">${withBold}</p>`;
-    }).join('')}
+                    ${content}
                 </div>
             </div>
             <div class="footer">
@@ -181,46 +140,50 @@ export const getEmailTemplate = (title: string, content: string) => {
     `;
 };
 
-/**
- * Generates the password reset email HTML using the premium template
- */
-export const getPasswordResetEmail = (resetUrl: string, userName: string) => {
-    const content = `
-        Bonjour <span class="highlight">${userName}</span>,
-        
-        Vous avez demandé la réinitialisation de votre mot de passe pour votre compte Padel Arena.
-        
-        Cliquez sur le bouton ci-dessous pour sécuriser votre compte avec un nouveau mot de passe :
-        
-        <div style="text-align: center; margin-top: 30px;">
-            <a href="${resetUrl}" class="btn">Réinitialiser</a>
-        </div>
-        
-        Si vous n'avez pas demandé ce changement, vous pouvez ignorer cet email en toute sécurité. 
-        Ce lien expirera dans 1 heure.
-    `;
-    return getEmailTemplate('Sécurité du Compte', content);
-};
+async function sendTestEmail() {
+    const recipient = process.env.SMTP_EMAIL; // Send to yourself
+    console.log(`📧 Envoi du test email à: ${recipient}`);
+    console.log(`📁 Logo: ${logoPath}`);
 
-/**
- * Generates the Welcome email HTML
- */
-export const getWelcomeEmail = (userName: string) => {
-    const content = `
-        Félicitations <span class="highlight">${userName}</span> !
-        
-        Votre compte Padel Arena est maintenant actif. Bienvenue dans l'élite du padel à Vendôme.
-        
-        Vous avez désormais accès à :
-        • Réservation de terrains en temps réel
-        • Inscriptions aux tournois et académies
-        • Suivi de vos performances et statistiques
-        
-        Prêt pour votre premier match ?
-        
+    const testContent = `
+        <p class="paragraph">Félicitations <span class="highlight">Padel Arena</span> !</p>
+        <p class="paragraph">Ceci est un <span class="highlight">email de test</span> pour vérifier le rendu premium de vos communications.</p>
+        <div class="divider"></div>
+        <p class="paragraph">Votre court est réservé avec succès :</p>
+        <p class="paragraph">Terrain : <span class="highlight">Terrain Central</span></p>
+        <p class="paragraph">Date : <span class="highlight">11/04/2026</span></p>
+        <p class="paragraph">Heure : <span class="highlight">10:00</span></p>
+        <div class="divider"></div>
+        <p class="paragraph">À très vite sur les pistes !</p>
         <div style="text-align: center; margin-top: 30px;">
-            <a href="${process.env.CLIENT_URL || '#'}/book" class="btn">Réserver un terrain</a>
+            <a href="#" class="btn">Réserver un terrain</a>
         </div>
     `;
-    return getEmailTemplate('Bienvenue dans l\'Élite', content);
-};
+
+    try {
+        const info = await transporter.sendMail({
+            from: `"Padel Arena" <${process.env.SMTP_EMAIL}>`,
+            to: recipient,
+            subject: '🎾 TEST - Email Premium Padel Arena',
+            text: 'Test email premium Padel Arena',
+            html: getEmailTemplate('Réservation Confirmée', testContent),
+            attachments: [
+                {
+                    filename: 'logo.png',
+                    path: logoPath,
+                    cid: 'logo'
+                }
+            ]
+        });
+
+        console.log('✅ Email envoyé avec succès!');
+        console.log('   Message ID:', info.messageId);
+        console.log('   Vérifiez votre boîte mail !');
+    } catch (err) {
+        console.error('❌ Erreur:', err.message);
+    }
+
+    process.exit(0);
+}
+
+sendTestEmail();

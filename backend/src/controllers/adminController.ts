@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import User from '../models/User';
 import Booking from '../models/Booking';
 import Court from '../models/Court';
+import Transaction from '../models/Transaction';
 import { asyncHandler } from '../utils/asyncHandler';
 
 // @desc    Get admin dashboard stats
@@ -37,14 +38,15 @@ export const getAdminStats = asyncHandler(async (req: Request, res: Response) =>
         Booking.aggregate([
             { $group: { _id: "$status", count: { $sum: 1 } } }
         ]),
-        Booking.aggregate([
-            { $match: { status: { $in: ['CONFIRMED', 'COMPLETED'] } } },
-            { $group: { _id: null, total: { $sum: "$totalPrice" } } }
+        Transaction.aggregate([
+            { $match: { type: 'INCOME', status: 'COMPLETED' } },
+            { $group: { _id: null, total: { $sum: "$amount" } } }
         ]),
-        Booking.aggregate([
+        Transaction.aggregate([
             {
                 $match: {
-                    status: { $in: ['CONFIRMED', 'COMPLETED'] },
+                    type: 'INCOME',
+                    status: 'COMPLETED',
                     createdAt: { $gte: startOfLastMonth }
                 }
             },
@@ -57,7 +59,7 @@ export const getAdminStats = asyncHandler(async (req: Request, res: Response) =>
                             "lastMonth"
                         ]
                     },
-                    total: { $sum: "$totalPrice" },
+                    total: { $sum: "$amount" },
                     count: { $sum: 1 }
                 }
             }

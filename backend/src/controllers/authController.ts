@@ -6,7 +6,7 @@ import { OAuth2Client } from 'google-auth-library';
 import User from '../models/User';
 import { asyncHandler } from '../utils/asyncHandler';
 import { sendTokenResponse } from '../utils/sendToken';
-import sendEmail, { getPasswordResetEmail } from '../utils/sendEmail';
+import { sendEmail, getPasswordResetEmail, getWelcomeEmail } from '../services/mailService';
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -31,6 +31,18 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
         address,
         role: 'PLAYER' // Default role
     });
+
+    // 3. Send Welcome Email
+    try {
+        await sendEmail({
+            to: user.email,
+            subject: '🎾 Bienvenue chez Padel Arena !',
+            text: `Bienvenue ${user.name} ! Votre compte est créé.`,
+            html: getWelcomeEmail(user.name)
+        });
+    } catch (emailError) {
+        console.error('Welcome email failed to send:', emailError);
+    }
 
     sendTokenResponse(user, 201, res);
 });
@@ -189,6 +201,18 @@ export const googleLogin = asyncHandler(async (req: Request, res: Response) => {
                 role: 'PLAYER',
                 isActive: true
             });
+
+            // Send Welcome Email for NEW user
+            try {
+                await sendEmail({
+                    to: user.email,
+                    subject: '🎾 Bienvenue chez Padel Arena !',
+                    text: `Bienvenue ${user.name} ! Votre compte Google est lié.`,
+                    html: getWelcomeEmail(user.name)
+                });
+            } catch (emailError) {
+                console.error('Welcome email failed to send:', emailError);
+            }
         }
 
         sendTokenResponse(user, 200, res);
@@ -236,8 +260,9 @@ export const forgotPassword = asyncHandler(async (req: Request, res: Response) =
 
     try {
         await sendEmail({
-            email: user.email,
+            to: user.email,
             subject: 'Padel Arena - Réinitialisation du mot de passe',
+            text: `Bonjour ${user.name}, réinitialisez votre mot de passe ici: ${resetUrl}`,
             html: getPasswordResetEmail(resetUrl, user.name)
         });
 

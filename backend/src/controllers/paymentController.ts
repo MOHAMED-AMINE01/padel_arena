@@ -114,6 +114,13 @@ export const handleWebhook = async (req: Request, res: Response) => {
         booking.stripePaymentIntentId = session.payment_intent as string;
         await booking.save();
 
+        // 🔍 DEBUG: See exactly what is stored in DB
+        console.log('📧 EMAIL DEBUG ━━━━━━━━━━━━━━━━━━━━━━━━━');
+        console.log('booking.timeStr from DB:', booking.timeStr);
+        console.log('booking.dateStr from DB:', booking.dateStr);
+        console.log('booking.startTime from DB:', booking.startTime);
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+
         const clientEmail = (booking.user as any)?.email || booking.guestEmail;
         const clientName = (booking.user as any)?.name || booking.guestName || 'Client';
         const isSpecial = booking.bookingType === 'PACK' || booking.bookingType === 'SUBSCRIPTION';
@@ -139,36 +146,46 @@ export const handleWebhook = async (req: Request, res: Response) => {
           });
         }
 
-        // ✅ Timezone-independent: read raw UTC values (frontend sends local time without offset)
-        const _d = new Date(booking.startTime);
-        const _day = _d.getUTCDate().toString().padStart(2, '0');
-        const _month = (_d.getUTCMonth() + 1).toString().padStart(2, '0');
-        const _year = _d.getUTCFullYear();
-        const _hours = _d.getUTCHours().toString().padStart(2, '0');
-        const _minutes = _d.getUTCMinutes().toString().padStart(2, '0');
-        const dateStr = `${_day}/${_month}/${_year}`;
-        const timeStr = `${_hours}:${_minutes}`;
+        // ✅ ULTRA-SIMPLE LOGIC: Use the saved strings first.
+        const bookingDateObj = new Date(booking.startTime);
+
+        let dateStr = booking.dateStr;
+        let timeStr = booking.timeStr;
+
+        if (!timeStr || !dateStr) {
+          // Fallback: Read exact UTC hours since backend stores exact local time as UTC
+          const hours = bookingDateObj.getUTCHours();
+          const mins = bookingDateObj.getUTCMinutes().toString().padStart(2, '0');
+          if (!timeStr) timeStr = `${hours.toString().padStart(2, '0')}:${mins}`;
+
+          if (!dateStr) {
+            const d = bookingDateObj.getUTCDate().toString().padStart(2, '0');
+            const m = (bookingDateObj.getUTCMonth() + 1).toString().padStart(2, '0');
+            const y = bookingDateObj.getUTCFullYear();
+            dateStr = `${d}/${m}/${y}`;
+          }
+        }
 
         const emailTitle = (isSpecial || isAcademy || isTournament) ? "Confirmation d'Achat" : "Réservation Confirmée";
 
         let emailBody = '';
         if (isSpecial) {
-          emailBody = `Félicitations ${clientName} !<br><br>` +
-            `Votre achat pour <strong>${itemName}</strong> a été validé avec succès.<br>` +
-            `Nos équipes vont activer vos avantages sur votre compte sous peu.<br><br>` +
+          emailBody = `Félicitations ${clientName} !\n\n` +
+            `Votre achat pour **${itemName}** a été validé avec succès.\n` +
+            `Nos équipes vont activer vos avantages sur votre compte sous peu.\n\n` +
             `À très vite sur les pistes !`;
         } else if (isAcademy || isTournament) {
-          emailBody = `Félicitations ${clientName} !<br><br>` +
-            `Votre inscription à <strong>${itemName}</strong> est confirmée !<br>` +
-            `Nous avons bien reçu votre paiement de ${booking.totalPrice}€.<br><br>` +
-            `Rendez-vous le <strong>${dateStr}</strong> à <strong>${timeStr}</strong> pour l'événement.<br><br>` +
+          emailBody = `Félicitations ${clientName} !\n\n` +
+            `Votre inscription à **${itemName}** est confirmée !\n` +
+            `Nous avons bien reçu votre paiement de ${booking.totalPrice}€.\n\n` +
+            `Rendez-vous le **${dateStr}** à **${timeStr}** pour l'événement.\n\n` +
             `À très vite sur les pistes !`;
         } else {
-          emailBody = `Félicitations ${clientName} !<br><br>` +
-            `Votre court est réservé avec succès :<br><br>` +
-            `<strong>Terrain :</strong> ${itemName}<br>` +
-            `<strong>Date :</strong> ${dateStr}<br>` +
-            `<strong>Heure :</strong> ${timeStr}<br><br>` +
+          emailBody = `Félicitations ${clientName} !\n\n` +
+            `Votre court est réservé avec succès :\n\n` +
+            `Terrain : **${itemName}**\n` +
+            `Date : **${dateStr}**\n` +
+            `Heure : **${timeStr}**\n\n` +
             `À très vite sur les pistes !`;
         }
 
@@ -189,11 +206,11 @@ export const handleWebhook = async (req: Request, res: Response) => {
           subject: `📄 Facture - Padel Arena - #${bookingId.toString().slice(-6).toUpperCase()}`,
           text: `Bonjour ${clientName}, voici votre facture pour ${itemName}.`,
           html: getEmailTemplate('Votre Facture',
-            `Merci pour votre paiement !<br><br>` +
-            `<strong>Produit :</strong> ${itemName}<br>` +
-            `<strong>Montant :</strong> ${booking.totalPrice}€<br>` +
-            `<strong>Date du paiement :</strong> ${todayStr}<br>` +
-            `<strong>Mode de paiement :</strong> Carte Bancaire via Stripe<br><br>` +
+            `Merci pour votre paiement !\n\n` +
+            `Produit : **${itemName}**\n` +
+            `Montant : **${booking.totalPrice}€**\n` +
+            `Date du paiement : **${todayStr}**\n` +
+            `Mode de paiement : **Carte Bancaire via Stripe**\n\n` +
             `Padel Arena vous remercie pour votre confiance.`
           )
         });
@@ -204,11 +221,11 @@ export const handleWebhook = async (req: Request, res: Response) => {
           subject: `🏃 NOUVELLE RÉSERVATION : ${itemName}`,
           text: `Nouvelle réservation par ${clientName}.\nTerrain: ${itemName}\nDate: ${dateStr}\nHeure: ${timeStr}`,
           html: getEmailTemplate('Nouvelle Réservation Confirmée',
-            `Une nouvelle réservation vient d'être validée !<br><br>` +
-            `<strong>Client :</strong> ${clientName} (${clientEmail})<br>` +
-            `<strong>Terrain :</strong> ${itemName}<br>` +
-            `<strong>Date :</strong> ${dateStr}<br>` +
-            `<strong>Heure :</strong> ${timeStr}<br><br>` +
+            `Une nouvelle réservation vient d'être validée !\n\n` +
+            `Client : **${clientName}** (${clientEmail})\n` +
+            `Terrain : **${itemName}**\n` +
+            `Date : **${dateStr}**\n` +
+            `Heure : **${timeStr}**\n\n` +
             `Préparez le terrain ⚡`
           )
         });
