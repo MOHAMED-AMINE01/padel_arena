@@ -357,12 +357,21 @@ export const cancelBooking = asyncHandler(async (req: any, res: Response) => {
 
     // If Admin, delete permanently if requested
     if (req.user.role === 'ADMIN') {
-        const hasRefunded = (booking.paymentStatus === 'PAID' && booking.stripePaymentIntentId && canRefund);
-        
-        // Refund ONLY if paid via Stripe AND it's a future booking (> 24h)
-        if (hasRefunded) {
-            console.log(`🔄 Admin: Initiating refund for booking ${booking._id} (Lead time: ${hoursUntilStart.toFixed(1)}h)`);
-            await refundPayment(booking.stripePaymentIntentId as string);
+        const isPaidStripe = (booking.paymentStatus === 'PAID' && booking.stripePaymentIntentId);
+        let refundStatus = 'NOT_APPLICABLE';
+        let emailStatus = 'NOT_SENT';
+
+        // Refund logic
+        if (canRefund && isPaidStripe) {
+            console.log(`🔄 Admin: Initiating Stripe refund for booking ${booking._id} (Lead time: ${hoursUntilStart.toFixed(1)}h)`);
+            const refundResult = await refundPayment(booking.stripePaymentIntentId as string);
+            refundStatus = refundResult.success ? 'SUCCESS' : `FAILED (${refundResult.error})`;
+        } else if (!canRefund) {
+            console.log(`⚠️ Admin: Suppression sans remboursement (Délai trop court : ${hoursUntilStart.toFixed(1)}h restantes)`);
+            refundStatus = 'SKIPPED_TIME_LIMIT';
+        } else if (!isPaidStripe) {
+            console.log(`ℹ️ Admin: Suppression sans remboursement automatique (Pas de paiement Stripe détecté)`);
+            refundStatus = 'SKIPPED_NO_STRIPE_ID';
         }
 
         // Drop the revenue from global stats if it's a future booking being cancelled
@@ -383,19 +392,28 @@ export const cancelBooking = asyncHandler(async (req: any, res: Response) => {
                         "Réservation Annulée",
                         `Bonjour ${clientName},\n\n` +
                         `Nous vous informons que votre réservation a été annulée par l'administration.\n` +
-                        `${hasRefunded ? "Un remboursement a été déclenché sur votre compte." : ""}\n\n` +
+                        `${refundStatus === 'SUCCESS' ? "Un remboursement a été déclenché sur votre compte." : ""}\n\n` +
                         `À bientôt sur les pistes !`
                     )
                 });
+                emailStatus = 'SENT';
             }
-        } catch (e) {
-            console.error('Error sending cancellation email (Admin):', e);
+        } catch (e: any) {
+            console.error('❌ Error sending cancellation email (Admin):', e.message);
+            emailStatus = `ERROR: ${e.message}`;
         }
 
         await booking.deleteOne();
+        
+        let finalMessage = "Réservation supprimée.";
+        if (refundStatus === 'SUCCESS') finalMessage += " Argent remboursé sur Stripe.";
+        if (refundStatus === 'FAILED') finalMessage += " ATTENTION: Échec du remboursement Stripe.";
+        if (emailStatus.startsWith('ERROR')) finalMessage += " ATTENTION: Erreur d'envoi d'email (Vérifiez le SMTP).";
+
         return res.status(200).json({
             success: true,
-            message: `Réservation supprimée ${hasRefunded ? 'et remboursée' : ''}`
+            message: finalMessage,
+            debug: { refundStatus, emailStatus, hoursUntilStart }
         });
     }
 
