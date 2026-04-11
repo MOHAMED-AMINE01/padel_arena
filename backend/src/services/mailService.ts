@@ -1,5 +1,6 @@
 import path from 'path';
 import nodemailer from 'nodemailer';
+import fs from 'fs';
 
 const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST || 'smtp.gmail.com',
@@ -21,7 +22,32 @@ interface MailOptions {
 
 export const sendEmail = async (options: MailOptions) => {
     try {
-        const logoPath = path.join(process.cwd(), '..', 'public', 'IMAGES', 'newLogo_tr.png');
+        // Robust logo path detection for Local vs Prod
+        const possiblePaths = [
+            path.join(process.cwd(), '..', 'public', 'IMAGES', 'newLogo_tr.png'),
+            path.join(process.cwd(), 'public', 'IMAGES', 'newLogo_tr.png'),
+            path.resolve(__dirname, '../../public/IMAGES/newLogo_tr.png'),
+            'c:/ALTERNANCE/padel_arena/public/IMAGES/newLogo_tr.png'
+        ];
+
+        let logoPath = '';
+        for (const p of possiblePaths) {
+            if (fs.existsSync(p)) {
+                logoPath = p;
+                break;
+            }
+        }
+
+        const attachments = [...(options.attachments || [])];
+        if (logoPath) {
+            attachments.push({
+                filename: 'logo.png',
+                path: logoPath,
+                cid: 'logo'
+            });
+        } else {
+            console.warn('⚠️ Logo file not found, sending email without logo attachment.');
+        }
 
         const mailOptions: any = {
             from: `"Padel Arena" <${process.env.SMTP_EMAIL}>`,
@@ -29,21 +55,18 @@ export const sendEmail = async (options: MailOptions) => {
             subject: options.subject,
             text: options.text,
             html: options.html || options.text.replace(/\n/g, '<br>'),
-            attachments: [
-                {
-                    filename: 'logo.png',
-                    path: logoPath,
-                    cid: 'logo' // same cid value as in the html img src
-                },
-                ...(options.attachments || [])
-            ]
+            attachments
         };
 
         const info = await transporter.sendMail(mailOptions);
         console.log('✅ Email sent: %s', info.messageId);
         return info;
-    } catch (error) {
-        console.error('❌ Error sending email:', error);
+    } catch (error: any) {
+        console.error('❌ Error sending email:', error.message);
+        // Special hint for production SMTP issues
+        if (error.code === 'EAUTH') {
+            console.error('🔒 Erreur d\'authentification SMTP : Vérifiez vos variables d\'environnement SMTP_EMAIL et SMTP_PASSWORD en production.');
+        }
         throw error;
     }
 };
