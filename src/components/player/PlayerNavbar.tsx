@@ -41,7 +41,7 @@ export function PlayerNavbar() {
         { label: 'Réserver', href: '/book', icon: Calendar },
         { label: 'Mes Matchs', href: '/my-reservations', icon: History },
         { label: 'Tournois', href: '/events', icon: Trophy },
-        { label: 'Tarifs', href: '/tarifs', icon: Ticket },
+        { label: 'Abonnement', href: '/subscription', icon: Sparkles },
         { label: 'Support', href: '/messages', icon: MessageSquare },
     ];
 

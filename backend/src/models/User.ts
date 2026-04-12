@@ -12,6 +12,7 @@ export interface IUser extends Document {
     address?: string;
     avatar?: string;
     subscription?: mongoose.Types.ObjectId;
+    subscriptionExpiresAt?: Date;
     isActive: boolean;
     googleId?: string;
     authProvider: 'local' | 'google';
@@ -47,6 +48,7 @@ const userSchema = new Schema<IUser>({
     address: { type: String },
     avatar: { type: String },
     subscription: { type: Schema.Types.ObjectId, ref: 'Subscription' },
+    subscriptionExpiresAt: { type: Date },
     isActive: { type: Boolean, default: true },
     googleId: { type: String, unique: true, sparse: true },
     authProvider: { type: String, enum: ['local', 'google'], default: 'local' },

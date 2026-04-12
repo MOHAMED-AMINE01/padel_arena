@@ -1056,7 +1056,10 @@ export function AdminReservations() {
                                 </thead>
                                 <tbody className="divide-y divide-white/[0.03]">
                                     {(() => {
-                                        const specialRequests = bookings.filter(b => b.bookingType === 'PACK' || b.bookingType === 'SUBSCRIPTION');
+                                        const specialRequests = bookings.filter(b => 
+                                            (b.bookingType === 'PACK' || b.bookingType === 'SUBSCRIPTION') && 
+                                            (b.status !== 'PENDING' || b.totalPrice === 0)
+                                        );
                                         const itemsPerPage = 5;
                                         const totalPages = Math.ceil(specialRequests.length / itemsPerPage);
                                         

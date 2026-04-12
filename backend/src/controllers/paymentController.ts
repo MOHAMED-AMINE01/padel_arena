@@ -4,6 +4,7 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import Booking from '../models/Booking';
 import User from '../models/User';
+import Subscription from '../models/Subscription';
 import Course from '../models/Course';
 import Tournament from '../models/Tournament';
 import { sendEmail, getEmailTemplate } from '../services/mailService';
@@ -135,10 +136,25 @@ export const handleWebhook = async (req: Request, res: Response) => {
 
         // Subscription Activation: Update User profile
         if (booking.bookingType === 'SUBSCRIPTION' && booking.subscription && booking.user) {
-          await User.findByIdAndUpdate(booking.user, {
-            subscription: booking.subscription
-          });
-          console.log(`✨ User ${booking.user} subscription updated to ${booking.subscription}`);
+          const plan = await Subscription.findById(booking.subscription);
+          const currentUser = await User.findById(booking.user);
+          
+          if (plan && currentUser) {
+            let newExpiryDate = new Date();
+            
+            // If user already has an expiry date in the future, extend IT instead of starting from today
+            if (currentUser.subscriptionExpiresAt && currentUser.subscriptionExpiresAt > newExpiryDate) {
+              newExpiryDate = new Date(currentUser.subscriptionExpiresAt);
+            }
+            
+            newExpiryDate.setMonth(newExpiryDate.getMonth() + plan.durationInMonths);
+            
+            await User.findByIdAndUpdate(booking.user, {
+              subscription: booking.subscription,
+              subscriptionExpiresAt: newExpiryDate
+            });
+            console.log(`✨ User ${booking.user} subscription extended. Plan: ${plan.name}, New Expiry: ${newExpiryDate}`);
+          }
         }
 
         // Course / Tournament participant registration

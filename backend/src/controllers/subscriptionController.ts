@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import mongoose from 'mongoose';
 import Subscription from '../models/Subscription';
 import User from '../models/User';
 import { asyncHandler } from '../utils/asyncHandler';
@@ -172,7 +173,8 @@ export const getMySubscription = asyncHandler(async (req: Request, res: Response
         success: true,
         data: {
             subscription: user.subscription || null,
-            subscribedAt: user.createdAt, // Could add a dedicated field later
+            subscribedAt: user.createdAt,
+            expiresAt: user.subscriptionExpiresAt || null,
             stats
         }
     });
@@ -258,9 +260,19 @@ export const checkEmailSubscription = asyncHandler(async (req: Request, res: Res
 
     const user = await User.findOne({ email }).populate('subscription');
     
+    // Also check confirmed guest bookings for subscriptions
+    const Booking = mongoose.model('Booking');
+    const existingBooking = await Booking.findOne({
+        $or: [{ guestEmail: email }, { user: user?._id }],
+        bookingType: 'SUBSCRIPTION',
+        status: 'CONFIRMED'
+    });
+
     res.status(200).json({
         success: true,
-        hasSubscription: !!(user && user.subscription),
-        planName: user?.subscription ? (user.subscription as any).name : null
+        hasSubscription: !!(user && user.subscription) || !!existingBooking,
+        planName: user?.subscription 
+            ? (user.subscription as any).name 
+            : (existingBooking ? existingBooking.packName : null)
     });
 });

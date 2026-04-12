@@ -41,25 +41,27 @@ export function PlayerSubscription() {
     const { user } = useAuth();
     const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
     const [currentSubscription, setCurrentSubscription] = useState<SubscriptionPlan | null>(null);
-    const [stats, setStats] = useState<UserStats | null>(null);
     const [loading, setLoading] = useState(true);
     const [subscribing, setSubscribing] = useState<string | null>(null);
     const [promoDiscount, setPromoDiscount] = useState<number>(0);
-    const [promoCode, setPromoCode] = useState<string>('');
-    const [promoPlanId, setPromoPlanId] = useState<string | null>(null);
-    const [promoAvailable, setPromoAvailable] = useState<string | null>(null);
-    const [canceling, setCanceling] = useState(false);
+    const [expiresAt, setExpiresAt] = useState<string | null>(null);
+    const [history, setHistory] = useState<any[]>([]);
 
     const fetchData = async () => {
         try {
             setLoading(true);
-            const [plansRes, mySubRes] = await Promise.all([
+            const [plansRes, mySubRes, historyRes] = await Promise.all([
                 api.get('/subscriptions/plans'),
-                api.get('/subscriptions/my-subscription')
+                api.get('/subscriptions/my-subscription'),
+                api.get('/bookings/me?bookingType=SUBSCRIPTION')
             ]);
-            setPlans(plansRes.data.data);
-            setCurrentSubscription(mySubRes.data.data.subscription);
-            setStats(mySubRes.data.data.stats);
+
+            setPlans(plansRes.data.data || []);
+            setCurrentSubscription(mySubRes.data.data?.subscription || null);
+            setExpiresAt(mySubRes.data.data?.expiresAt || null);
+
+            const rawHistory = historyRes.data.data || [];
+            setHistory(rawHistory.filter((b: any) => b.paymentStatus === 'PAID'));
         } catch (error) {
             console.error('Error fetching subscription data:', error);
         } finally {
@@ -74,8 +76,43 @@ export function PlayerSubscription() {
     const handleSubscribe = async (planId: string) => {
         try {
             setSubscribing(planId);
-            await api.post(`/subscriptions/subscribe/${planId}`, promoCode ? { promoCode } : {});
-            await fetchData();
+            const plan = plans.find(p => p._id === planId);
+            if (!plan) return;
+
+            const now = new Date();
+            const day = String(now.getDate()).padStart(2, '0');
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const year = now.getFullYear();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+
+            const res = await api.post('/bookings', {
+                guestName: user?.name,
+                guestEmail: user?.email,
+                guestPhone: user?.phone || '00000000',
+                startTime: now.toISOString(),
+                endTime: now.toISOString(),
+                timeStr: `${hours}:${minutes}`,
+                dateStr: `${day}/${month}/${year}`,
+                bookingType: 'SUBSCRIPTION',
+                packName: plan.name,
+                subscription: plan._id,
+                totalPrice: plan.price - promoDiscount
+            });
+
+            const booking = res.data.data;
+
+            const stripeRes = await api.post('/payments/create-checkout-session', {
+                bookingId: booking._id,
+                courtName: `Abonnement : ${plan.name}`,
+                amount: plan.price - promoDiscount,
+                customerEmail: user?.email,
+                successUrl: `${window.location.origin}/subscription?status=success`
+            });
+
+            if (stripeRes.data.url) {
+                window.location.href = stripeRes.data.url;
+            }
         } catch (error) {
             console.error('Error subscribing:', error);
         } finally {
@@ -83,31 +120,25 @@ export function PlayerSubscription() {
         }
     };
 
-    const handleCancel = async () => {
-        try {
-            setCanceling(true);
-            await api.post('/subscriptions/cancel');
-            await fetchData();
-        } catch (error) {
-            console.error('Error canceling subscription:', error);
-        } finally {
-            setCanceling(false);
-        }
+    const isExpiringSoon = () => {
+        if (!expiresAt) return false;
+        const expiryDate = new Date(expiresAt);
+        const now = new Date();
+        const diffDays = Math.ceil((expiryDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+        return diffDays <= 7;
     };
 
-    const getNextBillingDate = () => {
-        if (!currentSubscription) return '';
-        const date = new Date();
-        date.setMonth(date.getMonth() + currentSubscription.durationInMonths);
-        return date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+    const getFormattedExpiryDate = () => {
+        if (!expiresAt) return 'Non défini';
+        return new Date(expiresAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
     };
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center min-h-[60vh]">
+            <div className="flex items-center justify-center min-h-screen bg-[#0A0A0B]">
                 <div className="flex flex-col items-center gap-4">
                     <Loader2 className="w-10 h-10 text-padel-blue animate-spin" />
-                    <p className="text-sm text-white/50 uppercase tracking-widest">Chargement...</p>
+                    <p className="text-xs text-white/30 uppercase tracking-[0.3em] font-black italic">Synchronisation Arena...</p>
                 </div>
             </div>
         );
@@ -115,276 +146,169 @@ export function PlayerSubscription() {
 
     return (
         <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="space-y-8 md:space-y-12 pb-10"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="min-h-screen  p-6 lg:p-12 space-y-12"
         >
-            {/* Elite Header */}
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 md:gap-8 border-b border-white/5 pb-8 md:pb-10">
+            {/* Header Area */}
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-8 pb-12 border-b border-white/5">
                 <div className="space-y-4">
-                    <motion.div
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.2 }}
-                        className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-padel-blue/10 border border-padel-blue/20 text-padel-blue text-[10px] font-black uppercase tracking-[0.3em]"
-                    >
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-padel-blue/10 border border-padel-blue/20 text-padel-blue text-[10px] font-black uppercase tracking-[0.3em]">
                         <Sparkles size={12} /> Membership Privilège
-                    </motion.div>
+                    </div>
                     <div>
-                        <h1 className="text-4xl sm:text-5xl md:text-7xl font-display font-black text-white italic uppercase tracking-tighter leading-[0.85]">
-                            Mon <br /> <span className="text-padel-yellow drop-shadow-[0_0_30px_rgba(255,210,31,0.3)]">Abonnement</span>
+                        <h1 className="text-5xl md:text-8xl font-display font-black text-white italic uppercase tracking-tighter leading-[0.8]">
+                            Mon <br /><span className="text-padel-yellow drop-shadow-[0_0_30px_rgba(255,210,31,0.2)]">Abonnement</span>
                         </h1>
-                        <p className="text-[10px] sm:text-xs font-bold text-white/30 uppercase tracking-[0.2em] sm:tracking-[0.3em] mt-4 italic">Élite • Performance • Liberté</p>
                     </div>
                 </div>
 
                 {currentSubscription && (
-                    <div className="px-4 sm:px-6 py-3 sm:py-4 glass-pill flex items-center gap-3 sm:gap-4 self-start md:self-auto">
+                    <div className="px-6 py-4 bg-white/[0.03] border border-white/10 rounded-2xl flex items-center gap-4">
                         <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                        <span className="text-[9px] sm:text-[10px] font-black text-white uppercase tracking-widest">Statut : {currentSubscription.name}</span>
+                        <span className="text-xs font-black text-white uppercase tracking-widest">{currentSubscription.name} Actif</span>
                     </div>
                 )}
             </div>
 
-            {currentSubscription ? (
-                <div className="grid grid-cols-1 lg:grid-cols-7 gap-6 md:gap-8 lg:gap-10">
-                    {/* Active Premium Card */}
-                    <motion.div
-                        whileHover={{ y: -5 }}
-                        className="lg:col-span-7 group"
-                    >
-                        <div className="relative bg-[#151518]/60 backdrop-blur-2xl border border-white/10 rounded-2xl sm:rounded-[2.5rem] lg:rounded-[3.5rem] p-6 sm:p-10 md:p-12 lg:p-16 xl:p-20 overflow-hidden shadow-3xl">
-                            {/* Animated mesh backgrounds */}
-                            <div className="absolute top-0 right-0 w-[300px] sm:w-[400px] lg:w-[600px] h-[300px] sm:h-[400px] lg:h-[600px] bg-padel-blue/20 rounded-full blur-[80px] lg:blur-[120px] -mr-24 lg:-mr-48 -mt-24 lg:-mt-48 group-hover:bg-padel-blue/30 transition-all duration-1000" />
-                            <div className="absolute bottom-0 left-0 w-[200px] sm:w-[300px] lg:w-[400px] h-[200px] sm:h-[300px] lg:h-[400px] bg-padel-yellow/5 rounded-full blur-[60px] lg:blur-[100px] -ml-16 lg:-ml-32 -mb-16 lg:-mb-32 pointer-events-none" />
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+                {/* Active Plan Content */}
+                {currentSubscription && (
+                    <div className="lg:col-span-12 space-y-12">
+                        {/* Main Card */}
+                        <div className="relative bg-[#151518] rounded-[3rem] p-8 md:p-16 border border-white/5 overflow-hidden group">
+                            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-padel-blue/10 rounded-full blur-[120px] -mr-48 -mt-48 transition-all duration-1000 group-hover:bg-padel-blue/20" />
 
-                            <div className="relative z-10 flex flex-col gap-8 items-start">
-                                <div className="space-y-6 sm:space-y-8 lg:space-y-10 w-full">
-                                    <div className="flex items-center gap-3 sm:gap-4">
-                                        <div className="w-12 h-12 sm:w-14 md:w-16 sm:h-14 md:h-16 bg-padel-blue/20 rounded-2xl sm:rounded-3xl flex items-center justify-center text-padel-blue border border-padel-blue/30 shadow-inner group-hover:scale-110 transition-transform duration-700">
-                                            <Trophy size={24} className="sm:w-7 sm:h-7 md:w-8 md:h-8" />
+                            <div className="relative z-10 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-12">
+                                <div className="space-y-8">
+                                    <div className="flex items-center gap-6">
+                                        <div className="w-20 h-20 bg-padel-blue/20 rounded-3xl flex items-center justify-center text-padel-blue border border-padel-blue/30 shadow-2xl">
+                                            <Trophy size={40} />
                                         </div>
                                         <div>
-                                            <p className="text-[9px] sm:text-[10px] font-black text-padel-blue uppercase tracking-[0.3em] sm:tracking-[0.4em] mb-1">Plan Actuel</p>
-                                            <p className="text-[10px] sm:text-xs font-bold text-white/40 uppercase tracking-widest italic">Abonnement Exclusif</p>
+                                            <p className="text-[10px] font-black text-padel-blue uppercase tracking-[0.5em] mb-2">Statut Membre</p>
+                                            <h2 className="text-6xl font-display font-black text-white italic uppercase tracking-tighter">{currentSubscription.name}</h2>
                                         </div>
                                     </div>
 
-                                    <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-display font-black text-white italic uppercase tracking-tighter leading-none mb-4 sm:mb-6 lg:mb-8">
-                                        {currentSubscription.name.split(' ').map((word, i) => (
-                                            <span key={i} className={i === 1 ? 'text-padel-yellow' : ''}>{word} </span>
-                                        ))}
-                                    </h2>
-
-                                    <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 md:gap-6">
-                                        <div className="glass-card px-4 sm:px-6 lg:px-8 py-3 sm:py-4 lg:py-5 rounded-xl sm:rounded-2xl lg:rounded-3xl">
-                                            <p className="text-[8px] sm:text-[9px] font-black text-white/30 uppercase tracking-[0.2em] sm:tracking-[0.3em] mb-1 sm:mb-2">Prochaine Échéance</p>
-                                            <p className="text-base sm:text-lg lg:text-xl font-black text-white italic uppercase tracking-tighter">{getNextBillingDate()}</p>
+                                    <div className="flex flex-wrap gap-6">
+                                        <div className="bg-white/5 border border-white/5 px-8 py-5 rounded-[2rem]">
+                                            <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] mb-2">Date d'expiration</p>
+                                            <p className="text-2xl font-black text-white italic uppercase">{getFormattedExpiryDate()}</p>
                                         </div>
-                                        <div className="glass-card px-4 sm:px-6 lg:px-8 py-3 sm:py-4 lg:py-5 rounded-xl sm:rounded-2xl lg:rounded-3xl border-padel-yellow/20">
-                                            <p className="text-[8px] sm:text-[9px] font-black text-padel-yellow/50 uppercase tracking-[0.2em] sm:tracking-[0.3em] mb-1 sm:mb-2">Prix</p>
-                                            <p className="text-base sm:text-lg lg:text-xl font-black text-white italic uppercase tracking-tighter">{currentSubscription.price - (promoDiscount > 0 ? promoDiscount : 0)}€ <span className="text-padel-blue">/ {currentSubscription.durationInMonths} mois</span></p>
-                                            {promoDiscount > 0 && (
-                                                <div className="mt-2 text-green-400 text-xs font-bold flex items-center gap-2">
-                                                    <CheckCircle2 size={16} />
-                                                    Code promo appliqué : <span className="font-mono bg-green-500/10 px-2 py-1 rounded">{promoCode}</span> (-{promoDiscount}€)
-                                                </div>
-                                            )}
+                                        <div className="bg-white/5 border border-white/5 px-8 py-5 rounded-[2rem]">
+                                            <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] mb-2">Tarif préférentiel</p>
+                                            <p className="text-2xl font-black text-padel-yellow italic uppercase">{currentSubscription.price}€ <span className="text-sm opacity-30 text-white">/ {currentSubscription.durationInMonths} mois</span></p>
                                         </div>
                                     </div>
                                 </div>
-                                <button
-                                    onClick={handleCancel}
-                                    disabled={canceling}
-                                    className="self-end px-6 sm:px-8 lg:px-12 py-4 sm:py-5 lg:py-6 rounded-xl sm:rounded-2xl bg-red-500/20 border border-red-500/30 text-red-400 text-[10px] sm:text-xs font-black uppercase tracking-widest hover:bg-red-500/30 transition-all duration-300 backdrop-blur-md disabled:opacity-50 flex items-center justify-center gap-2"
-                                >
-                                    {canceling ? (
-                                        <Loader2 className="w-4 h-4 animate-spin" />
-                                    ) : (
-                                        <>
-                                            <X size={16} />
-                                            Annuler l'abonnement
-                                        </>
-                                    )}
-                                </button>
-                            </div>
-                        </div>
-                    </motion.div>
 
-                    {/* Membership perks grid */}
-                    <div className="lg:col-span-7">
-                        <div className="bg-[#151518]/40 backdrop-blur-xl border border-white/10 rounded-2xl sm:rounded-[2rem] lg:rounded-[3rem] p-6 sm:p-8 md:p-10 lg:p-14 relative overflow-hidden h-full">
-                            <div className="flex items-center gap-3 mb-8 sm:mb-10 lg:mb-12">
-                                <div className="w-1 sm:w-1.5 h-5 sm:h-6 bg-padel-blue rounded-full" />
-                                <h3 className="text-xs sm:text-sm font-black text-white uppercase tracking-[0.3em] sm:tracking-[0.4em]">Privilèges Inclus</h3>
-                            </div>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8 lg:gap-10">
-                                {currentSubscription.features.length > 0 ? (
-                                    currentSubscription.features.map((feature, i) => (
-                                        <motion.div
-                                            key={i}
-                                            initial={{ opacity: 0, y: 10 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            transition={{ delay: 0.1 * i }}
-                                            className="flex gap-4 items-center bg-white/5 rounded-xl p-4 shadow-inner hover:bg-padel-blue/10 transition-all duration-300"
-                                        >
-                                            <CheckCircle2 size={24} className="text-padel-blue flex-shrink-0" />
-                                            <span className="text-base font-bold text-white uppercase tracking-wide">{feature}</span>
-                                        </motion.div>
-                                    ))
-                                ) : (
-                                    <span className="text-white/40 italic">Aucun privilège inclus</span>
+                                {isExpiringSoon() && (
+                                    <button
+                                        onClick={() => handleSubscribe(currentSubscription._id)}
+                                        disabled={subscribing !== null}
+                                        className="w-full lg:w-auto px-12 py-7 bg-padel-yellow text-black font-display font-black text-xs uppercase tracking-[0.3em] rounded-[2rem] hover:scale-105 transition-all shadow-[0_20px_40px_rgba(255,210,31,0.2)] flex items-center justify-center gap-4"
+                                    >
+                                        {subscribing ? <Loader2 className="w-5 h-5 animate-spin" /> : <RefreshCcw size={20} />}
+                                        Renouveler Maintenant
+                                    </button>
                                 )}
                             </div>
                         </div>
-                    </div>
 
-
-                </div>
-            ) : (
-                /* No subscription - Show available plans */
-                <div className="space-y-8">
-                    <div className="text-center space-y-4">
-                        <h2 className="text-2xl sm:text-3xl md:text-4xl font-display font-black text-white italic uppercase tracking-tighter">
-                            Choisissez votre <span className="text-padel-blue">Formule</span>
-                        </h2>
-                        <p className="text-xs sm:text-sm text-white/40 uppercase tracking-widest">Débloquez l'accès illimité aux terrains</p>
-                    </div>
-
-                    {plans.length === 0 ? (
-                        <div className="text-center py-16">
-                            <p className="text-white/40 uppercase tracking-widest text-sm">Aucun abonnement disponible pour le moment</p>
+                        {/* Perks Grid */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {currentSubscription.features.map((f, i) => (
+                                <div key={i} className="p-6 bg-white/[0.02] border border-white/5 rounded-3xl flex items-center gap-5 hover:bg-white/[0.04] transition-all">
+                                    <div className="w-10 h-10 rounded-2xl bg-padel-blue/10 flex items-center justify-center text-padel-blue">
+                                        <CheckCircle2 size={24} />
+                                    </div>
+                                    <span className="text-sm font-bold text-white uppercase tracking-wide">{f}</span>
+                                </div>
+                            ))}
                         </div>
-                    ) : (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
-                            {plans.map((plan, index) => {
-                                const isPopular = index === Math.floor(plans.length / 2);
-                                // Simule la disponibilité du code promo selon le plan (exemple: pas pour les plans "Basic")
-                                const promoEnabled = !plan.name.toLowerCase().includes('basic');
-                                return (
-                                    <motion.div
-                                        key={plan._id}
-                                        initial={{ opacity: 0, y: 20 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        transition={{ delay: index * 0.1 }}
-                                        whileHover={{ y: -8, scale: 1.02 }}
-                                        className={cn(
-                                            "relative bg-[#151518]/60 backdrop-blur-xl border rounded-2xl sm:rounded-3xl p-6 sm:p-8 overflow-hidden group",
-                                            isPopular ? "border-padel-blue/50 shadow-[0_0_60px_rgba(19,73,211,0.15)]" : "border-white/10"
-                                        )}
-                                    >
-                                        {/* Background glow for popular */}
-                                        {isPopular && (
-                                            <div className="absolute top-0 right-0 w-[200px] h-[200px] bg-padel-blue/20 rounded-full blur-[80px] -mr-20 -mt-20 pointer-events-none" />
-                                        )}
+                    </div>
+                )}
 
-                                        {/* Popular badge */}
-                                        {isPopular && (
-                                            <div className="absolute top-4 right-4 px-3 py-1 bg-padel-blue rounded-full">
-                                                <span className="text-[9px] font-black text-white uppercase tracking-widest flex items-center gap-1">
-                                                    <Crown size={10} /> Populaire
-                                                </span>
-                                            </div>
-                                        )}
-
-                                        <div className="relative z-10 space-y-6">
-                                            {/* Plan name */}
-                                            <div>
-                                                <h3 className="text-xl sm:text-2xl font-display font-black text-white italic uppercase tracking-tight">
-                                                    {plan.name}
-                                                </h3>
-                                                <p className="text-[10px] text-white/30 uppercase tracking-widest mt-1">
-                                                    {plan.durationInMonths} mois
-                                                </p>
-                                            </div>
-
-                                            {/* Price */}
-                                            <div className="flex items-baseline gap-1">
-                                                <span className="text-4xl sm:text-5xl font-black text-white italic tracking-tighter">
-                                                    {(plan.price - (promoPlanId === plan._id ? promoDiscount : 0)).toFixed(2)}
-                                                </span>
-                                                <span className="text-lg sm:text-xl font-black text-padel-blue">€</span>
-                                                <span className="text-xs text-white/30 ml-2">/ {plan.durationInMonths > 1 ? `${plan.durationInMonths} mois` : 'mois'}</span>
-                                            </div>
-
-                                            {/* Promo Code Input */}
-                                            {promoEnabled ? (
-                                                <div className="mb-2">
-                                                    <PromoCodeInput
-                                                        applicationType="subscription"
-                                                        purchaseAmount={plan.price}
-                                                        onApply={(discount, code) => {
-                                                            setPromoDiscount(discount);
-                                                            setPromoCode(code);
-                                                            setPromoPlanId(plan._id);
-                                                        }}
-                                                    />
-                                                    {promoPlanId === plan._id && promoDiscount > 0 && (
-                                                        <>
-                                                            <div className="mt-2 text-green-400 text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
-                                                                <CheckCircle2 size={14} /> Code {promoCode} appliqué (-{promoDiscount}€)
-                                                            </div>
-                                                            <div className="mt-2 text-white text-xs font-bold uppercase tracking-wider">
-                                                                Total : <span className="text-padel-yellow font-mono bg-padel-blue/10 px-2 py-1 rounded">{(plan.price - promoDiscount).toFixed(2)}€</span>
-                                                            </div>
-                                                        </>
-                                                    )}
-                                                </div>
-                                            ) : (
-                                                <div className="mb-2 text-xs text-white/30 italic">Code promo non disponible pour ce plan</div>
-                                            )}
-
-                                            {/* Features */}
-                                            <div className="space-y-3 pt-4 border-t border-white/5">
-                                                {plan.features.length > 0 ? (
-                                                    plan.features.slice(0, 4).map((feature, i) => (
-                                                        <div key={i} className="flex items-center gap-3">
-                                                            <CheckCircle2 size={14} className="text-padel-blue flex-shrink-0" />
-                                                            <span className="text-[11px] sm:text-xs text-white/60 uppercase tracking-wide">{feature}</span>
-                                                        </div>
-                                                    ))
-                                                ) : (
-                                                    <>
-                                                        <div className="flex items-center gap-3">
-                                                            <CheckCircle2 size={14} className="text-padel-blue" />
-                                                            <span className="text-[11px] sm:text-xs text-white/60 uppercase tracking-wide">Accès illimité terrains</span>
-                                                        </div>
-                                                        <div className="flex items-center gap-3">
-                                                            <CheckCircle2 size={14} className="text-padel-blue" />
-                                                            <span className="text-[11px] sm:text-xs text-white/60 uppercase tracking-wide">Réservation prioritaire</span>
-                                                        </div>
-                                                    </>
-                                                )}
-                                            </div>
-
-                                            {/* Subscribe button */}
-                                            <button
-                                                onClick={() => handleSubscribe(plan._id)}
-                                                disabled={subscribing === plan._id}
-                                                className={cn(
-                                                    "w-full py-4 rounded-xl text-xs font-black uppercase tracking-widest transition-all duration-300 flex items-center justify-center gap-2",
-                                                    isPopular
-                                                        ? "bg-padel-blue text-white hover:bg-padel-blue/80 shadow-lg hover:shadow-padel-blue/30"
-                                                        : "bg-white/5 border border-white/10 text-white hover:bg-white/10"
-                                                )}
-                                            >
-                                                {subscribing === plan._id ? (
-                                                    <Loader2 className="w-4 h-4 animate-spin" />
-                                                ) : (
-                                                    <>
-                                                        <Zap size={14} />
-                                                        S'abonner
-                                                    </>
-                                                )}
-                                            </button>
+                {/* Purchase Plans (If no sub) */}
+                {!currentSubscription && (
+                    <div className="lg:col-span-12 space-y-12">
+                        <div className="text-center">
+                            <h2 className="text-5xl font-display font-black text-white italic uppercase tracking-tighter">Choisir une <span className="text-padel-blue">Formule</span></h2>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                            {plans.map((p) => (
+                                <div key={p._id} className="bg-[#151518] rounded-[3rem] p-10 space-y-8 border border-white/5 hover:border-padel-blue/30 transition-all">
+                                    <div>
+                                        <h3 className="text-2xl font-display font-black text-white italic uppercase">{p.name}</h3>
+                                        <div className="flex items-baseline gap-2 mt-4">
+                                            <span className="text-5xl font-black text-white italic">{p.price}€</span>
+                                            <span className="text-xs text-white/30 uppercase font-black">/ {p.durationInMonths} mois</span>
                                         </div>
-                                    </motion.div>
-                                );
-                            })}
+                                    </div>
+                                    <div className="space-y-4 pt-8 border-t border-white/5">
+                                        {p.features.slice(0, 4).map((f, i) => (
+                                            <div key={i} className="flex items-center gap-3">
+                                                <Check size={14} className="text-padel-blue" />
+                                                <span className="text-[10px] font-bold text-white/50 uppercase tracking-widest">{f}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <button
+                                        onClick={() => handleSubscribe(p._id)}
+                                        disabled={subscribing === p._id}
+                                        className="w-full py-5 bg-white/5 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] hover:bg-padel-blue transition-all"
+                                    >
+                                        S'abonner
+                                    </button>
+                                </div>
+                            ))}
                         </div>
-                    )}
+                    </div>
+                )}
+
+                {/* Payment History (Always show) */}
+                <div className="lg:col-span-12 mt-12">
+                    <div className="bg-[#151518]/40 rounded-[3rem] p-10 border border-white/5 overflow-hidden relative">
+                        <div className="flex items-center justify-between mb-12">
+                            <h3 className="text-sm font-black text-white uppercase tracking-[0.5em] flex items-center gap-4">
+                                <div className="w-1.5 h-6 bg-padel-yellow rounded-full" />
+                                Historique Financier
+                            </h3>
+                            <div className="px-4 py-2 bg-white/5 rounded-full text-[10px] font-black text-white/30 uppercase tracking-widest border border-white/5">
+                                {history.length} Opération(s)
+                            </div>
+                        </div>
+
+                        <div className="space-y-4">
+                            {history.length > 0 ? (
+                                history.map((item) => (
+                                    <div key={item._id} className="flex items-center justify-between p-6 bg-white/[0.01] border border-white/5 rounded-[2rem] hover:bg-white/[0.03] transition-all group">
+                                        <div className="flex items-center gap-6">
+                                            <div className="w-14 h-14 bg-padel-blue/10 rounded-2xl flex items-center justify-center text-padel-blue group-hover:scale-110 transition-transform">
+                                                <CreditCard size={24} />
+                                            </div>
+                                            <div>
+                                                <p className="text-xs font-black text-white uppercase tracking-[0.2em] mb-1">{item.packName || 'Abonnement Arena'}</p>
+                                                <p className="text-[10px] text-white/20 font-bold uppercase">{new Date(item.createdAt).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' })}</p>
+                                            </div>
+                                        </div>
+                                        <div className="text-right">
+                                            <p className="text-2xl font-black text-padel-yellow italic -tracking-tighter">-{item.totalPrice}€</p>
+                                            <p className="text-[8px] font-black text-green-500 uppercase tracking-[0.4em] mt-1">Transactions Vérifiée</p>
+                                        </div>
+                                    </div>
+                                ))
+                            ) : (
+                                <div className="text-center py-20 opacity-10">
+                                    <Clock size={60} className="mx-auto mb-6" />
+                                    <p className="text-xs font-black uppercase tracking-[0.5em]">Aucun mouvement enregistré</p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
                 </div>
-            )}
+            </div>
         </motion.div>
     );
 }

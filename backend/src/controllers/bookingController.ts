@@ -3,6 +3,7 @@ import Booking from '../models/Booking';
 import Court from '../models/Court';
 import Transaction from '../models/Transaction';
 import User from '../models/User';
+import Subscription from '../models/Subscription';
 import { asyncHandler } from '../utils/asyncHandler';
 import { validateAndApplyPromoCode, incrementPromoCodeUsage } from '../services/promoCodeService';
 import { sendEmail, getEmailTemplate } from '../services/mailService';
@@ -226,7 +227,14 @@ export const createBooking = asyncHandler(async (req: any, res: Response) => {
 // @route   GET /api/bookings/me
 // @access  Private
 export const getMyBookings = asyncHandler(async (req: any, res: Response) => {
-    const bookings = await Booking.find({ user: req.user.id })
+    const query: any = { user: req.user.id };
+    
+    // Add optional filters from query params
+    if (req.query.bookingType) {
+        query.bookingType = req.query.bookingType;
+    }
+
+    const bookings = await Booking.find(query)
         .populate('court', 'name')
         .sort('-startTime');
 
@@ -321,10 +329,17 @@ export const updateBooking = asyncHandler(async (req: any, res: Response) => {
 
             // Manual Activation for Admin Validation
             if (booking.bookingType === 'SUBSCRIPTION' && booking.subscription && booking.user) {
-                await User.findByIdAndUpdate(booking.user, {
-                    subscription: booking.subscription
-                });
-                console.log(`✨ Manual activation: User ${booking.user} subscription updated to ${booking.subscription}`);
+                const plan = await Subscription.findById(booking.subscription);
+                if (plan) {
+                    const expiresAt = new Date();
+                    expiresAt.setMonth(expiresAt.getMonth() + plan.durationInMonths);
+
+                    await User.findByIdAndUpdate(booking.user, {
+                        subscription: booking.subscription,
+                        subscriptionExpiresAt: expiresAt
+                    });
+                    console.log(`✨ Manual activation: User ${booking.user} subscription updated. Plan: ${plan.name}, Expires: ${expiresAt}`);
+                }
             }
         }
     }
