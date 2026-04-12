@@ -53,9 +53,7 @@ export const PacksAndFormulas = () => {
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
-    email: '',
-    date: new Date().toISOString().split('T')[0],
-    time: '09:00'
+    email: ''
   });
 
   useEffect(() => {
@@ -97,9 +95,7 @@ export const PacksAndFormulas = () => {
     setFormData({
       name: '',
       phone: '',
-      email: '',
-      date: new Date().toISOString().split('T')[0],
-      time: '09:00'
+      email: ''
     });
   };
 
@@ -108,14 +104,24 @@ export const PacksAndFormulas = () => {
     setBookingStatus('submitting');
 
     try {
-      // 1. Create a real booking entry
       const priceValue = parseFloat(selectedPack?.price || '0');
+      const now = new Date();
+      
+      // Generate local format strings to avoid timezone shifts
+      const day = String(now.getDate()).padStart(2, '0');
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const year = now.getFullYear();
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+
       const res = await api.post('/bookings', {
         guestName: formData.name,
         guestPhone: formData.phone,
         guestEmail: formData.email,
-        startTime: `${formData.date}T${formData.time}:00`,
-        endTime: `${formData.date}T${formData.time}:00`,
+        startTime: now.toISOString(),
+        endTime: now.toISOString(),
+        timeStr: `${hours}:${minutes}`,
+        dateStr: `${day}/${month}/${year}`,
         bookingType: 'PACK',
         packName: selectedPack?.title,
         players: 4,
@@ -312,7 +318,9 @@ export const PacksAndFormulas = () => {
                     Optez pour le  <br /> <span className="text-padel-blue">{selectedPack?.title}</span>
                   </h3>
                   <p className="text-xs text-white/30 font-medium uppercase tracking-[0.2em] max-w-sm mx-auto">
-                    Nos équipes vous recontacteront pour finaliser votre accès Arena.
+                    {selectedPack?.price === 'DEVIS' 
+                      ? "Demandez votre devis sur mesure." 
+                      : "Accédez instantanément à vos avantages après paiement."}
                   </p>
                 </div>
 
@@ -353,53 +361,34 @@ export const PacksAndFormulas = () => {
                         />
                       </div>
 
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="relative group">
-                          <input
-                            required
-                            type="date"
-                            title="Date de session souhaitée"
-                            value={formData.date}
-                            onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                            className="w-full bg-white/[0.03] border border-white/10 rounded-2xl py-5 px-6 text-[10px] font-black text-white focus:border-padel-blue outline-none transition-all uppercase tracking-widest [color-scheme:dark]"
-                          />
-                        </div>
-                        <div className="relative group">
-                          <input
-                            required
-                            type="time"
-                            title="Heure de session souhaitée"
-                            value={formData.time}
-                            onChange={(e) => setFormData({ ...formData, time: e.target.value })}
-                            className="w-full bg-white/[0.03] border border-white/10 rounded-2xl py-5 px-6 text-[10px] font-black text-white focus:border-padel-blue outline-none transition-all uppercase tracking-widest [color-scheme:dark]"
-                          />
-                        </div>
-                      </div>
+
                     </div>
 
-                    <div className="flex flex-col items-center gap-4 px-6 py-6 bg-white/[0.02] border border-white/5 rounded-[2.5rem] relative overflow-hidden group mb-6">
-                           <div className="absolute top-0 right-0 p-4 opacity-[0.03] rotate-12 transition-transform group-hover:rotate-0">
-                             <CreditCard size={40} />
-                           </div>
-                           <div className="flex items-center gap-3">
-                             <div className="w-8 h-8 rounded-full bg-padel-blue flex items-center justify-center text-white shadow-lg shadow-padel-blue/20">
-                               <CreditCard size={14} />
+                    {selectedPack?.price !== 'DEVIS' && (
+                      <div className="flex flex-col items-center gap-4 px-6 py-6 bg-white/[0.02] border border-white/5 rounded-[2.5rem] relative overflow-hidden group mb-6">
+                             <div className="absolute top-0 right-0 p-4 opacity-[0.03] rotate-12 transition-transform group-hover:rotate-0">
+                               <CreditCard size={40} />
                              </div>
-                             <div className="text-left">
-                               <p className="text-[10px] font-black text-white uppercase tracking-widest leading-none mb-1">Paiement 100% Sécurisé</p>
-                               <p className="text-[8px] font-black text-padel-blue uppercase tracking-[0.2em] leading-none">VIA STRIPE CONNECT</p>
+                             <div className="flex items-center gap-3">
+                               <div className="w-8 h-8 rounded-full bg-padel-blue flex items-center justify-center text-white shadow-lg shadow-padel-blue/20">
+                                 <CreditCard size={14} />
+                               </div>
+                               <div className="text-left">
+                                 <p className="text-[10px] font-black text-white uppercase tracking-widest leading-none mb-1">Paiement 100% Sécurisé</p>
+                                 <p className="text-[8px] font-black text-padel-blue uppercase tracking-[0.2em] leading-none">VIA STRIPE CONNECT</p>
+                               </div>
                              </div>
-                           </div>
-                           <p className="text-[8px] md:text-[9px] font-black text-white/20 uppercase tracking-widest leading-relaxed text-center">
-                             VOUS ALLEZ ÊTRE REDIRIGÉ VERS LA PLATEFORME SÉCURISÉE <span className="text-white/40 font-bold tracking-normal italic">STRIPE</span> POUR FINALISER VOTRE RÉGLEMENT.
-                           </p>
-                    </div>
+                             <p className="text-[8px] md:text-[9px] font-black text-white/20 uppercase tracking-widest leading-relaxed text-center">
+                               VOUS ALLEZ ÊTRE REDIRIGÉ VERS LA PLATEFORME SÉCURISÉE <span className="text-white/40 font-bold tracking-normal italic">STRIPE</span> POUR FINALISER VOTRE RÉGLEMENT.
+                             </p>
+                      </div>
+                    )}
                     <button
                       type="submit"
                       disabled={bookingStatus === 'submitting'}
                       className="w-full py-6 bg-padel-blue text-white rounded-full font-black text-[11px] uppercase tracking-[0.4em] shadow-2xl shadow-padel-blue/30 hover:bg-padel-yellow hover:text-padel-blue transition-all"
                     >
-                      {bookingStatus === 'submitting' ? <Loader2 className="animate-spin mx-auto" size={16} /> : 'PAYER VIA STRIPE'}
+                      {bookingStatus === 'submitting' ? <Loader2 className="animate-spin mx-auto" size={16} /> : (selectedPack?.price === 'DEVIS' ? 'ENVOYER MA DEMANDE' : 'PAYER VIA STRIPE')}
                     </button>
                   </form>
                 )}

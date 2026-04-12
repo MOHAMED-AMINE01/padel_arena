@@ -653,9 +653,10 @@ export function AdminReservations() {
         };
     }, [bookings, globalRevenue]);
 
-    // Derived: Filtered bookings
+    // Derived: Filtered bookings (Main Grid - Exclude Packs/Subs as they have their own section)
     const filteredBookings = useMemo(() => {
-        let result = bookings;
+        let result = bookings.filter(b => b.bookingType !== 'PACK' && b.bookingType !== 'SUBSCRIPTION');
+        
         if (!showCancelled) {
             result = result.filter(b => b.status !== 'CANCELLED');
         }
@@ -1126,7 +1127,7 @@ export function AdminReservations() {
                                                                     <p className="text-xs font-black leading-none">
                                                                          {request.timeStr || (() => {
                                                                              const d = new Date(request.startTime);
-                                                                             return `${String(d.getUTCHours()).padStart(2, '0')}h${String(d.getUTCMinutes()).padStart(2, '0')}`;
+                                                                             return `${String(d.getHours()).padStart(2, '0')}h${String(d.getMinutes()).padStart(2, '0')}`;
                                                                          })()}
                                                                     </p>
                                                                 </div>

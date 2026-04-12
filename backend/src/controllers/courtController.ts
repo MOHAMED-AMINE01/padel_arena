@@ -7,11 +7,14 @@ import { asyncHandler } from '../utils/asyncHandler';
 // @access  Public
 export const getCourts = asyncHandler(async (req: Request, res: Response) => {
     let query;
+    // Always exclude the technical 'RESERVE PACKS' court from UI listings
+    const baseQuery: any = { name: { $ne: 'RESERVE PACKS' } };
+
     // Show all courts if 'all' is passed in query, otherwise show only active ones
     if (req.query.all === 'true') {
-        query = {};
+        query = baseQuery;
     } else {
-        query = { isActive: true };
+        query = { ...baseQuery, isActive: true };
     }
     const courts = await Court.find(query);
     res.status(200).json({ success: true, count: courts.length, data: courts });

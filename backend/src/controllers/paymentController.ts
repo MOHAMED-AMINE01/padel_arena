@@ -3,6 +3,7 @@ import Stripe from 'stripe';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import Booking from '../models/Booking';
+import User from '../models/User';
 import Course from '../models/Course';
 import Tournament from '../models/Tournament';
 import { sendEmail, getEmailTemplate } from '../services/mailService';
@@ -131,6 +132,14 @@ export const handleWebhook = async (req: Request, res: Response) => {
         if (isSpecial) itemName = `${booking.bookingType === 'PACK' ? 'Pack' : 'Abonnement'} : ${booking.packName}`;
         if (isAcademy) itemName = `Académie : ${(booking.course as any)?.title || 'Cours'}`;
         if (isTournament) itemName = `Tournoi : ${(booking.tournament as any)?.name || 'Compétition'}`;
+
+        // Subscription Activation: Update User profile
+        if (booking.bookingType === 'SUBSCRIPTION' && booking.subscription && booking.user) {
+          await User.findByIdAndUpdate(booking.user, {
+            subscription: booking.subscription
+          });
+          console.log(`✨ User ${booking.user} subscription updated to ${booking.subscription}`);
+        }
 
         // Course / Tournament participant registration
         if (isAcademy && booking.course) {

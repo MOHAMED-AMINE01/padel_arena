@@ -3,14 +3,16 @@ import {
     getAvailablePlans,
     getMySubscription,
     subscribeToPlan,
-    cancelMySubscription
+    cancelMySubscription,
+    checkEmailSubscription
 } from '../controllers/subscriptionController';
 import { protect } from '../middlewares/auth';
 
 const router = express.Router();
 
-// Public route - get all available plans
+// Public routes
 router.get('/plans', getAvailablePlans);
+router.post('/check-email', checkEmailSubscription);
 
 // Protected routes - require authentication
 router.use(protect);

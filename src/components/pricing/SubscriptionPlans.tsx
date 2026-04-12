@@ -38,16 +38,21 @@ export const SubscriptionPlans = () => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [submitting, setSubmitting] = useState<string | null>(null);
   const [currentUserSub, setCurrentUserSub] = useState<any>(null);
-  const [modal, setModal] = useState<{ isOpen: boolean, type: 'success' | 'confirm' | 'error', plan?: any, message?: string }>({
+  const [modal, setModal] = useState<{ 
+    isOpen: boolean, 
+    type: 'success' | 'confirm' | 'error', 
+    plan?: any, 
+    message?: string,
+    needsSwitchConfirmation?: boolean, // Special flag for the switch alert
+    existingPlanName?: string
+  }>({
     isOpen: false,
     type: 'confirm'
   });
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
-    email: '',
-    date: new Date().toISOString().split('T')[0],
-    time: '09:00'
+    email: ''
   });
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -109,32 +114,61 @@ export const SubscriptionPlans = () => {
     setFormData({
       name: user?.name || '',
       phone: '',
-      email: user?.email || '',
-      date: new Date().toISOString().split('T')[0],
-      time: '09:00'
+      email: user?.email || ''
     });
-    setModal({ isOpen: true, type: 'confirm', plan: dbPlan });
+    setModal({ isOpen: true, type: 'confirm', plan: dbPlan, needsSwitchConfirmation: false });
   };
 
-  const confirmSubscription = async () => {
+  const confirmSubscription = async (forceSwitch = false) => {
     if (!modal.plan) return;
     setSubmitting(modal.plan._id);
     try {
+      // Security Check: If not forced yet, check if email has a subscription
+      if (!forceSwitch) {
+        const checkRes = await api.post('/subscriptions/check-email', { email: formData.email });
+        if (checkRes.data.hasSubscription) {
+          setModal({ 
+            ...modal, 
+            isOpen: true, 
+            needsSwitchConfirmation: true, 
+            existingPlanName: checkRes.data.planName 
+          });
+          setSubmitting(null);
+          return; // Stop here to show the warning
+        }
+      }
+
       const amount = isAnnual ? (modal.plan.price * 12 * 0.8) : modal.plan.price;
+      const isQuote = isNaN(parseFloat(amount.toString())) || parseFloat(amount.toString()) === 0;
+
+      const now = new Date();
+      const day = String(now.getDate()).padStart(2, '0');
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const year = now.getFullYear();
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
 
       // 1. Create a Booking Request
       const res = await api.post('/bookings', {
         guestName: formData.name,
         guestEmail: formData.email,
         guestPhone: formData.phone,
-        startTime: `${formData.date}T${formData.time}:00`,
-        endTime: `${formData.date}T${formData.time}:00`,
+        startTime: now.toISOString(),
+        endTime: now.toISOString(),
+        timeStr: `${hours}:${minutes}`,
+        dateStr: `${day}/${month}/${year}`,
         bookingType: 'SUBSCRIPTION',
         packName: modal.plan.name,
-        totalPrice: parseFloat(amount.toString())
+        subscription: modal.plan._id,
+        totalPrice: isQuote ? 0 : parseFloat(amount.toString())
       });
 
       const booking = res.data.data;
+
+      if (isQuote) {
+        setModal({ isOpen: true, type: 'success', message: 'Votre demande de devis a été envoyée avec succès. Notre équipe vous contactera rapidement.' });
+        return;
+      }
 
       // 2. Create Stripe Checkout Session
       const stripeRes = await api.post('/payments/create-checkout-session', {
@@ -348,7 +382,7 @@ export const SubscriptionPlans = () => {
               <div className="relative z-10 text-center space-y-8">
                 {modal.type === 'confirm' && (
                   <>
-                    <div className="text-center space-y-4">
+                      <div className="text-center space-y-4">
                       <div className="inline-flex py-1 px-4 bg-padel-blue/10 border border-padel-blue/20 rounded-full">
                         <span className="text-[9px] font-black text-padel-blue tracking-[0.3em] uppercase">ABONNEMENT ARENA</span>
                       </div>
@@ -358,9 +392,43 @@ export const SubscriptionPlans = () => {
                       <p className="text-xs text-white/30 font-medium uppercase tracking-[0.2em]">
                         Nos équipes vous contacteront pour finaliser votre adhésion.
                       </p>
+
+                      {/* Switching Warning */}
+                      {modal.needsSwitchConfirmation && (
+                        <motion.div 
+                          initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          className="mt-4 p-6 bg-padel-blue/10 border border-padel-blue/30 rounded-[2rem] text-left relative overflow-hidden group"
+                        >
+                          <div className="absolute top-0 right-0 p-4 opacity-5">
+                            <Zap size={60} />
+                          </div>
+                          <div className="flex items-start gap-4 mb-4">
+                            <div className="w-12 h-12 rounded-2xl bg-padel-blue/20 flex items-center justify-center shrink-0">
+                              <Zap size={24} className="text-padel-blue" />
+                            </div>
+                            <div>
+                              <p className="text-[10px] font-black text-white uppercase tracking-widest leading-none mb-1">Abonnement déjà actif</p>
+                              <p className="text-[8px] font-black text-padel-blue uppercase tracking-widest leading-loose">
+                                VOUS AVEZ DÉJÀ UN PLAN ACTIF : **{modal.existingPlanName?.toUpperCase()}**.
+                              </p>
+                            </div>
+                          </div>
+                          <p className="text-[9px] font-medium text-white/40 uppercase tracking-widest leading-relaxed mb-6">
+                            L'ACTIVATION DU PLAN **{modal.plan?.name.toUpperCase()}** RÉSILIERA IMMÉDIATEMENT VOTRE PLAN ACTUEL POUR LE REMPLACER PAR CELUI-CI.
+                          </p>
+                          <button
+                            onClick={() => confirmSubscription(true)}
+                            className="w-full py-4 bg-padel-blue rounded-full text-[9px] font-black uppercase tracking-[0.2em] text-white hover:scale-[1.02] transition-all shadow-lg shadow-padel-blue/20"
+                          >
+                            OUI, JE CONFIRME LE RÉ-ABONNEMENT
+                          </button>
+                        </motion.div>
+                      )}
                     </div>
 
-                    <form onSubmit={(e) => { e.preventDefault(); confirmSubscription(); }} className="space-y-5 text-left">
+                    {!modal.needsSwitchConfirmation && (
+                      <form onSubmit={(e) => { e.preventDefault(); confirmSubscription(); }} className="space-y-5 text-left">
                       <div className="space-y-4">
                         <div className="relative group">
                           <User className="absolute left-5 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-padel-blue transition-colors" size={16} />
@@ -395,49 +463,35 @@ export const SubscriptionPlans = () => {
                             className="w-full bg-white/[0.03] border border-white/10 rounded-2xl py-4 pl-14 pr-5 text-xs font-black text-white focus:border-padel-blue outline-none transition-all uppercase tracking-widest placeholder:text-white/10"
                           />
                         </div>
-                        <div className="grid grid-cols-2 gap-3">
-                          <div className="relative group">
-                            <CalendarDays className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-padel-blue transition-colors" size={15} />
-                            <input
-                              required
-                              type="date"
-                              title="Date de début souhaitée"
-                              value={formData.date}
-                              onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                              className="w-full bg-white/[0.03] border border-white/10 rounded-2xl py-4 pl-12 pr-3 text-[10px] font-black text-white focus:border-padel-blue outline-none transition-all [color-scheme:dark]"
-                            />
-                          </div>
-                          <div className="relative group">
-                            <Clock className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-padel-blue transition-colors" size={15} />
-                            <input
-                              required
-                              type="time"
-                              title="Heure préférée"
-                              value={formData.time}
-                              onChange={(e) => setFormData({ ...formData, time: e.target.value })}
-                              className="w-full bg-white/[0.03] border border-white/10 rounded-2xl py-4 pl-12 pr-3 text-[10px] font-black text-white focus:border-padel-blue outline-none transition-all [color-scheme:dark]"
-                            />
-                          </div>
-                        </div>
                       </div>
 
-                      <div className="flex flex-col items-center gap-4 px-6 py-6 bg-white/[0.02] border border-white/5 rounded-[2.5rem] relative overflow-hidden group mb-6">
-                           <div className="absolute top-0 right-0 p-4 opacity-[0.03] rotate-12 transition-transform group-hover:rotate-0">
-                             <CreditCard size={40} />
-                           </div>
-                           <div className="flex items-center gap-3">
-                             <div className="w-8 h-8 rounded-full bg-padel-blue flex items-center justify-center text-white shadow-lg shadow-padel-blue/20">
-                               <CreditCard size={14} />
-                             </div>
-                             <div className="text-left">
-                               <p className="text-[10px] font-black text-white uppercase tracking-widest leading-none mb-1">Paiement 100% Sécurisé</p>
-                               <p className="text-[8px] font-black text-padel-blue uppercase tracking-[0.2em] leading-none">VIA STRIPE CONNECT</p>
-                             </div>
-                           </div>
-                           <p className="text-[8px] md:text-[9px] font-black text-white/20 uppercase tracking-widest leading-relaxed text-center">
-                             VOUS ALLEZ ÊTRE REDIRIGÉ VERS LA PLATEFORME SÉCURISÉE <span className="text-white/40 font-bold tracking-normal italic">STRIPE</span> POUR FINALISER VOTRE RÉGLEMENT.
-                           </p>
-                        </div>
+                      {(() => {
+                        const amount = isAnnual ? (modal.plan.price * 12 * 0.8) : modal.plan.price;
+                        const isQuote = isNaN(parseFloat(amount.toString())) || parseFloat(amount.toString()) === 0;
+
+                        if (isQuote) return null;
+
+                        return (
+                          <div className="flex flex-col items-center gap-4 px-6 py-6 bg-white/[0.02] border border-white/5 rounded-[2.5rem] relative overflow-hidden group mb-6">
+                            <div className="absolute top-0 right-0 p-4 opacity-[0.03] rotate-12 transition-transform group-hover:rotate-0">
+                               <CreditCard size={40} />
+                            </div>
+                            <div className="flex items-center gap-3">
+                               <div className="w-8 h-8 rounded-full bg-padel-blue flex items-center justify-center text-white shadow-lg shadow-padel-blue/20">
+                                 <CreditCard size={14} />
+                               </div>
+                               <div className="text-left">
+                                 <p className="text-[10px] font-black text-white uppercase tracking-widest leading-none mb-1">Paiement 100% Sécurisé</p>
+                                 <p className="text-[8px] font-black text-padel-blue uppercase tracking-[0.2em] leading-none">VIA STRIPE CONNECT</p>
+                               </div>
+                            </div>
+                            <p className="text-[8px] md:text-[9px] font-black text-white/20 uppercase tracking-widest leading-relaxed text-center">
+                               VOUS ALLEZ ÊTRE REDIRIGÉ VERS LA PLATEFORME SÉCURISÉE <span className="text-white/40 font-bold tracking-normal italic">STRIPE</span> POUR FINALISER VOTRE RÉGLEMENT.
+                            </p>
+                          </div>
+                        );
+                      })()}
+
                       <div className="grid grid-cols-2 gap-3 pt-2">
                         <button
                           type="button"
@@ -451,10 +505,15 @@ export const SubscriptionPlans = () => {
                           disabled={submitting !== null}
                           className="py-4 bg-padel-blue rounded-full text-[10px] font-black uppercase tracking-widest text-white hover:scale-105 transition-all shadow-xl shadow-padel-blue/40 flex items-center justify-center gap-2"
                         >
-                          {submitting ? <Loader2 className="animate-spin" size={14} /> : 'PAYER VIA STRIPE'}
+                          {submitting ? <Loader2 className="animate-spin" size={14} /> : (() => {
+                            const amount = isAnnual ? (modal.plan.price * 12 * 0.8) : modal.plan.price;
+                            const isQuote = isNaN(parseFloat(amount.toString())) || parseFloat(amount.toString()) === 0;
+                            return isQuote ? 'DEMANDER UN DEVIS' : 'PAYER VIA STRIPE';
+                          })()}
                         </button>
                       </div>
                     </form>
+                    )}
                   </>
                 )}
 

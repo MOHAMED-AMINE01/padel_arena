@@ -173,7 +173,8 @@ export const createBooking = asyncHandler(async (req: any, res: Response) => {
                 type: 'INDOOR',
                 surface: 'PRO_TURF',
                 sport: 'Padel',
-                pricePerHour: 0,
+                offPeakPrice: 0,
+                peakPrice: 0,
                 isActive: false, // Don't show in public list
                 clubManager: managerId
             });
@@ -303,17 +304,28 @@ export const updateBooking = asyncHandler(async (req: any, res: Response) => {
         const existingTx = await Transaction.findOne({ booking: booking._id });
         if (!existingTx) {
             const customer = booking.user ? await User.findById(booking.user) : null;
+            const isSpecial = booking.bookingType === 'PACK' || booking.bookingType === 'SUBSCRIPTION';
             await Transaction.create({
                 type: 'INCOME',
                 amount: booking.totalPrice,
-                description: `Réservation Terrain #${booking._id.toString().slice(-4)}`,
+                description: isSpecial 
+                    ? `${booking.bookingType === 'PACK' ? 'Pack' : 'Abonnement'} : ${booking.packName}`
+                    : `Réservation Terrain #${booking._id.toString().slice(-4)}`,
                 method: paymentMethod || 'CASH',
                 managedBy: req.user._id,
                 customerName: customer ? customer.name : (booking.guestName || 'Client Inconnu'),
-                category: 'Réservation',
+                category: isSpecial ? (booking.bookingType === 'PACK' ? 'Pack' : 'Abonnement') : 'Réservation',
                 booking: booking._id,
                 status: 'COMPLETED'
             });
+
+            // Manual Activation for Admin Validation
+            if (booking.bookingType === 'SUBSCRIPTION' && booking.subscription && booking.user) {
+                await User.findByIdAndUpdate(booking.user, {
+                    subscription: booking.subscription
+                });
+                console.log(`✨ Manual activation: User ${booking.user} subscription updated to ${booking.subscription}`);
+            }
         }
     }
 

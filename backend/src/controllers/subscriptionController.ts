@@ -247,3 +247,20 @@ export const cancelMySubscription = asyncHandler(async (req: Request, res: Respo
         message: 'Abonnement annulé avec succès.'
     });
 });
+
+// @desc    Check if an email has a subscription (for double purchase prevention)
+// @route   POST /api/subscriptions/check-email
+export const checkEmailSubscription = asyncHandler(async (req: Request, res: Response) => {
+    const { email } = req.body;
+    if (!email) {
+        return res.status(400).json({ success: false, message: 'Email requis.' });
+    }
+
+    const user = await User.findOne({ email }).populate('subscription');
+    
+    res.status(200).json({
+        success: true,
+        hasSubscription: !!(user && user.subscription),
+        planName: user?.subscription ? (user.subscription as any).name : null
+    });
+});
