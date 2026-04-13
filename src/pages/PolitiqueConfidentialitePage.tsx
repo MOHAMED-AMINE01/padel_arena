@@ -8,7 +8,7 @@ const sections = [
     icon: <Database size={22} />,
     title: "COLLECTE DES DONNÉES",
     content: (
-      <p><strong className="text-white">Padel Arena Vendômois</strong> collecte des données personnelles via le formulaire de contact (nom, prénom, email, téléphone). Ces informations sont strictement nécessaires au traitement de vos demandes de devis ou d'informations.</p>
+      <p><strong className="text-white">Padel Arena Vendôme / St Ouen</strong> collecte des données personnelles via le formulaire de contact (nom, prénom, email, téléphone). Ces informations sont strictement nécessaires au traitement de vos demandes de devis ou d'informations.</p>
     ),
   },
   {
@@ -29,7 +29,7 @@ const sections = [
     icon: <ShieldCheck size={22} />,
     title: "CONSERVATION ET SÉCURITÉ",
     content: (
-      <p>Vos données sont conservées pendant la durée nécessaire à la finalité du traitement (maximum 3 ans après le dernier contact commercial). <strong className="text-white">Padel Arena Vendômois</strong> s'engage à mettre en œuvre les mesures techniques nécessaires pour garantir la sécurité et la confidentialité de vos informations.</p>
+      <p>Vos données sont conservées pendant la durée nécessaire à la finalité du traitement (maximum 3 ans après le dernier contact commercial). <strong className="text-white">Padel Arena Vendôme / St Ouen</strong> s'engage à mettre en œuvre les mesures techniques nécessaires pour garantir la sécurité et la confidentialité de vos informations.</p>
     ),
   },
   {

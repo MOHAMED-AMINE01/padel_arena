@@ -30,7 +30,7 @@ interface Court {
     _id: string;
     name: string;
     type: string;
-    sport: 'Padel' | 'Pickleball' | 'Badminton' | 'Golf' | 'Basket';
+    sport: 'Padel' | 'Pickleball' | 'Badminton' | 'Golf';
     offPeakPrice: number;
     peakPrice: number;
     description?: string;
@@ -46,7 +46,6 @@ const typesBySport: Record<string, string[]> = {
     Pickleball: ['Pickleball High', 'Pickleball Standard', 'Pickleball Indoor'],
     Badminton: ['Badminton Simple', 'Badminton Double', 'Badminton Pro'],
     Golf: ['Golf Simulator', 'Golf Pro-Studio', 'Golf Performance Center'],
-    Basket: ['Basket Indoor', 'Basket Outdoor', 'Basket Street', 'Demi-Terrain'],
 };
 
 // Champs spécifiques par sport
@@ -79,7 +78,7 @@ export function AdminCourts() {
 
     // Filter States
     const [searchTerm, setSearchTerm] = useState('');
-    const [sportFilter, setSportFilter] = useState<'ALL' | 'Padel' | 'Pickleball' | 'Badminton' | 'Golf' | 'Basket'>('ALL');
+    const [sportFilter, setSportFilter] = useState<'ALL' | 'Padel' | 'Pickleball' | 'Badminton' | 'Golf'>('ALL');
     const [typeFilter, setTypeFilter] = useState<string>('ALL');
     const [statusFilter, setStatusFilter] = useState<'ALL' | 'active' | 'maintenance'>('ALL');
     const [showFilters, setShowFilters] = useState(false);
@@ -91,7 +90,7 @@ export function AdminCourts() {
     const [formData, setFormData] = useState({
         name: '',
         type: 'Padel Panorama',
-        sport: 'Padel' as 'Padel' | 'Pickleball' | 'Badminton' | 'Golf' | 'Basket',
+        sport: 'Padel' as 'Padel' | 'Pickleball' | 'Badminton' | 'Golf',
         offPeakPrice: 32,
         peakPrice: 40,
         description: '',
@@ -332,7 +331,7 @@ export function AdminCourts() {
                                     <div className="space-y-2">
                                         <p className="text-[9px] font-black text-white/20 uppercase tracking-widest ml-2">Discipline sportive</p>
                                         <div className="flex flex-wrap gap-2">
-                                            {(['ALL', 'Padel', 'Pickleball', 'Badminton', 'Golf', 'Basket'] as const).map(sport => (
+                                            {(['ALL', 'Padel', 'Pickleball', 'Badminton', 'Golf'] as const).map(sport => (
                                                 <button
                                                     key={sport}
                                                     onClick={() => {
@@ -522,9 +521,9 @@ export function AdminCourts() {
                                             <div
                                                 className="inline-flex items-center gap-1.5 mt-2 px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest border"
                                                 style={{
-                                                    color: (item as Court).sport === 'Padel' ? '#1349D3' : (item as Court).sport === 'Pickleball' ? '#FFD21F' : (item as Court).sport === 'Golf' ? '#10b981' : (item as Court).sport === 'Basket' ? '#f97316' : '#ffffff',
-                                                    backgroundColor: (item as Court).sport === 'Padel' ? '#1349D315' : (item as Court).sport === 'Pickleball' ? '#FFD21F15' : (item as Court).sport === 'Golf' ? '#10b98115' : (item as Court).sport === 'Basket' ? '#f9731615' : '#ffffff10',
-                                                    borderColor: (item as Court).sport === 'Padel' ? '#1349D330' : (item as Court).sport === 'Pickleball' ? '#FFD21F30' : (item as Court).sport === 'Golf' ? '#10b98130' : (item as Court).sport === 'Basket' ? '#f9731630' : '#ffffff20',
+                                                    color: (item as Court).sport === 'Padel' ? '#1349D3' : (item as Court).sport === 'Pickleball' ? '#FFD21F' : (item as Court).sport === 'Golf' ? '#10b981' : '#ffffff',
+                                                    backgroundColor: (item as Court).sport === 'Padel' ? '#1349D315' : (item as Court).sport === 'Pickleball' ? '#FFD21F15' : (item as Court).sport === 'Golf' ? '#10b98115' : '#ffffff10',
+                                                    borderColor: (item as Court).sport === 'Padel' ? '#1349D330' : (item as Court).sport === 'Pickleball' ? '#FFD21F30' : (item as Court).sport === 'Golf' ? '#10b98130' : '#ffffff20',
                                                 }}
                                             >
                                                 <Zap size={8} /> {(item as Court).sport}
@@ -766,13 +765,12 @@ export function AdminCourts() {
                                                 { value: 'Pickleball', color: '#FFD21F' },
                                                 { value: 'Badminton', color: '#ffffff' },
                                                 { value: 'Golf', color: '#10b981' },
-                                                { value: 'Basket', color: '#f97316' },
                                             ].map(s => (
                                                 <button
                                                     key={s.value}
                                                     type="button"
                                                     onClick={() => {
-                                                        const newSport = s.value as 'Padel' | 'Pickleball' | 'Badminton' | 'Golf' | 'Basket';
+                                                        const newSport = s.value as 'Padel' | 'Pickleball' | 'Badminton' | 'Golf';
                                                         const defaultType = typesBySport[newSport][0];
                                                         setFormData(p => ({ ...p, sport: newSport, type: defaultType }));
                                                     }}

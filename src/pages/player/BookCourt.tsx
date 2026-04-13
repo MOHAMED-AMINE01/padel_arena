@@ -95,15 +95,6 @@ const SPORTS_META: Record<string, {
         players: '2–4 joueurs',
         features: ['Volants fournis', 'Salle climatisée', 'Parquet pro'],
     },
-    Basket: {
-        color: '#FF6B35',
-        gradient: 'from-orange-500/20 to-orange-900/5',
-        tags: ['Olympique', '3×3'],
-        longDesc: 'Basketball 3×3 sur un court olympique. Intensité maximale.',
-        icon: <Target size={32} />,
-        players: '3–6 joueurs',
-        features: ['Court officiel', 'Panier pro', 'Éclairage LED'],
-    },
     Golf: {
         color: '#2ECC71',
         gradient: 'from-green-500/20 to-green-900/5',
@@ -116,7 +107,7 @@ const SPORTS_META: Record<string, {
 };
 
 // Fallback sports if no courts exist yet in DB
-const FALLBACK_SPORTS = ['Padel', 'Pickleball', 'Badminton', 'Basket', 'Golf'];
+const FALLBACK_SPORTS = ['Padel', 'Pickleball', 'Badminton', 'Golf'];
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 function generateDateRange(count = 21) {
@@ -144,9 +135,7 @@ function formatDateAPI(date: Date) {
 
 function isPeakHour(time: string, date: Date) {
     const [h] = time.split(':').map(Number);
-    const day = date.getDay();
-    const isWeekend = day === 0 || day === 6; // 0 is Sunday, 6 is Saturday
-    return h >= 17 || isWeekend;
+    return (h >= 12 && h < 14) || (h >= 17 && h < 22);
 }
 
 // ─── Step Labels ─────────────────────────────────────────────────────────────
@@ -216,6 +205,23 @@ export function PlayerBook() {
         if (step === 2) fetchSlots();
     }, [step, fetchSlots]);
 
+    // Handle auto-duration adjustment for closing time
+    useEffect(() => {
+        if (selectedTime) {
+            const [h, m] = selectedTime.split(':').map(Number);
+            const totalStartMins = h * 60 + m;
+            if (totalStartMins + selectedDuration > (22 * 60)) {
+                if (totalStartMins === 1260) { // 21:00
+                    setSelectedDuration(60);
+                } else if (totalStartMins === 1230) { // 20:30
+                    setSelectedDuration(90);
+                } else {
+                    setSelectedDuration(60);
+                }
+            }
+        }
+    }, [selectedTime]);
+
     // ── Flat all slots across all courts for step 2 display
     // We show merged slot availability: a slot is available if at least one court has it free
     const mergedSlots = React.useMemo(() => {
@@ -256,7 +262,13 @@ export function PlayerBook() {
                 }
             });
         });
-        return Object.entries(timeMap).map(([time, v]) => ({ time, ...v })).sort((a, b) => a.time.localeCompare(b.time));
+        return Object.entries(timeMap)
+            .map(([time, v]) => ({ time, ...v }))
+            .sort((a, b) => a.time.localeCompare(b.time))
+            .filter(slot => {
+                const [h, m] = slot.time.split(':').map(Number);
+                return h < 21 || (h === 21 && m === 0);
+            });
     }, [courtSlots, selectedDate]);
 
     // Slots for selected court in step 3

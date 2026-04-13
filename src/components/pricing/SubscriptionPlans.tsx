@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
@@ -37,11 +37,12 @@ export const SubscriptionPlans = () => {
   const [isAnnual, setIsAnnual] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
   const [submitting, setSubmitting] = useState<string | null>(null);
-  const [currentUserSub, setCurrentUserSub] = useState<any>(null);
-  const [modal, setModal] = useState<{ 
-    isOpen: boolean, 
-    type: 'success' | 'confirm' | 'error', 
-    plan?: any, 
+  const [userSubData, setUserSubData] = useState<any>(null);
+  const currentUserSub = userSubData?.subscription;
+  const [modal, setModal] = useState<{
+    isOpen: boolean,
+    type: 'success' | 'confirm' | 'error',
+    plan?: any,
     message?: string,
     needsSwitchConfirmation?: boolean, // Special flag for the switch alert
     existingPlanName?: string
@@ -59,15 +60,26 @@ export const SubscriptionPlans = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [pricingRes, dbSubsRes, userSubRes] = await Promise.all([
-          api.get('/pricing?type=subscription'),
+        const [dbSubsRes, userSubRes] = await Promise.all([
           api.get('/subscriptions/plans'),
           isAuthenticated ? api.get('/subscriptions/my-subscription') : Promise.resolve({ data: { data: null } })
         ]);
-        if (pricingRes.data.success) setPlans(pricingRes.data.data);
-        if (dbSubsRes.data.success) setDbPlans(dbSubsRes.data.data);
+
+        if (dbSubsRes.data.success) {
+          const fetchedPlans = dbSubsRes.data.data.map((sub: any) => ({
+            _id: sub._id,
+            title: sub.name,
+            price: sub.price.toString(),
+            featured: true, // We only have one now, so it's featured
+            icon: sub.name.toLowerCase().includes('creuses') ? 'Zap' : 'Star',
+            features: sub.features
+          }));
+          setPlans(fetchedPlans);
+          setDbPlans(dbSubsRes.data.data);
+        }
+
         if (isAuthenticated && userSubRes.data.success) {
-          setCurrentUserSub(userSubRes.data.data.subscription);
+          setUserSubData(userSubRes.data.data);
         }
       } catch (err) {
         console.error('Failed to fetch data', err);
@@ -81,6 +93,17 @@ export const SubscriptionPlans = () => {
     window.addEventListener('subscription-updated', handleUpdate);
     return () => window.removeEventListener('subscription-updated', handleUpdate);
   }, [isAuthenticated]);
+
+  const canRenew = useMemo(() => {
+    if (!userSubData?.expiresAt) return true; // If no expiry (legacy or error), assume can subscribe
+    const expires = new Date(userSubData.expiresAt);
+    const now = new Date();
+    const diff = expires.getTime() - now.getTime();
+    const days = diff / (1000 * 60 * 60 * 24);
+    return days <= 7;
+  }, [userSubData]);
+
+  const isSubscribed = !!currentUserSub;
 
   const handleScroll = () => {
     if (scrollRef.current) {
@@ -100,13 +123,12 @@ export const SubscriptionPlans = () => {
     }
   };
 
-  const findDbPlan = (pricingName: string, annual: boolean) => {
-    const duration = annual ? 12 : 1;
-    return dbPlans.find(p => p.name.toUpperCase() === pricingName.toUpperCase() && p.durationInMonths === duration);
+  const findDbPlan = (planId: string) => {
+    return dbPlans.find(p => p._id === planId);
   };
 
   const handleSubscribeClick = (plan: IPlan) => {
-    const dbPlan = findDbPlan(plan.title, isAnnual);
+    const dbPlan = findDbPlan(plan._id);
     if (!dbPlan) {
       setModal({ isOpen: true, type: 'error', message: "Ce plan n'est pas disponible pour le moment." });
       return;
@@ -127,11 +149,11 @@ export const SubscriptionPlans = () => {
       if (!forceSwitch) {
         const checkRes = await api.post('/subscriptions/check-email', { email: formData.email });
         if (checkRes.data.hasSubscription) {
-          setModal({ 
-            ...modal, 
-            isOpen: true, 
-            needsSwitchConfirmation: true, 
-            existingPlanName: checkRes.data.planName 
+          setModal({
+            ...modal,
+            isOpen: true,
+            needsSwitchConfirmation: true,
+            existingPlanName: checkRes.data.planName
           });
           setSubmitting(null);
           return; // Stop here to show the warning
@@ -176,7 +198,7 @@ export const SubscriptionPlans = () => {
         courtName: `Abonnement : ${modal.plan.name}`,
         amount: parseFloat(amount.toString()),
         customerEmail: formData.email,
-        successUrl: `${window.location.origin}/booking-success?session_id={CHECKOUT_SESSION_ID}` 
+        successUrl: `${window.location.origin}/booking-success?session_id={CHECKOUT_SESSION_ID}`
       });
 
       if (stripeRes.data.url) {
@@ -218,127 +240,153 @@ export const SubscriptionPlans = () => {
             </h3>
           </div>
 
-          <div className="flex flex-col items-center lg:items-end gap-6">
-            <div className="flex items-center gap-6 p-2 bg-white/5 backdrop-blur-3xl rounded-full border border-white/10">
-              <button
-                onClick={() => setIsAnnual(false)}
-                className={cn(
-                  "px-8 py-3 rounded-full text-[10px] font-black uppercase tracking-widest transition-all",
-                  !isAnnual ? "bg-padel-blue text-white shadow-xl" : "text-white/30 hover:text-white"
-                )}
-              >
-                Mensuel
-              </button>
-              <button
-                onClick={() => setIsAnnual(true)}
-                className={cn(
-                  "px-8 py-3 rounded-full text-[10px] font-black uppercase tracking-widest transition-all relative",
-                  isAnnual ? "bg-padel-blue text-white shadow-xl" : "text-white/30 hover:text-white"
-                )}
-              >
-                Annuel
-                {!isAnnual && <span className="absolute -top-1 -right-1 flex h-3 w-3"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-padel-yellow opacity-75"></span><span className="relative inline-flex rounded-full h-3 w-3 bg-padel-yellow"></span></span>}
-              </button>
-            </div>
-            <p className="text-[9px] font-black text-white/20 uppercase tracking-[0.3em]">ÉCONOMISEZ 20% SUR LE PLAN ANNUEL</p>
+          <div className="flex flex-col items-center lg:items-end gap-6 text-center lg:text-right">
+            <p className="text-[10px] font-black text-padel-blue uppercase tracking-[0.3em]">Engagement mensuel sans frais d'entrée</p>
           </div>
         </div>
 
         {/* Pricing Cards Carousel/Grid */}
-        <div className="relative mb-32">
+        <div className="relative">
           <div
             ref={scrollRef}
             onScroll={handleScroll}
             className="flex lg:grid lg:grid-cols-3 gap-6 lg:gap-8 overflow-x-auto lg:overflow-x-visible snap-x snap-mandatory no-scrollbar pb-10 lg:pb-0"
           >
-            {plans.map((plan, i) => (
+            {/* If subscribed and not in renewal window, show "Active" block instead of plan cards */}
+            {isSubscribed && !canRenew ? (
               <motion.div
-                key={plan._id}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1, duration: 0.8 }}
-                className={cn(
-                  "min-w-[85vw] sm:min-w-[400px] lg:min-w-0 snap-center group relative p-12 md:p-16 rounded-[4rem] border transition-all duration-700 flex flex-col h-full overflow-hidden",
-                  plan.featured
-                    ? "bg-[#0A0A0A] border-padel-blue/40 shadow-[0_50px_100px_rgba(19,73,211,0.1)] lg:-translate-y-8 z-20"
-                    : "glass border-white/5 hover:border-white/20"
-                )}
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="col-span-full bg-padel-blue/10 border border-padel-blue/30 rounded-[4rem] p-12 md:p-20 relative overflow-hidden group"
               >
-                {/* Decorative background glow */}
-                <div className={cn("absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-10 transition-opacity duration-700", plan.color || "from-white/5 to-white/0")} />
-
-                {plan.featured && (
-                  <div className="absolute top-8 right-8 z-20">
-                    <motion.div
-                      animate={{ scale: [1, 1.05, 1] }}
-                      transition={{ duration: 2, repeat: Infinity }}
-                      className="px-5 py-2 bg-gradient-to-r from-padel-blue to-blue-600 text-white text-[8px] font-black uppercase tracking-[0.4em] rounded-full shadow-[0_0_20px_rgba(19,73,211,0.5)] border border-white/20"
-                    >
-                      recommandé
-                    </motion.div>
-                  </div>
-                )}
-
-                <div className="relative z-10 mb-16">
-                  <div className={cn(
-                    "w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center mb-10 transition-all duration-500 group-hover:bg-padel-blue group-hover:text-white group-hover:scale-110 group-hover:rotate-3 group-hover:shadow-[0_0_30px_rgba(19,73,211,0.4)]",
-                    plan.accent || "text-padel-blue"
-                  )}>
-                    {IconMap[plan.icon || ''] || <Zap size={24} />}
-                  </div>
-                  <h4 className="text-xl md:text-2xl font-display font-black uppercase tracking-tight mb-4 group-hover:text-padel-blue transition-colors">
-                    {plan.title}
-                  </h4>
-                  <div className="flex items-baseline gap-3">
-                    <span className="text-5xl md:text-8xl font-display font-black tracking-tighter text-white group-hover:scale-[1.02] transition-transform duration-500 inline-block">
-                      {isAnnual ? (plan.annualPrice || Math.round(parseInt(plan.price) * 12 * 0.8)) : plan.price}
-                    </span>
-                    <div className="flex flex-col">
-                      <span className="text-2xl font-display font-black text-white italic">€</span>
-                      <span className="text-[10px] font-black text-white/30 uppercase tracking-widest leading-none">{isAnnual ? '/ AN' : '/ MOIS'}</span>
+                <div className="absolute top-0 right-0 w-96 h-96 bg-padel-blue/20 blur-[100px] -mr-48 -mt-48" />
+                <div className="flex flex-col md:flex-row items-center justify-between gap-12 relative z-10">
+                  <div className="space-y-6 text-center md:text-left">
+                    <div className="inline-flex items-center gap-3 px-6 py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full">
+                      <ShieldCheck size={16} className="text-emerald-500" />
+                      <span className="text-[10px] font-black text-emerald-500 tracking-[0.3em] uppercase">ABONNEMENT ACTIF</span>
                     </div>
-                  </div>
-                </div>
-
-                <div className="relative z-10 space-y-6 mb-16 flex-grow">
-                  {plan.features.map((feature, j) => (
-                    <div key={j} className="flex items-center gap-5 group/item">
-                      <div className={cn(
-                        "w-5 h-5 rounded-full flex items-center justify-center shrink-0 transition-colors",
-                        plan.featured ? "bg-padel-blue" : "bg-white/5 group-hover/item:bg-padel-blue"
-                      )}>
-                        <Check size={10} className="text-white" />
+                    <h4 className="text-4xl md:text-6xl font-display font-black text-white italic uppercase tracking-tighter leading-none">
+                      VOUS ÊTES <br /> <span className="text-padel-blue">MEMBRE ARENA</span>
+                    </h4>
+                    <div className="flex flex-wrap gap-6 justify-center md:justify-start">
+                      <div className="space-y-1">
+                        <p className="text-[9px] font-black text-white/30 uppercase tracking-widest">PLAN ACTUEL</p>
+                        <p className="text-xl font-display font-black text-white uppercase italic">{currentUserSub.name}</p>
                       </div>
-                      <span className="text-sm md:text-base text-white/40 font-medium group-hover/item:text-white/70 transition-colors leading-tight">
-                        {feature}
-                      </span>
+                      <div className="space-y-1">
+                        <p className="text-[9px] font-black text-white/30 uppercase tracking-widest">EXPIRE LE</p>
+                        <p className="text-xl font-display font-black text-padel-blue uppercase italic">
+                          {userSubData.expiresAt ? new Date(userSubData.expiresAt).toLocaleDateString() : 'ILLIMITÉ'}
+                        </p>
+                      </div>
                     </div>
-                  ))}
+                  </div>
+                  <div className="w-full md:w-auto">
+                    <div className="bg-white/5 border border-white/10 rounded-3xl p-8 backdrop-blur-md">
+                      <p className="text-[10px] font-black text-white/40 uppercase tracking-widest leading-relaxed text-center mb-6">
+                        VOTRE ABONNEMENT EST ACTIF ET EN COURS. <br />
+                        LA POSSIBILITÉ DE RENOUVELLEMENT APPARAÎTRA <br />
+                        7 JOURS AVANT LA DATE D'EXPIRATION.
+                      </p>
+                      <button
+                        disabled
+                        className="w-full py-4 bg-white/5 border border-white/10 rounded-full text-[9px] font-black uppercase tracking-[0.3em] text-white/20 cursor-not-allowed"
+                      >
+                        EN COURS DE VALIDITÉ
+                      </button>
+                    </div>
+                  </div>
                 </div>
-
-                <button
-                  onClick={() => handleSubscribeClick(plan)}
-                  disabled={submitting !== null || currentUserSub?._id === findDbPlan(plan.title, isAnnual)?._id}
-                  className={cn(
-                    "relative z-10 w-full py-6 rounded-full font-black text-[10px] tracking-[0.4em] uppercase transition-all duration-500 flex items-center justify-center gap-4 overflow-hidden group/btn shadow-xl",
-                    currentUserSub?._id === findDbPlan(plan.title, isAnnual)?._id
-                      ? "bg-emerald-500 text-white cursor-default"
-                      : plan.featured ? "bg-padel-blue text-white" : "bg-white/5 text-white border border-white/10 hover:border-padel-blue hover:text-padel-blue"
-                  )}>
-                  <span className="relative z-10 flex items-center gap-3">
-                    {submitting === findDbPlan(plan.title, isAnnual)?._id ? (
-                      <Loader2 className="animate-spin" size={16} />
-                    ) : currentUserSub?._id === findDbPlan(plan.title, isAnnual)?._id ? (
-                      <>PROGRAMME ACTIF <ShieldCheck size={16} /></>
-                    ) : (
-                      <>S'ABONNER <ArrowUpRight size={16} /></>
-                    )}
-                  </span>
-                  {plan.featured && <div className="absolute inset-0 bg-padel-yellow translate-y-full group-hover/btn:translate-y-0 transition-transform duration-500" />}
-                </button>
               </motion.div>
-            ))}
+            ) : (
+              plans.map((plan, i) => (
+                <motion.div
+                  key={plan._id}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.1, duration: 0.8 }}
+                  className={cn(
+                    "min-w-[85vw] sm:min-w-[400px] lg:min-w-0 snap-center group relative p-12 md:p-16 rounded-[4rem] border transition-all duration-700 flex flex-col h-full overflow-hidden",
+                    plan.featured
+                      ? "bg-[#0A0A0A] border-padel-blue/40 shadow-[0_50px_100px_rgba(19,73,211,0.1)] lg:-translate-y-8 z-20"
+                      : "glass border-white/5 hover:border-white/20"
+                  )}
+                >
+                  {/* Decorative background glow */}
+                  <div className={cn("absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-10 transition-opacity duration-700", plan.color || "from-white/5 to-white/0")} />
+
+                  {plan.featured && (
+                    <div className="absolute top-8 right-8 z-20">
+                      <motion.div
+                        animate={{ scale: [1, 1.05, 1] }}
+                        transition={{ duration: 2, repeat: Infinity }}
+                        className="px-5 py-2 bg-gradient-to-r from-padel-blue to-blue-600 text-white text-[8px] font-black uppercase tracking-[0.4em] rounded-full shadow-[0_0_20px_rgba(19,73,211,0.5)] border border-white/20"
+                      >
+                        {isSubscribed && canRenew ? 'RENOUVELLEMENT' : 'recommandé'}
+                      </motion.div>
+                    </div>
+                  )}
+
+                  <div className="relative z-10 mb-16">
+                    <div className={cn(
+                      "w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center mb-10 transition-all duration-500 group-hover:bg-padel-blue group-hover:text-white group-hover:scale-110 group-hover:rotate-3 group-hover:shadow-[0_0_30px_rgba(19,73,211,0.4)]",
+                      plan.accent || "text-padel-blue"
+                    )}>
+                      {IconMap[plan.icon || ''] || <Zap size={24} />}
+                    </div>
+                    <h4 className="text-xl md:text-2xl font-display font-black uppercase tracking-tight mb-4 group-hover:text-padel-blue transition-colors">
+                      {plan.title}
+                    </h4>
+                    <div className="flex items-baseline gap-3">
+                      <span className="text-5xl md:text-8xl font-display font-black tracking-tighter text-white group-hover:scale-[1.02] transition-transform duration-500 inline-block">
+                        {isAnnual ? (plan.annualPrice || Math.round(parseInt(plan.price) * 12 * 0.8)) : plan.price}
+                      </span>
+                      <div className="flex flex-col">
+                        <span className="text-2xl font-display font-black text-white italic">€</span>
+                        <span className="text-[10px] font-black text-white/30 uppercase tracking-widest leading-none">{isAnnual ? '/ AN' : '/ MOIS'}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="relative z-10 space-y-6 mb-16 flex-grow">
+                    {plan.features.map((feature, j) => (
+                      <div key={j} className="flex items-center gap-5 group/item">
+                        <div className={cn(
+                          "w-5 h-5 rounded-full flex items-center justify-center shrink-0 transition-colors",
+                          plan.featured ? "bg-padel-blue" : "bg-white/5 group-hover/item:bg-padel-blue"
+                        )}>
+                          <Check size={10} className="text-white" />
+                        </div>
+                        <span className="text-sm md:text-base text-white/40 font-medium group-hover/item:text-white/70 transition-colors leading-tight">
+                          {feature}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+
+                  <button
+                    onClick={() => handleSubscribeClick(plan)}
+                    disabled={submitting !== null}
+                    className={cn(
+                      "relative z-10 w-full py-6 rounded-full font-black text-[10px] tracking-[0.4em] uppercase transition-all duration-500 flex items-center justify-center gap-4 overflow-hidden group/btn shadow-xl",
+                      plan.featured ? "bg-padel-blue text-white" : "bg-white/5 text-white border border-white/10 hover:border-padel-blue hover:text-padel-blue"
+                    )}>
+                    <span className="relative z-10 flex items-center gap-3">
+                      {submitting === plan._id ? (
+                        <Loader2 className="animate-spin" size={16} />
+                      ) : isSubscribed && canRenew ? (
+                        <>RENOUVELER MON PLAN <ArrowUpRight size={16} /></>
+                      ) : (
+                        <>S'ABONNER <ArrowUpRight size={16} /></>
+                      )}
+                    </span>
+                    {plan.featured && <div className="absolute inset-0 bg-padel-yellow translate-y-full group-hover/btn:translate-y-0 transition-transform duration-500" />}
+                  </button>
+                </motion.div>
+              ))
+            )}
           </div>
 
           {/* Pagination Indicators */}
@@ -382,7 +430,7 @@ export const SubscriptionPlans = () => {
               <div className="relative z-10 text-center space-y-8">
                 {modal.type === 'confirm' && (
                   <>
-                      <div className="text-center space-y-4">
+                    <div className="text-center space-y-4">
                       <div className="inline-flex py-1 px-4 bg-padel-blue/10 border border-padel-blue/20 rounded-full">
                         <span className="text-[9px] font-black text-padel-blue tracking-[0.3em] uppercase">ABONNEMENT ARENA</span>
                       </div>
@@ -395,7 +443,7 @@ export const SubscriptionPlans = () => {
 
                       {/* Switching Warning */}
                       {modal.needsSwitchConfirmation && (
-                        <motion.div 
+                        <motion.div
                           initial={{ opacity: 0, y: 10, scale: 0.95 }}
                           animate={{ opacity: 1, y: 0, scale: 1 }}
                           className="mt-4 p-6 bg-padel-blue/10 border border-padel-blue/30 rounded-[2rem] text-left relative overflow-hidden group"
@@ -429,90 +477,90 @@ export const SubscriptionPlans = () => {
 
                     {!modal.needsSwitchConfirmation && (
                       <form onSubmit={(e) => { e.preventDefault(); confirmSubscription(); }} className="space-y-5 text-left">
-                      <div className="space-y-4">
-                        <div className="relative group">
-                          <User className="absolute left-5 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-padel-blue transition-colors" size={16} />
-                          <input
-                            required
-                            type="text"
-                            placeholder="NOM & PRÉNOM"
-                            value={formData.name}
-                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                            className="w-full bg-white/[0.03] border border-white/10 rounded-2xl py-4 pl-14 pr-5 text-xs font-black text-white focus:border-padel-blue outline-none transition-all uppercase tracking-widest placeholder:text-white/10"
-                          />
-                        </div>
-                        <div className="relative group">
-                          <Phone className="absolute left-5 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-padel-blue transition-colors" size={16} />
-                          <input
-                            required
-                            type="tel"
-                            placeholder="NUMÉRO DE TÉLÉPHONE"
-                            value={formData.phone}
-                            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                            className="w-full bg-white/[0.03] border border-white/10 rounded-2xl py-4 pl-14 pr-5 text-xs font-black text-white focus:border-padel-blue outline-none transition-all uppercase tracking-widest placeholder:text-white/10"
-                          />
-                        </div>
-                        <div className="relative group">
-                          <Mail className="absolute left-5 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-padel-blue transition-colors" size={16} />
-                          <input
-                            required
-                            type="email"
-                            placeholder="ADRESSE EMAIL"
-                            value={formData.email}
-                            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                            className="w-full bg-white/[0.03] border border-white/10 rounded-2xl py-4 pl-14 pr-5 text-xs font-black text-white focus:border-padel-blue outline-none transition-all uppercase tracking-widest placeholder:text-white/10"
-                          />
-                        </div>
-                      </div>
-
-                      {(() => {
-                        const amount = isAnnual ? (modal.plan.price * 12 * 0.8) : modal.plan.price;
-                        const isQuote = isNaN(parseFloat(amount.toString())) || parseFloat(amount.toString()) === 0;
-
-                        if (isQuote) return null;
-
-                        return (
-                          <div className="flex flex-col items-center gap-4 px-6 py-6 bg-white/[0.02] border border-white/5 rounded-[2.5rem] relative overflow-hidden group mb-6">
-                            <div className="absolute top-0 right-0 p-4 opacity-[0.03] rotate-12 transition-transform group-hover:rotate-0">
-                               <CreditCard size={40} />
-                            </div>
-                            <div className="flex items-center gap-3">
-                               <div className="w-8 h-8 rounded-full bg-padel-blue flex items-center justify-center text-white shadow-lg shadow-padel-blue/20">
-                                 <CreditCard size={14} />
-                               </div>
-                               <div className="text-left">
-                                 <p className="text-[10px] font-black text-white uppercase tracking-widest leading-none mb-1">Paiement 100% Sécurisé</p>
-                                 <p className="text-[8px] font-black text-padel-blue uppercase tracking-[0.2em] leading-none">VIA STRIPE CONNECT</p>
-                               </div>
-                            </div>
-                            <p className="text-[8px] md:text-[9px] font-black text-white/20 uppercase tracking-widest leading-relaxed text-center">
-                               VOUS ALLEZ ÊTRE REDIRIGÉ VERS LA PLATEFORME SÉCURISÉE <span className="text-white/40 font-bold tracking-normal italic">STRIPE</span> POUR FINALISER VOTRE RÉGLEMENT.
-                            </p>
+                        <div className="space-y-4">
+                          <div className="relative group">
+                            <User className="absolute left-5 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-padel-blue transition-colors" size={16} />
+                            <input
+                              required
+                              type="text"
+                              placeholder="NOM & PRÉNOM"
+                              value={formData.name}
+                              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                              className="w-full bg-white/[0.03] border border-white/10 rounded-2xl py-4 pl-14 pr-5 text-xs font-black text-white focus:border-padel-blue outline-none transition-all uppercase tracking-widest placeholder:text-white/10"
+                            />
                           </div>
-                        );
-                      })()}
+                          <div className="relative group">
+                            <Phone className="absolute left-5 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-padel-blue transition-colors" size={16} />
+                            <input
+                              required
+                              type="tel"
+                              placeholder="NUMÉRO DE TÉLÉPHONE"
+                              value={formData.phone}
+                              onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                              className="w-full bg-white/[0.03] border border-white/10 rounded-2xl py-4 pl-14 pr-5 text-xs font-black text-white focus:border-padel-blue outline-none transition-all uppercase tracking-widest placeholder:text-white/10"
+                            />
+                          </div>
+                          <div className="relative group">
+                            <Mail className="absolute left-5 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-padel-blue transition-colors" size={16} />
+                            <input
+                              required
+                              type="email"
+                              placeholder="ADRESSE EMAIL"
+                              value={formData.email}
+                              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                              className="w-full bg-white/[0.03] border border-white/10 rounded-2xl py-4 pl-14 pr-5 text-xs font-black text-white focus:border-padel-blue outline-none transition-all uppercase tracking-widest placeholder:text-white/10"
+                            />
+                          </div>
+                        </div>
 
-                      <div className="grid grid-cols-2 gap-3 pt-2">
-                        <button
-                          type="button"
-                          onClick={() => setModal({ ...modal, isOpen: false })}
-                          className="py-4 bg-white/5 rounded-full text-[10px] font-black uppercase tracking-widest text-white/40 hover:text-white hover:bg-white/10 transition-all border border-white/5"
-                        >
-                          Annuler
-                        </button>
-                        <button
-                          type="submit"
-                          disabled={submitting !== null}
-                          className="py-4 bg-padel-blue rounded-full text-[10px] font-black uppercase tracking-widest text-white hover:scale-105 transition-all shadow-xl shadow-padel-blue/40 flex items-center justify-center gap-2"
-                        >
-                          {submitting ? <Loader2 className="animate-spin" size={14} /> : (() => {
-                            const amount = isAnnual ? (modal.plan.price * 12 * 0.8) : modal.plan.price;
-                            const isQuote = isNaN(parseFloat(amount.toString())) || parseFloat(amount.toString()) === 0;
-                            return isQuote ? 'DEMANDER UN DEVIS' : 'PAYER VIA STRIPE';
-                          })()}
-                        </button>
-                      </div>
-                    </form>
+                        {(() => {
+                          const amount = isAnnual ? (modal.plan.price * 12 * 0.8) : modal.plan.price;
+                          const isQuote = isNaN(parseFloat(amount.toString())) || parseFloat(amount.toString()) === 0;
+
+                          if (isQuote) return null;
+
+                          return (
+                            <div className="flex flex-col items-center gap-4 px-6 py-6 bg-white/[0.02] border border-white/5 rounded-[2.5rem] relative overflow-hidden group mb-6">
+                              <div className="absolute top-0 right-0 p-4 opacity-[0.03] rotate-12 transition-transform group-hover:rotate-0">
+                                <CreditCard size={40} />
+                              </div>
+                              <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 rounded-full bg-padel-blue flex items-center justify-center text-white shadow-lg shadow-padel-blue/20">
+                                  <CreditCard size={14} />
+                                </div>
+                                <div className="text-left">
+                                  <p className="text-[10px] font-black text-white uppercase tracking-widest leading-none mb-1">Paiement 100% Sécurisé</p>
+                                  <p className="text-[8px] font-black text-padel-blue uppercase tracking-[0.2em] leading-none">VIA STRIPE CONNECT</p>
+                                </div>
+                              </div>
+                              <p className="text-[8px] md:text-[9px] font-black text-white/20 uppercase tracking-widest leading-relaxed text-center">
+                                VOUS ALLEZ ÊTRE REDIRIGÉ VERS LA PLATEFORME SÉCURISÉE <span className="text-white/40 font-bold tracking-normal italic">STRIPE</span> POUR FINALISER VOTRE RÉGLEMENT.
+                              </p>
+                            </div>
+                          );
+                        })()}
+
+                        <div className="grid grid-cols-2 gap-3 pt-2">
+                          <button
+                            type="button"
+                            onClick={() => setModal({ ...modal, isOpen: false })}
+                            className="py-4 bg-white/5 rounded-full text-[10px] font-black uppercase tracking-widest text-white/40 hover:text-white hover:bg-white/10 transition-all border border-white/5"
+                          >
+                            Annuler
+                          </button>
+                          <button
+                            type="submit"
+                            disabled={submitting !== null}
+                            className="py-4 bg-padel-blue rounded-full text-[10px] font-black uppercase tracking-widest text-white hover:scale-105 transition-all shadow-xl shadow-padel-blue/40 flex items-center justify-center gap-2"
+                          >
+                            {submitting ? <Loader2 className="animate-spin" size={14} /> : (() => {
+                              const amount = isAnnual ? (modal.plan.price * 12 * 0.8) : modal.plan.price;
+                              const isQuote = isNaN(parseFloat(amount.toString())) || parseFloat(amount.toString()) === 0;
+                              return isQuote ? 'DEMANDER UN DEVIS' : 'PAYER VIA STRIPE';
+                            })()}
+                          </button>
+                        </div>
+                      </form>
                     )}
                   </>
                 )}

@@ -498,7 +498,7 @@ export function PlayerDashboard() {
                             )}
 
                             <Link
-                                to="/tournaments"
+                                to="/events"
                                 className="w-full block py-3 sm:py-4 lg:py-5 rounded-xl sm:rounded-2xl bg-white/5 border border-white/10 text-[8px] sm:text-[9px] font-black uppercase tracking-widest text-white/60 hover:text-white hover:bg-padel-blue hover:border-padel-blue transition-all duration-500 text-center"
                             >
                                 Voir les tournois

@@ -161,7 +161,7 @@ export const UserSubscriptionStatus = () => {
                             <div className="w-20 h-20 bg-red-500/10 rounded-full flex items-center justify-center mb-6">
                                 <Trash2 size={32} className="text-red-500" />
                             </div>
-                            <h2 className="text-2xl font-display font-black text-white uppercase mb-2 leading-none">RÉSILIATION <br/> <span className="text-red-500">DÉFINITIVE</span></h2>
+                            <h2 className="text-2xl font-display font-black text-white uppercase mb-2 leading-none">RÉSILIATION <br /> <span className="text-red-500">DÉFINITIVE</span></h2>
                             <p className="text-[11px] font-bold text-white/40 uppercase tracking-widest mb-8 leading-relaxed italic">
                                 En résiliant votre abonnement {subscription.name}, vous perdrez vos avantages prioritaires dès la fin de la période en cours.
                             </p>

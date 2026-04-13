@@ -34,7 +34,7 @@ interface Court {
   _id: string;
   name: string;
   type: string;
-  sport: 'Padel' | 'Pickleball' | 'Badminton' | 'Basket' | 'Golf';
+  sport: 'Padel' | 'Pickleball' | 'Badminton' | 'Golf';
   pricePerHour: number;
   description?: string;
   isActive: boolean;
@@ -136,7 +136,7 @@ export const CourtBooking = () => {
   const initDate = [today.getFullYear(), (today.getMonth() + 1).toString().padStart(2, '0'), today.getDate().toString().padStart(2, '0')].join('-');
 
   const [bookingData, setBookingData] = useState({
-    sport: 'Padel' as 'Padel' | 'Pickleball' | 'Badminton' | 'Basket' | 'Golf',
+    sport: 'Padel' as 'Padel' | 'Pickleball' | 'Badminton' | 'Golf',
     date: initDate,
     time: null as string | null,
     duration: 90, // minutes
@@ -153,7 +153,7 @@ export const CourtBooking = () => {
     const raw = searchParams.get('sport') || new URLSearchParams(window.location.search).get('sport');
     if (raw) {
       const formatted = raw.charAt(0).toUpperCase() + raw.slice(1).toLowerCase();
-      if (['Padel', 'Pickleball', 'Badminton', 'Basket', 'Golf'].includes(formatted)) {
+      if (['Padel', 'Pickleball', 'Badminton', 'Golf'].includes(formatted)) {
         setBookingData(prev => ({ ...prev, sport: formatted as any }));
         setCurrentStep(1); // Jump to date if sport is pre-selected
       }
@@ -192,6 +192,23 @@ export const CourtBooking = () => {
     fetchAvailability();
   }, [bookingData.date, bookingData.sport]);
 
+  // Handle auto-duration adjustment for closing time
+  useEffect(() => {
+    if (bookingData.time) {
+      const [h, m] = bookingData.time.split(':').map(Number);
+      const totalStartMins = h * 60 + m;
+      if (totalStartMins + bookingData.duration > (22 * 60)) {
+        if (totalStartMins === 1260) { // 21:00
+          setBookingData(prev => ({ ...prev, duration: 60 }));
+        } else if (totalStartMins === 1230) { // 20:30
+          setBookingData(prev => ({ ...prev, duration: 90 }));
+        } else {
+          setBookingData(prev => ({ ...prev, duration: 60 }));
+        }
+      }
+    }
+  }, [bookingData.time]);
+
   const timeSlots = useMemo(() => {
     const slotsMap = new Map<string, boolean>();
     const now = new Date();
@@ -225,6 +242,10 @@ export const CourtBooking = () => {
     });
     return Array.from(slotsMap.entries())
       .sort(([a], [b]) => a.localeCompare(b))
+      .filter(([time]) => {
+        const [h, m] = time.split(':').map(Number);
+        return h < 21 || (h === 21 && m === 0);
+      })
       .map(([time, available]) => ({ time, available }));
   }, [availability, bookingData.date]);
 
@@ -405,7 +426,6 @@ export const CourtBooking = () => {
                         { id: 'Padel', label: 'PADEL', icon: '🎾', desc: '3 terrains panorama & classic' },
                         { id: 'Pickleball', label: 'PICKLEBALL', icon: '🏓', desc: 'Terrain hybride haute performance' },
                         { id: 'Badminton', label: 'BADMINTON', icon: '🏸', desc: 'Cours réguliers pour tous niveaux' },
-                        { id: 'Basket', label: 'BASKET 3×3', icon: '🏀', desc: 'Court olympique JO Paris 2024' },
                         { id: 'Golf', label: 'SIMULATEUR GOLF', icon: '⛳', desc: 'Les plus beaux parcours du monde' },
                       ].map(sport => (
                         <button
@@ -586,11 +606,26 @@ export const CourtBooking = () => {
                         <div>
                           <label className="text-[9px] font-black text-white/20 uppercase tracking-widest mb-4 block">DURÉE SESSION</label>
                           <div className="flex gap-4 mb-8">
-                            {[60, 90, 120].map(d => (
-                              <button key={d} onClick={() => setBookingData({ ...bookingData, duration: d })} className={cn("px-8 py-4 rounded-xl border transition-all text-xs font-black", bookingData.duration === d ? "bg-padel-blue border-padel-blue text-white shadow-xl" : "bg-white/5 border-white/5 text-white/30")}>
-                                {d} MIN
-                              </button>
-                            ))}
+                            {[60, 90, 120].map(d => {
+                              const [h, m] = (bookingData.time || "00:00").split(':').map(Number);
+                              const totalMinutes = h * 60 + m + d;
+                              const exceedsClosing = totalMinutes > (22 * 60);
+
+                              return (
+                                <button
+                                  key={d}
+                                  disabled={exceedsClosing}
+                                  onClick={() => setBookingData({ ...bookingData, duration: d })}
+                                  className={cn(
+                                    "px-8 py-4 rounded-xl border transition-all text-xs font-black",
+                                    exceedsClosing ? "opacity-20 cursor-not-allowed bg-white/5" :
+                                      bookingData.duration === d ? "bg-padel-blue border-padel-blue text-white shadow-xl" : "bg-white/5 border-white/5 text-white/30"
+                                  )}
+                                >
+                                  {d} MIN
+                                </button>
+                              );
+                            })}
                           </div>
 
                         </div>

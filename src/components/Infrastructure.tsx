@@ -13,13 +13,6 @@ const carouselImages = [
     icon: <Activity size={20} />
   },
   {
-    url: "/IMAGES/IMAGES CARROUSEL/pexels-anhelina-vasylyk-734724285-35248239.jpg",
-    title: "ACADÉMIE DE PADEL", // notranslate applied in JSX
-    desc: "Progression assurée avec nos coachs certifiés et programmes sur mesure",
-    tag: "EXCELLENCE",
-    icon: <Zap size={20} />
-  },
-  {
     url: "/IMAGES/IMAGES CARROUSEL/pexels-criticalimagery-32897038.jpg",
     title: "TOURNOIS & COMPÉTITION",
     desc: "Rejoignez l'arène et affrontez les meilleurs joueurs de la région",
@@ -29,30 +22,23 @@ const carouselImages = [
   {
     url: "/IMAGES/IMAGES CARROUSEL/pexels-anhelina-vasylyk-734724285-35248310.jpg",
     title: "INFRASTRUCTURES PRO",
-    desc: "7 terrains panoramiques dernière génération pour un jeu fluide",
+    desc: "3 terrains de padel panoramiques et 1 terrain polyvalent de badminton / pickleball",
     tag: "PREMIUM",
     icon: <ShieldCheck size={20} />
   },
   {
     url: "/IMAGES/IMAGES CARROUSEL/pexels-criticalimagery-34285600.jpg",
-    title: "ÉVÉNEMENTS CORPORATE",
-    desc: "Renforcez la cohésion de vos équipes dans un cadre sportif unique",
-    tag: "ENTREPRISE",
+    title: "ÉVÉNEMENTS EXCLUSIFS",
+    desc: "Séminaires, EVG et team-building dans un cadre sportif unique et festif",
+    tag: "ÉVÉNEMENTS",
     icon: <Activity size={20} />
   },
   {
     url: "/IMAGES/IMAGES CARROUSEL/pexels-criticalimagery-33226057.jpg",
     title: "CLUB HOUSE ARENA",
-    desc: "Un espace détente pour débriefer vos matchs autour d'un verre",
+    desc: "Un espace détente ouvert de 11h à 22h (fermé le lundi) pour débriefer vos matchs",
     tag: "RELAXATION",
     icon: <Activity size={20} />
-  },
-  {
-    url: "/IMAGES/IMAGES CARROUSEL/pexels-ollivves-1103829.jpg",
-    title: "ÉCOLE DE PADEL JEUNES",
-    desc: "Former les champions de demain dès le plus jeune âge",
-    tag: "JEUNESSE",
-    icon: <Star size={20} />
   }
 ];
 

@@ -91,7 +91,7 @@ const TacticalDateTimePicker = ({ value, onChange, label, icon: Icon, color = 'b
             nd.setHours(selectedDate.getHours());
             nd.setMinutes(selectedDate.getMinutes());
         }
-        
+
         const yv = nd.getFullYear();
         const mv = (nd.getMonth() + 1).toString().padStart(2, '0');
         const dv = nd.getDate().toString().padStart(2, '0');
@@ -104,7 +104,7 @@ const TacticalDateTimePicker = ({ value, onChange, label, icon: Icon, color = 'b
         const newDate = selectedDate ? new Date(selectedDate) : new Date(viewDate);
         if (type === 'hours') newDate.setHours(val);
         else newDate.setMinutes(val);
-        
+
         const yv = newDate.getFullYear();
         const mv = (newDate.getMonth() + 1).toString().padStart(2, '0');
         const dv = newDate.getDate().toString().padStart(2, '0');
@@ -584,7 +584,7 @@ export function AdminEvents({ defaultTab = 'TOURNOIS' }: { defaultTab?: 'TOURNOI
                             {activeTab === 'TOURNOIS' ? (
                                 <>Circuit <br /> <span className="text-padel-blue drop-shadow-[0_0_30px_rgba(19,73,211,0.3)]">Elite & Rankings</span></>
                             ) : (
-                                <>Académie <br /> <span className="text-padel-blue drop-shadow-[0_0_30px_rgba(19,73,211,0.3)]">& Coaching</span></>
+                                <>Programmes <br /></>
                             )}
                         </h1>
                         <p className="text-[10px] md:text-xs font-bold text-white/30 uppercase tracking-[0.2em] md:tracking-[0.3em] mt-3 md:mt-4">
@@ -1562,7 +1562,7 @@ export function AdminEvents({ defaultTab = 'TOURNOIS' }: { defaultTab?: 'TOURNOI
 
                             <div className="p-8 border-t border-white/5 bg-white/[0.01] flex justify-end">
                                 <button
-                                    onClick={() => {/* TODO: Export logic */}}
+                                    onClick={() => {/* TODO: Export logic */ }}
                                     className="flex items-center gap-3 px-6 py-3 rounded-xl bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-widest text-white/40 hover:text-white transition-all group"
                                 >
                                     <ExternalLink size={14} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />

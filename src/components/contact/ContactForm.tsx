@@ -22,7 +22,6 @@ export const ContactForm = () => {
 
   const subjects = [
     'RÉSERVATION DE COURS',
-    'COACHING & ACADÉMIE',
     'OFFRES CORPORATE',
     'ÉVÉNEMENTIEL',
     'AUTRE'

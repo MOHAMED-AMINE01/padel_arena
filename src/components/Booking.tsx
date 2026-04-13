@@ -38,7 +38,7 @@ export const Booking = () => {
   const [guestEmail, setGuestEmail] = useState('');
   const [guestPhone, setGuestPhone] = useState('');
 
-  const [selectedSport, setSelectedSport] = useState<'Padel' | 'Pickleball' | 'Badminton' | 'Basket' | 'Golf'>('Padel');
+  const [selectedSport, setSelectedSport] = useState<'Padel' | 'Pickleball' | 'Badminton' | 'Golf'>('Padel');
 
   // Handle sport from query param (works for both navigation and same-page hash links)
   useEffect(() => {
@@ -47,7 +47,7 @@ export const Booking = () => {
     if (raw) {
       // Capitalize first letter only (backend expects: Padel, Pickleball, Basket, Golf, Badminton)
       const formatted = raw.charAt(0).toUpperCase() + raw.slice(1).toLowerCase();
-      if (['Padel', 'Pickleball', 'Badminton', 'Basket', 'Golf'].includes(formatted)) {
+      if (['Padel', 'Pickleball', 'Badminton', 'Golf'].includes(formatted)) {
         setSelectedSport(formatted as any);
       }
     }
@@ -101,6 +101,24 @@ export const Booking = () => {
     fetchAvailability();
   }, [selectedDate, selectedSport]);
 
+  // Handle auto-duration adjustment for closing time
+  useEffect(() => {
+    if (selectedTime) {
+      const [h, m] = selectedTime.split(':').map(Number);
+      const totalStartMins = h * 60 + m;
+      if (totalStartMins + duration > (22 * 60)) {
+        // Find maximum allowed duration
+        if (totalStartMins === 1260) { // 21:00
+            setDuration(60);
+        } else if (totalStartMins === 1230) { // 20:30
+            setDuration(90);
+        } else {
+            setDuration(60);
+        }
+      }
+    }
+  }, [selectedTime]);
+
   const timeSlots = useMemo(() => {
     const slotsMap = new Map<string, boolean>();
     const now = new Date();
@@ -137,6 +155,10 @@ export const Booking = () => {
     });
     return Array.from(slotsMap.entries())
       .sort(([a], [b]) => a.localeCompare(b))
+      .filter(([time]) => {
+        const [h, m] = time.split(':').map(Number);
+        return h < 21 || (h === 21 && m === 0);
+      })
       .map(([time, available]) => ({ time, available }));
   }, [availability, selectedDate]);
 
@@ -287,7 +309,7 @@ export const Booking = () => {
               </h2>
 
               <p className="text-base md:text-lg text-white/40 mb-12 font-medium leading-relaxed max-w-md">
-                Accédez à nos terrains de classe mondiale. Notre système de réservation temps réel vous garantit une place au cœur de l'action.
+                Accédez à nos terrains premium. Notre système de réservation temps réel vous garantit une place au cœur de l'action.
               </p>
 
               <div className="hidden lg:block glass p-8 rounded-[2rem] border-white/5 bg-white/[0.02]">
@@ -353,7 +375,7 @@ export const Booking = () => {
                           <Target size={14} className="text-padel-blue" /> 01. SÉLECTION DU SPORT
                         </h4>
                         <div className="flex flex-wrap gap-4 mb-10">
-                          {['Padel', 'Pickleball', 'Badminton', 'Basket', 'Golf'].map((sport) => (
+                          {['Padel', 'Pickleball', 'Badminton', 'Golf'].map((sport) => (
                             <button
                               key={sport}
                               onClick={() => setSelectedSport(sport as any)}
@@ -512,9 +534,7 @@ export const Booking = () => {
                                   <span className="text-[9px] font-black text-padel-blue tracking-widest uppercase">{court.type}</span>
                                   {(() => {
                                     const [h] = (selectedTime || "").split(':').map(Number);
-                                    const d = new Date(selectedDate);
-                                    const day = d.getDay();
-                                    const isPeak = h >= 17 || day === 0 || day === 6;
+                                    const isPeak = (h >= 12 && h < 14) || (h >= 17 && h < 22);
                                     return (
                                       <span className={cn(
                                         "text-[7px] font-black px-1.5 py-0.5 rounded-full uppercase tracking-widest w-fit",
@@ -563,18 +583,26 @@ export const Booking = () => {
                         <div className="bg-white/5 p-6 rounded-3xl">
                           <h5 className="text-[10px] font-black tracking-widest text-white/30 mb-4 uppercase">Durée</h5>
                           <div className="flex gap-4">
-                            {[60, 90, 120].map(d => (
-                              <button
-                                key={d}
-                                onClick={() => setDuration(d)}
-                                className={cn(
-                                  "flex-1 py-3 rounded-xl font-black text-xs transition-all",
-                                  duration === d ? "bg-padel-blue text-white" : "bg-white/5 hover:bg-white/10"
-                                )}
-                              >
-                                {d} MIN
-                              </button>
-                            ))}
+                            {[60, 90, 120].map(d => {
+                              const [h, m] = (selectedTime || "00:00").split(':').map(Number);
+                              const totalMinutes = h * 60 + m + d;
+                              const exceedsClosing = totalMinutes > (22 * 60);
+                              
+                              return (
+                                <button
+                                  key={d}
+                                  disabled={exceedsClosing}
+                                  onClick={() => setDuration(d)}
+                                  className={cn(
+                                    "flex-1 py-3 rounded-xl font-black text-xs transition-all",
+                                    exceedsClosing ? "opacity-20 cursor-not-allowed bg-white/5" :
+                                    duration === d ? "bg-padel-blue text-white" : "bg-white/5 hover:bg-white/10"
+                                  )}
+                                >
+                                  {d} MIN
+                                </button>
+                              );
+                            })}
                           </div>
                         </div>
                       </div>

@@ -107,6 +107,12 @@ export const Footer = () => {
                     {settings.email}
                   </a>
                 </li>
+                <li>
+                  <div className="text-white/50 text-[11px] font-black tracking-widest uppercase flex items-center justify-center md:justify-start group">
+                    <span className="hidden md:block w-0 h-[1px] transition-all duration-300 group-hover:mr-2" />
+                    CLUB HOUSE : 11H—22H (FERMÉ LUNDI)
+                  </div>
+                </li>
               </ul>
 
               {/* Ultra Stylized & Compact Newsletter */}

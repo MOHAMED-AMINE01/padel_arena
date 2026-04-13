@@ -7,34 +7,34 @@ const activities = [
     id: 'Padel',
     title: 'PADEL',
     image: '/IMAGES/vincenzo-morelli-ZO4pHKtpn4c-unsplash.jpg',
-    description: "Découvrez le sport qui fait sensation ! Des courts modernes avec des parois en verre pour une expérience de jeu optimale.",
+    description: "La référence du club avec 3 terrains panoramiques dernière génération pour une expérience de jeu optimale.",
     buttonText: 'Réserver',
     titleColor: 'text-padel-blue',
     buttonColor: 'bg-padel-blue text-white hover:bg-padel-yellow/90 hover:text-black'
   },
   {
     id: 'Pickleball',
-    title: 'PICKLEBALL / BADMINTON',
+    title: 'PICKLEBALL',
     image: '/IMAGES/oskar-hagberg-uJlPtLTZT7c-unsplash.jpg',
-    description: "Découvrez notre terrain hybride Pickleball / Badminton, conçu pour offrir une polyvalence maximale et une expérience de jeu optimale.",
+    description: "Découvrez le Pickleball sur notre terrain dédié, le sport de raquette ultra-tendance alliant fun et accessibilité.",
     buttonText: 'Réserver',
     titleColor: 'text-padel-blue',
     buttonColor: 'bg-padel-blue text-white hover:bg-padel-yellow/90 hover:text-black'
   },
   {
-    id: 'Basket',
-    title: 'BASKET 3X3',
-    image: '/IMAGES/rajesh-rajput-uxT88tEadFg-unsplash.jpg',
-    description: "Découvrez notre terrain de basket 3×3, un espace d'exception chargé d'histoire. Utilisé lors des Jeux Olympiques 2024, ce court officiel offre des conditions de jeu haut de gamme, fidèles aux standards internationaux.",
+    id: 'Badminton',
+    title: 'BADMINTON',
+    image: '/IMAGES/oskar-hagberg-uJlPtLTZT7c-unsplash.jpg',
+    description: "Profitez de notre terrain de badminton de haute qualité pour des échanges dynamiques et sportifs.",
     buttonText: 'Réserver',
     titleColor: 'text-padel-blue',
     buttonColor: 'bg-padel-blue text-white hover:bg-padel-yellow/90 hover:text-black'
   },
   {
     id: 'Golf',
-    title: 'SIMULATEUR DE GOLF',
+    title: 'GOLF INDOOR',
     image: '/IMAGES/Simulateur golf.jpg',
-    description: "Jouez sur les plus beaux parcours du monde grâce à notre simulateur de golf haute technologie.",
+    description: "Perfectionnez votre swing sur les plus beaux parcours du monde grâce à notre simulateur de golf haute technologie.",
     buttonText: 'Réserver',
     titleColor: 'text-padel-blue',
     buttonColor: 'bg-padel-blue text-white hover:bg-padel-yellow/90 hover:text-black'
@@ -124,7 +124,7 @@ export const OurActivities = () => {
             <span className="text-padel-blue">1600 M²</span> <span className="">D'ACTIVITÉS !</span>
           </h3>
           <p className="text-white/60 text-base md:text-lg">
-            5 sports, une seule destination. Choisissez votre passion.
+            4 sports, une seule destination. Choisissez votre passion.
           </p>
         </div>
       </div>

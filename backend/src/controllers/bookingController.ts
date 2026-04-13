@@ -25,6 +25,7 @@ export const createBooking = asyncHandler(async (req: any, res: Response) => {
         players,
         bookingType,
         packName,
+        subscription,
         timeStr,
         dateStr
     } = req.body;
@@ -101,7 +102,7 @@ export const createBooking = asyncHandler(async (req: any, res: Response) => {
         // "calibratedStart" is now explicitly stored as pseudo-UTC matching local time
         const localHour = calibratedStart.getUTCHours();
 
-        const isPeak = localHour >= 17 || calibratedStart.getUTCDay() === 0 || calibratedStart.getUTCDay() === 6;
+        const isPeak = (localHour >= 12 && localHour < 14) || (localHour >= 17 && localHour < 22);
         const unitPrice = isPeak ? court.peakPrice : court.offPeakPrice;
         const durationInHours = (calibratedEnd.getTime() - calibratedStart.getTime()) / (1000 * 60 * 60);
         totalPrice = Number((durationInHours * unitPrice).toFixed(2));
@@ -157,6 +158,7 @@ export const createBooking = asyncHandler(async (req: any, res: Response) => {
         paymentStatus: 'UNPAID',
         bookingType: bookingType || 'COURT',
         packName,
+        subscription,
         timeStr: finalTimeStr,
         dateStr: finalDateStr
     };
@@ -542,7 +544,7 @@ export const getAvailableSlots = asyncHandler(async (req: Request, res: Response
         const slots = [];
         const slotDuration = 30; // minutes (check every 30-min block)
         const opStart = 8;
-        const opEnd = 22; // Last slot starts at 22:00
+        const opEnd = 21; // Last slot begins at 21:00 (but we generate 21:30 for internal duration check)
 
         for (let hour = opStart; hour <= opEnd; hour++) {
             // Minutes 0 or 30
@@ -560,7 +562,7 @@ export const getAvailableSlots = asyncHandler(async (req: Request, res: Response
                     return (localStart < bEnd && slotEnd > bStart);
                 });
 
-                const isPeak = hour >= 17 || localStart.getUTCDay() === 0 || localStart.getUTCDay() === 6;
+                const isPeak = (hour >= 12 && hour < 14) || (hour >= 17 && hour < 22);
                 const unitPrice = isPeak ? court.peakPrice : court.offPeakPrice;
 
                 slots.push({

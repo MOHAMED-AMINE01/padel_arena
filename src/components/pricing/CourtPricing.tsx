@@ -45,8 +45,8 @@ export const CourtPricing = () => {
   if (pricingData.length === 0) return null;
 
   const sidebarItems = [
-    { icon: <Sun size={20} />, title: "HEURES CREUSES", hours: "08:00 — 17:00", day: "Lundi au Vendredi", label: "-20%" },
-    { icon: <Moon size={20} />, title: "HEURES PLEINES", hours: "17:00 — 23:00", day: "Lundi au Vendredi", label: "STANDARD" }
+    { icon: <Sun size={20} />, title: "HEURES CREUSES", hours: "08:00—12:00 & 14:00—17:00", day: "Lundi au Dimanche", label: "ÉCO" },
+    { icon: <Moon size={20} />, title: "HEURES PLEINES", hours: "12:00—14:00 & 17:00—22:00", day: "Lundi au Dimanche", label: "STANDARD" }
   ];
 
   return (

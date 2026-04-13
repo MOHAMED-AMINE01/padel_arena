@@ -36,7 +36,7 @@ export const ActivitiesPage = () => {
       <Coaching />
       {/* <TournamentsSection /> */}
 
-      <Academy />
+      {/* <Academy /> */}
       <Services />
       <Events />
       {/* <Pricing /> */}

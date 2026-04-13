@@ -16,7 +16,7 @@ export interface ICourt extends Document {
 const CourtSchema: Schema = new Schema({
     name: { type: String, required: true },
     type: { type: String, enum: ['INDOOR', 'OUTDOOR', 'Padel Panorama', 'Padel Classic', 'Pickleball High', 'Golf Simulator'], required: true },
-    sport: { type: String, enum: ['Padel', 'Pickleball', 'Badminton', 'Basket', 'Golf'], default: 'Padel' },
+    sport: { type: String, enum: ['Padel', 'Pickleball', 'Badminton', 'Golf'], default: 'Padel' },
     surface: { type: String, enum: ['CLAY', 'CONCRETE', 'SYNTHETIC', 'PRO_TURF'], default: 'PRO_TURF' },
     offPeakPrice: { type: Number, required: true },
     peakPrice: { type: Number, required: true },

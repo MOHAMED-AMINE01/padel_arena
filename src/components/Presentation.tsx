@@ -17,7 +17,7 @@ export const Presentation = () => {
     },
     {
       icon: <Heart className="text-white" size={24} />,
-      title: "3 terrains de Padel & Golf Indoor",
+      title: "3 terrains de padel & 1 golf indoor / pickleball / badminton",
       desc: "Des équipements premium accessibles à tous."
     },
     {

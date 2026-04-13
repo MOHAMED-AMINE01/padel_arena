@@ -40,7 +40,7 @@ export const RecruitmentSection = () => {
                 {[
                   { icon: <Users size={18} />, title: "TEAM ARENA", desc: "Synergie et excellence collective." },
                   { icon: <Heart size={18} />, title: "PASSION ACTIVE", desc: "Vivez le sport à chaque instant." },
-                  { icon: <Sparkles size={18} />, title: "CADRE ÉLITE", desc: "Infrastructures de classe mondiale." },
+                  { icon: <Sparkles size={18} />, title: "CADRE ÉLITE", desc: "Infrastructures haut de gamme." },
                   { icon: <Briefcase size={18} />, title: "PROGRESSION", desc: "Trajectoires de carrière sur mesure." },
                 ].map((val, i) => (
                   <div key={i} className="glass p-8 rounded-3xl border-white/5 group hover:border-padel-blue/20 transition-all">

@@ -8,7 +8,7 @@ const sections = [
     icon: <Cookie size={22} />,
     title: "GESTION DES COOKIES : DÉFINITION",
     content: (
-      <p>Le site <strong className="text-white">Padel Arena Vendômois</strong> utilise des cookies pour améliorer votre navigation et analyser l'audience du site. Un cookie est un fichier texte déposé sur votre terminal lors de votre visite.</p>
+      <p>Le site <strong className="text-white">Padel Arena Vendôme / St Ouen</strong> utilise des cookies pour améliorer votre navigation et analyser l'audience du site. Un cookie est un fichier texte déposé sur votre terminal lors de votre visite.</p>
     ),
   },
   {

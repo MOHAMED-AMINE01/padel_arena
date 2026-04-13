@@ -1,149 +1,31 @@
-import React, { useRef, useState } from 'react';
-import { motion, useMotionValue, useTransform, useSpring, AnimatePresence } from 'motion/react';
-import { Target, Trophy, GraduationCap, Briefcase, ArrowRight, UserCheck, ShoppingBag, Sparkles, ChevronLeft, ChevronRight, Mail, Phone } from 'lucide-react';
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
+import { Target, Briefcase, ArrowRight, Sparkles, ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { Link } from 'react-router-dom';
 
 const activities = [
   {
-    title: "ACADÉMIE",
-    subtitle: "ENFANTS & ADULTES",
-    icon: <GraduationCap size={24} />,
-    image: "/IMAGES/artur-kornakov-ArI-foyWnfA-unsplash.jpg",
-    desc: "Des cours structurés pour enfants et adultes, encadrés par des coachs certifiés pour une progression fulgurante.",
-    tag: "FORMATION",
-    link: "/contact",
-    cta: "S'INSCRIRE"
-  },
-  {
     title: "ENTRAÎNEMENT",
-    subtitle: "SUR MESURE",
+    subtitle: "AVEC PROFS PRIVÉS",
     icon: <Target size={24} />,
     image: "/IMAGES/IMG_4503.JPG",
-    desc: "Séances individuelles haute performance utilisant l'analyse vidéo pour corriger chaque mouvement.",
-    tag: "ÉLITE",
+    desc: "Progressez à votre rythme avec des sessions d'entraînement encadrées par des professeurs privés expérimentés, sur demande.",
+    tag: "PROGRESSION",
     link: "/contact",
-    cta: "PRENDRE RDV"
+    cta: "NOUS CONTACTER"
   },
   {
     title: "ÉVÉNEMENTS",
-    subtitle: "ENTREPRISE",
+    subtitle: "SUR MESURE",
     icon: <Briefcase size={24} />,
     image: "/IMAGES/todd-trapani-sI-p_NLBNr0-unsplash.jpg",
-    desc: "Team building, séminaires et événements exclusifs pour souder vos équipes autour des valeurs du sport.",
-    tag: "AFFAIRES",
+    desc: "Séminaires, Team Building, EVG/EVJF ou anniversaires : nous organisons vos événements sportifs et festifs de A à Z.",
+    tag: "PRESTIGE",
     link: "/contact",
-    cta: "NOUS CONTACTER"
+    cta: "DEMANDER UN DEVIS"
   }
 ];
-
-interface Activity {
-  title: string;
-  subtitle: string;
-  icon: React.ReactNode;
-  image: string;
-  desc: string;
-  tag: string;
-  link: string;
-  cta: string;
-}
-
-const ActivityCard: React.FC<{ activity: Activity, index: number }> = ({ activity, index }) => {
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-
-  const mouseXSpring = useSpring(x);
-  const mouseYSpring = useSpring(y);
-
-  // Smooth tilt effect
-  const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ["7deg", "-7deg"]);
-  const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-7deg", "7deg"]);
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const width = rect.width;
-    const height = rect.height;
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
-    const xPct = mouseX / width - 0.5;
-    const yPct = mouseY / height - 0.5;
-    x.set(xPct);
-    y.set(yPct);
-  };
-
-  const handleMouseLeave = () => {
-    x.set(0);
-    y.set(0);
-  };
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 15 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "200px" }}
-      transition={{ duration: 0.4, delay: index * 0.05, ease: "easeOut" }}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
-      className="relative aspect-[4/3] sm:aspect-[3/4] md:aspect-[4/6] xl:aspect-[3/4] w-full rounded-[1.5rem] sm:rounded-[2rem] md:rounded-[3rem] cursor-pointer group"
-    >
-      <div
-        style={{ transform: "translateZ(30px)" }}
-        className="absolute inset-0 rounded-[1.5rem] sm:rounded-[2rem] md:rounded-[3rem] overflow-hidden bg-[#0a0a0a]"
-      >
-        <img
-          src={activity.image}
-          alt={activity.title}
-          className="absolute inset-0 w-full h-full object-cover grayscale-[20%] blur-[2px] group-hover:grayscale-0 group-hover:blur-[0px] transition-all duration-1000 scale-105 group-hover:scale-110"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent opacity-90 group-hover:opacity-100 transition-opacity" />
-
-        {/* Content Overlay */}
-        <div className="absolute inset-0 p-6 sm:p-8 md:p-10 lg:p-12 flex flex-col">
-          <div className="flex justify-between items-center mb-auto">
-            <div
-              style={{ transform: "translateZ(20px)" }}
-              className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-white/10 backdrop-blur-xl border border-white/10 flex items-center justify-center text-white group-hover:bg-padel-blue group-hover:border-padel-blue transition-all duration-500"
-            >
-              {activity.icon}
-            </div>
-            <span className="text-[8px] sm:text-[9px] font-black tracking-[0.3em] sm:tracking-[0.4em] text-padel-yellow uppercase">{activity.subtitle}</span>
-          </div>
-
-          <div className="space-y-3 sm:space-y-4 text-center mt-auto mb-auto">
-            <div>
-              <h4
-                style={{ transform: "translateZ(40px)" }}
-                className="text-xl sm:text-2xl md:text-3xl lg:text-3xl font-display font-black tracking-tighter text-white uppercase leading-none"
-              >
-                {activity.title}
-              </h4>
-            </div>
-
-            <p
-              style={{ transform: "translateZ(10px)" }}
-              className="text-white/80 text-xs sm:text-sm md:text-base leading-relaxed font-medium max-w-[280px] mx-auto group-hover:text-white/60 transition-colors line-clamp-3 sm:line-clamp-4"
-            >
-              {activity.desc}
-            </p>
-          </div>
-
-          <Link
-            to={activity.link}
-            className="flex items-center justify-center gap-3 sm:gap-4 pt-4 mt-auto group/btn"
-          >
-            <div className="h-[1px] w-6 sm:w-8 bg-white/20 group-hover:w-12 sm:group-hover:w-16 group-hover:bg-padel-blue transition-all duration-700" />
-            <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.15em] sm:tracking-[0.2em] text-white group-hover:text-padel-yellow transition-colors duration-300">{activity.cta}</span>
-            <ArrowRight size={14} className="text-padel-blue group-hover:translate-x-2 transition-transform" />
-          </Link>
-        </div>
-      </div>
-
-      {/* Outer Glow */}
-      <div className="absolute -inset-2 bg-padel-blue/20 rounded-[3.2rem] blur-2xl opacity-0 group-hover:opacity-100 transition-opacity -z-10" />
-    </motion.div>
-  );
-};
 
 export const Activities = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -157,63 +39,119 @@ export const Activities = () => {
   };
 
   return (
-    <section id="activites" className="py-16 sm:py-24 md:py-24 px-4 sm:px-6 relative overflow-hidden bg-[#050505]">
-      {/* Editorial Grid Lines */}
-      <div className="absolute inset-0 pointer-events-none opacity-[0.03]">
+    <section id="activites" className="py-24 md:py-32 px-6 relative overflow-hidden bg-[#050505]">
+      {/* Background Spotlight - Fills the emptiness */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[1000px] bg-padel-blue/5 rounded-full blur-[120px] pointer-events-none" />
+
+      {/* Structural Lines */}
+      <div className="absolute inset-0 pointer-events-none opacity-[0.02]">
         <div className="max-w-[1400px] mx-auto h-full w-full flex justify-between border-x border-white">
-          <div className="w-[1px] h-full bg-white ml-[25%]" />
-          <div className="w-[1px] h-full bg-white" />
-          <div className="w-[1px] h-full bg-white mr-[25%]" />
+          <div className="w-[1px] h-full bg-white ml-[33%]" />
+          <div className="w-[1px] h-full bg-white mr-[33%]" />
         </div>
       </div>
 
       <div className="max-w-[1400px] mx-auto relative z-10">
-        <div className="flex flex-col md:flex-row items-start justify-between mb-20 md:mb-32 gap-12">
-          <div className="text-left">
+        <div className="flex flex-col lg:flex-row items-start justify-between mb-32 gap-16 lg:gap-24">
+          <div className="text-left flex-1">
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true, amount: 0.1 }}
               className="inline-flex items-center gap-4 mb-8"
             >
-              <span className="text-[10px] font-black tracking-[0.4em] text-padel-blue uppercase">Nos services</span>
+              <span className="text-[10px] font-black tracking-[0.4em] text-padel-blue uppercase">LIFESTYLE & TRAINING</span>
             </motion.div>
 
             <motion.h3
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "200px" }}
-              transition={{ duration: 0.4 }}
-              className="text-5xl md:text-7xl lg:text-8xl font-display font-black tracking-tighter leading-[0.9] uppercase"
+              className="text-5xl md:text-8xl lg:text-[10rem] font-display font-black tracking-tighter leading-[0.85] uppercase"
             >
-              VIVEZ LE <span className="notranslate" translate="no">PADEL</span> <br />
-              <span className="text-white italic">SOUS TOUTES SES</span> <br />
-              <span className="text-padel-blue">COULEURS</span>
+              VIVEZ LE <br />
+              <span className="text-padel-blue italic">MOUVEMENT</span>
             </motion.h3>
           </div>
 
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, amount: 0.1 }}
-            transition={{ duration: 0.5 }}
-            className="md:pt-20"
+            className="lg:pt-32 flex-1 max-w-md ml-auto"
           >
-            <p className="text-white/40 max-w-sm text-base font-medium leading-relaxed">
-              Nous avons repensé l'offre de services pour qu'elle s'adapte à votre style de vie. Plus qu'une simple partie, c'est un écosystème complet dédié à votre passion.
+            <p className="text-xl md:text-2xl text-white/30 font-medium leading-relaxed italic mb-8">
+              "Plus qu'un club, une destination où chaque session devient un événement."
             </p>
+            <div className="h-[1px] w-24 bg-white/10" />
           </motion.div>
         </div>
 
-        {/* Dynamic Grid Layout - Desktop */}
-        <div className="hidden sm:grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 lg:gap-35">
+        {/* Duo Cinematic Layout */}
+        <div className="hidden sm:grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-20">
           {activities.map((activity, i) => (
-            <ActivityCard key={i} activity={activity} index={i}
-            />
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, scale: 0.95 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.2, duration: 1 }}
+              className="relative group h-[600px] lg:h-[650px] rounded-[4rem] overflow-hidden cursor-pointer shadow-2xl"
+            >
+              {/* Image & Overlays */}
+              <div className="absolute inset-0 z-0">
+                <img
+                  src={activity.image}
+                  alt={activity.title}
+                  className="w-full h-full object-cover transition-all duration-1000 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-80 transition-opacity group-hover:opacity-40" />
+                <div className={cn(
+                  "absolute inset-0 opacity-10 transition-opacity group-hover:opacity-30",
+                  i === 0 ? "bg-padel-blue" : "bg-padel-yellow"
+                )} />
+              </div>
+
+              {/* Content Overlay */}
+              <div className="relative z-10 h-full p-12 lg:p-20 flex flex-col justify-end items-start">
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  className="mb-auto"
+                >
+                  <div className="inline-flex items-center gap-4 py-3 px-6 bg-white/5 backdrop-blur-2xl border border-white/10 rounded-full mb-8">
+                    <div className="text-white transform group-hover:rotate-12 transition-transform">{activity.icon}</div>
+                    <span className="text-[10px] font-black tracking-[0.4em] text-white uppercase">{activity.tag}</span>
+                  </div>
+                </motion.div>
+
+                <div className="max-w-2xl translate-y-8 group-hover:translate-y-0 transition-transform duration-700">
+                  <span className="text-[12px] font-black text-white/40 uppercase tracking-[0.5em] mb-4 block">
+                    {activity.subtitle}
+                  </span>
+                  <h4 className="text-5xl md:text-7xl lg:text-[3.5rem] font-display font-black text-white uppercase leading-[0.8] mb-10 tracking-tighter">
+                    {activity.title}
+                  </h4>
+                  <p className="text-base md:text-xl text-white/40 font-medium leading-relaxed mb-12 max-w-md group-hover:text-white/80 transition-colors min-h-[5rem] md:min-h-[6rem] lg:min-h-[7rem] line-clamp-4">
+                    {activity.desc}
+                  </p>
+
+                  <Link to={activity.link}>
+                    <button className="flex items-center gap-6 py-5 px-12 bg-white text-black rounded-full font-black text-[11px] uppercase tracking-[0.3em] transition-all hover:bg-padel-blue hover:text-white hover:scale-105 active:scale-95 shadow-xl">
+                      {activity.cta}
+                      <ArrowRight size={18} className="group-hover:translate-x-2 transition-transform" />
+                    </button>
+                  </Link>
+                </div>
+              </div>
+
+              {/* Decorative Corner Spotlight */}
+              <div className={cn(
+                "absolute -top-20 -right-20 w-60 h-60 blur-3xl rounded-full opacity-0 group-hover:opacity-20 transition-opacity duration-1000",
+                i === 0 ? "bg-padel-blue" : "bg-padel-yellow"
+              )} />
+            </motion.div>
           ))}
         </div>
 
-        {/* Mobile Carousel with Pagination */}
+        {/* Mobile Carousel - kept for consistency on small screens */}
         <div className="sm:hidden">
           <div className="relative">
             <AnimatePresence mode="wait">
@@ -225,7 +163,27 @@ export const Activities = () => {
                 transition={{ duration: 0.3 }}
                 className="w-full"
               >
-                <ActivityCard activity={activities[currentIndex]} index={0} />
+                <div className="relative h-[550px] rounded-[3rem] overflow-hidden">
+                  <img
+                    src={activities[currentIndex].image}
+                    alt={activities[currentIndex].title}
+                    className="absolute inset-0 w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
+                  <div className="absolute inset-0 p-8 flex flex-col justify-end">
+                    <h4 className="text-4xl font-display font-black text-white uppercase mb-4 leading-none">
+                      {activities[currentIndex].title}
+                    </h4>
+                    <p className="text-sm text-white/60 mb-8 line-clamp-3">
+                      {activities[currentIndex].desc}
+                    </p>
+                    <Link to={activities[currentIndex].link}>
+                      <button className="w-full py-4 bg-padel-blue text-white rounded-full font-black text-[10px] uppercase tracking-widest">
+                        {activities[currentIndex].cta}
+                      </button>
+                    </Link>
+                  </div>
+                </div>
               </motion.div>
             </AnimatePresence>
           </div>
@@ -234,12 +192,10 @@ export const Activities = () => {
           <div className="flex items-center justify-center gap-6 mt-8">
             <button
               onClick={prevSlide}
-              className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-padel-blue hover:border-padel-blue transition-all"
+              className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white"
             >
               <ChevronLeft size={20} />
             </button>
-
-            {/* Dots */}
             <div className="flex items-center gap-2">
               {activities.map((_, i) => (
                 <button
@@ -247,17 +203,14 @@ export const Activities = () => {
                   onClick={() => setCurrentIndex(i)}
                   className={cn(
                     "w-2 h-2 rounded-full transition-all duration-300",
-                    currentIndex === i
-                      ? "w-6 bg-padel-blue"
-                      : "bg-white/20 hover:bg-white/40"
+                    currentIndex === i ? "w-6 bg-padel-blue" : "bg-white/20"
                   )}
                 />
               ))}
             </div>
-
             <button
               onClick={nextSlide}
-              className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-padel-blue hover:border-padel-blue transition-all"
+              className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white"
             >
               <ChevronRight size={20} />
             </button>

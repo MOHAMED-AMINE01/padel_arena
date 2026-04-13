@@ -32,7 +32,7 @@ export const ClubHero = () => {
         <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_4px,3px_100%] pointer-events-none z-10 opacity-20" />
       </div>
 
-      <div className="relative z-20 w-full max-w-[1400px] mx-auto px-6">
+      <div className="relative z-20 w-full max-w-[1500px] mx-auto px-6">
         <div className="grid lg:grid-cols-12 gap-8 items-center">
 
           {/* Left Side: Editorial Content (8 columns) */}
@@ -46,7 +46,7 @@ export const ClubHero = () => {
 
               <h1 className="text-4xl sm:text-5xl md:text-7xl xl:text-8xl font-display font-black tracking-tighter leading-[0.85] uppercase mb-8">
                 L'ARÈNA <br />
-                <span className="text-padel-blue italic">VENDÔMOIS</span>
+                <span className="text-padel-blue italic">VENDÔME / ST OUEN</span>
               </h1>
 
               <p className="text-base md:text-lg text-white/40 font-medium max-w-lg mb-12 sm:mb-10 leading-relaxed mx-auto md:mx-0">

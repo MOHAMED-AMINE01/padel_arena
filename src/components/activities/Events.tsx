@@ -5,12 +5,12 @@ import { cn } from '../../lib/utils';
 import { Link } from 'react-router-dom';
 
 const eventTypes = [
-  { title: "SOIRÉES PADEL", icon: <PartyPopper size={28} />, desc: "Des soirées thématiques pour mixer sport et plaisir." },
-  { title: "EXHIBITION MATCHS", icon: <Trophy size={28} />, desc: "Admirez les meilleurs joueurs lors de matchs d'exception." },
-  { title: "DJ NIGHTS", icon: <Music size={28} />, desc: "Vibrez avec nos DJ sets exclusifs au club house." },
-  { title: "AFTER MATCH", icon: <GlassWater size={28} />, desc: "Détendez-vous avec nos offres bar & tapas artisanales." },
-  { title: "ANNIVERSAIRES", icon: <Cake size={28} />, desc: "Fêtez votre anniversaire sur les terrains en mode VIP." },
-  { title: "TEAM BUILDING", icon: <Users size={28} />, desc: "Renforcez la cohésion de vos équipes par le padel." },
+  { title: "SÉMINAIRES", icon: <Users size={28} />, desc: "Organisez vos réunions de travail dans un cadre dynamique et sportif avec accès complet aux terrains." },
+  { title: "TEAM BUILDING", icon: <Trophy size={28} />, desc: "Renforcez la cohésion de vos équipes avec des tournois personnalisés et des challenges sportifs." },
+  { title: "EVG / EVJF", icon: <PartyPopper size={28} />, desc: "Des enterrements de vie de célibataires mémorables alliant sport, fun et ambiance festive." },
+  { title: "ANNIVERSAIRES", icon: <Cake size={28} />, desc: "Célébrez votre journée spéciale dans l'arène ultime avec des formules VIP pour tous les âges." },
+  { title: "SOIRÉES PADEL", icon: <Music size={28} />, desc: "Vibrez lors de nos tournois nocturnes avec DJ sets et animations thématiques exclusives." },
+  { title: "AFTER MATCH", icon: <GlassWater size={28} />, desc: "Prolongez l'expérience au club house avec nos planches de tapas et une sélection de rafraîchissements." },
 ];
 
 export const Events = () => {

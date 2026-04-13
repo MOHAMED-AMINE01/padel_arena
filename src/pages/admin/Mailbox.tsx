@@ -118,15 +118,25 @@ export function AdminMailbox() {
         }
     };
 
-    const handleDelete = async (id: string) => {
-        if (!confirm('Supprimer définitivement cette conversation ?')) return;
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [messageToDelete, setMessageToDelete] = useState<string | null>(null);
+
+    const handleDeleteClick = (id: string) => {
+        setMessageToDelete(id);
+        setShowDeleteModal(true);
+    };
+
+    const confirmDelete = async () => {
+        if (!messageToDelete) return;
         try {
-            await api.delete(`/messages/${id}`);
-            setMessages(prev => prev.filter(m => m._id !== id));
-            if (selectedMessage?._id === id) {
+            await api.delete(`/messages/${messageToDelete}`);
+            setMessages(prev => prev.filter(m => m._id !== messageToDelete));
+            if (selectedMessage?._id === messageToDelete) {
                 setSelectedMessage(null);
                 setHistory([]);
             }
+            setShowDeleteModal(false);
+            setMessageToDelete(null);
         } catch (err) {
             console.error('Error deleting:', err);
         }
@@ -288,7 +298,7 @@ export function AdminMailbox() {
                                 </div>
                                 <div className="flex items-center gap-2 md:gap-3">
                                     <button
-                                        onClick={() => handleDelete(selectedMessage._id)}
+                                        onClick={() => handleDeleteClick(selectedMessage._id)}
                                         className="p-2.5 md:p-3.5 rounded-lg md:rounded-xl bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500 hover:text-white transition-all"
                                     >
                                         <Trash2 size={16} />
@@ -400,6 +410,59 @@ export function AdminMailbox() {
                     )}
                 </div>
             </div>
+
+            {/* Delete Confirmation Modal */}
+            <AnimatePresence>
+                {showDeleteModal && (
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setShowDeleteModal(false)}
+                            className="absolute inset-0 bg-black/80 backdrop-blur-md"
+                        />
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                            className="relative w-full max-w-md bg-[#121214] border border-white/5 rounded-[2.5rem] p-10 shadow-2xl overflow-hidden"
+                        >
+                            {/* Decorative Background */}
+                            <div className="absolute top-0 right-0 w-40 h-40 bg-red-500/10 blur-[80px] -mr-20 -mt-20" />
+                            
+                            <div className="relative z-10 flex flex-col items-center text-center">
+                                <div className="w-20 h-20 bg-red-500/10 border border-red-500/20 rounded-3xl flex items-center justify-center text-red-500 mb-8">
+                                    <Trash2 size={40} />
+                                </div>
+                                
+                                <h3 className="text-2xl font-black text-white italic uppercase tracking-tighter mb-4">
+                                    Supprimer la <span className="text-red-500">Conversation</span> ?
+                                </h3>
+                                
+                                <p className="text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] leading-loose mb-10 italic">
+                                    Cette action est irréversible. Toutes les données liées à cet échange seront définitivement effacées de nos serveurs.
+                                </p>
+                                
+                                <div className="grid grid-cols-2 gap-4 w-full">
+                                    <button
+                                        onClick={() => setShowDeleteModal(false)}
+                                        className="py-4 rounded-2xl bg-white/5 text-[10px] font-black uppercase tracking-widest text-white/40 hover:text-white hover:bg-white/10 transition-all"
+                                    >
+                                        Annuler
+                                    </button>
+                                    <button
+                                        onClick={confirmDelete}
+                                        className="py-4 rounded-2xl bg-red-500 text-white text-[10px] font-black uppercase tracking-widest hover:bg-red-600 transition-all shadow-xl shadow-red-500/20"
+                                    >
+                                        Confirmer
+                                    </button>
+                                </div>
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
         </motion.div>
     );
 }

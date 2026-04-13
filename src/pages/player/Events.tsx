@@ -119,7 +119,7 @@ export function PlayerEvents() {
         setJoiningCourse(courseId);
         try {
             const res = await api.post(`/courses/${courseId}/join`, { promoCode: promos[courseId]?.code });
-            
+
             if (res.data.requiresPayment && res.data.url) {
                 window.location.href = res.data.url;
                 return;
@@ -139,7 +139,7 @@ export function PlayerEvents() {
         setJoiningTournament(tournamentId);
         try {
             const res = await api.post(`/tournaments/${tournamentId}/join`, { promoCode: promos[tournamentId]?.code });
-            
+
             if (res.data.requiresPayment && res.data.url) {
                 window.location.href = res.data.url;
                 return;
@@ -237,7 +237,7 @@ export function PlayerEvents() {
                             activeTab === 'PROGRAMMES' ? "bg-padel-blue text-white shadow-xl shadow-padel-blue/20" : "text-white/40 hover:text-white"
                         )}
                     >
-                        <GraduationCap size={14} /> Académie
+                        <GraduationCap size={14} /> Programmes
                     </button>
                     <button
                         onClick={() => setActiveTab('EVENEMENTS')}

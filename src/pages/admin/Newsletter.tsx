@@ -146,37 +146,117 @@ export function AdminNewsletter() {
     // Live Preview Logic
     const previewHtml = useMemo(() => {
         return `
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <style>
-                @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
-                body { background-color: #050505; margin: 0; padding: 0; font-family: 'Inter', sans-serif;}
-                .container { max-width: 600px; margin: 20px auto; background: #0C0C0E; border: 1px solid rgba(255,255,255,0.05); border-radius: 24px; overflow: hidden;}
-                .header { background: #151518; padding: 30px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.05);}
-                .content { padding: 40px; color: rgba(255,255,255,0.8); line-height: 1.6; font-size: 14px;}
-                .title { color: #ffffff; font-weight: 900; font-size: 20px; text-transform: uppercase; letter-spacing: -1px; margin-bottom: 20px; text-align: center;}
-                .footer { padding: 20px; text-align: center; background: #08080A; border-top: 1px solid rgba(255,255,255,0.05);}
-                .footer-text { color: rgba(255,255,255,0.2); font-size: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px;}
-            </style>
-        </head>
-        <body>
-            <div class="container">
-                <div class="header">
-                    <h1 style="margin:0; color:#fff; font-size: 24px; font-weight:900; letter-spacing:-1.5px; text-transform:uppercase;">
-                        PADEL<span style="color:#0066FF;">ARENA</span>
-                    </h1>
-                </div>
-                <div class="content">
-                    <div class="title">${newsletter.title || 'ELITE UPDATE'}</div>
-                    ${newsletter.content.split('\n').map(p => `<p>${p || '&nbsp;'}</p>`).join('')}
-                </div>
-                <div class="footer">
-                    <div class="footer-text">© 2026 Padel Arena Vendôme • Elite Sync Enabled</div>
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+            body { 
+                background-color: #030303; 
+                margin: 0; 
+                padding: 0; 
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+                -webkit-font-smoothing: antialiased;
+            }
+            .container { 
+                max-width: 600px; 
+                margin: 40px auto; 
+                background: #0D0D10; 
+                border-radius: 32px;
+                overflow: hidden;
+                border: 1px solid rgba(255,255,255,0.05);
+                box-shadow: 0 40px 100px rgba(0,0,0,0.5);
+            }
+            .header {
+                padding: 50px 40px;
+                text-align: center;
+                background: linear-gradient(180deg, #151518 0%, #0D0D10 100%);
+            }
+            .logo { 
+                display: block;
+                margin: 0 auto 24px auto;
+                height: 100px;
+                width: auto;
+                scale: 200%;
+                filter: drop-shadow(0 0 10px rgba(0,102,255,0.3));
+            }
+            .content { 
+                padding: 20px 50px 50px 50px; 
+                color: #e4e4e7;
+                line-height: 1.8;
+                font-size: 16px;
+            }
+            .title {
+                color: #ffffff;
+                font-weight: 800;
+                font-size: 28px;
+                text-transform: uppercase;
+                letter-spacing: -1px;
+                margin-bottom: 32px;
+                text-align: center;
+                line-height: 1.1;
+                font-style: italic;
+            }
+            .paragraph {
+                margin-bottom: 20px;
+                color: rgba(255,255,255,0.7);
+            }
+            .highlight {
+                color: #0066FF;
+                font-weight: 700;
+            }
+            .divider {
+                height: 1px;
+                background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+                margin: 40px 0;
+            }
+            .footer {
+                padding: 40px;
+                text-align: center;
+                background: #08080A;
+                border-top: 1px solid rgba(255,255,255,0.03);
+            }
+            .footer-text {
+                color: rgba(255,255,255,0.2);
+                font-size: 11px;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 3px;
+                margin-bottom: 12px;
+            }
+            .social-hint {
+                color: rgba(0,102,255,0.4);
+                font-size: 9px;
+                font-weight: 800;
+                letter-spacing: 1px;
+                text-transform: uppercase;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <img src="/IMAGES/newLogo_tr.png" alt="Padel Arena" class="logo">
+            </div>
+            <div class="content">
+                <div class="title">${newsletter.title || 'ELITE UPDATE'}</div>
+                <div class="inner-content">
+                    ${newsletter.content.split('\n').map(p => {
+            const trimmed = p.trim();
+            if (!trimmed) return '<div class="divider"></div>';
+            const withBold = trimmed.replace(/\*\*(.*?)\*\*/g, '<span class="highlight">$1</span>');
+            return `<p class="paragraph">${withBold}</p>`;
+        }).join('')}
                 </div>
             </div>
-        </body>
-        </html>
+            <div class="footer">
+                <div class="footer-text">© 2026 PADEL ARENA VENDÔME</div>
+                <div class="social-hint">Elite Performance • Premium Experience</div>
+            </div>
+        </div>
+    </body>
+    </html>
         `;
     }, [newsletter]);
 

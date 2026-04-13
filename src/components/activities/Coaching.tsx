@@ -7,38 +7,31 @@ import { Link } from 'react-router-dom';
 const coachingTypes = [
   {
     title: "PADEL",
-    desc: "3 terrains de <span class='notranslate' translate='no'>padel</span> dernière génération pour tous les niveaux.",
+    desc: "Le cœur de l'Arena avec 3 terrains panoramiques haut de gamme pour une expérience de jeu exceptionnelle.",
     icon: "01",
     image: "/IMAGES/IMAGES CARROUSEL/pexels-criticalimagery-33226056.jpg",
     link: "/?sport=Padel#club"
   },
   {
     title: "PICKLEBALL",
-    desc: "1 terrain polyvalent pour pratiquer le pickleball dans les meilleures conditions.",
+    desc: "Découvrez le sport qui monte sur notre terrain polyvalent, idéal pour s'amuser entre amis ou en famille.",
     icon: "02",
     image: "/IMAGES/IMG_4503.JPG",
     link: "/?sport=Pickleball#club"
   },
   {
     title: "BADMINTON",
-    desc: "Terrain adapté pour le badminton, accessible à tous les joueurs.",
+    desc: "Un terrain de qualité pour vos sessions de badminton, accessible à tous les niveaux de pratique.",
     icon: "03",
     image: "/IMAGES/Badminton.jpg",
     link: "/?sport=Badminton#club"
   },
   {
-    title: "SIMULATEUR DE GOLF",
-    desc: "Simulateur dernière génération ultra réaliste. Accès aux plus beaux parcours du monde.",
+    title: "GOLF INDOOR",
+    desc: "Pratiquez votre swing toute l'année sur les plus beaux parcours mondiaux grâce à notre simulateur 4K.",
     icon: "04",
     image: "/IMAGES/Simulateur golf.jpg",
     link: "/?sport=Golf#club"
-  },
-  {
-    title: "BASKET 3X3",
-    desc: "Un terrain d'exception aux normes internationales pour pratiquer le basket 3x3 dans des conditions professionnelles.",
-    icon: "05",
-    image: "/IMAGES/rajesh-rajput-uxT88tEadFg-unsplash.jpg",
-    link: "/?sport=Basket#club"
   }
 ];
 
@@ -93,7 +86,7 @@ export const Coaching = () => {
           <div
             ref={scrollRef}
             onScroll={handleScroll}
-            className="flex lg:grid lg:grid-cols-5 gap-6 overflow-x-auto lg:overflow-x-visible snap-x snap-mandatory no-scrollbar pb-10 lg:pb-0"
+            className="flex lg:grid lg:grid-cols-4 gap-6 overflow-x-auto lg:overflow-x-visible snap-x snap-mandatory no-scrollbar pb-10 lg:pb-0"
           >
             {coachingTypes.map((type, i) => (
               <motion.div

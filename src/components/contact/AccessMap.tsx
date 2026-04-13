@@ -1,12 +1,13 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { MapPin, Car, Bus, Accessibility, Navigation, ArrowUpRight, Globe } from 'lucide-react';
+import { MapPin, Car, Bus, Accessibility, Navigation, ArrowUpRight, Globe, Clock } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { useSiteSettings } from '../../hooks/useSiteSettings';
 
 const transportInfo = [
+  { icon: <Clock size={20} />, title: "CLUB HOUSE", desc: "11H — 22H (FERMÉ LE LUNDI)" },
   { icon: <Car size={20} />, title: "STATIONNEMENT", desc: "Parking privé sécurisé réservé aux membres." },
-  { icon: <Bus size={20} />, title: "RÉSEAU URBAIN", desc: "Arrêt de bus proximité." },
+  { icon: <Bus size={20} />, title: "RÉSEAU URBAIN", desc: "Arrêt de bus à proximité immédiate." },
   { icon: <Accessibility size={20} />, title: "ACCESSIBILITÉ", desc: "Infrastructures totalement adaptées aux PMR." },
 ];
 

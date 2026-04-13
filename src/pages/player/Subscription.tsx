@@ -47,6 +47,9 @@ export function PlayerSubscription() {
     const [expiresAt, setExpiresAt] = useState<string | null>(null);
     const [history, setHistory] = useState<any[]>([]);
 
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 5;
+
     const fetchData = async () => {
         try {
             setLoading(true);
@@ -68,6 +71,9 @@ export function PlayerSubscription() {
             setLoading(false);
         }
     };
+
+    const totalPages = Math.ceil(history.length / itemsPerPage);
+    const paginatedHistory = history.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
     useEffect(() => {
         fetchData();
@@ -281,24 +287,55 @@ export function PlayerSubscription() {
                         </div>
 
                         <div className="space-y-4">
-                            {history.length > 0 ? (
-                                history.map((item) => (
-                                    <div key={item._id} className="flex items-center justify-between p-6 bg-white/[0.01] border border-white/5 rounded-[2rem] hover:bg-white/[0.03] transition-all group">
-                                        <div className="flex items-center gap-6">
-                                            <div className="w-14 h-14 bg-padel-blue/10 rounded-2xl flex items-center justify-center text-padel-blue group-hover:scale-110 transition-transform">
-                                                <CreditCard size={24} />
+                            {paginatedHistory.length > 0 ? (
+                                <>
+                                    {paginatedHistory.map((item) => (
+                                        <div key={item._id} className="flex items-center justify-between p-6 bg-white/[0.01] border border-white/5 rounded-[2rem] hover:bg-white/[0.03] transition-all group">
+                                            <div className="flex items-center gap-6">
+                                                <div className="w-14 h-14 bg-padel-blue/10 rounded-2xl flex items-center justify-center text-padel-blue group-hover:scale-110 transition-transform">
+                                                    <CreditCard size={24} />
+                                                </div>
+                                                <div>
+                                                    <p className="text-xs font-black text-white uppercase tracking-[0.2em] mb-1">{item.packName || 'Abonnement Arena'}</p>
+                                                    <p className="text-[10px] text-white/20 font-bold uppercase">{new Date(item.createdAt).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' })}</p>
+                                                </div>
                                             </div>
-                                            <div>
-                                                <p className="text-xs font-black text-white uppercase tracking-[0.2em] mb-1">{item.packName || 'Abonnement Arena'}</p>
-                                                <p className="text-[10px] text-white/20 font-bold uppercase">{new Date(item.createdAt).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' })}</p>
+                                            <div className="text-right">
+                                                <p className="text-2xl font-black text-padel-yellow italic -tracking-tighter">-{item.totalPrice}€</p>
+                                                <p className="text-[8px] font-black text-green-500 uppercase tracking-[0.4em] mt-1">Transactions Vérifiée</p>
                                             </div>
                                         </div>
-                                        <div className="text-right">
-                                            <p className="text-2xl font-black text-padel-yellow italic -tracking-tighter">-{item.totalPrice}€</p>
-                                            <p className="text-[8px] font-black text-green-500 uppercase tracking-[0.4em] mt-1">Transactions Vérifiée</p>
+                                    ))}
+
+                                    {/* Pagination Controls */}
+                                    {totalPages > 1 && (
+                                        <div className="flex items-center justify-center gap-4 pt-8">
+                                            <button
+                                                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                                                disabled={currentPage === 1}
+                                                className={cn(
+                                                    "px-6 py-3 rounded-xl border text-[10px] font-black uppercase tracking-widest transition-all",
+                                                    currentPage === 1 ? "bg-white/[0.02] border-white/5 text-white/10 cursor-not-allowed" : "bg-white/5 border-white/10 text-white hover:bg-padel-blue hover:border-padel-blue"
+                                                )}
+                                            >
+                                                Précédent
+                                            </button>
+                                            <div className="px-6 py-3 bg-white/5 rounded-xl border border-white/10 text-[10px] font-black text-padel-blue uppercase tracking-[0.3em]">
+                                                Page {currentPage} / {totalPages}
+                                            </div>
+                                            <button
+                                                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                                                disabled={currentPage === totalPages}
+                                                className={cn(
+                                                    "px-6 py-3 rounded-xl border text-[10px] font-black uppercase tracking-widest transition-all",
+                                                    currentPage === totalPages ? "bg-white/[0.02] border-white/5 text-white/10 cursor-not-allowed" : "bg-white/5 border-white/10 text-white hover:bg-padel-blue hover:border-padel-blue"
+                                                )}
+                                            >
+                                                Suivant
+                                            </button>
                                         </div>
-                                    </div>
-                                ))
+                                    )}
+                                </>
                             ) : (
                                 <div className="text-center py-20 opacity-10">
                                     <Clock size={60} className="mx-auto mb-6" />

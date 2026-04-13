@@ -21,7 +21,7 @@ const sections = [
     title: "PROPRIÉTAIRE DU SITE",
     content: (
       <>
-        <p><strong className="text-white">Padel Arena Vendômois</strong></p>
+        <p><strong className="text-white">Padel Arena Vendôme / St Ouen</strong></p>
         <div className="space-y-3 mt-4">
           <div className="flex items-start gap-3">
             <MapPin size={14} className="text-padel-yellow shrink-0 mt-0.5" />
@@ -40,7 +40,7 @@ const sections = [
     icon: <User size={22} />,
     title: "DIRECTEUR DE LA PUBLICATION",
     content: (
-      <p>Le responsable légal de la concession <strong className="text-white">Padel Arena Vendômois</strong>.</p>
+      <p>Le responsable légal de la concession <strong className="text-white">Padel Arena Vendôme / St Ouen</strong>.</p>
     ),
   },
   {
@@ -60,7 +60,7 @@ const sections = [
     icon: <Shield size={22} />,
     title: "PROPRIÉTÉ INTELLECTUELLE",
     content: (
-      <p>Tous les éléments graphiques, photographies de chantiers, textes et logos sont la propriété exclusive du <strong className="text-white">Padel Arena Vendômois</strong> ou de ses partenaires. Toute reproduction, même partielle, est interdite sans accord écrit préalable.</p>
+      <p>Tous les éléments graphiques, photographies de chantiers, textes et logos sont la propriété exclusive du <strong className="text-white">Padel Arena Vendôme / St Ouen</strong> ou de ses partenaires. Toute reproduction, même partielle, est interdite sans accord écrit préalable.</p>
     ),
   },
 ];
@@ -105,7 +105,7 @@ export const MentionsLegalesPage = () => {
             </h1>
 
             <p className="text-sm md:text-base text-white/30 font-medium max-w-xl mx-auto leading-relaxed">
-              Conformément aux dispositions légales, voici les informations relatives à l'édition et à l'hébergement du site Padel Arena Vendômois.
+              Conformément aux dispositions légales, voici les informations relatives à l'édition et à l'hébergement du site Padel Arena Vendôme / St Ouen.
             </p>
           </motion.div>
         </div>

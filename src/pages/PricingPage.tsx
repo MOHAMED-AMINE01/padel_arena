@@ -30,9 +30,9 @@ export const PricingPage = () => {
             className="overflow-x-hidden"
         >
             <PricingHero />
-            
+
             {/* User Personal Status (Visible only if logged in) */}
-            <UserSubscriptionStatus />
+            {/* <UserSubscriptionStatus /> */}
 
             <CourtPricing />
             <SubscriptionPlans />
