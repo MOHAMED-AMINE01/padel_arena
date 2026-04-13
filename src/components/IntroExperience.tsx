@@ -8,34 +8,29 @@ interface IntroExperienceProps {
 }
 
 export const IntroExperience: React.FC<IntroExperienceProps> = ({ onEnter }) => {
-  const [isPressing, setIsPressing] = useState(false);
   const [progress, setProgress] = useState(0);
   const [isDone, setIsDone] = useState(false);
 
   useEffect(() => {
-    let timer: NodeJS.Timeout;
-    if (isPressing && !isDone) {
-      const duration = 800; // 0.8 seconds for long press
-      const interval = 10;
-      const step = 100 / (duration / interval);
+    // Automatic progress increment
+    const duration = 1500; // 1.5 seconds for auto-rotation
+    const interval = 10;
+    const step = 100 / (duration / interval);
 
-      timer = setInterval(() => {
-        setProgress((prev) => {
-          if (prev >= 100) {
-            clearInterval(timer);
-            setIsDone(true);
-            setTimeout(onEnter, 500);
-            return 100;
-          }
-          return prev + step;
-        });
-      }, interval);
-    } else if (!isDone) {
-      // Reset progress when released, but maybe smoothly?
-      setProgress(0);
-    }
+    const timer = setInterval(() => {
+      setProgress((prev) => {
+        if (prev >= 100) {
+          clearInterval(timer);
+          setIsDone(true);
+          setTimeout(onEnter, 500);
+          return 100;
+        }
+        return prev + step;
+      });
+    }, interval);
+
     return () => clearInterval(timer);
-  }, [isPressing, isDone, onEnter]);
+  }, [onEnter]);
 
   return (
     <div className="fixed inset-0 z-[100] bg-[#05112B] overflow-hidden flex items-center justify-center">
@@ -46,7 +41,7 @@ export const IntroExperience: React.FC<IntroExperienceProps> = ({ onEnter }) => 
         />
       </div>
 
-      {/* Overlay Gradients - Enhanced for depth */}
+      {/* Overlay Gradients */}
       <div className="absolute inset-0 pointer-events-none" />
       <div className="absolute inset-0 pointer-events-none" />
 
@@ -65,9 +60,9 @@ export const IntroExperience: React.FC<IntroExperienceProps> = ({ onEnter }) => 
           <div className="h-1 w-24 bg-padel-blue mx-auto rounded-full" />
         </motion.div>
 
-        {/* Central Intersecting Element (Logo + Interaction) */}
-        <div className="relative group cursor-pointer select-none">
-          {/* Circular Progress Ring */}
+        {/* Central Design (Static but animated circle) */}
+        <div className="relative select-none">
+          {/* Circular Progress Ring (Automated) */}
           <svg className="absolute -inset-8 w-[calc(100%+64px)] h-[calc(100%+64px)] -rotate-90 scale-110" viewBox="0 0 100 100">
             <circle
               cx="50"
@@ -92,7 +87,7 @@ export const IntroExperience: React.FC<IntroExperienceProps> = ({ onEnter }) => 
               }}
               animate={{
                 strokeDashoffset: 301.59 - (301.59 * progress) / 100,
-                opacity: progress > 0 ? 1 : 0.3
+                opacity: 1
               }}
               transition={{ type: "tween", ease: "linear" }}
               strokeLinecap="round"
@@ -103,66 +98,28 @@ export const IntroExperience: React.FC<IntroExperienceProps> = ({ onEnter }) => 
           {/* Glowing Aura */}
           <motion.div
             animate={{
-              scale: isPressing ? 1.1 : 1,
-              opacity: isPressing ? 0.8 : 0.4
+              scale: [1, 1.1, 1],
+              opacity: [0.3, 0.6, 0.3]
             }}
+            transition={{ duration: 2, repeat: Infinity }}
             className="absolute -inset-4 bg-padel-blue blur-3xl rounded-full transition-all duration-300 pointer-events-none"
           />
 
-          {/* The Logo Interaction Area */}
+          {/* The Logo Area */}
           <motion.div
-            onMouseDown={() => setIsPressing(true)}
-            onMouseUp={() => setIsPressing(false)}
-            onMouseLeave={() => setIsPressing(false)}
-            onTouchStart={(e) => {
-              // Prevent default browser behaviors like context menus on Safari mobile
-              setIsPressing(true);
-            }}
-            onTouchEnd={() => setIsPressing(false)}
-            onContextMenu={(e) => e.preventDefault()} // Disable context menu on long press
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{
               opacity: 1,
-              scale: isPressing ? 0.95 : 1,
-              rotate: isPressing ? 2 : 0
+              scale: 1
             }}
-            transition={{ duration: 0.5, type: "spring", stiffness: 300 }}
-            style={{
-              WebkitTouchCallout: 'none',
-              WebkitTapHighlightColor: 'transparent',
-              userSelect: 'none'
-            }}
-            className="relative w-48 h-48 md:w-64 md:h-64 rounded-full border-2 border-white/10 bg-white/5 backdrop-blur-sm flex items-center justify-center overflow-hidden z-20 transition-all duration-300 select-none outline-none"
+            transition={{ duration: 0.8 }}
+            className="relative w-48 h-48 md:w-64 md:h-64 rounded-full border-2 border-white/10 bg-white/5 backdrop-blur-sm flex items-center justify-center overflow-hidden z-20"
           >
             <img
               src="/IMAGES/newLogo.png"
               alt="Logo"
               className="w-[85%] h-[85%] object-contain drop-shadow-[0_0_20px_rgba(255,255,255,0.3)] rounded-full select-none"
-              style={{ pointerEvents: 'none' }}
             />
-
-            {/* Overlay feedback */}
-            <AnimatePresence>
-              {isPressing && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="absolute inset-0 bg-padel-blue/10 backdrop-blur-sm"
-                />
-              )}
-            </AnimatePresence>
-          </motion.div>
-
-          {/* Interaction Text */}
-          <motion.div
-            animate={{
-              opacity: isPressing ? 0 : 1,
-              y: isPressing ? 10 : 0
-            }}
-            className="absolute -bottom-16 left-1/2 -translate-x-1/2 whitespace-nowrap text-white/40 text-[10px] font-bold tracking-[0.4em] uppercase"
-          >
-            Maintenir pour entrer
           </motion.div>
         </div>
 
