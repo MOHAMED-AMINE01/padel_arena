@@ -9,6 +9,7 @@ export interface IPricing extends Document {
     weekend?: number;
     price?: string;
     annualPrice?: string;
+    durationInMonths?: number;
     features: string[];
     featured: boolean;
     color?: string;
@@ -27,6 +28,7 @@ const PricingSchema: Schema = new Schema({
     weekend: { type: Number },
     price: { type: String },
     annualPrice: { type: String },
+    durationInMonths: { type: Number, default: 1 },
     features: [{ type: String }],
     featured: { type: Boolean, default: false },
     color: { type: String },

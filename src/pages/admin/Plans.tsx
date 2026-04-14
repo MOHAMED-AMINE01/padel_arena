@@ -52,7 +52,7 @@ export function AdminPlans() {
     const [itemToDelete, setItemToDelete] = useState<IPricing | null>(null);
     const [editingItem, setEditingItem] = useState<IPricing | null>(null);
     const [formData, setFormData] = useState({
-        title: '', type: 'court', description: '', offPeak: 0, peak: 0, weekend: 0, price: '', annualPrice: '', featured: false, color: '', accent: '', icon: 'Target', isActive: true, order: 0
+        title: '', type: 'court', description: '', offPeak: 0, peak: 0, weekend: 0, price: '', annualPrice: '', durationInMonths: 1, features: '', featured: false, color: '', accent: '', icon: 'Target', isActive: true, order: 0
     });
     const [alert, setAlert] = useState<{ show: boolean; title: string; message: string; type: 'success' | 'error' }>({ show: false, title: '', message: '', type: 'success' });
     const [searchTerm, setSearchTerm] = useState('');
@@ -96,6 +96,8 @@ export function AdminPlans() {
                 weekend: item.weekend || 0,
                 price: item.price || '',
                 annualPrice: item.annualPrice || '',
+                durationInMonths: item.durationInMonths || 1,
+                features: (item as any).features?.join(', ') || '',
                 featured: item.featured,
                 color: item.color || '',
                 accent: item.accent || '',
@@ -114,6 +116,8 @@ export function AdminPlans() {
                 weekend: 0,
                 price: '',
                 annualPrice: '',
+                durationInMonths: 1,
+                features: '',
                 featured: false,
                 color: '',
                 accent: '',
@@ -129,11 +133,16 @@ export function AdminPlans() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
+            const data = {
+                ...formData,
+                features: formData.features.split(',').map(f => f.trim()).filter(f => f !== '')
+            };
+
             if (editingItem) {
-                await api.put(`/pricing/${editingItem._id}`, formData);
+                await api.put(`/pricing/${editingItem._id}`, data);
                 setAlert({ show: true, title: 'SUCCÈS', message: 'Tarif mis à jour', type: 'success' });
             } else {
-                await api.post('/pricing', formData);
+                await api.post('/pricing', data);
                 setAlert({ show: true, title: 'SUCCÈS', message: 'Tarif créé', type: 'success' });
             }
             setIsModalOpen(false); fetchItems();
@@ -427,15 +436,28 @@ export function AdminPlans() {
                                                 </div>
                                             </div>
                                             {formData.type === 'subscription' && (
-                                                <div className="space-y-4">
-                                                    <label className="text-[9px] font-black text-white/30 uppercase tracking-[0.4em] ml-1 flex items-center gap-2"><Coins size={10} className="text-padel-blue" /> Prix Annuel</label>
-                                                    <div className="relative">
-                                                        <input
-                                                            value={formData.annualPrice}
-                                                            onChange={(e) => setFormData({ ...formData, annualPrice: e.target.value })}
-                                                            className="w-full bg-white/[0.03] border border-white/10 rounded-2xl py-5 px-6 text-sm font-bold text-white focus:border-padel-blue outline-none transition-all uppercase"
-                                                            placeholder="600..."
-                                                        />
+                                                <div className="grid grid-cols-2 gap-6">
+                                                    <div className="space-y-4">
+                                                        <label className="text-[9px] font-black text-white/30 uppercase tracking-[0.4em] ml-1 flex items-center gap-2"><Coins size={10} className="text-padel-blue" /> Prix Annuel</label>
+                                                        <div className="relative">
+                                                            <input
+                                                                value={formData.annualPrice}
+                                                                onChange={(e) => setFormData({ ...formData, annualPrice: e.target.value })}
+                                                                className="w-full bg-white/[0.03] border border-white/10 rounded-2xl py-5 px-6 text-sm font-bold text-white focus:border-padel-blue outline-none transition-all uppercase"
+                                                                placeholder="600..."
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <div className="space-y-4">
+                                                        <label className="text-[9px] font-black text-white/30 uppercase tracking-[0.4em] ml-1 flex items-center gap-2"><Calendar size={10} className="text-padel-yellow" /> Engagement (Mois)</label>
+                                                        <div className="relative">
+                                                            <input
+                                                                type="number"
+                                                                value={formData.durationInMonths}
+                                                                onChange={(e) => setFormData({ ...formData, durationInMonths: parseInt(e.target.value) })}
+                                                                className="w-full bg-white/[0.03] border border-white/10 rounded-2xl py-5 px-6 text-sm font-bold text-white focus:border-padel-blue outline-none transition-all uppercase"
+                                                            />
+                                                        </div>
                                                     </div>
                                                 </div>
                                             )}
@@ -462,12 +484,23 @@ export function AdminPlans() {
                                 )}
 
                                 <div className="space-y-4">
+                                    <label className="text-[9px] font-black text-white/30 uppercase tracking-[0.4em] ml-1 flex items-center gap-2"><ListPlus size={10} className="text-emerald-500" /> Avantages (séparés par une virgule)</label>
+                                    <textarea
+                                        value={formData.features}
+                                        onChange={(e) => setFormData({ ...formData, features: e.target.value })}
+                                        className="w-full bg-white/[0.03] border border-white/10 rounded-[2rem] py-6 px-8 text-sm font-medium text-white/70 focus:border-padel-blue outline-none transition-all resize-none leading-relaxed custom-scrollbar"
+                                        rows={2}
+                                        placeholder="Accès illimité, Réservation prioritaire, etc..."
+                                    />
+                                </div>
+
+                                <div className="space-y-4">
                                     <label className="text-[9px] font-black text-white/30 uppercase tracking-[0.4em] ml-1 flex items-center gap-2"><Info size={10} className="text-padel-blue" /> Description Stratégique</label>
                                     <textarea
                                         value={formData.description}
                                         onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                                         className="w-full bg-white/[0.03] border border-white/10 rounded-[2rem] py-6 px-8 text-sm font-medium text-white/70 focus:border-padel-blue outline-none transition-all resize-none leading-relaxed custom-scrollbar"
-                                        rows={3}
+                                        rows={2}
                                         placeholder="Présentation synthétique de l'offre..."
                                     />
                                 </div>

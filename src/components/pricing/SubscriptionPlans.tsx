@@ -240,9 +240,6 @@ export const SubscriptionPlans = () => {
             </h3>
           </div>
 
-          <div className="flex flex-col items-center lg:items-end gap-6 text-center lg:text-right">
-            <p className="text-[10px] font-black text-padel-blue uppercase tracking-[0.3em]">Engagement mensuel sans frais d'entrée</p>
-          </div>
         </div>
 
         {/* Pricing Cards Carousel/Grid */}
