@@ -103,13 +103,13 @@ export default function App() {
       <Router>
         <AuthProvider>
           <ScrollToTop />
-          <AnimatePresence mode="wait">
+          <AnimatePresence>
             {showIntro ? (
               <motion.div
                 key="intro"
                 initial={{ opacity: 1 }}
-                exit={{ opacity: 0, scale: 1.1, filter: 'blur(20px)' }}
-                transition={{ duration: 1.2, ease: [0.4, 0, 0.2, 1] }}
+                exit={{ opacity: 0, filter: 'blur(10px)' }}
+                transition={{ duration: 0.8, ease: "easeInOut" }}
               >
                 <IntroExperience onEnter={() => {
                   sessionStorage.setItem('intro_seen', 'true');

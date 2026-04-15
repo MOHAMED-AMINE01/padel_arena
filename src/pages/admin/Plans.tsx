@@ -20,6 +20,8 @@ interface IPricing {
     weekend?: number;
     price?: string;
     annualPrice?: string;
+    durationInMonths?: number;
+    features?: string[];
     featured: boolean;
     color?: string;
     accent?: string;
@@ -97,7 +99,7 @@ export function AdminPlans() {
                 price: item.price || '',
                 annualPrice: item.annualPrice || '',
                 durationInMonths: item.durationInMonths || 1,
-                features: (item as any).features?.join(', ') || '',
+                features: item.features?.join(', ') || '',
                 featured: item.featured,
                 color: item.color || '',
                 accent: item.accent || '',

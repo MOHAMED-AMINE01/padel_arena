@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Spline from '@splinetool/react-spline';
 import { motion, AnimatePresence } from 'motion/react';
 import { ChevronRight } from 'lucide-react';
@@ -8,29 +8,12 @@ interface IntroExperienceProps {
 }
 
 export const IntroExperience: React.FC<IntroExperienceProps> = ({ onEnter }) => {
-  const [progress, setProgress] = useState(0);
   const [isDone, setIsDone] = useState(false);
 
-  useEffect(() => {
-    // Automatic progress increment
-    const duration = 500; // 1.5 seconds for auto-rotation
-    const interval = 5;
-    const step = 100 / (duration / interval);
-
-    const timer = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 100) {
-          clearInterval(timer);
-          setIsDone(true);
-          setTimeout(onEnter, 500);
-          return 100;
-        }
-        return prev + step;
-      });
-    }, interval);
-
-    return () => clearInterval(timer);
-  }, [onEnter]);
+  const handleEnterClick = () => {
+    setIsDone(true);
+    setTimeout(onEnter, 800); // Wait for finishing animation partially, then transition
+  };
 
   return (
     <div className="fixed inset-0 z-[100] bg-[#05112B] overflow-hidden flex items-center justify-center">
@@ -43,16 +26,16 @@ export const IntroExperience: React.FC<IntroExperienceProps> = ({ onEnter }) => 
 
       {/* Overlay Gradients */}
       <div className="absolute inset-0 pointer-events-none" />
-      <div className="absolute inset-0 pointer-events-none" />
+      <div className="absolute inset-0 pointer-events-none shadow-[inset_0_0_100px_rgba(5,17,43,0.8)]" />
 
       {/* Content */}
-      <div className="relative z-10 flex flex-col items-center justify-between h-full py-20 px-6 max-w-4xl w-full">
+      <div className="relative z-10 flex flex-col items-center justify-center h-full py-10 px-6 max-w-4xl w-full">
         {/* Top Text Section */}
         <motion.div
           initial={{ opacity: 0, y: -30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1.2, ease: "easeOut" }}
-          className="text-center"
+          className="text-center absolute top-[10%]"
         >
           <h1 className="text-4xl md:text-5xl font-display font-black text-white mb-4 tracking-tighter uppercase italic leading-[0.9] notranslate" translate="no">
             PADEL <span className="text-padel-blue">ARENA</span> <span className="text-padel-blue">VENDÔME / ST OUEN</span>
@@ -60,49 +43,16 @@ export const IntroExperience: React.FC<IntroExperienceProps> = ({ onEnter }) => 
           <div className="h-1 w-24 bg-padel-blue mx-auto rounded-full" />
         </motion.div>
 
-        {/* Central Design (Static but animated circle) */}
-        <div className="relative select-none">
-          {/* Circular Progress Ring (Automated) */}
-          <svg className="absolute -inset-8 w-[calc(100%+64px)] h-[calc(100%+64px)] -rotate-90 scale-110" viewBox="0 0 100 100">
-            <circle
-              cx="50"
-              cy="50"
-              r="48"
-              fill="none"
-              stroke="white"
-              strokeWidth="0.5"
-              strokeOpacity="0.1"
-            />
-            <motion.circle
-              cx="50"
-              cy="50"
-              r="48"
-              fill="none"
-              stroke="#1349d3"
-              strokeWidth="2.5"
-              strokeDasharray="301.59"
-              initial={{
-                strokeDashoffset: 301.59,
-                opacity: 0.3
-              }}
-              animate={{
-                strokeDashoffset: 301.59 - (301.59 * progress) / 100,
-                opacity: 1
-              }}
-              transition={{ type: "tween", ease: "linear" }}
-              strokeLinecap="round"
-              className="drop-shadow-[0_0_15px_rgba(19,73,211,0.8)] rounded-full"
-            />
-          </svg>
-
-          {/* Glowing Aura */}
+        {/* Central Design */}
+        <div className="relative select-none flex flex-col items-center mt-20">
+          {/* Glowing Aura for the Logo */}
           <motion.div
             animate={{
-              scale: [1, 1.1, 1],
-              opacity: [0.3, 0.6, 0.3]
+              scale: [1, 1.05, 1],
+              opacity: [0.3, 0.5, 0.3]
             }}
-            transition={{ duration: 2, repeat: Infinity }}
-            className="absolute -inset-4 bg-padel-blue blur-3xl rounded-full transition-all duration-300 pointer-events-none"
+            transition={{ duration: 3, repeat: Infinity }}
+            className="absolute top-0 bg-padel-blue blur-3xl rounded-full transition-all duration-300 pointer-events-none w-64 h-64"
           />
 
           {/* The Logo Area */}
@@ -113,7 +63,7 @@ export const IntroExperience: React.FC<IntroExperienceProps> = ({ onEnter }) => 
               scale: 1
             }}
             transition={{ duration: 0.8 }}
-            className="relative w-48 h-48 md:w-64 md:h-64 rounded-full border-2 border-white/10 bg-white/5 backdrop-blur-sm flex items-center justify-center overflow-hidden z-20"
+            className="relative w-48 h-48 md:w-64 md:h-64 rounded-full border-2 border-white/10 bg-white/5 backdrop-blur-sm flex items-center justify-center overflow-hidden z-20 shadow-2xl mb-16"
           >
             <img
               src="/IMAGES/newLogo.png"
@@ -121,19 +71,22 @@ export const IntroExperience: React.FC<IntroExperienceProps> = ({ onEnter }) => 
               className="w-[85%] h-[85%] object-contain drop-shadow-[0_0_20px_rgba(255,255,255,0.3)] rounded-full select-none"
             />
           </motion.div>
-        </div>
 
-        {/* Bottom Text Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.2, delay: 0.3, ease: "easeOut" }}
-          className="text-center"
-        >
-          <h2 className="text-lg md:text-2xl font-display font-light text-white/60 mb-8 tracking-[0.2em] uppercase max-w-3xl leading-relaxed">
-            ENTREZ DANS L’UNIVERS DE PADEL ARENA VENDÔME / ST OUEN <br />
-          </h2>
-        </motion.div>
+          {/* CTA Button "Premium" */}
+          <motion.button
+            onClick={handleEnterClick}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, delay: 0.6 }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="relative z-30 group overflow-hidden bg-white/5 backdrop-blur-md border border-white/20 hover:border-padel-blue text-white px-8 md:px-12 py-4 md:py-5 rounded-full font-display uppercase tracking-widest text-sm md:text-base font-semibold shadow-[0_0_20px_rgba(19,73,211,0.2)] hover:shadow-[0_0_30px_rgba(19,73,211,0.5)] transition-all duration-300 flex items-center gap-3 cursor-pointer"
+          >
+            <span className="relative z-10">ENTRER DANS L'ARÈNE</span>
+            <ChevronRight className="w-5 h-5 text-padel-blue group-hover:translate-x-1 transition-transform relative z-10" />
+            <div className="absolute inset-0 bg-gradient-to-r from-padel-blue/0 via-padel-blue/20 to-padel-blue/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 ease-in-out" />
+          </motion.button>
+        </div>
       </div>
 
       {/* Finishing Animation Overlay */}
