@@ -86,39 +86,40 @@ export const getEmailTemplate = (title: string, content: string) => {
                 background-color: #030303; 
                 margin: 0; 
                 padding: 0; 
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+                font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
                 -webkit-font-smoothing: antialiased;
             }
             .container { 
                 max-width: 600px; 
                 margin: 40px auto; 
                 background: #0D0D10; 
-                border-radius: 32px;
+                border-radius: 40px;
                 overflow: hidden;
                 border: 1px solid rgba(255,255,255,0.05);
-                box-shadow: 0 40px 100px rgba(0,0,0,0.5);
+                box-shadow: 0 40px 100px rgba(0,0,0,0.8);
             }
             .header {
-                padding: 50px 40px;
+                padding: 60px 40px;
                 text-align: center;
                 background: linear-gradient(180deg, #151518 0%, #0D0D10 100%);
+                position: relative;
             }
             .logo { 
-                height: 100px;
+                height: 80px;
                 width: auto;
                 margin-bottom: 24px;
-                filter: drop-shadow(0 0 10px rgba(0,102,255,0.3));
+                filter: drop-shadow(0 0 15px rgba(0,102,255,0.4));
             }
             .content { 
-                padding: 20px 50px 50px 50px; 
+                padding: 20px 60px 60px 60px; 
                 color: #e4e4e7;
                 line-height: 1.8;
                 font-size: 16px;
             }
             .title {
                 color: #ffffff;
-                font-weight: 800;
-                font-size: 28px;
+                font-weight: 900;
+                font-size: 32px;
                 text-transform: uppercase;
                 letter-spacing: -1.5px;
                 margin-bottom: 32px;
@@ -129,6 +130,7 @@ export const getEmailTemplate = (title: string, content: string) => {
             .paragraph {
                 margin-bottom: 20px;
                 color: rgba(255,255,255,0.7);
+                font-weight: 500;
             }
             .highlight {
                 color: #0066FF;
@@ -140,44 +142,51 @@ export const getEmailTemplate = (title: string, content: string) => {
                 margin: 40px 0;
             }
             .footer {
-                padding: 40px;
+                padding: 50px 40px;
                 text-align: center;
                 background: #08080A;
                 border-top: 1px solid rgba(255,255,255,0.03);
             }
             .footer-text {
-                color: rgba(255,255,255,0.2);
+                color: rgba(255,255,255,0.3);
                 font-size: 11px;
-                font-weight: 700;
+                font-weight: 800;
                 text-transform: uppercase;
-                letter-spacing: 3px;
-                margin-bottom: 12px;
+                letter-spacing: 4px;
+                margin-bottom: 16px;
             }
             .social-hint {
-                color: rgba(0,102,255,0.4);
-                font-size: 9px;
-                font-weight: 800;
-                letter-spacing: 1px;
+                color: #0066FF;
+                font-size: 10px;
+                font-weight: 900;
+                letter-spacing: 2px;
                 text-transform: uppercase;
+                opacity: 0.6;
             }
             .btn {
                 display: inline-block;
-                padding: 18px 40px;
-                background: #0066FF;
+                padding: 20px 48px;
+                background: linear-gradient(135deg, #0066FF 0%, #0044BB 100%);
                 color: #ffffff !important;
                 text-decoration: none;
-                border-radius: 16px;
-                font-weight: 800;
+                border-radius: 20px;
+                font-weight: 900;
                 text-transform: uppercase;
-                font-size: 13px;
-                letter-spacing: 1.5px;
-                margin-top: 20px;
-                box-shadow: 0 10px 25px rgba(0,102,255,0.3);
+                font-size: 12px;
+                letter-spacing: 2px;
+                margin-top: 24px;
+                box-shadow: 0 15px 35px rgba(0,102,255,0.4);
+            }
+            .accent-bar {
+                height: 4px;
+                background: linear-gradient(90deg, #0066FF, #F2FF44);
+                width: 100%;
             }
         </style>
     </head>
     <body>
         <div class="container">
+            <div class="accent-bar"></div>
             <div class="header">
                 <a href="${process.env.CLIENT_URL || '#'}">
                     <img src="cid:logo" alt="Padel Arena" class="logo">
@@ -189,14 +198,22 @@ export const getEmailTemplate = (title: string, content: string) => {
                     ${content.split('\n').map(p => {
         const trimmed = p.trim();
         if (!trimmed) return '<div class="divider"></div>';
-        const withBold = trimmed.replace(/\*\*(.*?)\*\*/g, '<span class="highlight">$1</span>');
+        
+        // Custom link styling
+        let processed = trimmed.replace(/<a (.*?)class="btn"(.*?)>(.*?)<\/a>/g, '<div style="text-align: center;">$0</div>');
+        
+        const withBold = processed.replace(/\*\*(.*?)\*\*/g, '<span class="highlight">$1</span>');
         return `<p class="paragraph">${withBold}</p>`;
     }).join('')}
                 </div>
             </div>
             <div class="footer">
                 <div class="footer-text">© 2026 PADEL ARENA VENDÔME</div>
-                <div class="social-hint">Elite Performance • Premium Experience</div>
+                <div class="social-hint">Perform with Excellence</div>
+                <div style="margin-top: 24px; font-size: 9px; color: rgba(255,255,255,0.15); letter-spacing: 1px;">
+                    Vous recevez cet email car vous êtes membre de la communauté Padel Arena.<br>
+                    Pour ne plus recevoir nos emails, <a href="${process.env.CLIENT_URL || '#'}/unsubscribe" style="color: inherit; text-decoration: underline;">cliquez ici</a>.
+                </div>
             </div>
         </div>
     </body>
@@ -246,4 +263,25 @@ export const getWelcomeEmail = (userName: string) => {
         </div>
     `;
     return getEmailTemplate('Bienvenue dans l\'Élite', content);
+};
+
+/**
+ * Generates the Newsletter Welcome email HTML
+ */
+export const getNewsletterWelcomeEmail = (email: string) => {
+    const content = `
+        Merci de votre inscription à notre newsletter !
+        
+        Vous faites désormais partie de la communauté Padel Arena. Vous recevrez en avant-première :
+        • Nos dernières actualités et événements
+        • Des offres exclusives et codes promos
+        • Des invitations pour nos tournois premium
+        
+        Restez connecté, l'élite n'attend pas.
+        
+        <div style="text-align: center; margin-top: 30px;">
+            <a href="${process.env.CLIENT_URL || '#'}" class="btn">Visiter le Club</a>
+        </div>
+    `;
+    return getEmailTemplate('Bienvenue dans la Communauté', content);
 };

@@ -47,34 +47,26 @@ const sendReminders = async () => {
     for (const user of usersToExpire) {
       console.log(`📧 Envoi du rappel à : ${user.email}`);
       
-      const emailContent = `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
-          <div style="text-align: center; margin-bottom: 20px;">
-            <h1 style="color: #1349D3; margin-bottom: 5px;">PADEL ARENA</h1>
-            <p style="text-transform: uppercase; font-size: 12px; letter-spacing: 2px; color: #888;">Renouvellement d'abonnement</p>
-          </div>
-          
-          <p>Bonjour <strong>${user.name}</strong>,</p>
-          
-          <p>C'est déjà presque l'heure ! Votre abonnement <strong>${(user.subscription as any)?.name || 'Premium'}</strong> arrive à échéance le <strong>${user.subscriptionExpiresAt?.toLocaleDateString('fr-FR')}</strong>.</p>
-          
-          <p>Pour continuer à profiter de vos avantages (accès prioritaire, remises membres, etc.), vous pouvez renouveler votre abonnement directement depuis votre espace personnel.</p>
-          
-          <div style="text-align: center; margin: 30px 0;">
-            <a href="${process.env.FRONTEND_URL}/subscription" style="background-color: #1349D3; color: white; padding: 15px 30px; text-decoration: none; border-radius: 30px; font-weight: bold; text-transform: uppercase; font-size: 14px;">RENONVELER MON ABONNEMENT</a>
-          </div>
-          
-          <p style="font-size: 12px; color: #888; text-align: center;">
-            Si vous avez des questions, n'hésitez pas à contacter notre équipe.
-          </p>
+      const emailTitle = "Renouvellement d'abonnement";
+      const emailBody = `
+        Bonjour **${user.name}**,
+        
+        C'est déjà presque l'heure ! Votre abonnement **${(user.subscription as any)?.name || 'Premium'}** arrive à échéance le **${user.subscriptionExpiresAt?.toLocaleDateString('fr-FR')}**.
+        
+        Pour continuer à profiter de vos avantages (accès prioritaire, remises membres, etc.), vous pouvez renouveler votre abonnement directement depuis votre espace personnel.
+        
+        <div style="text-align: center; margin-top: 30px;">
+            <a href="${process.env.CLIENT_URL || '#'}/subscription" class="btn">Renouveler mon abonnement</a>
         </div>
+        
+        Si vous avez des questions, n'hésitez pas à contacter notre équipe.
       `;
 
       await sendEmail({
         to: user.email,
         subject: '⚠️ Votre abonnement Padel Arena expire bientôt !',
         text: `Bonjour ${user.name}, votre abonnement expire le ${user.subscriptionExpiresAt?.toLocaleDateString('fr-FR')}. Renouvelez-le sur votre espace client.`,
-        html: emailContent
+        html: getEmailTemplate(emailTitle, emailBody)
       });
     }
 

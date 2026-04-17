@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import NewsletterSubscriber from '../models/NewsletterSubscriber';
 import { asyncHandler } from '../utils/asyncHandler';
-import { sendEmail } from '../services/mailService';
+import { sendEmail, getNewsletterWelcomeEmail, getEmailTemplate } from '../services/mailService';
 
 // @desc    Subscribe to newsletter
 // @route   POST /api/newsletter/subscribe
@@ -23,6 +23,18 @@ export const subscribe = asyncHandler(async (req: Request, res: Response) => {
         await subscriber.save();
     } else {
         subscriber = await NewsletterSubscriber.create({ email });
+    }
+
+    // Send Welcome Email
+    try {
+        await sendEmail({
+            to: email,
+            subject: '🎾 Bienvenue dans la communauté Padel Arena !',
+            text: `Merci de votre inscription à notre newsletter !`,
+            html: getNewsletterWelcomeEmail(email)
+        });
+    } catch (emailError) {
+        console.error('Newsletter welcome email failed to send:', emailError);
     }
 
     res.status(201).json({
@@ -66,7 +78,7 @@ export const sendNewsletter = asyncHandler(async (req: Request, res: Response) =
             to: sub.email,
             subject,
             text: content,
-            html: htmlContent // We'll pass the styled HTML from frontend
+            html: htmlContent || getEmailTemplate(subject, content)
         }).catch(err => console.error(`Failed to send to ${sub.email}:`, err))
     );
 
