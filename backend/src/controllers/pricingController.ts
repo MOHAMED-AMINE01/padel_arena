@@ -50,7 +50,7 @@ export const updatePricing = async (req: Request, res: Response) => {
         const pricing = await Pricing.findByIdAndUpdate(req.params.id, req.body, { new: true });
         if (!pricing) return res.status(404).json({ success: false, message: 'Non trouvé' });
 
-        // Sync with Subscription if type is subscription
+        // Sync with Subscription
         if (pricing.type === 'subscription') {
             await Subscription.findByIdAndUpdate(pricing._id, {
                 name: pricing.title,
@@ -59,6 +59,9 @@ export const updatePricing = async (req: Request, res: Response) => {
                 features: pricing.features || [],
                 isActive: pricing.isActive
             }, { upsert: true });
+        } else {
+            // If it was a subscription and changed to something else, remove it from Subscriptions
+            await Subscription.findByIdAndDelete(pricing._id);
         }
 
         res.json({ success: true, data: pricing });
