@@ -7,8 +7,9 @@ interface User {
     email: string;
     role: 'PLAYER' | 'ADMIN';
     avatar?: string;
+    balance: number;
     authProvider?: 'local' | 'google';
-}
+} 
 
 interface AuthContextType {
     user: User | null;

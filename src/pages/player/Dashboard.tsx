@@ -197,6 +197,7 @@ export function PlayerDashboard() {
         { label: 'Matchs à venir', value: loadingBookings ? '–' : stats.upcoming, icon: <Calendar size={20} />, color: '#1349D3' },
         { label: 'Matchs joués', value: loadingBookings ? '–' : stats.totalPlayed, icon: <Target size={20} />, color: '#22c55e' },
         { label: 'Total dépensé', value: loadingBookings ? '–' : `${stats.totalSpent.toFixed(0)}€`, icon: <CreditCard size={20} />, color: '#FFD21F' },
+        { label: 'Mon Solde', value: loadingBookings ? '–' : `${user?.balance || 0}€`, icon: <Zap size={20} />, color: '#0066FF' },
     ];
 
     const sportColor = nextMatch ? getSportColor(nextMatch.court?.sport) : '#1349D3';
@@ -251,7 +252,7 @@ export function PlayerDashboard() {
             </div>
 
             {/* ── Stats Row ── */}
-            <div className="grid grid-cols-3 gap-3 sm:gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
                 {STATS_CARDS.map((stat, i) => (
                     <motion.div
                         key={i}
@@ -673,6 +674,7 @@ export function PlayerDashboard() {
                         <div className="space-y-2 sm:space-y-3">
                             {[
                                 { label: 'Réserver un terrain', sub: 'Padel · Pickleball · Badminton', icon: <Zap size={16} className="sm:w-[18px] sm:h-[18px]" />, to: '/book', color: '#1349D3' },
+                                { label: 'Mon Portefeuille', sub: 'Gérer mes crédits', icon: <CreditCard size={16} className="sm:w-[18px] sm:h-[18px]" />, to: '/wallet', color: '#0066FF' },
                                 { label: 'Voir mes réservations', sub: 'Gérer & annuler', icon: <Calendar size={16} className="sm:w-[18px] sm:h-[18px]" />, to: '/my-reservations', color: '#22c55e' },
                                 { label: 'Tournois ouverts', sub: `${openTournaments.length} tournoi${openTournaments.length !== 1 ? 's' : ''} disponible`, icon: <Trophy size={16} className="sm:w-[18px] sm:h-[18px]" />, to: '/events', color: '#FFD21F' },
                             ].map((action, i) => (

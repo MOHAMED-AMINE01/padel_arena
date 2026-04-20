@@ -9,6 +9,8 @@ import { Tournaments } from '../components/Tournaments';
 import { Testimonials } from '../components/Testimonials';
 import { LiveStats } from '../components/LiveStats';
 import { FinalCTA } from '../components/FinalCTA';
+import { ClubHouse } from '../components/ClubHouse';
+import { GolfSection } from '../components/activities/GolfSection';
 
 export const HomePage = () => {
   return (
@@ -17,7 +19,9 @@ export const HomePage = () => {
       <Presentation />
       <OurActivities />
       <Activities />
+      <GolfSection />
       <Booking />
+      <ClubHouse />
       {/* <Tournaments /> */}
       <Testimonials />
       {/* <LiveStats /> */}

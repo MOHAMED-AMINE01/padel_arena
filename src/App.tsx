@@ -53,6 +53,7 @@ import { PlayerProfile } from './pages/player/Profile';
 import { PlayerSettings } from './pages/player/Settings';
 
 import { PlayerMessages } from './pages/player/Messages';
+import { WalletPage } from './pages/player/WalletPage';
 
 import { AuthProvider } from './context/AuthContext';
 import { GoogleOAuthProvider } from '@react-oauth/google';
@@ -180,6 +181,7 @@ export default function App() {
                       <Route path="/payments" element={<PlayerPayments />} />
                       <Route path="/profile" element={<PlayerProfile />} />
                       <Route path="/settings" element={<PlayerSettings />} />
+                      <Route path="/wallet" element={<WalletPage />} />
 
                       <Route path="/messages" element={<PlayerMessages />} />
                     </Route>

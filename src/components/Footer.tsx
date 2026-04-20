@@ -108,9 +108,15 @@ export const Footer = () => {
                   </a>
                 </li>
                 <li>
-                  <div className="text-white/50 text-[11px] font-black tracking-widest uppercase flex items-center justify-center md:justify-start group">
-                    <span className="hidden md:block w-0 h-[1px] transition-all duration-300 group-hover:mr-2" />
-                    CLUB HOUSE : 11H—22H (FERMÉ LUNDI)
+                  <div className="text-white/50 text-[10px] font-black tracking-widest uppercase flex flex-col items-center md:items-start gap-2">
+                    <span className="flex items-center gap-2">
+                      <div className="w-1 h-1 rounded-full bg-padel-blue" />
+                      TERRAINS : 24H/24 — 7J/7
+                    </span>
+                    <span className="flex items-center gap-2">
+                      <div className="w-1 h-1 rounded-full bg-padel-yellow" />
+                      CLUB HOUSE : 11H—21H (MAR-DIM)
+                    </span>
                   </div>
                 </li>
               </ul>

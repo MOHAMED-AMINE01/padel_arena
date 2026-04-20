@@ -65,7 +65,7 @@ export const Activities = () => {
             <motion.h3
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
-              className="text-5xl md:text-8xl lg:text-[10rem] font-display font-black tracking-tighter leading-[0.85] uppercase"
+              className="text-5xl md:text-6xl lg:text-[8rem] font-display font-black tracking-tighter leading-[0.85] uppercase"
             >
               VIVEZ LE <br />
               <span className="text-padel-blue italic">MOUVEMENT</span>

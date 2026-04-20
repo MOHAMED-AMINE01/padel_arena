@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, ChevronDown, User, Info, Activity, Newspaper, BadgeEuro, MessageSquare, Target, GraduationCap, Trophy, Users, MapPin, Calendar, Rocket, Star } from 'lucide-react';
+import { Menu, X, ChevronDown, User, Info, Activity, Newspaper, BadgeEuro, MessageSquare, Target, GraduationCap, Trophy, Users, MapPin, Calendar, Rocket, Star, Zap } from 'lucide-react';
 import { cn } from '../lib/utils';
 
 const menuStructure = [
@@ -262,17 +262,54 @@ export const Navbar = () => {
               </Link>
             )}
 
-            <Link to="/reservation">
-              <motion.button
-                whileHover={{
-                  scale: 1.05,
-                  boxShadow: "0 10px 30px rgba(230, 70, 2, 0.4)",
+            <Link to="/reservation" className="relative group">
+              <motion.div
+                initial={false}
+                animate={{
+                  boxShadow: [
+                    "0 0 20px rgba(255, 210, 31, 0.2)",
+                    "0 0 50px rgba(255, 210, 31, 0.4)",
+                    "0 0 20px rgba(255, 210, 31, 0.2)"
+                  ]
                 }}
-                whileTap={{ scale: 0.98 }}
-                className="px-10 py-4 bg-padel-yellow text-padel-blue font-display font-black text-xs rounded-full uppercase tracking-[0.25em] shadow-xl border-none transition-all duration-300 hover:bg-padel-yellow/80"
+                transition={{ repeat: Infinity, duration: 2.5 }}
+                className="relative p-[2px] rounded-full overflow-hidden"
               >
-                <span className="notranslate" translate="no">RÉSERVER</span>
-              </motion.button>
+                {/* Rotating Border Beam */}
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ repeat: Infinity, duration: 4, ease: "linear" }}
+                  className="absolute inset-[-100%] bg-[conic-gradient(from_0deg,transparent_0%,transparent_30%,#FFD21F_50%,transparent_70%,transparent_100%)] opacity-100"
+                />
+                
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="relative px-12 py-4 bg-[#0A0A0B] text-padel-yellow font-display font-black text-[11px] rounded-full uppercase tracking-[0.4em] transition-all duration-500 overflow-hidden group/btn flex items-center gap-3 border border-white/5"
+                >
+                  {/* Internal Glow that reacts to Hover */}
+                  <div className="absolute inset-0 bg-padel-yellow opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-2xl" />
+                  
+                  {/* Dynamic Gradient Overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-padel-yellow/0 via-padel-yellow/5 to-padel-yellow/0 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+                  
+                  {/* Text with dynamic color shift */}
+                  <span className="relative z-10 group-hover:text-padel-blue transition-colors duration-500 notranslate" translate="no">
+                    RÉSERVER
+                  </span>
+                  
+                  <Zap size={14} className="relative z-10 text-padel-yellow group-hover:text-padel-blue animate-pulse" />
+
+                  {/* Shimmer Effect */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
+                </motion.button>
+              </motion.div>
+
+              {/* Atmospheric Extra Glows */}
+              <div className="absolute -inset-4 bg-padel-yellow/10 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-1000 pointer-events-none" />
+              
+              {/* Dynamic Ping */}
+              <div className="absolute inset-0 rounded-full border-2 border-padel-yellow animate-[ping_4s_infinite] opacity-0 group-hover:opacity-30 transition-all pointer-events-none" />
             </Link>
 
             {/* Compact Mobile Toggle */}

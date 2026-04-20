@@ -22,6 +22,7 @@ const IconMap: Record<string, React.ReactNode> = {
   Zap: <Zap size={24} />,
   Star: <Star size={24} />,
   Trophy: <Trophy size={24} />,
+  ShieldCheck: <ShieldCheck size={24} />,
   Target: <Target size={24} />,
   Heart: <Heart size={24} />,
   Users: <Users size={24} />,
@@ -66,14 +67,20 @@ export const SubscriptionPlans = () => {
         ]);
 
         if (dbSubsRes.data.success) {
-          const fetchedPlans = dbSubsRes.data.data.map((sub: any) => ({
-            _id: sub._id,
-            title: sub.name,
-            price: sub.price.toString(),
-            featured: true, // We only have one now, so it's featured
-            icon: sub.name.toLowerCase().includes('creuses') ? 'Zap' : 'Star',
-            features: sub.features
-          }));
+          const fetchedPlans = dbSubsRes.data.data.map((sub: any) => {
+            let icon = 'Star';
+            if (sub.name.includes('PASS')) icon = 'ShieldCheck';
+            if (sub.name.includes('Creuses')) icon = 'Zap';
+
+            return {
+              _id: sub._id,
+              title: sub.name,
+              price: sub.price.toString(),
+              featured: sub.name.includes('PASS'),
+              icon: icon,
+              features: sub.features
+            };
+          });
           setPlans(fetchedPlans);
           setDbPlans(dbSubsRes.data.data);
         }

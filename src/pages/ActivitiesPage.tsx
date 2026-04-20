@@ -5,7 +5,6 @@ import { ActivitiesHero } from '../components/activities/ActivitiesHero';
 import { Coaching } from '../components/activities/Coaching';
 import { TournamentsSection } from '../components/activities/TournamentsSection';
 import { Events } from '../components/activities/Events';
-import { Academy } from '../components/activities/Academy';
 import { Services } from '../components/activities/Services';
 import { Pricing } from '../components/activities/Pricing';
 import { Corporate } from '../components/activities/Corporate';
@@ -36,7 +35,6 @@ export const ActivitiesPage = () => {
       <Coaching />
       {/* <TournamentsSection /> */}
 
-      {/* <Academy /> */}
       <Services />
       <Events />
       {/* <Pricing /> */}

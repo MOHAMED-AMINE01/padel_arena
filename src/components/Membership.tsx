@@ -4,44 +4,29 @@ import { Crown, Zap, Shield, Star, Check } from 'lucide-react';
 
 const tiers = [
   {
-    name: "CLUB",
-    price: "49€",
+    name: "PASS ARENA",
+    price: "40€",
     period: "/mois",
     icon: <Shield className="text-padel-blue" />,
     features: [
+      "Réservation H24 via application",
       "Accès 7j/7 aux courts",
-      "Réservation J-7",
-      "1 séance de coaching / mois",
-      "Accès Lounge illimité"
+      "Priorité de réservation J-7",
+      "Accès Club House & Lounge",
+      "Système de crédits intégré"
     ],
     color: "border-white/10"
   },
   {
-    name: "ELITE",
-    price: "99€",
+    name: "Heures Creuses",
+    price: "50€",
     period: "/mois",
-    icon: <Crown className="text-padel-yellow" />,
+    icon: <Zap className="text-padel-blue" />,
     features: [
-      "Priorité de réservation J-14",
-      "AI Match Analysis™ illimité",
-      "Coaching illimité en groupe",
-      "Accès VIP & Événements",
-      "Vestiaire privé & Spa"
-    ],
-    featured: true,
-    color: "border-padel-yellow/50"
-  },
-  {
-    name: "PRO",
-    price: "159€",
-    period: "/mois",
-    icon: <Zap className="text-neon-green" />,
-    features: [
-      "Tout le pack ELITE",
-      "Équipement Pro-Shop inclus",
-      "Analyses biométriques",
-      "Sponsoring Club",
-      "Accès 24h/24 (Badge)"
+      "Accès illimité en heures creuses",
+      "Inclus Padel, Badminton, Pickleball & Golf",
+      "Réservation 7 jours à l'avance",
+      "Priorité sur les événements club"
     ],
     color: "border-white/10"
   }

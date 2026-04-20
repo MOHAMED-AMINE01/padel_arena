@@ -24,6 +24,7 @@ export interface IUser extends Document {
         news?: boolean;
         promo?: boolean;
     };
+    balance: number;
     stats?: {
         points?: number;
         level?: 'DEBUTANT' | 'INTERMEDIAIRE' | 'AVANCE' | 'EXPERT' | 'ELITE';
@@ -60,6 +61,7 @@ const userSchema = new Schema<IUser>({
         news: { type: Boolean, default: false },
         promo: { type: Boolean, default: true }
     },
+    balance: { type: Number, default: 0 },
     stats: {
         points: { type: Number, default: 0 },
         level: { type: String, enum: ['DEBUTANT', 'INTERMEDIAIRE', 'AVANCE', 'EXPERT', 'ELITE'], default: 'DEBUTANT' },

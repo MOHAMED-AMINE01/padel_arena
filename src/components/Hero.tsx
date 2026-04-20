@@ -43,6 +43,19 @@ export const Hero = () => {
           transition={{ duration: 1, ease: [0.23, 1, 0.32, 1] }}
           className="max-w-5xl"
         >
+          {/* Badge H24 */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            className="inline-flex items-center gap-3 px-4 py-2 bg-padel-yellow/10 border border-padel-yellow/20 rounded-full mb-8"
+          >
+            <div className="w-2 h-2 rounded-full bg-padel-yellow animate-pulse" />
+            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-padel-yellow">
+              Disponible 24h/24 & 7j/7
+            </span>
+          </motion.div>
+
           {/* Headline - Compact & Powerful */}
           <h1 className="text-5xl md:text-7xl lg:text-[6.5rem] xl:text-[7rem] font-display font-black leading-[0.95] tracking-tighter text-white mb-8">
             VIVEZ <br />
