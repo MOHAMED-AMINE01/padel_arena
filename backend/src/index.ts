@@ -32,17 +32,23 @@ dotenv.config();
 const app: Express = express();
 const PORT = process.env.PORT || 5000;
 
-// CORS headers set manually FIRST for maximum compatibility
+// CORS headers set manually for maximum compatibility
 app.use((req, res, next) => {
-    const allowedOrigins = [
-        'http://localhost:3000',
-        'http://localhost:5173',
-        'https://padelarena-topaz.vercel.app'
-    ];
+    const rawAllowedOrigins = process.env.ALLOWED_ORIGINS || '';
+    const allowedOrigins = rawAllowedOrigins.split(',').map(o => o.trim()).filter(o => o !== '');
+    
+    // Add default common dev origins if not present
+    if (!allowedOrigins.includes('http://localhost:3000')) allowedOrigins.push('http://localhost:3000');
+    if (!allowedOrigins.includes('http://localhost:5173')) allowedOrigins.push('http://localhost:5173');
+
     const origin = req.headers.origin;
     if (origin && allowedOrigins.includes(origin)) {
         res.setHeader('Access-Control-Allow-Origin', origin);
+    } else if (!origin) {
+        // If no origin (e.g. server-to-server or direct browser access to some GET routes), 
+        // we can still allow or ignore depending on use case.
     }
+    
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin');
     res.setHeader('Access-Control-Allow-Credentials', 'true');
