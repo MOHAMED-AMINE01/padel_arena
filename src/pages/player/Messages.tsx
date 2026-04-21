@@ -15,6 +15,9 @@ import {
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import api from '../../lib/api';
+import { useAuth } from '../../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
+import { LogOut, Shield, Menu } from 'lucide-react';
 
 interface Message {
     _id: string;
@@ -28,6 +31,8 @@ interface Message {
 }
 
 export function PlayerMessages() {
+    const { user, logout } = useAuth();
+    const navigate = useNavigate();
     const [conversations, setConversations] = useState<Message[]>([]);
     const [selectedId, setSelectedId] = useState<string | null>(null);
     const [history, setHistory] = useState<Message[]>([]);
@@ -41,7 +46,27 @@ export function PlayerMessages() {
         if (!silent) setLoading(true);
         try {
             const res = await api.get('/messages/me');
-            setConversations(res.data.data);
+            const data = res.data.data;
+
+            // Check if a Support thread already exists
+            const hasSupport = data.some((c: Message) => c.subject === 'SUPPORT_DIRECT');
+
+            if (!hasSupport) {
+                // Prepend a virtual support thread
+                const virtualSupport: Message = {
+                    _id: 'virtual-support',
+                    senderName: 'Equipe Padel Arena',
+                    senderEmail: 'support@padelarena.fr',
+                    subject: 'SUPPORT_DIRECT',
+                    content: 'Discutez en direct avec notre équipe...',
+                    status: 'READ',
+                    type: 'OUTBOUND',
+                    createdAt: new Date().toISOString()
+                };
+                setConversations([virtualSupport, ...data]);
+            } else {
+                setConversations(data);
+            }
         } catch (err) {
             console.error('Error fetching conversations:', err);
         } finally {
@@ -50,6 +75,10 @@ export function PlayerMessages() {
     };
 
     const fetchHistory = async (id: string, silent = false) => {
+        if (id === 'virtual-support') {
+            setHistory([]);
+            return;
+        }
         if (!silent) setHistoryLoading(true);
         try {
             const res = await api.get(`/messages/me/${id}`);
@@ -95,13 +124,32 @@ export function PlayerMessages() {
 
         setIsSubmitting(true);
         try {
-            await api.post(`/messages/me/${selectedId}/reply`, {
-                content: replyContent
-            });
-            setReplyContent('');
-            fetchHistory(selectedId, true);
+            if (selectedId === 'virtual-support') {
+                await api.post('/messages/contact', {
+                    name: user?.name || 'Joueur',
+                    email: user?.email || '',
+                    subject: 'SUPPORT_DIRECT',
+                    message: replyContent
+                });
+
+                setReplyContent('');
+                // Fetch real conversations to find the newly created ID
+                const res = await api.get('/messages/me');
+                const newConv = res.data.data.find((c: any) => c.subject === 'SUPPORT_DIRECT');
+                if (newConv) {
+                    setSelectedId(newConv._id);
+                    fetchHistory(newConv._id);
+                }
+                fetchConversations(true);
+            } else {
+                await api.post(`/messages/me/${selectedId}/reply`, {
+                    content: replyContent
+                });
+                setReplyContent('');
+                fetchHistory(selectedId, true);
+            }
         } catch (err) {
-            console.error('Error sending reply:', err);
+            console.error('Error sending message:', err);
         } finally {
             setIsSubmitting(false);
         }
@@ -137,48 +185,55 @@ export function PlayerMessages() {
                                 <Loader2 className="animate-spin" size={32} />
                                 <span className="text-[9px] font-black uppercase tracking-widest">Initialisation...</span>
                             </div>
-                        ) : conversations.length === 0 ? (
-                            <div className="text-center py-20 opacity-20 space-y-4">
-                                <MessageSquare size={48} className="mx-auto" />
-                                <p className="text-[10px] font-black uppercase tracking-widest">Aucune discussion en cours</p>
-                            </div>
                         ) : (
-                            conversations.map((conv) => (
-                                <button
-                                    key={conv._id}
-                                    onClick={() => handleSelect(conv._id)}
-                                    className={cn(
-                                        "w-full text-left p-4 md:p-6 rounded-xl md:rounded-[2rem] border transition-all relative group",
-                                        selectedId === conv._id
-                                            ? "bg-padel-blue border-padel-blue shadow-lg shadow-padel-blue/20"
-                                            : "bg-white/[0.02] border-white/5 hover:bg-white/[0.05] hover:border-white/10"
-                                    )}
-                                >
-                                    <div className="flex justify-between items-start mb-3">
-                                        <div className="flex items-center gap-3">
-                                            <div className={cn(
-                                                "w-10 h-10 rounded-xl flex items-center justify-center border",
-                                                selectedId === conv._id ? "bg-white/20 border-white/20" : "bg-white/5 border-white/10"
-                                            )}>
-                                                <User size={16} className={selectedId === conv._id ? "text-white" : "text-white/40"} />
-                                            </div>
-                                            <span className={cn("text-[10px] font-black uppercase tracking-widest", selectedId === conv._id ? "text-white" : "text-white/60")}>
-                                                Equipe Padel Arena
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <h3 className={cn("text-sm font-black tracking-tighter uppercase mb-2 line-clamp-1", selectedId === conv._id ? "text-white" : "text-white")}>
-                                        {conv.subject}
-                                    </h3>
-                                    <p className={cn("text-[11px] font-medium italic line-clamp-1", selectedId === conv._id ? "text-white/60" : "text-white/20")}>
-                                        {conv.content}
-                                    </p>
+                            conversations.map((conv) => {
+                                const isVirtual = conv._id === 'virtual-support';
+                                const isSupport = conv.subject === 'SUPPORT_DIRECT';
 
-                                    {conv.status === 'REPLIED' && selectedId !== conv._id && (
-                                        <div className="absolute top-6 right-6 w-2 h-2 rounded-full bg-padel-yellow animate-pulse" />
-                                    )}
-                                </button>
-                            ))
+                                return (
+                                    <button
+                                        key={conv._id}
+                                        onClick={() => handleSelect(conv._id)}
+                                        className={cn(
+                                            "w-full text-left p-4 md:p-6 rounded-xl md:rounded-[2rem] border transition-all relative group",
+                                            selectedId === conv._id
+                                                ? "bg-padel-blue border-padel-blue shadow-lg shadow-padel-blue/20"
+                                                : isSupport
+                                                    ? "bg-padel-blue/5 border-padel-blue/20 hover:bg-padel-blue/10"
+                                                    : "bg-white/[0.02] border-white/5 hover:bg-white/[0.05] hover:border-white/10"
+                                        )}
+                                    >
+                                        <div className="flex justify-between items-start mb-3">
+                                            <div className="flex items-center gap-3">
+                                                <div className={cn(
+                                                    "w-10 h-10 rounded-xl flex items-center justify-center border",
+                                                    selectedId === conv._id ? "bg-white/20 border-white/20" : "bg-white/5 border-white/10"
+                                                )}>
+                                                    {isSupport ? <MessageSquare size={16} className="text-padel-blue" /> : <User size={16} className={selectedId === conv._id ? "text-white" : "text-white/40"} />}
+                                                </div>
+                                                <div className="flex flex-col">
+                                                    <span className={cn("text-[10px] font-black uppercase tracking-widest", selectedId === conv._id ? "text-white" : "text-white/60")}>
+                                                        Support Padel Arena
+                                                    </span>
+                                                    {isSupport && (
+                                                        <span className="text-[7px] text-padel-blue font-black uppercase tracking-widest mt-0.5">Assistance Directe</span>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <h3 className={cn("text-sm font-black tracking-tighter uppercase mb-2 line-clamp-1", selectedId === conv._id ? "text-white" : "text-white")}>
+                                            {isSupport ? 'Chat avec l\'administration' : conv.subject}
+                                        </h3>
+                                        <p className={cn("text-[11px] font-medium italic line-clamp-1", selectedId === conv._id ? "text-white/60" : "text-white/20")}>
+                                            {isVirtual ? 'Démarrer une discussion...' : conv.content}
+                                        </p>
+
+                                        {conv.status === 'REPLIED' && selectedId !== conv._id && (
+                                            <div className="absolute top-6 right-6 w-2 h-2 rounded-full bg-padel-yellow animate-pulse" />
+                                        )}
+                                    </button>
+                                );
+                            })
                         )}
                     </div>
                 </div>
@@ -208,6 +263,17 @@ export function PlayerMessages() {
 
                             {/* Messages Container */}
                             <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 md:p-10 space-y-4 md:space-y-6 custom-scrollbar scroll-smooth">
+                                {selectedId === 'virtual-support' && (
+                                    <div className="flex flex-col items-center justify-center py-20 text-center opacity-40">
+                                        <div className="w-20 h-20 rounded-full bg-padel-blue/10 flex items-center justify-center mb-6 border border-padel-blue/20">
+                                            <MessageSquare size={32} className="text-padel-blue" />
+                                        </div>
+                                        <h3 className="text-xl font-black text-white uppercase tracking-tighter mb-2">Bienvenue au Support</h3>
+                                        <p className="max-w-xs text-[10px] font-bold text-white uppercase tracking-[0.2em] leading-relaxed">
+                                            Notre équipe est en ligne. Posez votre question ci-dessous pour démarrer la discussion.
+                                        </p>
+                                    </div>
+                                )}
                                 {historyLoading ? (
                                     <div className="flex flex-col items-center justify-center py-20 opacity-20 gap-4">
                                         <Loader2 className="animate-spin" size={40} />

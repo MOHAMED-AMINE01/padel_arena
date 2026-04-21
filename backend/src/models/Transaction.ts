@@ -4,7 +4,7 @@ export interface ITransaction extends Document {
     type: 'INCOME' | 'EXPENSE';
     amount: number;
     description: string;
-    method: 'CASH' | 'CARD' | 'STRIPE' | 'TRANSFER';
+    method: 'CASH' | 'CARD' | 'STRIPE' | 'TRANSFER' | 'WALLET';
     status: 'COMPLETED' | 'PENDING' | 'FAILED';
     managedBy: mongoose.Types.ObjectId;
     customerName?: string;
@@ -19,7 +19,7 @@ const TransactionSchema: Schema = new Schema({
     type: { type: String, enum: ['INCOME', 'EXPENSE'], required: true },
     amount: { type: Number, required: true },
     description: { type: String, required: true },
-    method: { type: String, enum: ['CASH', 'CARD', 'STRIPE', 'TRANSFER'], default: 'CASH' },
+    method: { type: String, enum: ['CASH', 'CARD', 'STRIPE', 'TRANSFER', 'WALLET'], default: 'CASH' },
     status: { type: String, enum: ['COMPLETED', 'PENDING', 'FAILED'], default: 'COMPLETED' },
     managedBy: { type: Schema.Types.ObjectId, ref: 'User', required: false },
     customerName: { type: String },

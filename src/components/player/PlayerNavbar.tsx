@@ -16,7 +16,8 @@ import {
     Shield,
     ChevronDown,
     ArrowRight,
-    MessageSquare
+    MessageSquare,
+    Zap
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { useAuth } from '../../context/AuthContext';
@@ -42,6 +43,7 @@ export function PlayerNavbar() {
         { label: 'Mes Matchs', href: '/my-reservations', icon: History },
         { label: 'Tournois', href: '/events', icon: Trophy },
         { label: 'Abonnement', href: '/subscription', icon: Sparkles },
+        { label: 'Portefeuille', href: '/wallet', icon: Zap },
         { label: 'Support', href: '/messages', icon: MessageSquare },
     ];
 
@@ -58,10 +60,10 @@ export function PlayerNavbar() {
         )}>
             <div className="max-w-7xl mx-auto px-6">
                 <div className={cn(
-                    "relative flex items-center justify-between px-6 h-20 rounded-[2rem] border transition-all duration-500",
+                    "relative flex items-center justify-between px-4 transition-all duration-700 border",
                     scrolled
-                        ? "bg-[#0E0E11]/80 backdrop-blur-2xl border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.5)]"
-                        : "bg-white/[0.02] border-white/5 backdrop-blur-md"
+                        ? "bg-[#0E0E11]/95 backdrop-blur-3xl border-white/15 shadow-[0_30px_100px_rgba(0,0,0,0.9)] h-16 rounded-[2rem]"
+                        : "bg-white/[0.04] border-white/10 backdrop-blur-xl h-20 rounded-[2.5rem]"
                 )}>
                     {/* Background Shimmer */}
                     <div className="absolute inset-0 rounded-[2rem] overflow-hidden pointer-events-none">
@@ -71,83 +73,88 @@ export function PlayerNavbar() {
                     {/* Logo Section */}
                     <div className="flex items-center shrink-0">
                         <Link to="/" className="relative group">
-                            <motion.div
-                                whileHover={{ scale: 1.05 }}
-                                className="relative z-10"
-                            >
+                            <motion.div whileHover={{ scale: 1.05 }} className="relative z-10">
                                 <img
                                     src="/IMAGES/newLogo_tr.png"
                                     alt="Logo"
-                                    className="h-12 scale-200 w-auto drop-shadow-[0_0_15px_rgba(19,73,211,0.3)] transition-transform duration-500"
+                                    className={cn(
+                                        "w-auto transition-all duration-700 drop-shadow-[0_0_15px_rgba(19,73,211,0.3)]",
+                                        scrolled ? "h-10" : "h-14"
+                                    )}
                                 />
                             </motion.div>
-                            <div className="absolute inset-0 bg-padel-blue/20 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                            <div className="absolute inset-0 bg-padel-blue/10 blur-2xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
                         </Link>
                     </div>
 
-                    {/* Desktop Menu - Centered */}
-                    <div className="hidden lg:flex items-center gap-0 absolute left-1/2 -translate-x-1/2">
-                        {navLinks.map((link) => (
-                            <Link
-                                key={link.href}
-                                to={link.href}
-                                className={cn(
-                                    "relative px-3 py-2 group overflow-hidden transition-all",
-                                    location.pathname === link.href ? "text-white" : "text-white/40 hover:text-white/80"
-                                )}
-                            >
-                                <div className="relative z-10 flex items-center gap-2">
-                                    <link.icon size={16} className={cn(
-                                        "transition-colors",
-                                        location.pathname === link.href ? "text-padel-blue" : "text-current"
-                                    )} />
-                                    <span className="text-[10px] font-black uppercase tracking-[0.15em] italic whitespace-nowrap">
-                                        {link.label}
-                                    </span>
-                                </div>
-                                {location.pathname === link.href && (
-                                    <motion.div
-                                        layoutId="nav-active"
-                                        className="absolute inset-0 bg-white/[0.05] rounded-xl border border-white/10"
-                                        transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                                    />
-                                )}
-                                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-[2px] bg-padel-blue group-hover:w-full transition-all duration-500 opacity-50" />
-                            </Link>
-                        ))}
+                    {/* Navigation - Ultra Compact */}
+                    <div className="hidden lg:flex items-center flex-1 justify-center px-4">
+                        <div className="flex items-center gap-0.5 bg-white/[0.02] border border-white/5 p-1 rounded-2xl">
+                            {navLinks.map((link) => {
+                                const isActive = location.pathname === link.href;
+                                const isWallet = link.href === '/wallet';
+
+                                return (
+                                    <Link
+                                        key={link.href}
+                                        to={link.href}
+                                        className={cn(
+                                            "relative px-3 xxl:px-4 py-2 group transition-all duration-500 rounded-xl flex items-center gap-2",
+                                            isActive ? "text-white" : "text-white/30 hover:text-white/70"
+                                        )}
+                                    >
+                                        <div className="relative z-10 flex items-center gap-2">
+                                            <link.icon size={13} className={cn(
+                                                "transition-colors duration-500",
+                                                isActive ? "text-padel-blue" : "group-hover:text-padel-blue/60"
+                                            )} />
+                                            <span className="text-[8.5px] xxl:text-[9.5px] font-black uppercase tracking-[0.15em] italic whitespace-nowrap">
+                                                {link.label}
+                                            </span>
+                                            {isWallet && user && (
+                                                <span className="px-1.5 py-0.5 rounded-full bg-padel-blue/20 text-padel-blue text-[8px] font-black border border-padel-blue/30">
+                                                    {user.balance || 0}€
+                                                </span>
+                                            )}
+                                        </div>
+                                        {isActive && (
+                                            <motion.div
+                                                layoutId="nav-active-pill"
+                                                className="absolute inset-0 bg-white/[0.08] border border-white/10"
+                                                style={{ borderRadius: '0.75rem' }}
+                                                transition={{ type: "spring", bounce: 0.15, duration: 0.6 }}
+                                            />
+                                        )}
+                                    </Link>
+                                );
+                            })}
+                        </div>
                     </div>
 
-                    {/* Right Side Actions */}
-                    <div className="flex items-center gap-2">
-                        {/* Admin Shortcut */}
-                        {user?.role === 'ADMIN' && (
-                            <Link
-                                to="/admin"
-                                className="hidden md:flex items-center gap-1.5 px-3 py-2 rounded-xl bg-padel-blue/10 border border-padel-blue/20 text-padel-blue hover:bg-padel-blue hover:text-white transition-all duration-500 group"
-                            >
-                                <Shield size={14} className="group-hover:rotate-12 transition-transform" />
-                                <span className="text-[9px] font-black uppercase tracking-widest">Administration</span>
-                            </Link>
-                        )}
-
-                        {/* User Profile Hook */}
-                        <div className="relative">
+                    {/* Profile Section */}
+                    <div className="flex items-center shrink-0 gap-2">
+                        <div className="relative hidden lg:block">
                             <button
                                 onClick={() => setShowProfileMenu(!showProfileMenu)}
                                 className={cn(
-                                    "flex items-center gap-2 px-3 py-2 rounded-xl transition-all duration-500",
-                                    showProfileMenu ? "bg-white/10" : "bg-white/[0.03] hover:bg-white/5 border border-white/5"
+                                    "flex items-center gap-2.5 px-3 py-1.5 rounded-2xl transition-all duration-700 relative overflow-hidden group border",
+                                    showProfileMenu 
+                                        ? "bg-padel-blue text-white shadow-lg" 
+                                        : "bg-white/[0.03] hover:bg-white/[0.08] border-white/5"
                                 )}
                             >
-                                <div className="w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center text-white/60">
-                                    <User size={18} />
+                                <div className={cn(
+                                    "w-8 h-8 rounded-xl flex items-center justify-center transition-all duration-700",
+                                    showProfileMenu ? "bg-white text-padel-blue" : "bg-white/10 text-white/40 group-hover:text-padel-blue"
+                                )}>
+                                    <User size={14} />
                                 </div>
-                                <span className="text-[11px] font-black text-white uppercase tracking-wider hidden sm:block">
+                                <span className="text-[9px] font-black uppercase tracking-widest hidden xl:block">
                                     {user?.name?.split(' ')[0] || 'Joueur'}
                                 </span>
-                                <ChevronDown size={14} className={cn(
-                                    "text-white/30 transition-transform duration-500 hidden sm:block",
-                                    showProfileMenu && "rotate-180 text-white"
+                                <ChevronDown size={12} className={cn(
+                                    "transition-all duration-700 opacity-30",
+                                    showProfileMenu && "rotate-180 opacity-100"
                                 )} />
                             </button>
 
@@ -158,44 +165,21 @@ export function PlayerNavbar() {
                                         animate={{ opacity: 1, y: 0, scale: 1 }}
                                         exit={{ opacity: 0, y: 10, scale: 0.95 }}
                                         transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
-                                        className="absolute top-[calc(100%+8px)] right-0 w-64 bg-[#0E0E11]/95 backdrop-blur-2xl border border-white/10 rounded-2xl p-3 shadow-[0_25px_80px_rgba(0,0,0,0.8)] z-[200] overflow-hidden"
+                                        className="absolute top-[calc(100%+8px)] right-0 w-60 bg-[#0E0E11]/98 backdrop-blur-3xl border border-white/10 rounded-2xl p-2 shadow-[0_20px_60px_rgba(0,0,0,0.8)] z-[200]"
                                     >
-                                        {/* Dropdown Header */}
-                                        <div className="relative p-3 mb-3 rounded-xl bg-white/[0.03] border border-white/5 overflow-hidden">
-                                            <div className="absolute -top-12 -right-12 w-24 h-24 bg-padel-blue/10 rounded-full blur-2xl" />
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 rounded-lg bg-padel-blue shadow-lg flex items-center justify-center text-white font-black text-lg italic border border-white/20">
-                                                    {user?.name?.charAt(0) || 'P'}
-                                                </div>
-                                                <div className="overflow-hidden">
-                                                    <p className="text-sm font-black text-white truncate uppercase italic tracking-tight">{user?.name || 'Nom Joueur'}</p>
-                                                    <p className="text-[10px] text-white/30 font-bold truncate tracking-wider">{user?.email || 'email@exemple.com'}</p>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        {/* Dropdown Items */}
                                         <div className="space-y-0.5">
                                             <button
                                                 onClick={() => { navigate('/profile'); setShowProfileMenu(false); }}
-                                                className="w-full text-left px-3 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.15em] text-white/60 hover:text-white hover:bg-white/5 transition-all flex items-center gap-3 group"
+                                                className="w-full text-left px-3 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest text-white/60 hover:text-white hover:bg-white/5 transition-all flex items-center gap-3"
                                             >
-                                                <div className="w-7 h-7 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-padel-blue/20 group-hover:text-padel-blue transition-all">
-                                                    <User size={14} />
-                                                </div>
+                                                <User size={13} />
                                                 Mon Profil
                                             </button>
-
-
-                                            <div className="h-2" />
-
                                             <button
                                                 onClick={handleLogout}
-                                                className="w-full text-left px-3 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] text-red-500/80 hover:text-red-500 hover:bg-red-500/10 transition-all flex items-center gap-3 group border border-transparent hover:border-red-500/20"
+                                                className="w-full text-left px-3 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest text-red-500/80 hover:text-red-500 hover:bg-red-500/10 transition-all flex items-center gap-3"
                                             >
-                                                <div className="w-7 h-7 rounded-lg bg-red-500/5 flex items-center justify-center group-hover:scale-110 transition-transform">
-                                                    <LogOut size={14} />
-                                                </div>
+                                                <LogOut size={13} />
                                                 Déconnexion
                                             </button>
                                         </div>
@@ -207,9 +191,9 @@ export function PlayerNavbar() {
                         {/* Mobile Toggle */}
                         <button
                             onClick={() => setIsOpen(!isOpen)}
-                            className="lg:hidden w-11 h-11 rounded-xl bg-white/[0.03] border border-white/5 flex items-center justify-center text-white/60 hover:text-white transition-all active:scale-95"
+                            className="lg:hidden w-10 h-10 rounded-xl bg-white/[0.03] border border-white/5 flex items-center justify-center text-white/60"
                         >
-                            {isOpen ? <X size={24} /> : <Menu size={24} />}
+                            {isOpen ? <X size={20} /> : <Menu size={20} />}
                         </button>
                     </div>
                 </div>

@@ -308,6 +308,120 @@ export const handleWebhook = async (req: Request, res: Response) => {
 };
 
 /**
+ * @desc    Pay for a booking using Wallet Balance
+ * @route   POST /api/payments/pay-with-wallet
+ * @access  Private
+ */
+export const payWithWallet = async (req: Request, res: Response) => {
+  try {
+    const { bookingId } = req.body;
+    const userId = (req as any).user?._id;
+
+    if (!bookingId || !userId) {
+      return res.status(400).json({ success: false, message: 'Réservation ou utilisateur manquant.' });
+    }
+
+    // 1. Récupérer la réservation
+    const booking = await Booking.findById(bookingId).populate('court user');
+    if (!booking) {
+      return res.status(404).json({ success: false, message: 'Réservation introuvable.' });
+    }
+
+    if (booking.paymentStatus === 'PAID') {
+        return res.status(400).json({ success: false, message: 'Cette réservation est déjà réglée.' });
+    }
+
+    // 2. Récupérer l'utilisateur pour vérifier son solde
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'Utilisateur introuvable.' });
+    }
+
+    const price = booking.totalPrice;
+    if ((user.balance || 0) < price) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Solde insuffisant.',
+        currentBalance: user.balance,
+        required: price
+      });
+    }
+
+    // 3. Procéder au paiement
+    user.balance = (user.balance || 0) - price;
+    await user.save();
+
+    // 4. Mettre à jour la réservation
+    booking.paymentStatus = 'PAID';
+    booking.status = 'CONFIRMED';
+    // On note que c'est payé par portefeuille
+    booking.stripePaymentIntentId = 'WALLET_PAYMENT'; 
+    await booking.save();
+
+    // 5. Créer la transaction
+    const isSpecial = booking.bookingType === 'PACK' || booking.bookingType === 'SUBSCRIPTION';
+    const itemName = isSpecial 
+        ? `${booking.bookingType === 'PACK' ? 'Pack' : 'Abonnement'} : ${booking.packName}`
+        : `Terrain : ${(booking.court as any)?.name || 'Padel'}`;
+
+    await Transaction.create({
+      type: 'INCOME',
+      amount: price,
+      description: `Paiement Portefeuille - ${itemName}`,
+      method: 'WALLET',
+      status: 'COMPLETED',
+      customerName: user.name,
+      managedBy: user._id,
+      booking: booking._id,
+      category: isSpecial ? (booking.bookingType === 'PACK' ? 'Pack' : 'Abonnement') : 'Réservation'
+    });
+
+    // 6. Logique spécifique (Abonnements / Packs / etc.)
+    if (booking.bookingType === 'SUBSCRIPTION' && booking.subscription) {
+        const plan = await Subscription.findById(booking.subscription);
+        if (plan) {
+            let newExpiryDate = new Date();
+            if (user.subscriptionExpiresAt && user.subscriptionExpiresAt > newExpiryDate) {
+                newExpiryDate = new Date(user.subscriptionExpiresAt);
+            }
+            newExpiryDate.setMonth(newExpiryDate.getMonth() + plan.durationInMonths);
+            
+            user.subscription = booking.subscription;
+            user.subscriptionExpiresAt = newExpiryDate;
+            await user.save();
+        }
+    }
+
+    // 7. Envoyer l'email de confirmation
+    try {
+        const emailTitle = isSpecial ? "Confirmation d'Achat (Portefeuille)" : "Réservation Confirmée (Portefeuille)";
+        const emailBody = `Votre paiement de **${price}€** via votre portefeuille a été validé.<br><br>` +
+                          `Nouvel article : **${itemName}**.<br>` +
+                          `Votre nouveau solde : **${user.balance}€**.`;
+
+        await sendEmail({
+            to: user.email,
+            subject: `🎾 ${emailTitle}`,
+            text: emailBody,
+            html: getEmailTemplate(emailTitle, emailBody)
+        });
+    } catch (e) {
+        console.error('Email Error payWithWallet:', e);
+    }
+
+    res.status(200).json({ 
+        success: true, 
+        message: 'Paiement effectué avec succès depuis le portefeuille.',
+        newBalance: user.balance
+    });
+
+  } catch (error: any) {
+    console.error('Wallet Payment Error:', error);
+    res.status(500).json({ success: false, message: 'Erreur lors du paiement par portefeuille.' });
+  }
+};
+
+/**
  * @desc    Refund a Stripe payment
  */
 export const refundPayment = async (paymentIntentId: string, amount?: number) => {

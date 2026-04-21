@@ -157,7 +157,7 @@ const DURATION_OPTIONS = [
 
 // ─── Component ────────────────────────────────────────────────────────────────
 export function PlayerBook() {
-    const { user } = useAuth();
+    const { user, refreshUser } = useAuth();
     const navigate = useNavigate();
 
     // ── Stepper
@@ -171,7 +171,7 @@ export function PlayerBook() {
     const [selectedTime, setSelectedTime] = useState<string | null>(null);
     const [selectedDuration, setSelectedDuration] = useState<number>(60); // minutes
     const [selectedCourt, setSelectedCourt] = useState<CourtSlots | null>(null);
-    const [paymentMethod, setPaymentMethod] = useState<'online' | 'club'>('online');
+    const [paymentMethod, setPaymentMethod] = useState<'STRIPE' | 'WALLET'>('STRIPE');
 
     // ── Data — Sports are always fixed for this venue: 5 disciplines
     const [dates] = useState<Date[]>(generateDateRange(21));
@@ -341,16 +341,35 @@ export function PlayerBook() {
             const _startMs = new Date(startTimeStr).getTime();
             const endTimeStr = new Date(_startMs + selectedDuration * 60000).toISOString();
 
+            // Explicit strings for email and display
+            const formattedDate = [
+                String(selectedDate.getDate()).padStart(2, '0'),
+                String(selectedDate.getMonth() + 1).padStart(2, '0'),
+                selectedDate.getFullYear()
+            ].join('/');
+
             const res = await api.post('/bookings', {
                 courtId: selectedCourt.courtId,
                 startTime: startTimeStr,
                 endTime: endTimeStr,
+                timeStr: selectedTime,
+                dateStr: formattedDate,
                 promoCode: promoCode || undefined
             });
 
             const booking = res.data.data;
 
-            if (paymentMethod === 'online') {
+            if (paymentMethod === 'WALLET') {
+                // Pay with Wallet
+                const walletRes = await api.post('/payments/pay-with-wallet', {
+                    bookingId: booking._id
+                });
+                if (walletRes.data.success) {
+                    await refreshUser();
+                    navigate(`/booking-success?booking_id=${booking._id}&method=wallet`);
+                    return;
+                }
+            } else {
                 // Stripe Checkout
                 const stripeRes = await api.post('/payments/create-checkout-session', {
                     bookingId: booking._id,
@@ -363,7 +382,7 @@ export function PlayerBook() {
 
                 if (stripeRes.data.url) {
                     window.location.href = stripeRes.data.url;
-                    return; // Don't show local success yet
+                    return; 
                 }
             }
 
@@ -1229,7 +1248,36 @@ export function PlayerBook() {
                                     </div>
 
                                     <div className="relative z-10 space-y-4">
-                                        <div className="overflow-hidden">
+                                        <div className="text-[9px] font-black text-white/40 uppercase tracking-widest pl-1">Choisir le mode de paiement</div>
+                                        <div className="grid grid-cols-2 gap-3 mb-2">
+                                            <button
+                                                type="button"
+                                                onClick={() => setPaymentMethod('STRIPE')}
+                                                className={cn(
+                                                    "flex flex-col items-center gap-2 p-4 rounded-2xl border transition-all",
+                                                    paymentMethod === 'STRIPE' ? "bg-white text-padel-blue border-white shadow-lg" : "bg-white/10 border-white/5 text-white/40 hover:border-white/20"
+                                                )}
+                                            >
+                                                <CreditCard size={20} />
+                                                <span className="text-[8px] font-black uppercase tracking-widest">CARTE</span>
+                                            </button>
+                                            <button
+                                                type="button"
+                                                disabled={!user || (user.balance || 0) < parseFloat(totalPrice)}
+                                                onClick={() => setPaymentMethod('WALLET')}
+                                                className={cn(
+                                                    "flex flex-col items-center gap-2 p-4 rounded-2xl border transition-all relative overflow-hidden",
+                                                    paymentMethod === 'WALLET' ? "bg-white text-padel-blue border-white shadow-lg" : "bg-white/10 border-white/5 text-white/40 hover:border-white/20",
+                                                    (!user || (user.balance || 0) < parseFloat(totalPrice)) && "opacity-40 cursor-not-allowed grayscale"
+                                                )}
+                                            >
+                                                <Zap size={20} />
+                                                <span className="text-[8px] font-black uppercase tracking-widest">SOLDE</span>
+                                                <span className="text-[7px] font-black opacity-60">SOLDE: {user?.balance || 0}€</span>
+                                            </button>
+                                        </div>
+
+                                        {paymentMethod === 'STRIPE' ? (
                                             <div className="flex flex-col items-center gap-3 p-5 bg-white/5 border border-white/10 rounded-2xl relative overflow-hidden group">
                                                 <div className="absolute top-0 right-0 p-3 opacity-[0.03] rotate-12 group-hover:rotate-0 transition-transform">
                                                     <CreditCard size={32} />
@@ -1239,18 +1287,39 @@ export function PlayerBook() {
                                                         <CreditCard size={18} />
                                                     </div>
                                                     <div className="text-left">
-                                                        <p className="text-[10px] font-black text-white uppercase tracking-widest leading-none mb-1.5 italic">Paiement 100% Sécurisé</p>
+                                                        <p className="text-[10px] font-black text-white uppercase tracking-widest leading-none mb-1.5 italic">Paiement Sécurisé</p>
                                                         <p className="text-[8px] font-black text-white/40 uppercase tracking-[0.2em] leading-none italic">VIA STRIPE CONNECT</p>
                                                     </div>
                                                 </div>
                                                 <div className="h-px w-full bg-white/5 my-1" />
-                                                <div className="text-left w-full">
-                                                    <p className="text-[8px] sm:text-[9px] font-black text-white/20 uppercase tracking-widest leading-relaxed italic text-center px-2">
-                                                        VOUS ALLEZ ÊTRE REDIRIGÉ VERS LA PLATEFORME SÉCURISÉE <span className="text-white/40 font-bold tracking-normal italic">STRIPE</span> POUR FINALISER VOTRE RÉGLEMENT.
+                                                <div className="text-left w-full text-center">
+                                                    <p className="text-[8px] sm:text-[9px] font-black text-white/20 uppercase tracking-widest leading-relaxed italic px-2">
+                                                        REDIRIGÉ VERS <span className="text-white/40">STRIPE</span>.
                                                     </p>
                                                 </div>
                                             </div>
-                                        </div>
+                                        ) : (
+                                            <div className="flex flex-col items-center gap-3 p-5 bg-white/10 border border-white/20 rounded-2xl relative overflow-hidden group">
+                                                <div className="absolute top-0 right-0 p-3 opacity-[0.05] rotate-12">
+                                                    <Zap size={32} className="text-white" />
+                                                </div>
+                                                <div className="flex items-center gap-4 w-full">
+                                                    <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-padel-blue shadow-lg shrink-0">
+                                                        <Zap size={18} />
+                                                    </div>
+                                                    <div className="text-left">
+                                                        <p className="text-[10px] font-black text-white uppercase tracking-widest leading-none mb-1.5 italic">Débit Immédiat</p>
+                                                        <p className="text-[8px] font-black text-white/40 uppercase tracking-[0.2em] leading-none italic">ARENA BALANCE</p>
+                                                    </div>
+                                                </div>
+                                                <div className="h-px w-full bg-white/10 my-1" />
+                                                <div className="text-left w-full text-center">
+                                                    <p className="text-[8px] sm:text-[9px] font-black text-white/60 uppercase tracking-widest leading-relaxed italic px-2">
+                                                        EXTRAIT DE VOTRE SOLDE.
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        )}
 
                                         {bookError && (
                                             <motion.div
@@ -1279,8 +1348,8 @@ export function PlayerBook() {
                                                 </>
                                             ) : (
                                                 <>
-                                                    <CreditCard size={18} className="group-hover:rotate-12 transition-transform" />
-                                                    <span>Payer via Stripe</span>
+                                                    {paymentMethod === 'WALLET' ? <Zap size={18} className="group-hover:rotate-12 transition-transform" /> : <CreditCard size={18} className="group-hover:rotate-12 transition-transform" />}
+                                                    <span>{paymentMethod === 'WALLET' ? 'Valider avec mon solde' : 'Payer via Stripe'}</span>
                                                 </>
                                             )}
                                         </motion.button>

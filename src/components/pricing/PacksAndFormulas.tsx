@@ -1,8 +1,9 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
-import { Target, Trophy, Users, Heart, Building2, ArrowUpRight, Plus, Sparkles, Loader2, X, CheckCircle2, Phone, Mail, User, CreditCard } from 'lucide-react';
+import { Target, Trophy, Users, Heart, Building2, ArrowUpRight, Plus, Sparkles, Loader2, X, CheckCircle2, Phone, Mail, User, CreditCard, Zap } from 'lucide-react';
 import { cn } from '../../lib/utils';
+import { useAuth } from '../../context/AuthContext';
 import api from '../../lib/api';
 
 interface IPack {
@@ -56,6 +57,12 @@ export const PacksAndFormulas = () => {
     email: ''
   });
 
+  const [paymentMethod, setPaymentMethod] = useState<'STRIPE' | 'WALLET'>('STRIPE');
+  const { user, refreshUser } = useAuth();
+
+  // Derived price for the currently selected pack (used in JSX for wallet button check)
+  const priceValue = parseFloat(selectedPack?.price || '0') || 0;
+
   useEffect(() => {
     const fetchPacks = async () => {
       try {
@@ -93,10 +100,11 @@ export const PacksAndFormulas = () => {
     setIsModalOpen(true);
     setBookingStatus('idle');
     setFormData({
-      name: '',
-      phone: '',
-      email: ''
+      name: user?.name || '',
+      phone: user?.phone || '',
+      email: user?.email || ''
     });
+    setPaymentMethod('STRIPE');
   };
 
   const handleBookingSubmit = async (e: React.FormEvent) => {
@@ -130,19 +138,32 @@ export const PacksAndFormulas = () => {
 
       const booking = res.data.data;
 
-      // 2. If it has a numeric price, go to Stripe
+      // 2. PAYMENT HANDLING
       if (!isNaN(priceValue) && priceValue > 0) {
-        const stripeRes = await api.post('/payments/create-checkout-session', {
-          bookingId: booking._id,
-          courtName: `PACK : ${selectedPack?.title}`,
-          amount: priceValue,
-          customerEmail: formData.email,
-          successUrl: `${window.location.origin}/booking-success?session_id={CHECKOUT_SESSION_ID}` 
-        });
+        if (paymentMethod === 'WALLET') {
+          // Pay with Wallet
+          const walletRes = await api.post('/payments/pay-with-wallet', {
+            bookingId: booking._id
+          });
+          if (walletRes.data.success) {
+            await refreshUser();
+            setBookingStatus('success');
+            return;
+          }
+        } else {
+          // Pay with Stripe
+          const stripeRes = await api.post('/payments/create-checkout-session', {
+            bookingId: booking._id,
+            courtName: `PACK : ${selectedPack?.title}`,
+            amount: priceValue,
+            customerEmail: formData.email,
+            successUrl: `${window.location.origin}/booking-success?session_id={CHECKOUT_SESSION_ID}` 
+          });
 
-        if (stripeRes.data.url) {
-          window.location.href = stripeRes.data.url;
-          return;
+          if (stripeRes.data.url) {
+            window.location.href = stripeRes.data.url;
+            return;
+          }
         }
       }
 
@@ -365,30 +386,82 @@ export const PacksAndFormulas = () => {
                     </div>
 
                     {selectedPack?.price !== 'DEVIS' && (
-                      <div className="flex flex-col items-center gap-4 px-6 py-6 bg-white/[0.02] border border-white/5 rounded-[2.5rem] relative overflow-hidden group mb-6">
-                             <div className="absolute top-0 right-0 p-4 opacity-[0.03] rotate-12 transition-transform group-hover:rotate-0">
-                               <CreditCard size={40} />
-                             </div>
-                             <div className="flex items-center gap-3">
-                               <div className="w-8 h-8 rounded-full bg-padel-blue flex items-center justify-center text-white shadow-lg shadow-padel-blue/20">
-                                 <CreditCard size={14} />
+                       <div className="space-y-4 mb-6">
+                         <div className="text-[9px] font-black text-white/20 uppercase tracking-widest text-left">Mode de paiement</div>
+                         <div className="grid grid-cols-2 gap-3">
+                           <button 
+                             type="button"
+                             onClick={() => setPaymentMethod('STRIPE')}
+                             className={cn(
+                               "flex flex-col items-center gap-2 p-4 rounded-2xl border transition-all",
+                               paymentMethod === 'STRIPE' ? "bg-padel-blue border-padel-blue text-white shadow-lg" : "bg-white/5 border-white/10 text-white/40 hover:border-white/20"
+                             )}
+                           >
+                             <CreditCard size={18} />
+                             <span className="text-[8px] font-black uppercase">CARTE</span>
+                           </button>
+                           
+                           <button 
+                             type="button"
+                             disabled={!user || (user.balance || 0) < priceValue}
+                             onClick={() => setPaymentMethod('WALLET')}
+                             className={cn(
+                               "flex flex-col items-center gap-2 p-4 rounded-2xl border transition-all relative overflow-hidden",
+                               paymentMethod === 'WALLET' ? "bg-padel-blue border-padel-blue text-white shadow-lg" : "bg-white/5 border-white/10 text-white/40 hover:border-white/20",
+                               (!user || (user.balance || 0) < priceValue) && "opacity-40 cursor-not-allowed grayscale"
+                             )}
+                           >
+                             <Zap size={18} />
+                             <span className="text-[8px] font-black uppercase">SOLDE</span>
+                             <span className="text-[7px] font-black opacity-60">{user?.balance || 0}€</span>
+                           </button>
+                         </div>
+
+                         {paymentMethod === 'STRIPE' ? (
+                           <div className="flex flex-col items-center gap-4 px-6 py-6 bg-white/[0.02] border border-white/5 rounded-[2rem] relative overflow-hidden group">
+                                  <div className="absolute top-0 right-0 p-4 opacity-[0.03] rotate-12 transition-transform group-hover:rotate-0">
+                                    <CreditCard size={40} />
+                                  </div>
+                                  <div className="flex items-center gap-3">
+                                    <div className="w-8 h-8 rounded-full bg-padel-blue flex items-center justify-center text-white shadow-lg shadow-padel-blue/20">
+                                      <CreditCard size={14} />
+                                    </div>
+                                    <div className="text-left">
+                                      <p className="text-[10px] font-black text-white uppercase tracking-widest leading-none mb-1">Stripe Connect</p>
+                                      <p className="text-[8px] font-black text-padel-blue uppercase tracking-[0.2em] leading-none">100% SÉCURISÉ</p>
+                                    </div>
+                                  </div>
+                                  <p className="text-[8px] md:text-[9px] font-black text-white/20 uppercase tracking-widest leading-relaxed text-center">
+                                    VOUS ALLEZ ÊTRE REDIRIGÉ VERS <span className="text-white/40">STRIPE</span>.
+                                  </p>
+                           </div>
+                         ) : (
+                           <div className="flex flex-col items-center gap-4 px-6 py-6 bg-padel-blue/10 border border-padel-blue/20 rounded-[2rem] relative overflow-hidden group">
+                               <div className="absolute top-0 right-0 p-4 opacity-[0.05] rotate-12">
+                                 <Zap size={40} className="text-padel-blue" />
                                </div>
-                               <div className="text-left">
-                                 <p className="text-[10px] font-black text-white uppercase tracking-widest leading-none mb-1">Paiement 100% Sécurisé</p>
-                                 <p className="text-[8px] font-black text-padel-blue uppercase tracking-[0.2em] leading-none">VIA STRIPE CONNECT</p>
+                               <div className="flex items-center gap-3">
+                                 <div className="w-8 h-8 rounded-full bg-padel-blue flex items-center justify-center text-white shadow-lg">
+                                   <Zap size={14} />
+                                 </div>
+                                 <div className="text-left">
+                                   <p className="text-[10px] font-black text-white uppercase tracking-widest leading-none mb-1">Arena Balance</p>
+                                   <p className="text-[8px] font-black text-padel-blue uppercase tracking-[0.2em] leading-none">PAIEMENT IMMÉDIAT</p>
+                                 </div>
                                </div>
-                             </div>
-                             <p className="text-[8px] md:text-[9px] font-black text-white/20 uppercase tracking-widest leading-relaxed text-center">
-                               VOUS ALLEZ ÊTRE REDIRIGÉ VERS LA PLATEFORME SÉCURISÉE <span className="text-white/40 font-bold tracking-normal italic">STRIPE</span> POUR FINALISER VOTRE RÉGLEMENT.
-                             </p>
-                      </div>
+                               <p className="text-[8px] md:text-[9px] font-black text-white/60 uppercase tracking-widest leading-relaxed text-center">
+                                 LE MONTANT SERA DÉDUIT DE VOTRE PORTEFEUILLE.
+                               </p>
+                           </div>
+                         )}
+                       </div>
                     )}
                     <button
                       type="submit"
                       disabled={bookingStatus === 'submitting'}
                       className="w-full py-6 bg-padel-blue text-white rounded-full font-black text-[11px] uppercase tracking-[0.4em] shadow-2xl shadow-padel-blue/30 hover:bg-padel-yellow hover:text-padel-blue transition-all"
                     >
-                      {bookingStatus === 'submitting' ? <Loader2 className="animate-spin mx-auto" size={16} /> : (selectedPack?.price === 'DEVIS' ? 'ENVOYER MA DEMANDE' : 'PAYER VIA STRIPE')}
+                      {bookingStatus === 'submitting' ? <Loader2 className="animate-spin mx-auto" size={16} /> : (selectedPack?.price === 'DEVIS' ? 'ENVOYER MA DEMANDE' : (paymentMethod === 'WALLET' ? 'VALIDER AVEC MON SOLDE' : 'PAYER VIA STRIPE'))}
                     </button>
                   </form>
                 )}

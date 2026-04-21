@@ -46,6 +46,9 @@ export function PlayerSubscription() {
     const [promoDiscount, setPromoDiscount] = useState<number>(0);
     const [expiresAt, setExpiresAt] = useState<string | null>(null);
     const [history, setHistory] = useState<any[]>([]);
+    const [showPaymentModal, setShowPaymentModal] = useState(false);
+    const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null);
+    const [paymentMethod, setPaymentMethod] = useState<'STRIPE' | 'WALLET'>('STRIPE');
 
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 5;
@@ -79,11 +82,17 @@ export function PlayerSubscription() {
         fetchData();
     }, []);
 
-    const handleSubscribe = async (planId: string) => {
+    const handleSubscribe = async (plan: SubscriptionPlan) => {
+        setSelectedPlan(plan);
+        setShowPaymentModal(true);
+    };
+
+    const processPayment = async () => {
+        if (!selectedPlan) return;
+        
         try {
-            setSubscribing(planId);
-            const plan = plans.find(p => p._id === planId);
-            if (!plan) return;
+            setSubscribing(selectedPlan._id);
+            const plan = selectedPlan;
 
             const now = new Date();
             const day = String(now.getDate()).padStart(2, '0');
@@ -108,21 +117,31 @@ export function PlayerSubscription() {
 
             const booking = res.data.data;
 
-            const stripeRes = await api.post('/payments/create-checkout-session', {
-                bookingId: booking._id,
-                courtName: `Abonnement : ${plan.name}`,
-                amount: plan.price - promoDiscount,
-                customerEmail: user?.email,
-                successUrl: `${window.location.origin}/subscription?status=success`
-            });
+            if (paymentMethod === 'WALLET') {
+                const walletRes = await api.post('/payments/pay-with-wallet', {
+                    bookingId: booking._id
+                });
+                if (walletRes.data.success) {
+                    window.location.href = '/subscription?status=success';
+                }
+            } else {
+                const stripeRes = await api.post('/payments/create-checkout-session', {
+                    bookingId: booking._id,
+                    courtName: `Abonnement : ${plan.name}`,
+                    amount: plan.price - promoDiscount,
+                    customerEmail: user?.email,
+                    successUrl: `${window.location.origin}/subscription?status=success`
+                });
 
-            if (stripeRes.data.url) {
-                window.location.href = stripeRes.data.url;
+                if (stripeRes.data.url) {
+                    window.location.href = stripeRes.data.url;
+                }
             }
         } catch (error) {
             console.error('Error subscribing:', error);
         } finally {
             setSubscribing(null);
+            setShowPaymentModal(false);
         }
     };
 
@@ -211,7 +230,7 @@ export function PlayerSubscription() {
 
                                 {isExpiringSoon() && (
                                     <button
-                                        onClick={() => handleSubscribe(currentSubscription._id)}
+                                        onClick={() => handleSubscribe(currentSubscription)}
                                         disabled={subscribing !== null}
                                         className="w-full lg:w-auto px-12 py-7 bg-padel-yellow text-black font-display font-black text-xs uppercase tracking-[0.3em] rounded-[2rem] hover:scale-105 transition-all shadow-[0_20px_40px_rgba(255,210,31,0.2)] flex items-center justify-center gap-4"
                                     >
@@ -261,7 +280,7 @@ export function PlayerSubscription() {
                                         ))}
                                     </div>
                                     <button
-                                        onClick={() => handleSubscribe(p._id)}
+                                        onClick={() => handleSubscribe(p)}
                                         disabled={subscribing === p._id}
                                         className="w-full py-5 bg-white/5 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] hover:bg-padel-blue transition-all"
                                     >
@@ -346,6 +365,84 @@ export function PlayerSubscription() {
                     </div>
                 </div>
             </div>
+
+            {/* Payment Modal */}
+            {showPaymentModal && selectedPlan && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm">
+                    <motion.div 
+                        initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        className="glass w-full max-w-md p-8 rounded-[2.5rem] border-white/10 overflow-hidden relative"
+                    >
+                        <div className="absolute top-4 right-4">
+                            <button onClick={() => setShowPaymentModal(false)} className="p-2 text-white/20 hover:text-white transition-colors">
+                                <X size={20} />
+                            </button>
+                        </div>
+
+                        <div className="text-center mb-8">
+                            <div className="w-16 h-16 bg-padel-blue/20 rounded-2xl flex items-center justify-center text-padel-blue mx-auto mb-4 border border-padel-blue/30">
+                                <Crown size={32} />
+                            </div>
+                            <h3 className="text-xl font-display font-black text-white uppercase italic">Confirmation de Paiement</h3>
+                            <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] mt-2">Pack : {selectedPlan.name}</p>
+                        </div>
+
+                        <div className="space-y-4 mb-8">
+                            <button 
+                                onClick={() => setPaymentMethod('STRIPE')}
+                                className={cn(
+                                    "w-full flex items-center justify-between p-5 rounded-2xl border transition-all",
+                                    paymentMethod === 'STRIPE' ? "bg-padel-blue border-padel-blue text-white shadow-lg" : "bg-white/5 border-white/5 text-white/40 hover:border-white/10"
+                                )}
+                            >
+                                <div className="flex items-center gap-4 text-left">
+                                    <CreditCard size={20} />
+                                    <div>
+                                        <p className="text-[10px] font-black uppercase tracking-widest">Carte Bancaire</p>
+                                        <p className="text-[8px] font-black opacity-40 uppercase tracking-widest italic">Via Stripe Connect</p>
+                                    </div>
+                                </div>
+                                {paymentMethod === 'STRIPE' && <CheckCircle2 size={16} />}
+                            </button>
+
+                            <button 
+                                disabled={!user || (user.balance || 0) < (selectedPlan.price - promoDiscount)}
+                                onClick={() => setPaymentMethod('WALLET')}
+                                className={cn(
+                                    "w-full flex items-center justify-between p-5 rounded-2xl border transition-all relative overflow-hidden",
+                                    paymentMethod === 'WALLET' ? "bg-padel-blue border-padel-blue text-white shadow-lg" : "bg-white/5 border-white/5 text-white/40 hover:border-white/10",
+                                    (!user || (user.balance || 0) < (selectedPlan.price - promoDiscount)) && "opacity-40 cursor-not-allowed grayscale"
+                                )}
+                            >
+                                <div className="flex items-center gap-4 text-left">
+                                    <Zap size={20} />
+                                    <div>
+                                        <p className="text-[10px] font-black uppercase tracking-widest">Portefeuille Arena</p>
+                                        <p className="text-[8px] font-black opacity-40 uppercase tracking-widest italic">Solde: {user?.balance || 0}€</p>
+                                    </div>
+                                </div>
+                                {paymentMethod === 'WALLET' && <CheckCircle2 size={16} />}
+                            </button>
+                        </div>
+
+                        <div className="flex flex-col gap-3">
+                            <div className="flex justify-between items-center mb-2 px-2">
+                                <span className="text-[10px] font-black text-white/20 uppercase tracking-widest text-left mt-2">Total à régler</span>
+                                <span className="text-2xl font-display font-black text-white italic">{selectedPlan.price - promoDiscount}€</span>
+                            </div>
+                            
+                            <button
+                                onClick={processPayment}
+                                disabled={subscribing !== null}
+                                className="w-full py-5 bg-padel-blue text-white rounded-2xl font-display font-black text-xs uppercase tracking-[0.3em] shadow-xl hover:scale-[1.02] transition-all flex items-center justify-center gap-3"
+                            >
+                                {subscribing ? <Loader2 size={16} className="animate-spin" /> : <><RefreshCcw size={16} /> VALIDER LE PAIEMENT</>}
+                            </button>
+                        </div>
+                    </motion.div>
+                </div>
+            )}
         </motion.div>
     );
 }

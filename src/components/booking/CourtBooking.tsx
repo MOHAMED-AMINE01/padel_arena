@@ -123,7 +123,7 @@ const PerspectiveCard = ({ children, onClick, selected }: any) => {
 };
 
 export const CourtBooking = () => {
-  const { user } = useAuth();
+  const { user, refreshUser } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [currentStep, setCurrentStep] = useState(0);
@@ -146,7 +146,19 @@ export const CourtBooking = () => {
     guestEmail: user?.email || '',
     guestPhone: '',
     options: [] as string[],
+    paymentMethod: 'STRIPE' as 'STRIPE' | 'WALLET'
   });
+
+  // Auto-populate user info when logged in
+  useEffect(() => {
+    if (user) {
+      setBookingData(prev => ({
+        ...prev,
+        guestName: user.name || prev.guestName,
+        guestEmail: user.email || prev.guestEmail
+      }));
+    }
+  }, [user]);
 
   // Handle sport from query param
   useEffect(() => {
@@ -288,10 +300,16 @@ export const CourtBooking = () => {
         const startMs = new Date(startTimeStr).getTime();
         const endTimeStr = new Date(startMs + bookingData.duration * 60000).toISOString();
 
+        // Explicit strings for email
+        const dParts = bookingData.date.split('-');
+        const formattedDate = `${dParts[2]}/${dParts[1]}/${dParts[0]}`;
+
         const response = await api.post('/bookings', {
           courtId: bookingData.courtId,
           startTime: startTimeStr,
           endTime: endTimeStr,
+          timeStr: bookingData.time,
+          dateStr: formattedDate,
           guestName: bookingData.guestName,
           guestEmail: bookingData.guestEmail,
           guestPhone: bookingData.guestPhone,
@@ -300,24 +318,35 @@ export const CourtBooking = () => {
         });
 
         if (response.data.success) {
-          console.log('Booking successful, creating Stripe session...', response.data.data._id);
+          console.log('Booking successful, processing payment...', response.data.data._id);
           const booking = response.data.data;
           const totalAmount = calculateTotal();
           const court = availableCourts.find(c => c._id === bookingData.courtId);
 
-          // Create Stripe Checkout Session
-          const stripeRes = await api.post('/payments/create-checkout-session', {
-            bookingId: booking._id,
-            courtName: court?.name,
-            amount: parseFloat(totalAmount),
-            customerEmail: bookingData.guestEmail,
-            successUrl: `${window.location.origin}/booking-success?session_id={CHECKOUT_SESSION_ID}`
-          });
-
-          if (stripeRes.data.url) {
-            window.location.href = stripeRes.data.url;
+          if (bookingData.paymentMethod === 'WALLET') {
+            // Pay with Wallet
+            const walletRes = await api.post('/payments/pay-with-wallet', {
+              bookingId: booking._id
+            });
+            if (walletRes.data.success) {
+              await refreshUser();
+              navigate(`/booking-success?booking_id=${booking._id}&method=wallet`);
+            }
           } else {
-            setCurrentStep(6); // Fallback
+            // Create Stripe Checkout Session
+            const stripeRes = await api.post('/payments/create-checkout-session', {
+              bookingId: booking._id,
+              courtName: court?.name,
+              amount: parseFloat(totalAmount),
+              customerEmail: bookingData.guestEmail,
+              successUrl: `${window.location.origin}/booking-success?session_id={CHECKOUT_SESSION_ID}`
+            });
+
+            if (stripeRes.data.url) {
+              window.location.href = stripeRes.data.url;
+            } else {
+              setCurrentStep(6);
+            }
           }
         }
       } catch (err: any) {
@@ -671,29 +700,72 @@ export const CourtBooking = () => {
                           <span className="text-padel-blue text-lg">{calculateTotal()}€</span>
                         </div>
                       </div>
-                      <div className="space-y-6">
-                        <div className="flex items-center justify-center gap-3 p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
-                          <ShieldCheck size={14} className="text-emerald-500" />
-                          <span className="text-[7px] font-black text-emerald-500 uppercase tracking-widest leading-none">PROTECTION DES DONNÉES AES-256</span>
+                      <div className="space-y-4">
+                        <div className="text-[9px] font-black text-white/20 uppercase tracking-widest text-left mb-2">Choisir le mode de paiement</div>
+                        <div className="grid grid-cols-2 gap-3">
+                          <button 
+                            onClick={() => setBookingData({ ...bookingData, paymentMethod: 'STRIPE' })}
+                            className={cn(
+                              "flex flex-col items-center gap-2 p-4 rounded-2xl border transition-all",
+                              bookingData.paymentMethod === 'STRIPE' ? "bg-padel-blue border-padel-blue text-white shadow-lg" : "bg-white/5 border-white/5 text-white/40 hover:border-white/10"
+                            )}
+                          >
+                            <CreditCard size={18} />
+                            <span className="text-[8px] font-black uppercase">CARTE BANCAIRE</span>
+                          </button>
+                          
+                          <button 
+                            disabled={!user || (user.balance || 0) < parseFloat(calculateTotal())}
+                            onClick={() => setBookingData({ ...bookingData, paymentMethod: 'WALLET' })}
+                            className={cn(
+                              "flex flex-col items-center gap-2 p-4 rounded-2xl border transition-all relative overflow-hidden",
+                              bookingData.paymentMethod === 'WALLET' ? "bg-padel-blue border-padel-blue text-white shadow-lg" : "bg-white/5 border-white/5 text-white/40 hover:border-white/10",
+                              (!user || (user.balance || 0) < parseFloat(calculateTotal())) && "opacity-40 cursor-not-allowed grayscale"
+                            )}
+                          >
+                            <Zap size={18} />
+                            <span className="text-[8px] font-black uppercase">PORTEFEUILLE</span>
+                            <span className="text-[7px] font-black opacity-60">SOLDE: {user?.balance || 0}€</span>
+                          </button>
                         </div>
 
-                        <div className="flex flex-col items-center gap-4 px-6 py-6 bg-white/[0.02] border border-white/5 rounded-[2.5rem] relative overflow-hidden group">
-                          <div className="absolute top-0 right-0 p-4 opacity-[0.03] rotate-12 transition-transform group-hover:rotate-0">
-                            <CreditCard size={40} />
-                          </div>
-                          <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-full bg-padel-blue flex items-center justify-center text-white shadow-lg shadow-padel-blue/20">
-                              <CreditCard size={14} />
+                        {bookingData.paymentMethod === 'STRIPE' ? (
+                          <div className="flex flex-col items-center gap-4 px-6 py-6 bg-white/[0.02] border border-white/5 rounded-[2.5rem] relative overflow-hidden group mt-4">
+                            <div className="absolute top-0 right-0 p-4 opacity-[0.03] rotate-12 transition-transform group-hover:rotate-0">
+                              <CreditCard size={40} />
                             </div>
-                            <div className="text-left">
-                              <p className="text-[10px] font-black text-white uppercase tracking-widest leading-none mb-1">Paiement 100% Sécurisé</p>
-                              <p className="text-[8px] font-black text-padel-blue uppercase tracking-[0.2em] leading-none">VIA STRIPE CONNECT</p>
+                            <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 rounded-full bg-padel-blue flex items-center justify-center text-white shadow-lg shadow-padel-blue/20">
+                                <CreditCard size={14} />
+                              </div>
+                              <div className="text-left">
+                                <p className="text-[10px] font-black text-white uppercase tracking-widest leading-none mb-1">Paiement 100% Sécurisé</p>
+                                <p className="text-[8px] font-black text-padel-blue uppercase tracking-[0.2em] leading-none">VIA STRIPE CONNECT</p>
+                              </div>
                             </div>
+                            <p className="text-[8px] md:text-[9px] font-black text-white/20 uppercase tracking-widest leading-relaxed">
+                              VOUS ALLEZ ÊTRE REDIRIGÉ VERS <span className="text-white/40">STRIPE</span> POUR FINALISER VOTRE RÉGLEMENT.
+                            </p>
                           </div>
-                          <p className="text-[8px] md:text-[9px] font-black text-white/20 uppercase tracking-widest leading-relaxed">
-                            VOUS ALLEZ ÊTRE REDIRIGÉ VERS LA PLATEFORME SÉCURISÉE DE PAIEMENT <span className="text-white/40">STRIPE</span> POUR FINALISER VOTRE RÉGLEMENT.
-                          </p>
-                        </div>
+                        ) : (
+                          <div className="flex flex-col items-center gap-4 px-6 py-6 bg-padel-blue/10 border border-padel-blue/20 rounded-[2.5rem] relative overflow-hidden group mt-4">
+                            <div className="absolute top-0 right-0 p-4 opacity-[0.05] rotate-12">
+                              <Zap size={40} className="text-padel-blue" />
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 rounded-full bg-padel-blue flex items-center justify-center text-white shadow-lg">
+                                <Zap size={14} />
+                              </div>
+                              <div className="text-left">
+                                <p className="text-[10px] font-black text-white uppercase tracking-widest leading-none mb-1">Paiement Immédiat</p>
+                                <p className="text-[8px] font-black text-padel-blue uppercase tracking-[0.2em] leading-none">DÉBIT DU PORTEFEUILLE</p>
+                              </div>
+                            </div>
+                            <p className="text-[8px] md:text-[9px] font-black text-white/60 uppercase tracking-widest leading-relaxed">
+                              LE MONTANT DE <span className="text-white font-bold">{calculateTotal()}€</span> SERA DÉDUIT DE VOTRE SOLDE ACTUEL ({user?.balance || 0}€).
+                            </p>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </motion.div>
