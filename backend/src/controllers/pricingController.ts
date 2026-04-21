@@ -16,7 +16,10 @@ export const getPublicPricing = async (req: Request, res: Response) => {
 
 export const getAllPricing = async (req: Request, res: Response) => {
     try {
-        const pricing = await Pricing.find().sort({ order: 1 });
+        const type = req.query.type as string;
+        const filter: any = {};
+        if (type) filter.type = type;
+        const pricing = await Pricing.find(filter).sort({ order: 1 });
         res.json({ success: true, data: pricing });
     } catch (err) {
         res.status(500).json({ success: false, message: 'Erreur serveur' });

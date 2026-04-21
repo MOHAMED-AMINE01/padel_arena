@@ -24,6 +24,7 @@ import pricingRoutes from './routes/pricingRoutes';
 import uploadRoutes from './routes/uploadRoutes';
 import contentRoutes from './routes/contentRoutes';
 import paymentRoutes from './routes/paymentRoutes';
+import walletRoutes from './routes/walletRoutes';
 
 
 // Load environment variables
@@ -78,6 +79,7 @@ app.use(express.json({
 }));
 
 app.use('/api/payments', paymentRoutes);
+app.use('/api/wallet', walletRoutes);
 app.use(morgan('dev'));
 
 

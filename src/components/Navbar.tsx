@@ -281,7 +281,7 @@ export const Navbar = () => {
                   transition={{ repeat: Infinity, duration: 4, ease: "linear" }}
                   className="absolute inset-[-100%] bg-[conic-gradient(from_0deg,transparent_0%,transparent_30%,#FFD21F_50%,transparent_70%,transparent_100%)] opacity-100"
                 />
-                
+
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
@@ -289,16 +289,16 @@ export const Navbar = () => {
                 >
                   {/* Internal Glow that reacts to Hover */}
                   <div className="absolute inset-0 bg-padel-yellow opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-2xl" />
-                  
+
                   {/* Dynamic Gradient Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-padel-yellow/0 via-padel-yellow/5 to-padel-yellow/0 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-                  
+                  <div className="absolute inset-0 bg-gradient-to-r from-padel-yellow/0 via-padel-yellow/60 to-padel-yellow/0 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+
                   {/* Text with dynamic color shift */}
-                  <span className="relative z-10 group-hover:text-padel-blue transition-colors duration-500 notranslate" translate="no">
+                  <span className="relative z-10 group-hover:text-white transition-colors duration-500 notranslate" translate="no">
                     RÉSERVER
                   </span>
-                  
-                  <Zap size={14} className="relative z-10 text-padel-yellow group-hover:text-padel-blue animate-pulse" />
+
+                  <Zap size={14} className="relative z-10 text-padel-yellow group-hover:text-white animate-pulse" />
 
                   {/* Shimmer Effect */}
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
@@ -307,7 +307,7 @@ export const Navbar = () => {
 
               {/* Atmospheric Extra Glows */}
               <div className="absolute -inset-4 bg-padel-yellow/10 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-1000 pointer-events-none" />
-              
+
               {/* Dynamic Ping */}
               <div className="absolute inset-0 rounded-full border-2 border-padel-yellow animate-[ping_4s_infinite] opacity-0 group-hover:opacity-30 transition-all pointer-events-none" />
             </Link>
@@ -386,7 +386,7 @@ export const Navbar = () => {
               ))}
             </div>
 
-            <div className="flex justify-center gap-3 mb-6">
+            <div className="flex justify-center gap-3 mb-20">
               {user ? (
                 <Link to={dashboardPath} onClick={() => setIsOpen(false)}>
                   <button className="w-14 h-14 border border-white/10 bg-padel-blue text-white font-display font-black text-lg uppercase rounded-full flex items-center justify-center">
@@ -402,14 +402,7 @@ export const Navbar = () => {
               )}
             </div>
 
-            {/* Minimal Footer CTA */}
-            <div className="p-6 border-t border-white/5 bg-black/20">
-              <div className="flex justify-center gap-8 text-[9px] font-black uppercase tracking-[0.2em] text-white/20">
-                <span>Instagram</span>
-                <span>Facebook</span>
-                <span>Twitter</span>
-              </div>
-            </div>
+
           </motion.div>
         )}
       </AnimatePresence>

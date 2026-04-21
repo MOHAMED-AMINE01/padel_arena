@@ -80,7 +80,6 @@ const PromoCodeSchema: Schema = new Schema({
 });
 
 // Index for faster lookups
-PromoCodeSchema.index({ code: 1 });
 PromoCodeSchema.index({ isActive: 1, validFrom: 1, validUntil: 1 });
 
 export default mongoose.model<IPromoCode>('PromoCode', PromoCodeSchema);

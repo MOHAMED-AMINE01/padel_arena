@@ -28,6 +28,8 @@ interface IPricing {
     icon?: string;
     isActive: boolean;
     order: number;
+    creditAmount?: number;
+    bonusAmount?: number;
 }
 
 const TYPE_OPTIONS = [
@@ -54,7 +56,7 @@ export function AdminPlans() {
     const [itemToDelete, setItemToDelete] = useState<IPricing | null>(null);
     const [editingItem, setEditingItem] = useState<IPricing | null>(null);
     const [formData, setFormData] = useState({
-        title: '', type: 'court', description: '', offPeak: 0, peak: 0, weekend: 0, price: '', annualPrice: '', durationInMonths: 1, features: '', featured: false, color: '', accent: '', icon: 'Target', isActive: true, order: 0
+        title: '', type: 'court', description: '', offPeak: 0, peak: 0, weekend: 0, price: '', annualPrice: '', durationInMonths: 1, features: '', featured: false, color: '', accent: '', icon: 'Target', isActive: true, order: 0, creditAmount: 0, bonusAmount: 0
     });
     const [alert, setAlert] = useState<{ show: boolean; title: string; message: string; type: 'success' | 'error' }>({ show: false, title: '', message: '', type: 'success' });
     const [searchTerm, setSearchTerm] = useState('');
@@ -79,7 +81,8 @@ export function AdminPlans() {
                 api.get('/pricing/all'),
                 api.get('/admin/subscriptions/stats')
             ]);
-            setItems(pricingRes.data.data);
+            const allItems = pricingRes.data.data;
+            setItems(allItems.filter((i: any) => i.type !== 'wallet_pack'));
             setStats(statsRes.data.data);
         } catch (err) { console.error(err); } finally { setLoading(false); }
     };
@@ -105,7 +108,9 @@ export function AdminPlans() {
                 accent: item.accent || '',
                 icon: item.icon || 'Target',
                 isActive: item.isActive,
-                order: item.order
+                order: item.order,
+                creditAmount: item.creditAmount || 0,
+                bonusAmount: item.bonusAmount || 0
             });
         } else {
             setEditingItem(null);
@@ -125,7 +130,9 @@ export function AdminPlans() {
                 accent: '',
                 icon: 'Target',
                 isActive: true,
-                order: items.length > 0 ? Math.max(...items.map(i => i.order)) + 1 : 0
+                order: items.length > 0 ? Math.max(...items.map(i => i.order)) + 1 : 0,
+                creditAmount: 50,
+                bonusAmount: 0
             });
         }
         setIsModalOpen(true);
@@ -268,13 +275,13 @@ export function AdminPlans() {
                                                 <Trash2 size={12} />
                                             </button>
                                         </div>
-        
+
                                         {/* Order Controls */}
                                         <div className="absolute top-4 left-4 flex gap-1 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
                                             <button disabled={index === 0} onClick={() => updateOrder(item._id, item.order - 1.5)} className="p-2 bg-white/5 text-white/20 hover:text-padel-blue transition-colors outline-none"><MoveUp size={10} /></button>
                                             <button disabled={index === items.length - 1} onClick={() => updateOrder(item._id, item.order + 1.5)} className="p-2 bg-white/5 text-white/20 hover:text-padel-blue transition-colors outline-none"><MoveDown size={10} /></button>
                                         </div>
-        
+
                                         {/* Stylized Icon Header Instead of Image */}
                                         <div className="aspect-[4/3] rounded-[1.5rem] overflow-hidden bg-white/[0.03] mb-6 relative group/img shrink-0 border border-white/5 flex items-center justify-center group-hover:bg-padel-blue/5 transition-colors duration-700">
                                             <div className="absolute inset-0 bg-gradient-to-br from-padel-blue/5 to-transparent group-hover:from-padel-blue/10 transition-colors" />
@@ -282,22 +289,22 @@ export function AdminPlans() {
                                                 <Icon size={32} className="md:w-10 md:h-10" />
                                             </div>
                                         </div>
-        
+
                                         <div className="flex-1 space-y-4">
                                             <div className="flex flex-wrap gap-2">
                                                 <span className={cn(
                                                     "px-2.5 py-1 rounded-full text-[8px] font-black tracking-widest uppercase border",
                                                     item.type === 'court' ? "bg-padel-blue/10 border-padel-blue/20 text-padel-blue" :
-                                                    item.type === 'subscription' ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-500" :
-                                                    item.type === 'pack' ? "bg-purple-500/10 border-purple-500/20 text-purple-500" :
-                                                    "bg-padel-yellow/10 border-padel-yellow/20 text-padel-yellow"
+                                                        item.type === 'subscription' ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-500" :
+                                                            item.type === 'pack' ? "bg-purple-500/10 border-purple-500/20 text-purple-500" :
+                                                                "bg-padel-yellow/10 border-padel-yellow/20 text-padel-yellow"
                                                 )}>
                                                     {item.type}
                                                 </span>
                                                 {item.featured && <Star size={14} className="text-padel-yellow fill-padel-yellow" />}
                                                 {!item.isActive && <span className="px-2.5 py-1 bg-red-500/10 border border-red-500/20 text-red-500 rounded-full text-[8px] font-black uppercase tracking-widest">MASQUÉ</span>}
                                             </div>
-        
+
                                             <div>
                                                 <h3 className="text-sm md:text-base font-display font-black uppercase tracking-tighter leading-tight group-hover:text-padel-blue transition-colors duration-500">
                                                     {item.title}
@@ -337,7 +344,7 @@ export function AdminPlans() {
                         >
                             <MoveUp size={20} className="-rotate-90" />
                         </button>
-                        
+
                         <div className="flex gap-2">
                             {[...Array(Math.ceil(items.filter(i => i.title.toLowerCase().includes(searchTerm.toLowerCase())).length / itemsPerPage))].map((_, i) => (
                                 <button
@@ -345,8 +352,8 @@ export function AdminPlans() {
                                     onClick={() => setCurrentPage(i + 1)}
                                     className={cn(
                                         "w-10 h-10 rounded-xl text-[10px] font-black transition-all",
-                                        currentPage === i + 1 
-                                            ? "bg-padel-blue text-white shadow-xl shadow-padel-blue/20 scale-110" 
+                                        currentPage === i + 1
+                                            ? "bg-padel-blue text-white shadow-xl shadow-padel-blue/20 scale-110"
                                             : "bg-white/5 text-white/20 hover:bg-white/10 hover:text-white"
                                     )}
                                 >
@@ -480,6 +487,37 @@ export function AdminPlans() {
                                                         <opt.icon size={16} />
                                                     </button>
                                                 ))}
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {formData.type === 'pack' && (
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-10 bg-padel-blue/5 border border-padel-blue/10 rounded-[2.5rem] shadow-2xl">
+                                        <div className="space-y-4">
+                                            <label className="text-[9px] font-black text-white/30 uppercase tracking-[0.4em] ml-1 flex items-center gap-2"><Wallet size={10} className="text-padel-blue" /> Valeur de la carte (Crédits)</label>
+                                            <div className="relative">
+                                                <input
+                                                    type="number"
+                                                    value={formData.creditAmount}
+                                                    onChange={(e) => setFormData({ ...formData, creditAmount: +e.target.value })}
+                                                    className="w-full bg-white/[0.03] border border-white/10 rounded-2xl py-5 px-6 text-xl font-black text-white focus:border-padel-blue outline-none transition-all"
+                                                    placeholder="50..."
+                                                />
+                                                <span className="absolute right-6 top-1/2 -translate-y-1/2 text-white/20 font-black">€</span>
+                                            </div>
+                                        </div>
+                                        <div className="space-y-4">
+                                            <label className="text-[9px] font-black text-white/30 uppercase tracking-[0.4em] ml-1 flex items-center gap-2"><Sparkles size={10} className="text-padel-yellow" /> Bonus Offert</label>
+                                            <div className="relative">
+                                                <input
+                                                    type="number"
+                                                    value={formData.bonusAmount}
+                                                    onChange={(e) => setFormData({ ...formData, bonusAmount: +e.target.value })}
+                                                    className="w-full bg-white/[0.03] border border-white/10 rounded-2xl py-5 px-6 text-xl font-black text-padel-yellow focus:border-padel-blue outline-none transition-all"
+                                                    placeholder="5..."
+                                                />
+                                                <span className="absolute right-6 top-1/2 -translate-y-1/2 text-padel-yellow/40 font-black">+€</span>
                                             </div>
                                         </div>
                                     </div>

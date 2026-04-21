@@ -100,9 +100,9 @@ export function AuthPage() {
         <div className="bg-[#020617] min-h-screen flex flex-col">
             <Navbar />
 
-            <main className="flex-grow relative flex items-center justify-center lg:justify-end overflow-hidden pt-20">
+            <main className="flex-grow relative flex items-center justify-center lg:justify-end overflow-hidden pt-33">
                 {/* SECTION ANIMATION : Spline restauré avec fond de secours stable */}
-                <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden bg-[#020617]">
+                <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden bg-[#020617] ">
                     <div className="w-full h-full scale-[1.25] lg:scale-[1.3] translate-y-[3%] translate-x-[-10%] lg:translate-x-[-15%]">
                         <Spline
                             scene="https://prod.spline.design/Y6Vw5mezHebP93rh/scene.splinecode"
@@ -114,12 +114,12 @@ export function AuthPage() {
                 </div>
 
                 {/* SECTION FORMULAIRE : Transparent, 40% de width en desktop, décalé vers la gauche */}
-                <div className="relative z-10 w-full lg:w-[40%] flex items-center justify-center p-6 lg:p-12 xl:p-20 lg:mr-[5%]">
+                <div className="relative z-10 w-full lg:w-[50%] flex items-center justify-center p-6 lg:p-12 xl:p-20 lg:mr-[-3%]">
                     <motion.div
                         initial={{ opacity: 0, x: 30 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.8, ease: [0.23, 1, 0.32, 1] }}
-                        className="w-full max-w-[440px] bg-white/[0.02] border border-white/10 rounded-[2.8rem] p-6 md:p-9 backdrop-blur-md relative shadow-[0_50px_100px_rgba(0,0,0,0.5)]"
+                        className="w-full max-w-[540px] bg-white/[0.02] border border-white/10 rounded-[2.8rem] p-6 md:px-9 md:py-5 backdrop-blur-md relative shadow-[0_50px_100px_rgba(0,0,0,0.5)]"
                     >
                         {/* Logo Section */}
                         <div className="mb-5 flex justify-center">
@@ -127,34 +127,39 @@ export function AuthPage() {
                                 <motion.img
                                     src="/IMAGES/newLogo_tr.png"
                                     alt="Logo"
-                                    className="h-28 md:h-36 drop-shadow-[0_0_40px_rgba(19,73,211,0.4)] object-contain"
+                                    className="h-28 md:h-28 scale-[1.5] drop-shadow-[0_0_40px_rgba(19,73,211,0.4)] object-contain"
                                     initial={{ scale: 0.5, opacity: 0 }}
                                     animate={{ scale: 1, opacity: 1 }}
                                     whileHover={{ scale: 1.1, rotate: -2 }}
-                                    transition={{ 
+                                    transition={{
                                         type: "spring",
                                         stiffness: 300,
-                                        damping: 15 
+                                        damping: 15
                                     }}
                                 />
                             </Link>
                         </div>
 
                         <div className="mb-6 text-center">
-                            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-padel-blue/20 text-padel-blue text-[10px] font-bold uppercase tracking-widest mb-4 border border-padel-blue/30">
+                            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-padel-blue/20 text-padel-blue text-[10px] font-bold uppercase tracking-widest mb-4 border border-padel-blue/30">
                                 {isLogin ? 'Connexion' : 'Inscription'}
                             </div>
-                            <h1 className="text-2xl md:text-4xl font-display font-black text-white mb-2 italic leading-[0.9] uppercase tracking-tighter">
+                            <h1 className="text-2xl md:text-3xl font-display font-black text-white mb-2 italic leading-[0.9] uppercase tracking-tighter">
                                 {isLogin ? 'Bon retour \nau club' : 'Rejoignez \nl\'arène'}
                             </h1>
                             <p className="text-white/40 text-[12px] leading-relaxed max-w-[280px] mx-auto">
-                                {isLogin
-                                    ? 'Accédez à votre espace membre et à vos réservations.'
-                                    : 'Créez votre profil pour commencer l\'aventure <span class="notranslate" translate="no">Padel Arena</span>.'}
+                                {isLogin ? (
+                                    'Accédez à votre espace membre et à vos réservations.'
+                                ) : (
+                                    <>
+                                        Créez votre profil pour commencer l'aventure{' '}
+                                        <span className="notranslate" translate="no">Padel Arena</span>.
+                                    </>
+                                )}
                             </p>
                         </div>
 
-                        <form className="space-y-3.5" onSubmit={handleSubmit}>
+                        <form className="space-y-3" onSubmit={handleSubmit}>
                             {error && (
                                 <motion.div
                                     initial={{ opacity: 0, y: -10 }}
@@ -172,7 +177,7 @@ export function AuthPage() {
                                         initial={{ opacity: 0, height: 0 }}
                                         animate={{ opacity: 1, height: 'auto' }}
                                         exit={{ opacity: 0, height: 0 }}
-                                        className="space-y-3.5"
+                                        className="space-y-3"
                                     >
                                         <div className="relative group">
                                             <User className="absolute left-5 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-padel-yellow transition-colors" size={18} />
@@ -274,7 +279,7 @@ export function AuthPage() {
                                 disabled={isLoading}
                                 whileHover={{ scale: 1.02, boxShadow: "0 0 30px rgba(255, 210, 31, 0.3)" }}
                                 whileTap={{ scale: 0.98 }}
-                                className="w-full bg-padel-blue text-padel-white font-black py-3.5 rounded-2xl flex items-center justify-center gap-4 group transition-all mt-2 uppercase text-[11px] tracking-[0.2em] disabled:opacity-50"
+                                className="w-full bg-padel-blue text-padel-white font-black py-3 rounded-2xl flex items-center justify-center gap-4 group transition-all mt-2 uppercase text-[11px] tracking-[0.2em] disabled:opacity-50"
                             >
                                 {isLoading ? (
                                     <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -287,8 +292,8 @@ export function AuthPage() {
                             </motion.button>
                         </form>
 
-                        <div className="mt-8">
-                            <div className="relative flex items-center mb-6 text-white/10 overflow-hidden">
+                        <div className="mt-4">
+                            <div className="relative flex items-center mb-3 text-white/10 overflow-hidden">
                                 <div className="flex-grow border-t border-current opacity-30"></div>
                                 <span className="mx-4 text-[9px] uppercase tracking-[0.4em] font-black whitespace-nowrap opacity-50">Ou avec</span>
                                 <div className="flex-grow border-t border-current opacity-30"></div>

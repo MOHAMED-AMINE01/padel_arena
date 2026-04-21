@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
 import { motion, AnimatePresence } from 'motion/react';
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
@@ -38,6 +39,7 @@ import { AdminCourts } from './pages/admin/Courts';
 import { AdminEvents } from './pages/admin/Events';
 import { AdminNews } from './pages/admin/News';
 import { AdminPlans } from './pages/admin/Plans';
+import { AdminWalletPacks } from './pages/admin/WalletPacks';
 import { AdminTestimonials } from './pages/admin/Testimonials';
 import { AdminTeam } from './pages/admin/Team';
 
@@ -103,6 +105,7 @@ export default function App() {
     <GoogleOAuthProvider clientId={(import.meta as any).env.VITE_GOOGLE_CLIENT_ID}>
       <Router>
         <AuthProvider>
+          <Toaster position="top-right" toastOptions={{ duration: 4000, style: { background: '#0D0D10', color: '#fff', border: '1px solid rgba(255,255,255,0.1)' } }} />
           <ScrollToTop />
           <AnimatePresence>
             {showIntro ? (
@@ -165,6 +168,7 @@ export default function App() {
                       <Route path="newsletter" element={<AdminNewsletter />} />
                       <Route path="news" element={<AdminNews />} />
                       <Route path="plans" element={<AdminPlans />} />
+                      <Route path="wallet-packs" element={<AdminWalletPacks />} />
                       <Route path="testimonials" element={<AdminTestimonials />} />
                       <Route path="team" element={<AdminTeam />} />
                     </Route>

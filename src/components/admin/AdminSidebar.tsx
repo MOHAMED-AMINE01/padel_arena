@@ -116,6 +116,7 @@ export const AdminSidebar = ({ collapsed, setCollapsed, mobileOpen, setMobileOpe
         { icon: BadgePercent, label: 'Codes Promo', href: '/admin/promo-codes' },
         { icon: Newspaper, label: 'Actualités', href: '/admin/news' },
         { icon: Receipt, label: 'Tarifs', href: '/admin/plans' },
+        { icon: Wallet, label: 'Cartes d\'achat', href: '/admin/wallet-packs' },
     ];
 
     const handleLogout = async () => {

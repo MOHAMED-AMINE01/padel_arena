@@ -26,11 +26,13 @@ import {
     Plus,
     Lock,
     Target,
-    Zap
+    Zap,
+    CreditCard
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import api from '../../lib/api';
 import { DeleteConfirmModal } from '../../components/admin/DeleteConfirmModal';
+import toast from 'react-hot-toast';
 
 interface User {
     _id: string;
@@ -40,6 +42,7 @@ interface User {
     phone?: string;
     address?: string;
     createdAt: string;
+    balance?: number;
 }
 
 export function AdminUsers() {
@@ -98,6 +101,44 @@ export function AdminUsers() {
         address: ''
     });
     const [isCreateRoleOpen, setIsCreateRoleOpen] = useState(false);
+
+    // Wallet Modal State
+    const [walletModal, setWalletModal] = useState<{
+        isOpen: boolean;
+        user: User | null;
+        amount: string;
+        description: string;
+        type: 'INCOME' | 'EXPENSE';
+    }>({
+        isOpen: false,
+        user: null,
+        amount: '',
+        description: '',
+        type: 'INCOME'
+    });
+
+    const handleWalletUpdate = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!walletModal.user) return;
+        setUpdateLoading(true);
+        try {
+            const res = await api.put(`/wallet/update/${walletModal.user._id}`, {
+                amount: walletModal.amount,
+                description: walletModal.description,
+                type: walletModal.type
+            });
+
+            if (res.data.success) {
+                setUsers(users.map(u => u._id === walletModal.user?._id ? { ...u, balance: res.data.newBalance } : u));
+                setWalletModal({ ...walletModal, isOpen: false, amount: '', description: '' });
+                toast.success('Portefeuille mis à jour !');
+            }
+        } catch (err: any) {
+            alert(err.response?.data?.message || 'Erreur lors de la mise à jour.');
+        } finally {
+            setUpdateLoading(false);
+        }
+    };
 
     const fetchUsers = async () => {
         try {
@@ -365,13 +406,18 @@ export function AdminUsers() {
                             <div className="grid grid-cols-1 gap-3 md:gap-4 mb-6 md:mb-8">
                                 <div className="bg-white/[0.02] border border-white/5 p-3 md:p-4 rounded-xl md:rounded-2xl space-y-1">
                                     <p className="text-[7px] md:text-[8px] font-black text-white/20 uppercase tracking-widest flex items-center gap-2">
-                                        <Phone size={10} className="text-padel-blue" /> Contact Direct
+                                        <Zap size={10} className="text-padel-yellow" /> Crédits Portefeuille
                                     </p>
-                                    <p className="text-xs md:text-sm font-black text-white tracking-tighter">{user.phone || 'Non renseigné'}</p>
+                                    <p className={cn(
+                                        "text-xs md:text-sm font-black tracking-tighter",
+                                        (user.balance || 0) > 0 ? "text-emerald-500" : "text-white"
+                                    )}>
+                                        {user.balance || 0}€
+                                    </p>
                                 </div>
                                 <div className="bg-white/[0.02] border border-white/5 p-3 md:p-4 rounded-xl md:rounded-2xl space-y-1">
                                     <p className="text-[7px] md:text-[8px] font-black text-white/20 uppercase tracking-widest flex items-center gap-2">
-                                        <Calendar size={10} className="text-padel-yellow" /> Déploiement Profil
+                                        <Calendar size={10} className="text-padel-blue" /> Déploiement Profil
                                     </p>
                                     <p className="text-xs md:text-sm font-black text-white tracking-tighter">
                                         {new Date(user.createdAt).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' })}
@@ -381,6 +427,13 @@ export function AdminUsers() {
 
                             {/* Quick Action Matrix */}
                             <div className="flex gap-3 md:gap-4 mt-auto">
+                                <button
+                                    onClick={() => setWalletModal({ ...walletModal, isOpen: true, user })}
+                                    className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-padel-blue/10 border border-padel-blue/20 text-padel-blue hover:bg-padel-blue hover:text-white transition-all flex items-center justify-center shrink-0"
+                                    title="Gérer le portefeuille"
+                                >
+                                    <CreditCard size={14} className="md:w-4 md:h-4" />
+                                </button>
                                 <button
                                     onClick={() => openHistory(user)}
                                     className="flex-1 py-3 md:py-4 rounded-xl bg-white/10 border border-white/10 text-[8px] md:text-[9px] font-black uppercase tracking-widest text-padel-blue hover:bg-padel-blue hover:text-white transition-all flex items-center justify-center gap-2"
@@ -934,8 +987,8 @@ export function AdminUsers() {
                                                                 <div className="text-right">
                                                                     <p className="text-[10px] font-black text-white uppercase">{new Date(t.startDate).toLocaleDateString('fr-FR')}</p>
                                                                     <div className="flex items-center justify-end gap-2 mt-0.5">
-                                                                       <div className="w-1.5 h-1.5 rounded-full bg-padel-yellow animate-pulse" />
-                                                                       <p className="text-[8px] font-black text-padel-yellow uppercase tracking-widest">{t.status}</p>
+                                                                        <div className="w-1.5 h-1.5 rounded-full bg-padel-yellow animate-pulse" />
+                                                                        <p className="text-[8px] font-black text-padel-yellow uppercase tracking-widest">{t.status}</p>
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -988,13 +1041,111 @@ export function AdminUsers() {
                                 </div>
                                 <div className="flex gap-4">
                                     <button
-                                        onClick={() => {/* Export logic */}}
+                                        onClick={() => {/* Export logic */ }}
                                         className="px-6 py-3 rounded-xl bg-white/5 border border-white/10 text-[9px] font-black uppercase tracking-widest text-white/40 hover:text-white transition-all flex items-center gap-2"
                                     >
                                         <Download size={14} /> Rapport .PDF
                                     </button>
                                 </div>
                             </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
+            {/* Wallet Adjustment Modal */}
+            <AnimatePresence>
+                {walletModal.isOpen && walletModal.user && (
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setWalletModal({ ...walletModal, isOpen: false })}
+                            className="absolute inset-0 bg-black/90 backdrop-blur-sm"
+                        />
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                            className="relative w-full max-w-lg bg-[#151518] border border-white/10 rounded-[2rem] overflow-hidden shadow-3xl"
+                        >
+                            <div className="p-8 border-b border-white/5 flex items-center justify-between">
+                                <div>
+                                    <h3 className="text-2xl font-display font-black text-white italic uppercase tracking-tighter leading-none">Modifier <span className="text-padel-blue">Portefeuille</span></h3>
+                                    <p className="text-[10px] font-black text-white/20 uppercase tracking-widest mt-2 italic">{walletModal.user.name}</p>
+                                </div>
+                                <div className="w-12 h-12 rounded-2xl bg-padel-blue/10 flex items-center justify-center text-padel-blue">
+                                    <Zap size={24} />
+                                </div>
+                            </div>
+
+                            <form onSubmit={handleWalletUpdate} className="p-8 space-y-6">
+                                <div className="p-6 bg-white/[0.02] border border-white/5 rounded-2xl flex justify-between items-center">
+                                    <p className="text-[10px] font-black text-white/30 uppercase tracking-widest">Solde Actuel</p>
+                                    <p className="text-3xl font-display font-black text-white italic tracking-tighter">{walletModal.user.balance || 0}€</p>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-4">
+                                    {(['INCOME', 'EXPENSE'] as const).map(type => (
+                                        <button
+                                            key={type}
+                                            type="button"
+                                            onClick={() => setWalletModal({ ...walletModal, type })}
+                                            className={cn(
+                                                "py-4 rounded-xl border text-[10px] font-black uppercase tracking-widest transition-all",
+                                                walletModal.type === type
+                                                    ? (type === 'INCOME' ? "bg-emerald-500 border-emerald-500 text-white" : "bg-red-500 border-red-500 text-white")
+                                                    : "bg-white/5 border-white/10 text-white/40 hover:bg-white/10"
+                                            )}
+                                        >
+                                            {type === 'INCOME' ? 'AJOUTER (+)' : 'DÉDUIRE (-)'}
+                                        </button>
+                                    ))}
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-white/20 uppercase tracking-widest ml-1">Montant (€)</label>
+                                    <input
+                                        type="number"
+                                        required
+                                        min="1"
+                                        value={walletModal.amount}
+                                        onChange={(e) => setWalletModal({ ...walletModal, amount: e.target.value })}
+                                        className="w-full bg-white/[0.03] border border-white/10 rounded-2xl py-5 px-6 text-xl font-display font-black text-white focus:outline-none focus:border-padel-blue transition-all"
+                                        placeholder="0.00"
+                                    />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-white/20 uppercase tracking-widest ml-1">Raison / Commentaire</label>
+                                    <input
+                                        type="text"
+                                        required
+                                        value={walletModal.description}
+                                        onChange={(e) => setWalletModal({ ...walletModal, description: e.target.value })}
+                                        className="w-full bg-white/[0.03] border border-white/10 rounded-2xl py-4 px-6 text-sm font-bold text-white focus:outline-none focus:border-padel-blue transition-all"
+                                        placeholder="Ex: Geste commercial, Correction erreur..."
+                                    />
+                                </div>
+
+                                <div className="pt-4 flex gap-4">
+                                    <button
+                                        type="button"
+                                        onClick={() => setWalletModal({ ...walletModal, isOpen: false })}
+                                        className="flex-1 py-5 rounded-2xl bg-white/5 text-[10px] font-black uppercase tracking-widest text-white/40 hover:bg-white/10 transition-all"
+                                    >
+                                        Annuler
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        disabled={updateLoading}
+                                        className="flex-[2] py-5 rounded-2xl bg-padel-blue text-white text-[10px] font-black uppercase tracking-[0.2em] shadow-2xl shadow-padel-blue/30 hover:bg-padel-yellow hover:text-padel-blue transition-all flex items-center justify-center gap-3 disabled:opacity-50"
+                                    >
+                                        {updateLoading ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
+                                        VALIDER L'OPÉRATION
+                                    </button>
+                                </div>
+                            </form>
                         </motion.div>
                     </div>
                 )}
