@@ -1,4 +1,11 @@
 {
+    "redirects": [
+        {
+            "source": "/((?!maintenance\\.html|IMAGES/|favicon_io/|fonts/|api/).*)",
+            "destination": "/maintenance.html",
+            "permanent": false
+        }
+    ],
     "rewrites": [
         {
             "source": "/api/:path*",
