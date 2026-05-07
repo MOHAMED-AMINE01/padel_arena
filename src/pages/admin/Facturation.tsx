@@ -106,7 +106,7 @@ export default function Facturation() {
     try {
       const data = {
         ...formData,
-        amount: formData.items.reduce((sum, item) => sum + (item.price * item.quantity), 0)
+        amount: formData.items.reduce((sum: number, item: InvoiceItem) => sum + (item.price * item.quantity), 0)
       };
 
       if (editingInvoice) {
@@ -172,7 +172,7 @@ export default function Facturation() {
 
   const handleExportCSV = () => {
     const headers = ['Numéro', 'Client', 'Email', 'Montant', 'Statut', 'Date', 'Echéance'];
-    const csvRows = filteredInvoices.map(inv => [
+    const csvRows = filteredInvoices.map((inv: Invoice) => [
       inv.number,
       inv.client,
       inv.email || '',
@@ -194,7 +194,7 @@ export default function Facturation() {
     document.body.removeChild(link);
   };
 
-  const filteredInvoices = invoices.filter(inv => {
+  const filteredInvoices = invoices.filter((inv: Invoice) => {
     const matchesSearch = inv.number.toLowerCase().includes(searchTerm.toLowerCase()) ||
       inv.client.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === 'ALL' || inv.status === statusFilter;
@@ -221,7 +221,7 @@ export default function Facturation() {
   };
 
   const calculateTotal = () => {
-    return formData.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    return formData.items.reduce((sum: number, item: InvoiceItem) => sum + (item.price * item.quantity), 0);
   };
 
   return (
