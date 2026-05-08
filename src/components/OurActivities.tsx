@@ -120,7 +120,7 @@ export const OurActivities = () => {
 
         {/* Bottom Section */}
         <div className="text-center">
-          <h3 className="text-4xl md:text-6xl lg:text-7xl font-display font-black tracking-tight uppercase mb-4">
+          <h3 className="text-2xl md:text-6xl lg:text-7xl font-display font-black tracking-tight uppercase mb-4">
             <span className="text-padel-blue">1600 M²</span> <span className="">D'ACTIVITÉS !</span>
           </h3>
           <p className="text-white/60 text-base md:text-lg">

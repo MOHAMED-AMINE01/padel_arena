@@ -27,7 +27,7 @@ export const FinalCTA = () => {
           {/* Background Image with Overlay */}
           <div className="absolute inset-0 z-0">
             <img
-              src="/IMAGES/Image de présentation.png"
+              src="/IMAGES/og-image.png"
               alt="Padel Arena"
               className="w-full h-full object-cover grayscale-[30%] opacity-40 group-hover:scale-105 transition-transform duration-1000"
             />
@@ -47,7 +47,7 @@ export const FinalCTA = () => {
               <span className="text-[9px] font-black tracking-[0.4em] text-white uppercase">VOTRE AVENTURE COMMENCE ICI</span>
             </motion.div>
 
-            <h2 className="text-5xl md:text-8xl font-display font-black tracking-tighter leading-[0.9] text-white uppercase mb-10">
+            <h2 className="text-4xl md:text-8xl font-display font-black tracking-tighter leading-[0.9] text-white uppercase mb-10">
               PRÊT À ENTRER <br />
               <span className="text-padel-blue italic">DANS L'ARÈNE ?</span>
             </h2>

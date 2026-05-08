@@ -37,7 +37,7 @@ export const IntroExperience: React.FC<IntroExperienceProps> = ({ onEnter }) => 
           transition={{ duration: 1.2, ease: "easeOut" }}
           className="text-center absolute top-[10%]"
         >
-          <h1 className="text-4xl md:text-5xl font-display font-black text-white mb-4 tracking-tighter uppercase italic leading-[0.9] notranslate" translate="no">
+          <h1 className="text-4xl md:text-5xl font-display font-black text-white mx-6 ml-2 mb-4 tracking-tighter uppercase italic leading-[0.9] notranslate" translate="no">
             PADEL <span className="text-padel-blue">ARENA</span> <span className="text-padel-blue">VENDÔME / ST OUEN</span>
           </h1>
           <div className="h-1 w-24 bg-padel-blue mx-auto rounded-full" />

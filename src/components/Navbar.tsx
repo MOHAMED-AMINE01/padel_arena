@@ -110,8 +110,8 @@ export const Navbar = () => {
               src="/IMAGES/newLogo_tr.png"
               alt="Logo"
               className={cn(
-                "transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] drop-shadow-[0_0_25px_rgba(19,73,211,0.25)]",
-                scrolled ? "h-20 md:h-28" : "h-28 md:h-38 lg:h-42 xl:h-38"
+                "w-auto object-contain transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] drop-shadow-[0_0_25px_rgba(19,73,211,0.25)]",
+                scrolled ? "h-24 md:h-24" : "h-26 scale-130 md:scale-120 md:h-32 lg:h-36"
               )}
             />
           </Link>
@@ -285,7 +285,7 @@ export const Navbar = () => {
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="relative px-12 py-4 bg-[#0A0A0B] text-padel-yellow font-display font-black text-[11px] rounded-full uppercase tracking-[0.4em] transition-all duration-500 overflow-hidden group/btn flex items-center gap-3 border border-white/5"
+                  className="relative px-8 py-4 bg-[#0A0A0B] text-padel-yellow font-display font-black text-[11px] rounded-full uppercase tracking-[0.4em] transition-all duration-500 overflow-hidden group/btn flex items-center gap-3 border border-white/5"
                 >
                   {/* Internal Glow that reacts to Hover */}
                   <div className="absolute inset-0 bg-padel-yellow opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-2xl" />
