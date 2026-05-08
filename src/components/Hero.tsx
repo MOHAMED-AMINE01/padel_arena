@@ -11,7 +11,7 @@ export const Hero = () => {
   const opacity = useTransform(scrollY, [0, 300], [1, 0]);
 
   return (
-    <section className="relative h-[85vh] md:h-screen w-full overflow-hidden bg-[#050505] pt-32 md:pt-20">
+    <section className="relative min-h-screen w-full overflow-hidden bg-[#050505] pt-40 md:pt-52 pb-20">
       {/* Background Image with Parallax & Pro Overlay */}
       <div className="absolute inset-0 z-0">
         <div className="absolute inset-0 bg-black/50 z-10" />
@@ -35,7 +35,7 @@ export const Hero = () => {
       </div>
 
       {/* Main Content Area */}
-      <div className="relative z-20 h-full max-w-[1500px] mx-auto px-8 md:px-12 flex flex-col justify-center">
+      <div className="relative z-20 h-full max-w-[1500px] mx-auto px-8 md:px-12 flex flex-col">
         <motion.div
           style={{ opacity }}
           initial={{ opacity: 0, x: -30 }}
@@ -57,7 +57,7 @@ export const Hero = () => {
           </motion.div>
 
           {/* Headline - Compact & Powerful */}
-          <h1 className="text-4xl md:text-7xl lg:text-[6.5rem] xl:text-[7rem] font-display font-black leading-[0.95] tracking-tighter text-white mb-6 md:mb-8">
+          <h1 className="text-4xl md:text-6xl lg:text-[5.5rem] xl:text-[6rem] font-display font-black leading-[0.95] tracking-tighter text-white mb-6 md:mb-8">
             VIVEZ <br />
             <span className="text-padel-blue italic">L'EXPÉRIENCE</span> <br />
             <span className="notranslate" translate="no">PADEL ARENA</span>
