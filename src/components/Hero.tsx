@@ -11,7 +11,7 @@ export const Hero = () => {
   const opacity = useTransform(scrollY, [0, 300], [1, 0]);
 
   return (
-    <section className="relative h-screen w-full overflow-hidden bg-[#050505] pt-12 md:pt-20">
+    <section className="relative h-[85vh] md:h-screen w-full overflow-hidden bg-[#050505] pt-32 md:pt-20">
       {/* Background Image with Parallax & Pro Overlay */}
       <div className="absolute inset-0 z-0">
         <div className="absolute inset-0 bg-black/50 z-10" />
@@ -48,7 +48,7 @@ export const Hero = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
-            className="inline-flex items-center gap-3 px-4 py-2 bg-padel-yellow/10 border border-padel-yellow/20 rounded-full mb-8"
+            className="inline-flex items-center gap-3 px-4 py-2 bg-padel-yellow/10 border border-padel-yellow/20 rounded-full mb-6 md:mb-8"
           >
             <div className="w-2 h-2 rounded-full bg-padel-yellow animate-pulse" />
             <span className="text-[10px] font-black uppercase tracking-[0.2em] text-padel-yellow">
@@ -57,14 +57,14 @@ export const Hero = () => {
           </motion.div>
 
           {/* Headline - Compact & Powerful */}
-          <h1 className="text-5xl md:text-7xl lg:text-[6.5rem] xl:text-[7rem] font-display font-black leading-[0.95] tracking-tighter text-white mb-8">
+          <h1 className="text-4xl md:text-7xl lg:text-[6.5rem] xl:text-[7rem] font-display font-black leading-[0.95] tracking-tighter text-white mb-6 md:mb-8">
             VIVEZ <br />
             <span className="text-padel-blue italic">L'EXPÉRIENCE</span> <br />
             <span className="notranslate" translate="no">PADEL ARENA</span>
           </h1>
 
           {/* Subtext */}
-          <p className="text-sm md:text-base text-white/70 font-medium max-w-lg mb-12 md:mb-16 leading-relaxed">
+          <p className="text-xs md:text-base text-white/70 font-medium max-w-lg mb-8 md:mb-16 leading-relaxed">
             Entrez dans l'arène. Un lieu de vie hybride entre technicité et convivialité. 1600 m² de sport  à Vendôme. Padel, Golf Indoor et Pickleball : repoussez vos limites dans un complexe conçu pour l'impact.
           </p>
 
