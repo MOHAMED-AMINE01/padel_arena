@@ -78,8 +78,8 @@ const ActivityCard: React.FC<ActivityCardProps> = ({ activity, index }) => {
           {activity.description}
         </p>
         <a
-          href="https://padelarenavendome.villagepadel.fr"
-          target="_blank"
+          href={activity.id === 'Golf' ? '/reservation' : "https://padelarenavendome.villagepadel.fr"}
+          target={activity.id === 'Golf' ? '_self' : "_blank"}
           rel="noopener noreferrer"
           className={`inline-flex items-center justify-center font-bold text-sm px-6 py-3 rounded-lg transition-colors w-fit ${activity.buttonColor}`}
         >
