@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { PromoCodeInput } from '../../components/player/PromoCodeInput';
 import {
     Ticket,
     CheckCircle2,
@@ -189,7 +188,7 @@ export function PlayerSubscription() {
                 </div>
 
                 {currentSubscription && (
-                    <div className="px-6 py-4 bg-white/[0.03] border border-white/10 rounded-2xl flex items-center gap-4">
+                    <div className="px-6 py-4 bg-white/3 border border-white/10 rounded-2xl flex items-center gap-4">
                         <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
                         <span className="text-xs font-black text-white uppercase tracking-widest">{currentSubscription.name} Actif</span>
                     </div>
@@ -202,7 +201,7 @@ export function PlayerSubscription() {
                     <div className="lg:col-span-12 space-y-12">
                         {/* Main Card */}
                         <div className="relative bg-[#151518] rounded-[3rem] p-8 md:p-16 border border-white/5 overflow-hidden group">
-                            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-padel-blue/10 rounded-full blur-[120px] -mr-48 -mt-48 transition-all duration-1000 group-hover:bg-padel-blue/20" />
+                            <div className="absolute top-0 right-0 w-125 h-125 bg-padel-blue/10 rounded-full blur-[120px] -mr-48 -mt-48 transition-all duration-1000 group-hover:bg-padel-blue/20" />
 
                             <div className="relative z-10 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-12">
                                 <div className="space-y-8">
@@ -217,11 +216,11 @@ export function PlayerSubscription() {
                                     </div>
 
                                     <div className="flex flex-wrap gap-6">
-                                        <div className="bg-white/5 border border-white/5 px-8 py-5 rounded-[2rem]">
+                                        <div className="bg-white/5 border border-white/5 px-8 py-5 rounded-4xl">
                                             <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] mb-2">Date d'expiration</p>
                                             <p className="text-2xl font-black text-white italic uppercase">{getFormattedExpiryDate()}</p>
                                         </div>
-                                        <div className="bg-white/5 border border-white/5 px-8 py-5 rounded-[2rem]">
+                                        <div className="bg-white/5 border border-white/5 px-8 py-5 rounded-4xl">
                                             <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] mb-2">Tarif préférentiel</p>
                                             <p className="text-2xl font-black text-padel-yellow italic uppercase">{currentSubscription.price}€ <span className="text-sm opacity-30 text-white">/ {currentSubscription.durationInMonths} mois</span></p>
                                         </div>
@@ -230,11 +229,10 @@ export function PlayerSubscription() {
 
                                 {isExpiringSoon() && (
                                     <button
-                                        onClick={() => handleSubscribe(currentSubscription)}
-                                        disabled={subscribing !== null}
-                                        className="w-full lg:w-auto px-12 py-7 bg-padel-yellow text-black font-display font-black text-xs uppercase tracking-[0.3em] rounded-[2rem] hover:scale-105 transition-all shadow-[0_20px_40px_rgba(255,210,31,0.2)] flex items-center justify-center gap-4"
+                                        disabled
+                                        className="w-full lg:w-auto px-12 py-7 bg-white/5 border border-white/5 text-white/10 font-display font-black text-xs uppercase tracking-[0.3em] rounded-4xl cursor-not-allowed flex items-center justify-center gap-4"
                                     >
-                                        {subscribing ? <Loader2 className="w-5 h-5 animate-spin" /> : <RefreshCcw size={20} />}
+                                        <RefreshCcw size={20} />
                                         Renouveler Maintenant
                                     </button>
                                 )}
@@ -244,7 +242,7 @@ export function PlayerSubscription() {
                         {/* Perks Grid */}
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             {currentSubscription.features.map((f, i) => (
-                                <div key={i} className="p-6 bg-white/[0.02] border border-white/5 rounded-3xl flex items-center gap-5 hover:bg-white/[0.04] transition-all">
+                                <div key={i} className="p-6 bg-white/2 border border-white/5 rounded-3xl flex items-center gap-5 hover:bg-white/4 transition-all">
                                     <div className="w-10 h-10 rounded-2xl bg-padel-blue/10 flex items-center justify-center text-padel-blue">
                                         <CheckCircle2 size={24} />
                                     </div>
@@ -280,9 +278,8 @@ export function PlayerSubscription() {
                                         ))}
                                     </div>
                                     <button
-                                        onClick={() => handleSubscribe(p)}
-                                        disabled={subscribing === p._id}
-                                        className="w-full py-5 bg-white/5 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] hover:bg-padel-blue transition-all"
+                                        disabled
+                                        className="w-full py-5 bg-white/5 border border-white/5 text-white/10 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] cursor-not-allowed"
                                     >
                                         S'abonner
                                     </button>
@@ -309,7 +306,7 @@ export function PlayerSubscription() {
                             {paginatedHistory.length > 0 ? (
                                 <>
                                     {paginatedHistory.map((item) => (
-                                        <div key={item._id} className="flex items-center justify-between p-6 bg-white/[0.01] border border-white/5 rounded-[2rem] hover:bg-white/[0.03] transition-all group">
+                                        <div key={item._id} className="flex items-center justify-between p-6 bg-white/1 border border-white/5 rounded-4xl hover:bg-white/3 transition-all group">
                                             <div className="flex items-center gap-6">
                                                 <div className="w-14 h-14 bg-padel-blue/10 rounded-2xl flex items-center justify-center text-padel-blue group-hover:scale-110 transition-transform">
                                                     <CreditCard size={24} />
@@ -334,7 +331,7 @@ export function PlayerSubscription() {
                                                 disabled={currentPage === 1}
                                                 className={cn(
                                                     "px-6 py-3 rounded-xl border text-[10px] font-black uppercase tracking-widest transition-all",
-                                                    currentPage === 1 ? "bg-white/[0.02] border-white/5 text-white/10 cursor-not-allowed" : "bg-white/5 border-white/10 text-white hover:bg-padel-blue hover:border-padel-blue"
+                                                    currentPage === 1 ? "bg-white/2 border-white/5 text-white/10 cursor-not-allowed" : "bg-white/5 border-white/10 text-white hover:bg-padel-blue hover:border-padel-blue"
                                                 )}
                                             >
                                                 Précédent
@@ -347,7 +344,7 @@ export function PlayerSubscription() {
                                                 disabled={currentPage === totalPages}
                                                 className={cn(
                                                     "px-6 py-3 rounded-xl border text-[10px] font-black uppercase tracking-widest transition-all",
-                                                    currentPage === totalPages ? "bg-white/[0.02] border-white/5 text-white/10 cursor-not-allowed" : "bg-white/5 border-white/10 text-white hover:bg-padel-blue hover:border-padel-blue"
+                                                    currentPage === totalPages ? "bg-white/2 border-white/5 text-white/10 cursor-not-allowed" : "bg-white/5 border-white/10 text-white hover:bg-padel-blue hover:border-padel-blue"
                                                 )}
                                             >
                                                 Suivant
@@ -368,7 +365,7 @@ export function PlayerSubscription() {
 
             {/* Payment Modal */}
             {showPaymentModal && selectedPlan && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm">
+                <div className="fixed inset-0 z-100 flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm">
                     <motion.div 
                         initial={{ opacity: 0, scale: 0.9, y: 20 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}

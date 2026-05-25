@@ -7,6 +7,7 @@ interface User {
     email: string;
     role: 'PLAYER' | 'ADMIN';
     avatar?: string;
+    phone?: string;
     balance: number;
     authProvider?: 'local' | 'google';
 } 

@@ -69,16 +69,22 @@ export const LiveStats = () => {
           <div className="hidden lg:block w-[1px] h-10 bg-white/5" />
 
           {/* Action Call */}
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="shrink-0 flex items-center gap-4 py-3 px-8 rounded-full bg-white/[0.03] border border-white/5 hover:bg-padel-blue hover:border-padel-blue transition-all duration-300 group"
+          <a
+            href="https://padelarenavendome.villagepadel.fr"
+            target="_blank"
+            rel="noopener noreferrer"
           >
-            <span className="text-[10px] font-black tracking-[0.2em] uppercase text-white">RÉSERVER VOTRE MATCH</span>
-            <div className="w-6 h-6 rounded-full bg-padel-yellow/10 flex items-center justify-center text-padel-yellow group-hover:bg-white group-hover:text-padel-blue transition-colors">
-              <Trophy size={12} />
-            </div>
-          </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="shrink-0 flex items-center gap-4 py-3 px-8 rounded-full bg-white/[0.03] border border-white/5 hover:bg-padel-blue hover:border-padel-blue transition-all duration-300 group"
+            >
+              <span className="text-[10px] font-black tracking-[0.2em] uppercase text-white">RÉSERVER VOTRE MATCH</span>
+              <div className="w-6 h-6 rounded-full bg-padel-yellow/10 flex items-center justify-center text-padel-yellow group-hover:bg-white group-hover:text-padel-blue transition-colors">
+                <Trophy size={12} />
+              </div>
+            </motion.button>
+          </a>
 
         </div>
       </div>

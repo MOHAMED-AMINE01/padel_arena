@@ -262,7 +262,12 @@ export const Navbar = () => {
               </Link>
             )}
 
-            <Link to="/reservation" className="relative group">
+            <a 
+              href="https://padelarenavendome.villagepadel.fr" 
+              className="relative group"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <motion.div
                 initial={false}
                 animate={{
@@ -287,30 +292,19 @@ export const Navbar = () => {
                   whileTap={{ scale: 0.98 }}
                   className="relative px-8 py-4 bg-[#0A0A0B] text-padel-yellow font-display font-black text-[11px] rounded-full uppercase tracking-[0.4em] transition-all duration-500 overflow-hidden group/btn flex items-center gap-3 border border-white/5"
                 >
-                  {/* Internal Glow that reacts to Hover */}
-                  <div className="absolute inset-0 bg-padel-yellow opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-2xl" />
-
-                  {/* Dynamic Gradient Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-padel-yellow/0 via-padel-yellow/60 to-padel-yellow/0 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-
-                  {/* Text with dynamic color shift */}
+                  <Zap size={14} className="relative z-10 text-padel-yellow group-hover:text-white animate-pulse" />
                   <span className="relative z-10 group-hover:text-white transition-colors duration-500 notranslate" translate="no">
                     RÉSERVER
                   </span>
-
-                  <Zap size={14} className="relative z-10 text-padel-yellow group-hover:text-white animate-pulse" />
-
-                  {/* Shimmer Effect */}
+                  
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
                 </motion.button>
               </motion.div>
 
               {/* Atmospheric Extra Glows */}
               <div className="absolute -inset-4 bg-padel-yellow/10 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-1000 pointer-events-none" />
-
-              {/* Dynamic Ping */}
               <div className="absolute inset-0 rounded-full border-2 border-padel-yellow animate-[ping_4s_infinite] opacity-0 group-hover:opacity-30 transition-all pointer-events-none" />
-            </Link>
+            </a>
 
             {/* Compact Mobile Toggle */}
             <button
@@ -354,6 +348,31 @@ export const Navbar = () => {
 
             {/* Compact List */}
             <div className="flex-1 overflow-y-auto px-6 py-8 flex flex-col gap-8">
+              {/* External Booking Link for Mobile */}
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.1 }}
+              >
+                <a
+                  href="https://padelarenavendome.villagepadel.fr"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group block"
+                >
+                  <div className="flex items-center gap-4 mb-1.5">
+                    <div className="w-1 h-1 rounded-full bg-padel-yellow shadow-[0_0_10px_rgba(255,210,31,0.8)]" />
+                    <h2 className="text-2xl font-display font-black uppercase tracking-tight text-padel-yellow">
+                      RÉSERVER
+                    </h2>
+                    <Zap size={18} className="text-padel-yellow animate-pulse" />
+                  </div>
+                  <p className="pl-5 text-padel-yellow/60 text-[11px] font-medium leading-normal max-w-[240px]">
+                    Réservez votre terrain sur notre nouvelle plateforme.
+                  </p>
+                </a>
+              </motion.div>
+
               {menuStructure.map((item, idx) => (
                 <motion.div
                   key={item.name}

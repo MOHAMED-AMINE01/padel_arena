@@ -77,12 +77,14 @@ const ActivityCard: React.FC<ActivityCardProps> = ({ activity, index }) => {
         <p className="text-white/80 text-sm md:text-base leading-relaxed mb-5 max-w-md">
           {activity.description}
         </p>
-        <Link
-          to={`/?sport=${activity.id}#club`}
+        <a
+          href="https://padelarenavendome.villagepadel.fr"
+          target="_blank"
+          rel="noopener noreferrer"
           className={`inline-flex items-center justify-center font-bold text-sm px-6 py-3 rounded-lg transition-colors w-fit ${activity.buttonColor}`}
         >
           {activity.buttonText}
-        </Link>
+        </a>
       </div>
     </div>
   );

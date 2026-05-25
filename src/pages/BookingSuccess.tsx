@@ -73,10 +73,15 @@ export const BookingSuccess = () => {
                         <Home size={16} />
                         Retour Accueil
                     </Link>
-                    <Link to="/reservation" className="flex-1 px-8 py-5 rounded-2xl bg-padel-blue text-white font-black text-[10px] uppercase tracking-[0.2em] shadow-xl shadow-padel-blue/20 hover:bg-padel-yellow hover:text-padel-blue transition-all duration-500 flex items-center justify-center gap-3 group">
+                    <a 
+                        href="https://padelarenavendome.villagepadel.fr" 
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex-1 px-8 py-5 rounded-2xl bg-padel-blue text-white font-black text-[10px] uppercase tracking-[0.2em] shadow-xl shadow-padel-blue/20 hover:bg-padel-yellow hover:text-padel-blue transition-all duration-500 flex items-center justify-center gap-3 group"
+                    >
                         Réserver à nouveau
                         <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
-                    </Link>
+                    </a>
                 </div>
             </motion.div>
         </div>

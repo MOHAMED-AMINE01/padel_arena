@@ -54,7 +54,12 @@ export const ClubHero = () => {
               </p>
 
               <div className="flex flex-col sm:flex-row items-center md:items-start gap-8 justify-center md:justify-start">
-                <Link to="/reservation" className="sm:w-auto">
+                <a 
+                  href="https://padelarenavendome.villagepadel.fr"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="sm:w-auto"
+                >
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
@@ -65,7 +70,7 @@ export const ClubHero = () => {
                       <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
                     </span>
                   </motion.button>
-                </Link>
+                </a>
 
 
               </div>

@@ -39,11 +39,10 @@ export function PlayerNavbar() {
 
     const navLinks = [
         { label: 'Tableau de Bord', href: '/dashboard', icon: LayoutDashboard },
-        { label: 'Réserver', href: '/book', icon: Calendar },
+        { label: 'Réserver', href: 'https://padelarenavendome.villagepadel.fr', icon: Calendar, isExternal: true },
         { label: 'Mes Matchs', href: '/my-reservations', icon: History },
         { label: 'Tournois', href: '/events', icon: Trophy },
-        { label: 'Abonnement', href: '/subscription', icon: Sparkles },
-        { label: 'Portefeuille', href: '/wallet', icon: Zap },
+        { label: 'Abonnement', href: '/subscription', icon: Ticket },
         { label: 'Support', href: '/messages', icon: MessageSquare },
     ];
 
@@ -92,7 +91,27 @@ export function PlayerNavbar() {
                         <div className="flex items-center gap-0.5 bg-white/[0.02] border border-white/5 p-1 rounded-2xl">
                             {navLinks.map((link) => {
                                 const isActive = location.pathname === link.href;
-                                const isWallet = link.href === '/wallet';
+
+                                if (link.isExternal) {
+                                    return (
+                                        <a
+                                            key={link.href}
+                                            href={link.href}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className={cn(
+                                                "relative px-3 xxl:px-4 py-2 group transition-all duration-500 rounded-xl flex items-center gap-2 text-white/30 hover:text-white/70"
+                                            )}
+                                        >
+                                            <div className="relative z-10 flex items-center gap-2">
+                                                <link.icon size={13} className="transition-colors duration-500 group-hover:text-padel-blue/60" />
+                                                <span className="text-[8.5px] xxl:text-[9.5px] font-black uppercase tracking-[0.15em] italic whitespace-nowrap">
+                                                    {link.label}
+                                                </span>
+                                            </div>
+                                        </a>
+                                    );
+                                }
 
                                 return (
                                     <Link
@@ -111,11 +130,6 @@ export function PlayerNavbar() {
                                             <span className="text-[8.5px] xxl:text-[9.5px] font-black uppercase tracking-[0.15em] italic whitespace-nowrap">
                                                 {link.label}
                                             </span>
-                                            {isWallet && user && (
-                                                <span className="px-1.5 py-0.5 rounded-full bg-padel-blue/20 text-padel-blue text-[8px] font-black border border-padel-blue/30">
-                                                    {user.balance || 0}€
-                                                </span>
-                                            )}
                                         </div>
                                         {isActive && (
                                             <motion.div
@@ -214,30 +228,49 @@ export function PlayerNavbar() {
                             exit={{ y: 20, opacity: 0 }}
                             className="grid grid-cols-2 gap-4 pt-10"
                         >
-                            {navLinks.map((link) => (
-                                <Link
-                                    key={link.href}
-                                    to={link.href}
-                                    onClick={() => setIsOpen(false)}
-                                    className={cn(
-                                        "relative flex flex-col items-center gap-4 p-8 rounded-[2rem] border transition-all duration-300 group overflow-hidden",
-                                        location.pathname === link.href
-                                            ? "bg-padel-blue border-padel-blue text-white shadow-2xl shadow-padel-blue/40"
-                                            : "bg-[#0E0E11]/80 border-white/10 text-white/40"
-                                    )}
-                                >
-                                    <div className={cn(
-                                        "p-3 rounded-xl transition-all group-hover:scale-110 group-hover:rotate-6",
-                                        location.pathname === link.href ? "bg-white/20 shadow-inner" : "bg-white/5"
-                                    )}>
-                                        <link.icon size={28} />
-                                    </div>
-                                    <span className="text-[10px] font-black uppercase tracking-[0.3em] font-display text-center leading-tight italic">
-                                        {link.label}
-                                    </span>
-                                    <div className="absolute top-0 right-0 w-24 h-24 bg-white/5 rounded-full blur-3xl -mr-12 -mt-12 group-hover:bg-white/10 transition-all pointer-events-none" />
-                                </Link>
-                            ))}
+                            {navLinks.map((link) => {
+                                const isActive = location.pathname === link.href;
+                                if (link.isExternal) {
+                                    return (
+                                        <a
+                                            key={link.href}
+                                            href={link.href}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="relative flex flex-col items-center gap-4 p-8 rounded-[2rem] border transition-all duration-300 group overflow-hidden bg-[#0E0E11]/80 border-white/10 text-white/40"
+                                        >
+                                            <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center mb-1 group-hover:scale-110 transition-transform">
+                                                <link.icon size={18} />
+                                            </div>
+                                            <span className="text-[9px] font-black uppercase tracking-widest">{link.label}</span>
+                                        </a>
+                                    );
+                                }
+                                return (
+                                    <Link
+                                        key={link.href}
+                                        to={link.href}
+                                        onClick={() => setIsOpen(false)}
+                                        className={cn(
+                                            "relative flex flex-col items-center gap-4 p-8 rounded-[2rem] border transition-all duration-300 group overflow-hidden",
+                                            isActive
+                                                ? "bg-padel-blue border-padel-blue text-white shadow-2xl shadow-padel-blue/40"
+                                                : "bg-[#0E0E11]/80 border-white/10 text-white/40"
+                                        )}
+                                    >
+                                        <div className={cn(
+                                            "p-3 rounded-xl transition-all group-hover:scale-110 group-hover:rotate-6",
+                                            location.pathname === link.href ? "bg-white/20 shadow-inner" : "bg-white/5"
+                                        )}>
+                                            <link.icon size={28} />
+                                        </div>
+                                        <span className="text-[10px] font-black uppercase tracking-[0.3em] font-display text-center leading-tight italic">
+                                            {link.label}
+                                        </span>
+                                        <div className="absolute top-0 right-0 w-24 h-24 bg-white/5 rounded-full blur-3xl -mr-12 -mt-12 group-hover:bg-white/10 transition-all pointer-events-none" />
+                                    </Link>
+                                );
+                            })}
                         </motion.div>
 
                         <div className="mt-8 space-y-4 pb-20">

@@ -44,7 +44,12 @@ export const GolfSection = () => {
               ))}
             </div>
 
-            <Link to="/reservation?sport=Golf" className="relative group inline-block">
+            <a 
+              href="https://padelarenavendome.villagepadel.fr"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="relative group inline-block"
+            >
               <motion.div
                 animate={{
                   boxShadow: [
@@ -77,7 +82,7 @@ export const GolfSection = () => {
                   <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-2xl" />
                 </motion.button>
               </motion.div>
-            </Link>
+            </a>
           </motion.div>
 
           <motion.div

@@ -139,14 +139,16 @@ export const CourtPricing = () => {
         </div>
 
         <div className="mt-16 flex justify-center">
-          <button
-            onClick={() => navigate('/reservation')}
+          <a 
+            href="https://padelarenavendome.villagepadel.fr"
+            target="_blank"
+            rel="noopener noreferrer"
             className="flex items-center gap-4 py-5 px-14 bg-padel-blue text-white rounded-full font-black text-[10px] uppercase tracking-[0.3em] overflow-hidden relative group shadow-2xl"
           >
             <span className="relative z-10">RÉSERVER VOTRE CRÉNEAU</span>
             <ArrowUpRight size={18} className="relative z-10 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
             <div className="absolute inset-0 bg-padel-yellow translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
-          </button>
+          </a>
         </div>
       </div>
 

@@ -266,12 +266,14 @@ function EmptyState({ tab }: { tab: string }) {
             <h3 className="text-xl sm:text-2xl md:text-3xl font-display font-black text-white italic uppercase tracking-tighter mb-2 sm:mb-4">{msg.title}</h3>
             <p className="text-white/20 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.2em] sm:tracking-[0.3em] max-w-xs mx-auto mb-6 sm:mb-10 italic leading-relaxed">{msg.sub}</p>
             {msg.cta && (
-                <Link
-                    to="/book"
+                <a
+                    href="https://padelarenavendome.villagepadel.fr"
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 sm:gap-3 px-6 sm:px-10 py-3 sm:py-5 rounded-xl sm:rounded-2xl bg-padel-blue shadow-2xl shadow-padel-blue/30 text-[9px] sm:text-[10px] font-black uppercase tracking-wider sm:tracking-widest text-white hover:scale-105 transition-all"
                 >
                     Réserver un match <ArrowUpRight size={14} className="sm:w-4 sm:h-4" />
-                </Link>
+                </a>
             )}
         </motion.div>
     );
@@ -599,8 +601,10 @@ export function PlayerReservations() {
                     transition={{ delay: 0.3 }}
                     className="flex justify-center pt-4"
                 >
-                    <Link
-                        to="/book"
+                    <a
+                        href="https://padelarenavendome.villagepadel.fr"
+                        target="_blank"
+                        rel="noopener noreferrer"
                         className="flex items-center gap-3 sm:gap-4 px-5 sm:px-10 py-4 sm:py-5 rounded-xl sm:rounded-2xl border border-white/8 bg-white/[0.02] hover:bg-white/[0.04] hover:border-padel-blue/30 transition-all group w-full sm:w-auto justify-center sm:justify-start"
                     >
                         <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-padel-blue/10 flex items-center justify-center text-padel-blue group-hover:bg-padel-blue group-hover:text-white transition-all shrink-0">
@@ -610,7 +614,7 @@ export function PlayerReservations() {
                             <p className="text-[9px] sm:text-[10px] font-black text-white uppercase tracking-wider sm:tracking-widest">Réserver un nouveau match</p>
                             <p className="text-[7px] sm:text-[8px] font-black text-white/20 uppercase tracking-wider sm:tracking-widest mt-0.5">Padel · Pickleball · Badminton</p>
                         </div>
-                    </Link>
+                    </a>
                 </motion.div>
             )}
         </div>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { motion, AnimatePresence } from 'motion/react';
 import { Navbar } from './components/Navbar';
@@ -17,6 +17,7 @@ import { CookiesPage } from './pages/CookiesPage';
 
 import { NewsPage } from './pages/NewsPage';
 import { BookingSuccess } from './pages/BookingSuccess';
+import { BookingError } from './pages/BookingError';
 import { AuthPage } from './pages/AuthPage';
 import { ForgotPasswordPage } from './pages/ForgotPasswordPage';
 import { ResetPasswordPage } from './pages/ResetPasswordPage';
@@ -139,6 +140,7 @@ export default function App() {
                     <Route path="/actualites" element={<NewsPage />} />
                     <Route path="/booking-success" element={<BookingSuccess />} />
                     <Route path="/succes" element={<BookingSuccess />} />
+                    <Route path="/echec" element={<BookingError />} />
                     <Route path="/mentions-legales" element={<MentionsLegalesPage />} />
                     <Route path="/politique-confidentialite" element={<PolitiqueConfidentialitePage />} />
                     <Route path="/cookies" element={<CookiesPage />} />
@@ -185,7 +187,7 @@ export default function App() {
                       <Route path="/payments" element={<PlayerPayments />} />
                       <Route path="/profile" element={<PlayerProfile />} />
                       <Route path="/settings" element={<PlayerSettings />} />
-                      <Route path="/wallet" element={<WalletPage />} />
+                      <Route path="/wallet" element={<Navigate to="/dashboard" replace />} />
 
                       <Route path="/messages" element={<PlayerMessages />} />
                     </Route>

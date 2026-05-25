@@ -155,7 +155,12 @@ export const Pricing = () => {
                   ))}
                 </div>
 
-                <Link to="/auth?redirect=/player/subscription">
+                <a
+                  href="https://padelarenavendome.villagepadel.fr"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block"
+                >
                   <button className={cn(
                     "w-full py-6 rounded-full font-black text-[10px] tracking-[0.4em] uppercase transition-all duration-500 flex items-center justify-center gap-4 overflow-hidden relative group/btn shadow-xl",
                     plan.featured ? "bg-padel-blue text-white" : "bg-white/5 text-white border border-white/10 hover:border-padel-blue hover:text-padel-blue"
@@ -165,7 +170,7 @@ export const Pricing = () => {
                     </span>
                     {plan.featured && <div className="absolute inset-0 bg-padel-yellow translate-y-full group-hover/btn:translate-y-0 transition-transform duration-500" />}
                   </button>
-                </Link>
+                </a>
               </motion.div>
             ))}
           </div>

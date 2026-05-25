@@ -157,6 +157,10 @@ const DURATION_OPTIONS = [
 
 // ─── Component ────────────────────────────────────────────────────────────────
 export function PlayerBook() {
+    React.useEffect(() => {
+        window.location.href = "https://padelarenavendome.villagepadel.fr";
+    }, []);
+
     const { user, refreshUser } = useAuth();
     const navigate = useNavigate();
 

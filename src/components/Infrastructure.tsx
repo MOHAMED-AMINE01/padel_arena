@@ -191,7 +191,11 @@ export const Infrastructure = () => {
                             </p>
 
                             {/* CTA inside active slide */}
-                            <Link to='/reservation'>
+                            <a 
+                              href="https://padelarenavendome.villagepadel.fr"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
                               <motion.button
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
@@ -199,7 +203,7 @@ export const Infrastructure = () => {
                               >
                                 RÉSERVER MAINTENANT
                               </motion.button>
-                            </Link>
+                            </a>
                           </div>
                         </motion.div>
                       )}

@@ -72,14 +72,21 @@ export const Footer = () => {
                 {[
                   { name: 'ACTUALITÉS', href: '/actualites' },
                   { name: 'ACTIVITÉS', href: '/activites' },
-                  { name: 'RÉSERVATION', href: '/reservation' },
+                  { name: 'RÉSERVATION', href: 'https://padelarenavendome.villagepadel.fr', isExternal: true },
                   { name: 'TARIFS', href: '/tarifs' }
                 ].map((link) => (
                   <li key={link.name}>
-                    <Link to={link.href} className="text-white/50 hover:text-white transition-colors text-[11px] font-black tracking-widest uppercase flex items-center justify-center md:justify-start group">
-                      <span className="hidden md:block w-0 group-hover:w-3 h-[1px] bg-padel-yellow transition-all duration-300 group-hover:mr-2" />
-                      {link.name}
-                    </Link>
+                    {link.isExternal ? (
+                      <a href={link.href} target="_blank" rel="noopener noreferrer" className="text-white/50 hover:text-white transition-colors text-[11px] font-black tracking-widest uppercase flex items-center justify-center md:justify-start group">
+                        <span className="hidden md:block w-0 group-hover:w-3 h-[1px] bg-padel-yellow transition-all duration-300 group-hover:mr-2" />
+                        {link.name}
+                      </a>
+                    ) : (
+                      <Link to={link.href} className="text-white/50 hover:text-white transition-colors text-[11px] font-black tracking-widest uppercase flex items-center justify-center md:justify-start group">
+                        <span className="hidden md:block w-0 group-hover:w-3 h-[1px] bg-padel-yellow transition-all duration-300 group-hover:mr-2" />
+                        {link.name}
+                      </Link>
+                    )}
                   </li>
                 ))}
               </ul>

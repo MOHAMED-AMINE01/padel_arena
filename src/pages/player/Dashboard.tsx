@@ -20,7 +20,8 @@ import {
     Timer,
     Star,
     Target,
-    Flame
+    Flame,
+    Shield
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { cn } from '../../lib/utils';
@@ -197,7 +198,6 @@ export function PlayerDashboard() {
         { label: 'Matchs à venir', value: loadingBookings ? '–' : stats.upcoming, icon: <Calendar size={20} />, color: '#1349D3' },
         { label: 'Matchs joués', value: loadingBookings ? '–' : stats.totalPlayed, icon: <Target size={20} />, color: '#22c55e' },
         { label: 'Total dépensé', value: loadingBookings ? '–' : `${stats.totalSpent.toFixed(0)}€`, icon: <CreditCard size={20} />, color: '#FFD21F' },
-        { label: 'Mon Solde', value: loadingBookings ? '–' : `${user?.balance || 0}€`, icon: <Zap size={20} />, color: '#0066FF' },
     ];
 
     const sportColor = nextMatch ? getSportColor(nextMatch.court?.sport) : '#1349D3';
@@ -240,14 +240,16 @@ export function PlayerDashboard() {
                         <p className="text-xs sm:text-sm font-black text-white italic truncate max-w-[180px] sm:max-w-[200px]">{user?.email || '–'}</p>
                     </div>
                     <div className="hidden sm:block w-px h-10 sm:h-12 bg-white/10 mx-1 sm:mx-2" />
-                    <Link
-                        to="/book"
+                    <a
+                        href="https://padelarenavendome.villagepadel.fr"
+                        target="_blank"
+                        rel="noopener noreferrer"
                         className="flex items-center justify-center gap-2 sm:gap-3 lg:gap-4 px-6 sm:px-8 lg:px-10 py-3 sm:py-4 lg:py-5 rounded-xl sm:rounded-2xl lg:rounded-[2rem] bg-padel-blue text-white text-[9px] sm:text-[10px] font-black uppercase tracking-widest shadow-2xl shadow-padel-blue/40 hover:bg-padel-blue/80 hover:scale-[1.02] transition-all duration-500 group"
                     >
                         <Zap size={14} className="sm:w-[18px] sm:h-[18px] text-padel-yellow group-hover:animate-bounce" />
                         NOUVEAU MATCH
                         <ChevronRight size={12} className="sm:w-4 sm:h-4 group-hover:translate-x-2 transition-transform" />
-                    </Link>
+                    </a>
                 </motion.div>
             </div>
 
@@ -397,12 +399,14 @@ export function PlayerDashboard() {
                                             </p>
                                         </div>
                                     </div>
-                                    <Link
-                                        to="/book"
+                                    <a
+                                        href="https://padelarenavendome.villagepadel.fr"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
                                         className="flex items-center justify-center sm:justify-start gap-2 sm:gap-3 lg:gap-4 px-6 sm:px-8 py-4 sm:py-5 rounded-xl sm:rounded-2xl bg-padel-blue text-white text-[9px] sm:text-[10px] font-black uppercase tracking-widest shadow-2xl shadow-padel-blue/40 hover:scale-105 transition-all shrink-0"
                                     >
                                         RÉSERVER <ChevronRight size={14} className="sm:w-4 sm:h-4" />
-                                    </Link>
+                                    </a>
                                 </div>
                             )}
                         </div>
@@ -672,11 +676,29 @@ export function PlayerDashboard() {
                         </div>
 
                         <div className="space-y-2 sm:space-y-3">
+                            <a
+                                href="https://padelarenavendome.villagepadel.fr"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.05] hover:border-white/10 transition-all group"
+                            >
+                                <div
+                                    className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform"
+                                    style={{ backgroundColor: '#1349D318', color: '#1349D3' }}
+                                >
+                                    <Zap size={16} className="sm:w-[18px] sm:h-[18px]" />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <p className="text-[10px] sm:text-[11px] font-black text-white uppercase tracking-widest leading-none truncate">Réserver un terrain</p>
+                                    <p className="text-[7px] sm:text-[8px] font-black text-white/20 uppercase tracking-widest mt-1">Padel · Pickleball · Badminton</p>
+                                </div>
+                                <ChevronRight size={12} className="sm:w-3.5 sm:h-3.5 text-white/20 group-hover:text-white group-hover:translate-x-1 transition-all shrink-0" />
+                            </a>
+
                             {[
-                                { label: 'Réserver un terrain', sub: 'Padel · Pickleball · Badminton', icon: <Zap size={16} className="sm:w-[18px] sm:h-[18px]" />, to: '/book', color: '#1349D3' },
-                                { label: 'Mon Portefeuille', sub: 'Gérer mes crédits', icon: <CreditCard size={16} className="sm:w-[18px] sm:h-[18px]" />, to: '/wallet', color: '#0066FF' },
                                 { label: 'Voir mes réservations', sub: 'Gérer & annuler', icon: <Calendar size={16} className="sm:w-[18px] sm:h-[18px]" />, to: '/my-reservations', color: '#22c55e' },
-                                { label: 'Tournois ouverts', sub: `${openTournaments.length} tournoi${openTournaments.length !== 1 ? 's' : ''} disponible`, icon: <Trophy size={16} className="sm:w-[18px] sm:h-[18px]" />, to: '/events', color: '#FFD21F' },
+                                { label: 'Tournois & Événements', sub: 'Inscriptions ouvertes', icon: <Trophy size={16} className="sm:w-[18px] sm:h-[18px]" />, to: '/events', color: '#FFD21F' },
+                                { label: 'Gérer mon Plan', sub: 'Abonnement & Avantages', icon: <Shield size={16} className="sm:w-[18px] sm:h-[18px]" />, to: '/subscription', color: '#1349D3' },
                             ].map((action, i) => (
                                 <Link
                                     key={i}

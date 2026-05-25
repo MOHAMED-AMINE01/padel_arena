@@ -337,41 +337,14 @@ export function PlayerEvents() {
                                                     </div>
                                                 </div>
 
-                                                {!isEnrolled && (
-                                                    <div className="mt-4">
-                                                        <PromoCodeInput
-                                                            eventId={course._id}
-                                                            originalPrice={course.price}
-                                                            onApply={(discount, code) => setEventPromo(course._id, code, discount)}
-                                                        />
-                                                    </div>
-                                                )}
-
                                                 <button
-                                                    onClick={() => handleJoinCourse(course._id)}
-                                                    disabled={joiningCourse === course._id || isEnrolled || (!isEnrolled && isFull) || isPast}
+                                                    disabled
                                                     className={cn(
                                                         "w-full py-4 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-2 mt-6 shadow-xl",
-                                                        isEnrolled
-                                                            ? "bg-green-500/10 border border-green-500/20 text-green-500 cursor-default shadow-none"
-                                                            : (isFull || isPast)
-                                                                ? "bg-white/[0.02] border border-white/5 text-white/10 cursor-not-allowed shadow-none"
-                                                                : "bg-padel-blue text-white hover:bg-padel-yellow hover:text-padel-blue shadow-padel-blue/20"
+                                                        "bg-white/[0.02] border border-white/5 text-white/10 cursor-not-allowed shadow-none"
                                                     )}
                                                 >
-                                                    {joiningCourse === course._id ? (
-                                                        <Loader2 className="animate-spin" size={14} />
-                                                    ) : isPast ? (
-                                                        <>TERMINÉ</>
-                                                    ) : isEnrolled ? (
-                                                        <>INSCRIT ✅</>
-                                                    ) : isFull ? (
-                                                        <>SE DÉSINSCRIRE</>
-                                                    ) : isFull ? (
-                                                        <>COMPLET</>
-                                                    ) : (
-                                                        <>REJOINDRE • {promos[course._id] ? (course.price - promos[course._id].discount).toFixed(0) : course.price}€</>
-                                                    )}
+                                                    {isPast ? 'TERMINÉ' : 'S\'INSCRIRE'}
                                                 </button>
                                             </div>
                                         </motion.div>
@@ -499,41 +472,14 @@ export function PlayerEvents() {
                                                     </div>
                                                 </div>
 
-                                                {!isEnrolled && (
-                                                    <div className="mt-4">
-                                                        <PromoCodeInput
-                                                            eventId={tourney._id}
-                                                            originalPrice={tourney.entryFee}
-                                                            onApply={(discount, code) => setEventPromo(tourney._id, code, discount)}
-                                                        />
-                                                    </div>
-                                                )}
-
                                                 <button
-                                                    onClick={() => handleJoinTournament(tourney._id)}
-                                                    disabled={joiningTournament === tourney._id || isEnrolled || (!isEnrolled && isFull) || isPast}
+                                                    disabled
                                                     className={cn(
-                                                        "w-full py-5 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] transition-all flex items-center justify-center gap-2 mt-6 shadow-2xl",
-                                                        isEnrolled
-                                                            ? "bg-green-500/10 border border-green-500/20 text-green-500 cursor-default shadow-none"
-                                                            : (isFull || isPast)
-                                                                ? "bg-white/[0.02] border border-white/5 text-white/10 cursor-not-allowed shadow-none"
-                                                                : "bg-padel-yellow text-padel-blue hover:scale-[1.02] active:scale-95 shadow-padel-yellow/20"
+                                                        "w-full py-5 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] transition-all flex items-center justify-center gap-2 mt-6",
+                                                        "bg-white/[0.02] border border-white/5 text-white/10 cursor-not-allowed shadow-none"
                                                     )}
                                                 >
-                                                    {joiningTournament === tourney._id ? (
-                                                        <Loader2 className="animate-spin" size={16} />
-                                                    ) : isPast ? (
-                                                        <>TERMINÉ</>
-                                                    ) : isEnrolled ? (
-                                                        <>INSCRIT ✅</>
-                                                    ) : isFull ? (
-                                                        <>QUITTER L'INSCRIPTION</>
-                                                    ) : isFull ? (
-                                                        <>TOURNOI COMPLET</>
-                                                    ) : (
-                                                        <>S'INSCRIRE • {promos[tourney._id] ? (tourney.entryFee - promos[tourney._id].discount).toFixed(0) : tourney.entryFee}€</>
-                                                    )}
+                                                    {isPast ? 'TERMINÉ' : (isEnrolled ? 'INSCRIT ✅' : "S'INSCRIRE")}
                                                 </button>
                                             </div>
                                         </motion.div>

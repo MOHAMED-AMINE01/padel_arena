@@ -391,13 +391,13 @@ export const CourtBooking = () => {
 
       {/* Subtle Grid lines */}
       <div className="absolute inset-0 pointer-events-none opacity-[0.02]">
-        <div className="max-w-[1400px] mx-auto h-full w-full flex justify-between border-x border-white">
-          <div className="w-[1px] h-full bg-white ml-[33%]" />
-          <div className="w-[1px] h-full bg-white mr-[33%]" />
+        <div className="max-w-350 mx-auto h-full w-full flex justify-between border-x border-white">
+          <div className="w-px h-full bg-white ml-[33%]" />
+          <div className="w-px h-full bg-white mr-[33%]" />
         </div>
       </div>
 
-      <div className="max-w-[1100px] mx-auto relative z-10">
+      <div className="max-w-275 mx-auto relative z-10">
 
         {/* HEADER SECTION (UP) */}
         <div className="text-center mb-12 md:mb-16">
@@ -434,15 +434,15 @@ export const CourtBooking = () => {
 
         {/* INTERFACE CARD (BELOW) */}
         <div className="w-full">
-          <div className="glass p-8 md:p-12 rounded-[3.5rem] md:rounded-[4.5rem] border-white/5 relative min-h-[500px] flex flex-col shadow-3xl overflow-hidden group/card bg-black/40">
+          <div className="glass p-8 md:p-12 rounded-[3.5rem] md:rounded-[4.5rem] border-white/5 relative min-h-125 flex flex-col shadow-3xl overflow-hidden group/card bg-black/40">
 
             {/* Visual HUD corner details */}
-            <div className="absolute top-8 left-8 w-4 h-[1px] bg-white/20" />
-            <div className="absolute top-8 left-8 w-[1px] h-4 bg-white/20" />
-            <div className="absolute bottom-8 right-8 w-4 h-[1px] bg-white/20" />
-            <div className="absolute bottom-8 right-8 w-[1px] h-4 bg-white/20" />
+            <div className="absolute top-8 left-8 w-4 h-px bg-white/20" />
+            <div className="absolute top-8 left-8 w-px h-4 bg-white/20" />
+            <div className="absolute bottom-8 right-8 w-4 h-px bg-white/20" />
+            <div className="absolute bottom-8 right-8 w-px h-4 bg-white/20" />
 
-            <div className="relative z-10 flex-grow">
+            <div className="relative z-10 grow">
               <AnimatePresence mode="wait">
                 {currentStep === 0 && (
                   <motion.div key="s0" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-10">
@@ -461,10 +461,10 @@ export const CourtBooking = () => {
                           key={sport.id}
                           onClick={() => setBookingData({ ...bookingData, sport: sport.id as any, courtId: null })}
                           className={cn(
-                            "relative p-8 rounded-[2rem] border transition-all duration-500 text-left overflow-hidden group",
+                            "relative p-8 rounded-4xl border transition-all duration-500 text-left overflow-hidden group",
                             bookingData.sport === sport.id
                               ? "bg-padel-blue/10 border-padel-blue ring-2 ring-padel-blue/20"
-                              : "bg-white/[0.02] border-white/5 hover:border-white/15 hover:bg-white/[0.04]"
+                              : "bg-white/2 border-white/5 hover:border-white/15 hover:bg-white/4"
                           )}
                         >
                           <span className="text-4xl block mb-4">{sport.icon}</span>
@@ -493,7 +493,7 @@ export const CourtBooking = () => {
                         const dStr = [d.getFullYear(), (d.getMonth() + 1).toString().padStart(2, '0'), d.getDate().toString().padStart(2, '0')].join('-');
                         const isS = bookingData.date === dStr;
                         return (
-                          <button key={i} onClick={() => setBookingData({ ...bookingData, date: dStr })} className={cn("p-6 rounded-[2rem] border transition-all flex flex-col items-center", isS ? "bg-padel-blue border-padel-blue text-white shadow-xl" : "bg-white/[0.02] border-white/5 text-white/40 hover:border-white/10")}>
+                          <button key={i} onClick={() => setBookingData({ ...bookingData, date: dStr })} className={cn("p-6 rounded-4xl border transition-all flex flex-col items-center", isS ? "bg-padel-blue border-padel-blue text-white shadow-xl" : "bg-white/2 border-white/5 text-white/40 hover:border-white/10")}>
                             <span className="text-[8px] uppercase font-black tracking-widest block mb-2 opacity-30">{d.toLocaleDateString('fr-FR', { weekday: 'short' })}</span>
                             <span className="text-3xl font-display font-black leading-none mb-1">{d.getDate()}</span>
                             <span className="text-[8px] font-black opacity-20 uppercase">{d.toLocaleDateString('fr-FR', { month: 'short' })}</span>
@@ -531,8 +531,8 @@ export const CourtBooking = () => {
                               bookingData.time === slot.time
                                 ? "bg-padel-blue border-padel-blue text-white shadow-xl"
                                 : slot.available
-                                  ? "bg-white/[0.03] border-white/10 text-white/60 hover:border-padel-blue/50 hover:bg-padel-blue/5 hover:text-white"
-                                  : "bg-white/[0.01] border-white/5 text-white/10 cursor-not-allowed border-dashed opacity-40"
+                                  ? "bg-white/3 border-white/10 text-white/60 hover:border-padel-blue/50 hover:bg-padel-blue/5 hover:text-white"
+                                  : "bg-white/1 border-white/5 text-white/10 cursor-not-allowed border-dashed opacity-40"
                             )}
                           >
                             <span className="text-lg md:text-xl font-display font-black transition-transform group-hover:scale-110">{slot.time}</span>
@@ -567,8 +567,8 @@ export const CourtBooking = () => {
                             bookingData.courtId === c._id ? "border-padel-blue bg-padel-blue/10 ring-4 ring-padel-blue/10 shadow-2xl shadow-padel-blue/10" : "border-white/5 hover:border-white/20"
                           )}>
                             <div className={cn(
-                              "w-20 h-20 rounded-[2rem] flex items-center justify-center border transition-all duration-500",
-                              bookingData.courtId === c._id ? "bg-padel-blue text-white border-padel-blue scale-110" : "bg-white/[0.03] border-white/5 text-white/20"
+                              "w-20 h-20 rounded-4xl flex items-center justify-center border transition-all duration-500",
+                              bookingData.courtId === c._id ? "bg-padel-blue text-white border-padel-blue scale-110" : "bg-white/3 border-white/5 text-white/20"
                             )}>
                               <LayoutGrid size={32} />
                             </div>
@@ -665,7 +665,7 @@ export const CourtBooking = () => {
 
                 {currentStep === 5 && (
                   <motion.div key="s5" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="flex flex-col items-center justify-center py-6">
-                    <div className="glass p-10 rounded-[3rem] border-white/10 bg-gradient-to-br from-padel-blue/10 to-transparent w-full max-w-md text-center">
+                    <div className="glass p-10 rounded-[3rem] border-white/10 bg-linear-to-br from-padel-blue/10 to-transparent w-full max-w-md text-center">
                       <CreditCard size={40} className="mx-auto text-padel-blue mb-6 opacity-40" />
                       <h3 className="text-lg font-display font-black uppercase tracking-widest mb-6">RÉCAPITULATIF</h3>
                       <div className="space-y-3 border-t border-white/5 pt-6 mb-8 text-left">
@@ -675,7 +675,7 @@ export const CourtBooking = () => {
                         </div>
                         <div className="flex justify-between text-[10px] font-black text-white/30 uppercase tracking-widest">
                           <span>HORAIRE</span>
-                          <span className="text-white">{bookingData.time} - {getEndTime(bookingData.time, bookingData.duration)}</span>
+                          <span className="text-white">{bookingData.time} - {getEndTime(bookingData.time || '', bookingData.duration)}</span>
                         </div>
                         <div className="flex justify-between text-[10px] font-black text-white/30 uppercase tracking-widest">
                           <span>DURÉE</span>
@@ -730,7 +730,7 @@ export const CourtBooking = () => {
                         </div>
 
                         {bookingData.paymentMethod === 'STRIPE' ? (
-                          <div className="flex flex-col items-center gap-4 px-6 py-6 bg-white/[0.02] border border-white/5 rounded-[2.5rem] relative overflow-hidden group mt-4">
+                          <div className="flex flex-col items-center gap-4 px-6 py-6 bg-white/2 border border-white/5 rounded-[2.5rem] relative overflow-hidden group mt-4">
                             <div className="absolute top-0 right-0 p-4 opacity-[0.03] rotate-12 transition-transform group-hover:rotate-0">
                               <CreditCard size={40} />
                             </div>
@@ -844,7 +844,7 @@ export const CourtBooking = () => {
 
             {/* PROGRESS BAR BOTTOM */}
             {currentStep < 7 && (
-              <div className="absolute bottom-0 left-0 w-full h-[2px] bg-white/[0.03]">
+              <div className="absolute bottom-0 left-0 w-full h-0.5 bg-white/3">
                 <motion.div className="h-full bg-padel-blue shadow-[0_0_15px_rgba(19,73,211,1)]" initial={{ width: 0 }} animate={{ width: `${(currentStep / 6) * 100}%` }} transition={{ duration: 1 }} />
               </div>
             )}

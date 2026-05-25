@@ -57,7 +57,12 @@ export const FinalCTA = () => {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
-              <Link to="/#club" className="sm:w-auto">
+              <a 
+                href="https://padelarenavendome.villagepadel.fr" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="sm:w-auto"
+              >
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
@@ -66,7 +71,7 @@ export const FinalCTA = () => {
                   RÉSERVER MAINTENANT
                   <ArrowRight size={16} />
                 </motion.button>
-              </Link>
+              </a>
 
               <Link to="/auth" className="sm:w-auto">
                 <motion.button

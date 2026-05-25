@@ -118,7 +118,11 @@ export const Coaching = () => {
                   />
 
                   <div className="mt-auto">
-                    <Link to={type.link}>
+                    <a 
+                      href="https://padelarenavendome.villagepadel.fr"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
                       <motion.button
                         whileHover={{ scale: 1.05, backgroundColor: '#1349d3', color: '#ffffff' }}
                         whileTap={{ scale: 0.95 }}
@@ -127,7 +131,7 @@ export const Coaching = () => {
                         RÉSERVER
                         <ArrowUpRight size={14} className="group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform" />
                       </motion.button>
-                    </Link>
+                    </a>
                   </div>
                 </div>
               </motion.div>
