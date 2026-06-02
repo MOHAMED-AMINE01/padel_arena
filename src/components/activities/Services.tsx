@@ -1,11 +1,10 @@
 import React, { useRef, useState } from 'react';
 import { motion } from 'motion/react';
-import { ShoppingBag, Footprints, CircleDot, ShowerHead, DoorOpen, Utensils } from 'lucide-react';
+import { ShoppingBag, CircleDot, ShowerHead, DoorOpen } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
 const services = [
   { title: "LOCATION RAQUETTES", icon: <CircleDot size={24} />, desc: "Testez les derniers modèles de nos marques partenaires d'élite." },
-  { title: "LOCATION CHAUSSURES", icon: <Footprints size={24} />, desc: "Adhérence optimale avec des modèles spécifiques padel." },
   { title: "Vente de balles", icon: <ShoppingBag size={24} />, desc: "Balles neuves disponibles à l'accueil pour une partie parfaite." },
   { title: "BOUTIQUE PRO-SHOP", icon: <ShoppingBag size={24} />, desc: "Équipez-vous avec le meilleur du matériel et textile technique." },
   { title: "VESTIAIRES PREMIUM", icon: <ShowerHead size={24} />, desc: "Service de serviettes propres et douches haut de gamme." },

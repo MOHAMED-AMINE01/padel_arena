@@ -4,6 +4,7 @@ import { motion } from 'motion/react';
 import { CourtPricing } from '../components/pricing/CourtPricing';
 import { PricingHero } from '../components/pricing/PricingHero';
 import { SubscriptionPlans } from '../components/pricing/SubscriptionPlans';
+import { WalletBonus } from '../components/pricing/WalletBonus';
 import { PacksAndFormulas } from '../components/pricing/PacksAndFormulas';
 import { UserSubscriptionStatus } from '../components/pricing/UserSubscriptionStatus';
 
@@ -36,6 +37,7 @@ export const PricingPage = () => {
 
             <CourtPricing />
             <SubscriptionPlans />
+            <WalletBonus />
             <PacksAndFormulas />
         </motion.div>
     );

@@ -1,32 +1,19 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { Crown, Zap, Shield, Star, Check } from 'lucide-react';
+import { Shield, Check } from 'lucide-react';
 
 const tiers = [
   {
     name: "PASS ARENA",
-    price: "50€",
+    price: "45€",
     period: "/mois",
     icon: <Shield className="text-padel-blue" />,
     features: [
-      "Réservation H24 via application",
-      "Accès 7j/7 aux courts",
-      "Priorité de réservation J-7",
-      "Accès Club House & Lounge",
-      "Système de crédits intégré"
-    ],
-    color: "border-white/10"
-  },
-  {
-    name: "Heures Creuses",
-    price: "50€",
-    period: "/mois",
-    icon: <Zap className="text-padel-blue" />,
-    features: [
-      "Accès illimité en heures creuses",
-      "Inclus Padel, Badminton, Pickleball & Golf",
-      "Réservation 7 jours à l'avance",
-      "Priorité sur les événements club"
+      "Heures creuses : de 10h à 12h et de 14h à 17h30",
+      "Hors week-ends et jours fériés",
+      "Sans engagement",
+      "Hors piste single",
+      "2 heures de jeu maximum par jour"
     ],
     color: "border-white/10"
   }

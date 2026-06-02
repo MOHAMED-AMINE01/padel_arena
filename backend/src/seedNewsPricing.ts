@@ -164,15 +164,6 @@ const pricingData = [
         order: 8
     },
     {
-        title: "PACK FAMILLE",
-        type: "pack",
-        price: "180€",
-        description: "Le padel pour tous. 10 sessions valables pour 4 personnes + accès académie junior.",
-        icon: "Heart",
-        isActive: true,
-        order: 9
-    },
-    {
         title: "PACK AMIS & LIFESTYLE",
         type: "pack",
         price: "140€",

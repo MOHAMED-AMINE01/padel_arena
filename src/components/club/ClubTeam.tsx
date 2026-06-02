@@ -1,8 +1,6 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React from 'react';
 import { motion } from 'motion/react';
-import { Instagram, Linkedin, Mail, ArrowUpRight, Loader2 } from 'lucide-react';
-import { cn } from '../../lib/utils';
-import api from '../../lib/api';
+import { Instagram, Linkedin, ArrowUpRight } from 'lucide-react';
 
 interface TeamMember {
   _id: string;
@@ -17,64 +15,34 @@ interface TeamMember {
   };
 }
 
+const team: TeamMember[] = [
+  {
+    _id: 'frederic',
+    name: 'Frédéric',
+    role: 'Gérant',
+    image: '',
+    bio: '',
+    socialLinks: { linkedin: '', instagram: '', email: '' },
+  },
+  {
+    _id: 'kyllian',
+    name: 'Kyllian',
+    role: 'Événementiel',
+    image: '',
+    bio: '',
+    socialLinks: { linkedin: '', instagram: '', email: '' },
+  },
+  {
+    _id: 'simon',
+    name: 'Simon',
+    role: 'Alternant Communication & Prof de Padel',
+    image: '',
+    bio: '',
+    socialLinks: { linkedin: '', instagram: '', email: '' },
+  },
+];
+
 export const ClubTeam = () => {
-  const [team, setTeam] = useState<TeamMember[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [activeIndex, setActiveIndex] = useState(0);
-  const scrollRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const fetchTeam = async () => {
-      try {
-        const res = await api.get('/content/team');
-        setTeam(res.data.data);
-      } catch (err) {
-        console.error('Error fetching team:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchTeam();
-  }, []);
-
-  const handleScroll = () => {
-    if (scrollRef.current) {
-      const { scrollLeft, offsetWidth } = scrollRef.current;
-      const cardWidth = window.innerWidth >= 1024 ? offsetWidth / 4 : offsetWidth;
-      const index = Math.round(scrollLeft / cardWidth);
-      setActiveIndex(index);
-    }
-  };
-
-  const scrollTo = (index: number) => {
-    if (scrollRef.current) {
-      const { offsetWidth } = scrollRef.current;
-      const cardWidth = window.innerWidth >= 1024 ? (offsetWidth + 32) / 4 : offsetWidth + 24; // Including gaps
-      scrollRef.current.scrollTo({
-        left: index * cardWidth,
-        behavior: 'smooth'
-      });
-      setActiveIndex(index);
-    }
-  };
-
-  const next = () => {
-    if (activeIndex < team.length - 1) scrollTo(activeIndex + 1);
-  };
-
-  const prev = () => {
-    if (activeIndex > 0) scrollTo(activeIndex - 1);
-  };
-
-  if (loading) {
-    return (
-      <section id="equipe" className="py-24 md:py-48 px-6 bg-[#050505] flex flex-col items-center justify-center gap-6">
-        <Loader2 className="animate-spin text-padel-blue" size={40} />
-        <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em]">Découverte de l'équipe...</p>
-      </section>
-    );
-  }
-
   return (
     <section id="equipe" className="relative py-24 md:py-24 px-6 bg-[#050505] overflow-hidden">
       {/* Structural Lines */}
@@ -95,11 +63,7 @@ export const ClubTeam = () => {
         </div>
 
         <div className="relative">
-          <div
-            ref={scrollRef}
-            onScroll={handleScroll}
-            className="flex gap-6 lg:gap-8 overflow-x-auto snap-x snap-mandatory hide-scrollbar pb-10"
-          >
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 max-w-5xl mx-auto justify-items-center">
             {team.map((member, i) => (
               <motion.div
                 key={member._id}
@@ -107,14 +71,26 @@ export const ClubTeam = () => {
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1, duration: 0.8 }}
-                className="min-w-[85vw] md:min-w-[45vw] lg:min-w-[calc(25%-1.5rem)] snap-center group relative"
+                className="w-full max-w-sm h-full flex flex-col group relative"
               >
                 <div className="relative aspect-[3/4] rounded-[2rem] overflow-hidden mb-8 border border-white/5">
-                  <img
-                    src={member.image}
-                    alt={member.name}
-                    className="w-full h-full object-cover grayscale-[40%] group-hover:grayscale-0 group-hover:scale-105 transition-all duration-1000"
-                  />
+                  {member.image ? (
+                    <img
+                      src={member.image}
+                      alt={member.name}
+                      className="w-full h-full object-cover grayscale-[40%] group-hover:grayscale-0 group-hover:scale-105 transition-all duration-1000"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-white/[0.04] to-white/[0.01]">
+                      <motion.span
+                        animate={{ scale: [1, 1.12, 1], opacity: [0.25, 0.6, 0.25] }}
+                        transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
+                        className="text-7xl md:text-8xl font-display font-black text-padel-blue/60 select-none"
+                      >
+                        ?
+                      </motion.span>
+                    </div>
+                  )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent group-hover:opacity-0 transition-opacity duration-700" />
 
                   {/* Hover Reveal Socials */}
@@ -164,39 +140,6 @@ export const ClubTeam = () => {
                 </div>
               </motion.div>
             ))}
-          </div>
-
-          {/* Pagination Indicators & Arrows */}
-          <div className="flex flex-col md:flex-row items-center justify-between gap-8 mt-12 pt-12 border-t border-white/5">
-            <div className="flex items-center gap-3">
-              {team.map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => scrollTo(i)}
-                  className={cn(
-                    "h-1.5 transition-all duration-500 rounded-full",
-                    activeIndex === i ? "w-12 bg-padel-blue" : "w-1.5 bg-white/10 hover:bg-white/20"
-                  )}
-                />
-              ))}
-            </div>
-
-            <div className="flex items-center gap-4">
-              <button
-                onClick={prev}
-                disabled={activeIndex === 0}
-                className="w-14 h-14 rounded-full border border-white/10 flex items-center justify-center text-white/40 hover:text-padel-blue hover:border-padel-blue hover:bg-padel-blue/5 transition-all disabled:opacity-20 disabled:cursor-not-allowed group/btn"
-              >
-                <ArrowUpRight size={24} className="-rotate-[135deg] group-hover/btn:scale-110 transition-transform" />
-              </button>
-              <button
-                onClick={next}
-                disabled={activeIndex >= team.length - (window.innerWidth >= 1024 ? 4 : 1)}
-                className="w-14 h-14 rounded-full border border-white/10 flex items-center justify-center text-white/40 hover:text-padel-blue hover:border-padel-blue hover:bg-padel-blue/5 transition-all disabled:opacity-20 disabled:cursor-not-allowed group/btn"
-              >
-                <ArrowUpRight size={24} className="rotate-45 group-hover/btn:scale-110 transition-transform" />
-              </button>
-            </div>
           </div>
         </div>
       </div>

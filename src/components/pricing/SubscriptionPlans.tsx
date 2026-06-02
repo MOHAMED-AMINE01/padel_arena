@@ -116,6 +116,8 @@ export const SubscriptionPlans = () => {
 
   if (plans.length === 0) return null;
 
+  const isSingle = plans.length === 1;
+
   return (
     <section id="abonnements" className="relative py-24 md:py-24 px-6 bg-[#050505] overflow-hidden border-t border-white/[0.03]">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1px] h-full bg-white opacity-[0.02] z-0" />
@@ -137,7 +139,10 @@ export const SubscriptionPlans = () => {
           <div
             ref={scrollRef}
             onScroll={handleScroll}
-            className="flex lg:grid lg:grid-cols-3 gap-6 lg:gap-8 overflow-x-auto lg:overflow-x-visible snap-x snap-mandatory no-scrollbar pb-10 lg:pb-0"
+            className={cn(
+              "flex gap-6 lg:gap-8 overflow-x-auto lg:overflow-x-visible snap-x snap-mandatory no-scrollbar pb-10 lg:pb-0",
+              isSingle ? "lg:flex lg:justify-center" : "lg:grid lg:grid-cols-3"
+            )}
           >
             {isSubscribed && !canRenew ? (
               <motion.div
@@ -195,8 +200,9 @@ export const SubscriptionPlans = () => {
                   transition={{ delay: i * 0.1, duration: 0.8 }}
                   className={cn(
                     "min-w-[85vw] sm:min-w-[400px] lg:min-w-0 snap-center group relative p-12 md:p-16 rounded-[4rem] border transition-all duration-700 flex flex-col h-full overflow-hidden",
+                    isSingle && "lg:w-[460px] lg:max-w-full lg:flex-none",
                     plan.featured
-                      ? "bg-[#0A0A0A] border-padel-blue/40 shadow-[0_50px_100px_rgba(19,73,211,0.1)] lg:-translate-y-8 z-20"
+                      ? cn("bg-[#0A0A0A] border-padel-blue/40 shadow-[0_50px_100px_rgba(19,73,211,0.1)] z-20", !isSingle && "lg:-translate-y-8")
                       : "glass border-white/5 hover:border-white/20"
                   )}
                 >

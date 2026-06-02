@@ -7,26 +7,14 @@ dotenv.config();
 const plans = [
     {
         name: "PASS ARENA",
-        price: 40,
+        price: 45,
         durationInMonths: 1,
         features: [
-            "Réservation H24 via application",
-            "Accès 7j/7 aux courts",
-            "Priorité de réservation J-7",
-            "Accès Club House & Lounge",
-            "Système de crédits intégré"
-        ],
-        isActive: true
-    },
-    {
-        name: "Heures Creuses",
-        price: 50,
-        durationInMonths: 1,
-        features: [
-            "Accès illimité en heures creuses",
-            "Inclus Padel, Badminton, Pickleball & Golf",
-            "Réservation 7 jours à l'avance",
-            "Priorité sur les événements club"
+            "Heures creuses : de 10h à 12h et de 14h à 17h30",
+            "Hors week-ends et jours fériés",
+            "Sans engagement",
+            "Hors piste single",
+            "2 heures de jeu maximum par jour"
         ],
         isActive: true
     }
@@ -40,7 +28,7 @@ const seedSubscriptions = async () => {
         await Subscription.deleteMany({});
         await Subscription.insertMany(plans);
 
-        console.log('✅ Subscriptions updated: PASS ARENA + Heures Creuses');
+        console.log('✅ Subscriptions updated: PASS ARENA (45€)');
         process.exit();
     } catch (err) {
         console.error('Error seeding subscriptions:', err);

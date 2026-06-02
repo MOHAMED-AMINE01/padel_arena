@@ -29,7 +29,7 @@ const sections = [
           </div>
           <div className="flex items-center gap-3">
             <Phone size={14} className="text-padel-yellow shrink-0" />
-            <a href="tel:0783221373" className="text-padel-yellow hover:text-white transition-colors">07 83 22 13 73</a>
+            <span className="text-padel-yellow">07 XX XX XX XX</span>
           </div>
         </div>
         <p className="mt-4">Immatriculation : <span className="text-white/30 italic">—</span></p>
