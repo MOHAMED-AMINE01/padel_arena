@@ -100,6 +100,8 @@ export const Activities = () => {
                 <img
                   src={activity.image}
                   alt={activity.title}
+                  loading="lazy"
+                  decoding="async"
                   className="w-full h-full object-cover transition-all duration-1000 group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-80 transition-opacity group-hover:opacity-40" />
@@ -167,6 +169,8 @@ export const Activities = () => {
                   <img
                     src={activities[currentIndex].image}
                     alt={activities[currentIndex].title}
+                    loading="lazy"
+                    decoding="async"
                     className="absolute inset-0 w-full h-full object-cover"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />

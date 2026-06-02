@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { motion } from 'motion/react';
 import {
     Sparkles,
@@ -9,23 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
 export function PlayerBook() {
-    const [countdown, setCountdown] = useState(3);
     const navigate = useNavigate();
-
-    useEffect(() => {
-        const timer = setInterval(() => {
-            setCountdown((prev) => {
-                if (prev <= 1) {
-                    clearInterval(timer);
-                    window.location.href = "https://padelarenavendome.villagepadel.fr";
-                    return 0;
-                }
-                return prev - 1;
-            });
-        }, 1000);
-
-        return () => clearInterval(timer);
-    }, []);
 
     return (
         <div className="min-h-[80vh] flex flex-col items-center justify-center p-6 text-center">
@@ -61,7 +45,7 @@ export function PlayerBook() {
                     <div className="flex items-center justify-center gap-3 text-white/20">
                         <Loader2 className="animate-spin" size={16} />
                         <p className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.2em]">
-                            Redirection automatique dans <span className="text-white/60 font-display italic text-xs sm:text-sm">{countdown}s</span>
+                            Ouverture des réservations le <span className="text-white/60 font-display italic text-xs sm:text-sm">15 juin</span>
                         </p>
                     </div>
                 </div>

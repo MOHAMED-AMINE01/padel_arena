@@ -1,67 +1,76 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { motion, AnimatePresence } from 'motion/react';
-import { Navbar } from './components/Navbar';
-import { Footer } from './components/Footer';
 import { IntroExperience } from './components/IntroExperience';
 import { HomePage } from './pages/HomePage';
-import { ClubPage } from './pages/ClubPage';
-import { ActivitiesPage } from './pages/ActivitiesPage';
-import { BookingPage } from './pages/BookingPage';
-import { PricingPage } from './pages/PricingPage';
-import { ContactPage } from './pages/ContactPage';
-import { MentionsLegalesPage } from './pages/MentionsLegalesPage';
-import { PolitiqueConfidentialitePage } from './pages/PolitiqueConfidentialitePage';
-import { CookiesPage } from './pages/CookiesPage';
-
-import { NewsPage } from './pages/NewsPage';
-import { BookingSuccess } from './pages/BookingSuccess';
-import { BookingError } from './pages/BookingError';
-import { AuthPage } from './pages/AuthPage';
-import { ForgotPasswordPage } from './pages/ForgotPasswordPage';
-import { ResetPasswordPage } from './pages/ResetPasswordPage';
 import ScrollToTop from './components/ScrollToTop';
 import BackToTop from './components/BackToTop';
+import { BookingPopup } from './components/BookingPopup';
 import { PublicLayout } from './components/PublicLayout';
-import { AdminLayout } from './components/admin/AdminLayout';
-import { AdminDashboard } from './pages/admin/Dashboard';
-import { AdminUsers } from './pages/admin/Users';
-import { AdminReservations } from './pages/admin/Reservations';
-import { AdminPayments } from './pages/admin/Payments';
-import { AdminSubscriptions } from './pages/admin/Subscriptions';
-import { AdminPromoCodes } from './pages/admin/PromoCodes';
-import Facturation from './pages/admin/Facturation';
-
-import { AdminSettings } from './pages/admin/Settings';
-import { AdminMailbox } from './pages/admin/Mailbox';
-import { AdminNewsletter } from './pages/admin/Newsletter';
-import { AdminCourts } from './pages/admin/Courts';
-import { AdminEvents } from './pages/admin/Events';
-import { AdminNews } from './pages/admin/News';
-import { AdminPlans } from './pages/admin/Plans';
-import { AdminWalletPacks } from './pages/admin/WalletPacks';
-import { AdminTestimonials } from './pages/admin/Testimonials';
-import { AdminTeam } from './pages/admin/Team';
-
-// PLAYER PAGES
-import { PlayerLayout } from './components/player/PlayerLayout';
-import { PlayerDashboard } from './pages/player/Dashboard';
-import { PlayerBook } from './pages/player/BookCourt';
-import { PlayerReservations } from './pages/player/MyReservations';
-import { PlayerEvents } from './pages/player/Events';
-import { PlayerSubscription } from './pages/player/Subscription';
-import { PlayerPayments } from './pages/player/Payments';
-import { PlayerProfile } from './pages/player/Profile';
-import { PlayerSettings } from './pages/player/Settings';
-
-import { PlayerMessages } from './pages/player/Messages';
-import { WalletPage } from './pages/player/WalletPage';
 
 import { AuthProvider } from './context/AuthContext';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 
 import { ProtectedRoute, PublicRoute } from './components/AuthRoutes';
+
+// Helper: lazy-load d'un export nommé (code-splitting par route)
+const named = <T extends Record<string, any>>(factory: () => Promise<T>, name: keyof T) =>
+  lazy(() => factory().then((m) => ({ default: m[name] })));
+
+// PAGES PUBLIQUES SECONDAIRES (chargées à la demande)
+const ClubPage = named(() => import('./pages/ClubPage'), 'ClubPage');
+const ActivitiesPage = named(() => import('./pages/ActivitiesPage'), 'ActivitiesPage');
+const BookingPage = named(() => import('./pages/BookingPage'), 'BookingPage');
+const PricingPage = named(() => import('./pages/PricingPage'), 'PricingPage');
+const ContactPage = named(() => import('./pages/ContactPage'), 'ContactPage');
+const MentionsLegalesPage = named(() => import('./pages/MentionsLegalesPage'), 'MentionsLegalesPage');
+const PolitiqueConfidentialitePage = named(() => import('./pages/PolitiqueConfidentialitePage'), 'PolitiqueConfidentialitePage');
+const CookiesPage = named(() => import('./pages/CookiesPage'), 'CookiesPage');
+const NewsPage = named(() => import('./pages/NewsPage'), 'NewsPage');
+const BookingSuccess = named(() => import('./pages/BookingSuccess'), 'BookingSuccess');
+const BookingError = named(() => import('./pages/BookingError'), 'BookingError');
+const AuthPage = named(() => import('./pages/AuthPage'), 'AuthPage');
+const ForgotPasswordPage = named(() => import('./pages/ForgotPasswordPage'), 'ForgotPasswordPage');
+const ResetPasswordPage = named(() => import('./pages/ResetPasswordPage'), 'ResetPasswordPage');
+
+// BACKOFFICE ADMIN (chargé à la demande)
+const AdminLayout = named(() => import('./components/admin/AdminLayout'), 'AdminLayout');
+const AdminDashboard = named(() => import('./pages/admin/Dashboard'), 'AdminDashboard');
+const AdminUsers = named(() => import('./pages/admin/Users'), 'AdminUsers');
+const AdminReservations = named(() => import('./pages/admin/Reservations'), 'AdminReservations');
+const AdminPayments = named(() => import('./pages/admin/Payments'), 'AdminPayments');
+const AdminPromoCodes = named(() => import('./pages/admin/PromoCodes'), 'AdminPromoCodes');
+const Facturation = lazy(() => import('./pages/admin/Facturation'));
+const AdminSettings = named(() => import('./pages/admin/Settings'), 'AdminSettings');
+const AdminMailbox = named(() => import('./pages/admin/Mailbox'), 'AdminMailbox');
+const AdminNewsletter = named(() => import('./pages/admin/Newsletter'), 'AdminNewsletter');
+const AdminCourts = named(() => import('./pages/admin/Courts'), 'AdminCourts');
+const AdminEvents = named(() => import('./pages/admin/Events'), 'AdminEvents');
+const AdminNews = named(() => import('./pages/admin/News'), 'AdminNews');
+const AdminPlans = named(() => import('./pages/admin/Plans'), 'AdminPlans');
+const AdminWalletPacks = named(() => import('./pages/admin/WalletPacks'), 'AdminWalletPacks');
+const AdminTestimonials = named(() => import('./pages/admin/Testimonials'), 'AdminTestimonials');
+const AdminTeam = named(() => import('./pages/admin/Team'), 'AdminTeam');
+
+// BACKOFFICE JOUEUR (chargé à la demande)
+const PlayerLayout = named(() => import('./components/player/PlayerLayout'), 'PlayerLayout');
+const PlayerDashboard = named(() => import('./pages/player/Dashboard'), 'PlayerDashboard');
+const PlayerBook = named(() => import('./pages/player/BookCourt'), 'PlayerBook');
+const PlayerReservations = named(() => import('./pages/player/MyReservations'), 'PlayerReservations');
+const PlayerEvents = named(() => import('./pages/player/Events'), 'PlayerEvents');
+const PlayerSubscription = named(() => import('./pages/player/Subscription'), 'PlayerSubscription');
+const PlayerPayments = named(() => import('./pages/player/Payments'), 'PlayerPayments');
+const PlayerProfile = named(() => import('./pages/player/Profile'), 'PlayerProfile');
+const PlayerSettings = named(() => import('./pages/player/Settings'), 'PlayerSettings');
+const PlayerMessages = named(() => import('./pages/player/Messages'), 'PlayerMessages');
+
+// Fallback discret pendant le chargement d'un chunk de route
+const RouteFallback = () => (
+  <div className="min-h-screen flex items-center justify-center bg-dark-bg">
+    <div className="w-10 h-10 rounded-full border-2 border-white/10 border-t-padel-blue animate-spin" />
+  </div>
+);
 
 export default function App() {
   const [showIntro, setShowIntro] = useState(() => {
@@ -78,27 +87,15 @@ export default function App() {
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
-  // Preload assets
+  // Préchargement des seuls assets critiques de la landing (LCP).
   useEffect(() => {
     const assets = [
-      '/IMAGES/Logo Padel Arena Vendôme.png',
-      '/pexels-criticalimagery-33226057.jpg',
-      '/pexels-criticalimagery-33226056.jpg',
-      '/pexels-criticalimagery-32897038.jpg',
-      '/pexels-criticalimagery-34285600.jpg',
-      '/pexels-anhelina-vasylyk-734724285-35248239.jpg',
-      '/pexels-anhelina-vasylyk-734724285-35248310.jpg',
-      '/input_file_0.mp4',
+      '/IMAGES/home.jpeg',
+      '/IMAGES/newLogo.png',
     ];
     assets.forEach(src => {
-      if (src.endsWith('.mp4')) {
-        const video = document.createElement('video');
-        video.src = src;
-        video.preload = 'auto';
-      } else {
-        const img = new Image();
-        img.src = src;
-      }
+      const img = new Image();
+      img.src = src;
     });
   }, []);
 
@@ -108,6 +105,7 @@ export default function App() {
         <AuthProvider>
           <Toaster position="top-right" toastOptions={{ duration: 4000, style: { background: '#0D0D10', color: '#fff', border: '1px solid rgba(255,255,255,0.1)' } }} />
           <ScrollToTop />
+          <BookingPopup />
           <AnimatePresence>
             {showIntro ? (
               <motion.div
@@ -128,6 +126,7 @@ export default function App() {
                 animate={{ opacity: 1 }}
                 className="relative min-h-screen bg-dark-bg selection:bg-padel-blue selection:text-white overflow-x-hidden"
               >
+                <Suspense fallback={<RouteFallback />}>
                 <Routes>
                   {/* PUBLIC SITE */}
                   <Route element={<PublicLayout />}>
@@ -193,6 +192,7 @@ export default function App() {
                     </Route>
                   </Route>
                 </Routes>
+                </Suspense>
 
 
               </motion.div>

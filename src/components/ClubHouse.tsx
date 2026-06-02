@@ -27,7 +27,7 @@ export const ClubHouse = () => {
                 viewport={{ once: true }}
                 className="aspect-[3/4] rounded-[2rem] overflow-hidden shadow-2xl"
               >
-                <img src="/IMAGES/IMAGES CARROUSEL/pexels-criticalimagery-34285600.jpg" alt="Club House View" className="w-full h-full object-cover hover:scale-110 transition-transform duration-1000" />
+                <img src="/IMAGES/IMAGES CARROUSEL/pexels-criticalimagery-34285600.jpg" alt="Club House View" loading="lazy" decoding="async" className="w-full h-full object-cover hover:scale-110 transition-transform duration-1000" />
               </motion.div>
               <motion.div
                 initial={{ opacity: 0, scale: 0.9 }}
@@ -36,7 +36,7 @@ export const ClubHouse = () => {
                 transition={{ delay: 0.2 }}
                 className="aspect-[3/4] rounded-[2rem] overflow-hidden mt-12 shadow-2xl"
               >
-                <img src="/IMAGES/IMAGES CARROUSEL/pexels-ollivves-1103829.jpg" alt="Bar Concept" className="w-full h-full object-cover hover:scale-110 transition-transform duration-1000" />
+                <img src="/IMAGES/IMAGES CARROUSEL/pexels-ollivves-1103829.jpg" alt="Bar Concept" loading="lazy" decoding="async" className="w-full h-full object-cover hover:scale-110 transition-transform duration-1000" />
               </motion.div>
             </div>
           </div>

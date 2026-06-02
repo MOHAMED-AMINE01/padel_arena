@@ -21,6 +21,8 @@ export const Hero = () => {
           style={{ y, scale: 1.05 }}
           src="/IMAGES/home.jpeg"
           alt="Padel Arena"
+          fetchPriority="high"
+          decoding="async"
           className="w-full h-full object-cover grayscale-[20%]"
         />
       </div>

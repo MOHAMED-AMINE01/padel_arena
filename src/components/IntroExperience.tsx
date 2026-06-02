@@ -1,7 +1,10 @@
-import React, { useState } from 'react';
-import Spline from '@splinetool/react-spline';
+import React, { useState, lazy, Suspense } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ChevronRight } from 'lucide-react';
+
+// Le runtime Spline (~2,5 Mo) est lourd : on le charge en différé pour ne pas
+// bloquer le premier affichage. Le fond 3D apparaît dès qu'il est prêt.
+const Spline = lazy(() => import('@splinetool/react-spline'));
 
 interface IntroExperienceProps {
   onEnter: () => void;
@@ -19,9 +22,11 @@ export const IntroExperience: React.FC<IntroExperienceProps> = ({ onEnter }) => 
     <div className="fixed inset-0 z-[100] bg-[#05112B] overflow-hidden flex items-center justify-center">
       {/* Spline Background */}
       <div className="absolute inset-0 opacity-70 lg:w-[120%] h-[120%]">
-        <Spline
-          scene="https://prod.spline.design/OB1NQECltMJM2hNQ/scene.splinecode"
-        />
+        <Suspense fallback={null}>
+          <Spline
+            scene="https://prod.spline.design/OB1NQECltMJM2hNQ/scene.splinecode"
+          />
+        </Suspense>
       </div>
 
       {/* Overlay Gradients */}

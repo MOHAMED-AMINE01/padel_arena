@@ -5,7 +5,7 @@ import { Crown, Zap, Shield, Star, Check } from 'lucide-react';
 const tiers = [
   {
     name: "PASS ARENA",
-    price: "40€",
+    price: "50€",
     period: "/mois",
     icon: <Shield className="text-padel-blue" />,
     features: [
