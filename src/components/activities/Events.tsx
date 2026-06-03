@@ -97,7 +97,7 @@ export const Events = () => {
         <section className="relative rounded-[4rem] overflow-hidden group shadow-[0_50px_100px_rgba(0,0,0,0.5)]">
           <div className="absolute inset-0 z-0">
             <img
-              src="/IMAGES/IMAGES CARROUSEL/pexels-criticalimagery-34285600.jpg"
+              src="/IMAGES/IMAGES CARROUSEL/pexels-criticalimagery-3428560001.jpg"
               alt="Event Atmosphere"
               className="w-full h-full object-cover grayscale-[40%] group-hover:grayscale-0 group-hover:scale-105 transition-all duration-1000"
             />

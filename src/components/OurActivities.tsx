@@ -33,7 +33,7 @@ const activities = [
   {
     id: 'Golf',
     title: 'GOLF INDOOR',
-    image: '/IMAGES/Simulateur golf.jpg',
+    image: '/IMAGES/Simulateur golf2.jpg',
     description: "Perfectionnez votre swing sur les plus beaux parcours du monde grâce à notre simulateur de golf haute technologie.",
     buttonText: 'Réserver',
     titleColor: 'text-padel-blue',
