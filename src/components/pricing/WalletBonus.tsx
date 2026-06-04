@@ -6,6 +6,7 @@ import { cn } from '../../lib/utils';
 const bonusTiers = [
   { deposit: 100, credited: 120, bonus: 20 },
   { deposit: 150, credited: 180, bonus: 30 },
+  { deposit: 200, credited: 250, bonus: 50 },
 ];
 
 export const WalletBonus = () => {
@@ -33,7 +34,7 @@ export const WalletBonus = () => {
         </div>
 
         {/* Bonus cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 max-w-4xl mx-auto mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 max-w-6xl mx-auto mb-16">
           {bonusTiers.map((tier, i) => (
             <motion.div
               key={tier.deposit}
