@@ -120,15 +120,20 @@ export const CourtPricing = () => {
                       </h4>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-8 md:gap-12">
-                      <div className="text-center">
-                        <p className="text-[8px] font-black text-white/20 uppercase tracking-widest mb-2">Heure creuse</p>
-                        <p className="text-2xl md:text-3xl font-display font-black text-white">{row.offPeak}€</p>
+                    <div className="flex flex-col items-center md:items-end gap-3">
+                      <div className="grid grid-cols-2 gap-8 md:gap-12">
+                        <div className="text-center">
+                          <p className="text-[8px] font-black text-white/20 uppercase tracking-widest mb-2">Heure creuse</p>
+                          <p className="text-2xl md:text-3xl font-display font-black text-white">{row.offPeak}€</p>
+                        </div>
+                        <div className="text-center">
+                          <p className="text-[8px] font-black text-white/20 uppercase tracking-widest mb-2">Heure pleine</p>
+                          <p className="text-2xl md:text-3xl font-display font-black text-padel-blue">{row.peak}€</p>
+                        </div>
                       </div>
-                      <div className="text-center">
-                        <p className="text-[8px] font-black text-white/20 uppercase tracking-widest mb-2">Heure pleine</p>
-                        <p className="text-2xl md:text-3xl font-display font-black text-padel-blue">{row.peak}€</p>
-                      </div>
+                      {/(pickleball|badminton)/i.test(row.title) && (
+                        <span className="text-[9px] font-black text-padel-blue uppercase tracking-[0.25em] whitespace-nowrap">Prix par personne</span>
+                      )}
                     </div>
                   </div>
                   <div className="absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-padel-blue to-transparent opacity-0 group-hover:opacity-40 transition-opacity" />

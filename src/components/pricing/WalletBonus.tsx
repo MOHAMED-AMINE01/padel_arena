@@ -62,7 +62,7 @@ export const WalletBonus = () => {
                 {/* Deposit */}
                 <div>
                   <p className="text-[9px] font-black text-white/30 uppercase tracking-[0.3em] mb-2">Vous déposez</p>
-                  <span className="text-4xl md:text-5xl font-display font-black tracking-tighter text-white/60">{tier.deposit}€</span>
+                  <span className="text-4xl md:text-4xl font-display font-black tracking-tighter text-white/60">{tier.deposit}€</span>
                 </div>
 
                 <ArrowRight size={28} className="text-padel-blue shrink-0 group-hover:translate-x-1 transition-transform" />
@@ -70,7 +70,7 @@ export const WalletBonus = () => {
                 {/* Credited */}
                 <div>
                   <p className="text-[9px] font-black text-padel-blue uppercase tracking-[0.3em] mb-2">Dans le wallet</p>
-                  <span className="text-5xl md:text-6xl font-display font-black tracking-tighter text-white group-hover:text-padel-blue transition-colors">{tier.credited}€</span>
+                  <span className="text-4xl md:text-4xl font-display font-black tracking-tighter text-white group-hover:text-padel-blue transition-colors">{tier.credited}€</span>
                 </div>
               </div>
             </motion.div>
