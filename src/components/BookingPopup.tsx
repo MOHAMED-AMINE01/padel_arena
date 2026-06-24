@@ -44,8 +44,11 @@ export const BookingPopup = () => {
   const [open, setOpen] = useState(false);
   const [timeLeft, setTimeLeft] = useState<TimeLeft>(getTimeLeft);
 
-  // Intercepte tous les clics vers la plateforme de réservation, partout sur le site
+  // Intercepte les clics vers la plateforme de réservation UNIQUEMENT avant
+  // l'ouverture. Une fois la date passée, les liens fonctionnent normalement.
   useEffect(() => {
+    if (Date.now() >= OPENING_DATE.getTime()) return;
+
     const handleClick = (e: MouseEvent) => {
       const target = e.target as HTMLElement | null;
       const anchor = target?.closest('a');
