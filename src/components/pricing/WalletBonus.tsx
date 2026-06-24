@@ -102,7 +102,10 @@ export const WalletBonus = () => {
               </div>
             </div>
 
-            <button
+            <a
+              href="https://padelarenavendome.villagepadel.fr"
+              target="_blank"
+              rel="noopener noreferrer"
               className={cn(
                 "group relative px-10 py-5 bg-padel-blue text-white rounded-full font-black text-[10px] tracking-[0.4em] uppercase overflow-hidden transition-all shadow-2xl shrink-0 w-full md:w-auto"
               )}
@@ -111,7 +114,7 @@ export const WalletBonus = () => {
                 <Download size={16} /> Télécharger l'application
               </span>
               <div className="absolute inset-0 bg-padel-yellow translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
-            </button>
+            </a>
           </div>
         </motion.div>
       </div>
