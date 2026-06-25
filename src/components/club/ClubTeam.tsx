@@ -94,7 +94,7 @@ export const ClubTeam = () => {
                   <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent group-hover:opacity-0 transition-opacity duration-700" />
 
                   {/* Hover Reveal Socials */}
-                  <div className="absolute inset-0 bg-[#050505]/60 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all duration-500 flex flex-col items-center justify-center gap-6">
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex flex-col items-center justify-end pb-10 gap-6">
                     <div className="flex gap-4">
                       {member.socialLinks?.instagram && (
                         <a
