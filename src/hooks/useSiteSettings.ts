@@ -15,7 +15,7 @@ export interface SiteSettings {
 }
 
 const defaultSettings: SiteSettings = {
-  phone: '+33 2 00 00 00 00',
+  phone: '06 95 59 04 49',
   email: 'contact@padelarena.fr',
   address: '123 Avenue du Padel, 41100 Vendôme',
   availability: '08:00 — 23:00, Sept jours sur sept',
