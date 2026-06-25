@@ -5,7 +5,7 @@ import { SiteSettings } from '../src/models/SiteSettings';
 
 dotenv.config({ path: path.join(__dirname, '../.env') });
 
-const PLACEHOLDER_PHONE = '07 XX XX XX XX';
+const PLACEHOLDER_PHONE = '06 95 59 04 49';
 
 async function run() {
     try {
