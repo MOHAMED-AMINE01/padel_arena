@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { Building2, User, Server, Shield, Palette, ArrowUpRight, Phone, Mail, MapPin } from 'lucide-react';
+import { Seo } from '../components/Seo';
 
 const sections = [
   {
@@ -74,6 +75,15 @@ export const MentionsLegalesPage = () => {
       transition={{ duration: 0.8 }}
       className="overflow-x-hidden"
     >
+      <Seo
+        title="Mentions légales"
+        description="Mentions légales du site Padel Arena Vendôme : éditeur, hébergeur, propriété intellectuelle et coordonnées."
+        path="/mentions-legales"
+        breadcrumbs={[
+          { name: 'Accueil', path: '/' },
+          { name: 'Mentions légales', path: '/mentions-legales' },
+        ]}
+      />
       {/* Hero */}
       <section className="relative pt-40 md:pt-52 pb-20 md:pb-10 px-6 bg-[#050505] overflow-hidden">
         {/* Editorial Grid Lines */}

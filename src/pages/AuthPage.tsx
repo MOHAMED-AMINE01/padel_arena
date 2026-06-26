@@ -6,6 +6,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useGoogleLogin } from '@react-oauth/google';
 import { Navbar } from '../components/Navbar';
 import { Footer } from '../components/Footer';
+import { Seo } from '../components/Seo';
 import { cn } from '../lib/utils';
 
 import { useAuth } from '../context/AuthContext';
@@ -98,6 +99,7 @@ export function AuthPage() {
 
     return (
         <div className="bg-[#020617] min-h-screen flex flex-col">
+            <Seo title="Connexion & Inscription" path="/auth" noindex />
             <Navbar />
 
             <main className="flex-grow relative flex items-center justify-center lg:justify-end overflow-hidden pt-33">

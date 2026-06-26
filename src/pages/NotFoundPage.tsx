@@ -3,12 +3,14 @@ import { Link } from 'react-router-dom';
 import { Home, ArrowLeft, Zap, Target, Search } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { useAuth } from '../context/AuthContext';
+import { Seo } from '../components/Seo';
 
 export const NotFoundPage = () => {
   const { user } = useAuth();
 
   return (
     <div className="min-h-screen bg-[#050505] flex flex-col items-center justify-center p-6 relative overflow-hidden">
+      <Seo title="Page introuvable (404)" path="/404" noindex />
       {/* Background Cinematic Video/Ambience */}
       <div className="absolute inset-0 z-0 opacity-20 pointer-events-none">
         <video

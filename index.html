@@ -5,27 +5,134 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="google" content="notranslate" />
-  <title>Padel Arena Vendôme</title>
-  <meta name="description" content="Padel Arena Vendôme - Votre club de Padel, Badminton et Simulateur de Golf premium à Vendôme." />
-  
+
+  <!-- Indexation -->
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+  <meta name="googlebot" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+
+  <!-- Titre & description par défaut (surchargés par page via React 19) -->
+  <title>Padel Arena Vendôme — Club de Padel, Badminton & Golf Indoor (41100)</title>
+  <meta name="description" content="Réservez votre terrain de padel à Vendôme 24h/24. Padel Arena Vendôme : pistes de padel premium couvertes, badminton, simulateur de golf et club house au cœur du Loir-et-Cher (41100)." />
+  <meta name="keywords" content="padel Vendôme, club de padel Vendôme, réserver padel Vendôme, padel 41100, badminton Vendôme, simulateur de golf Vendôme, padel Loir-et-Cher, terrain de padel, cours de padel Vendôme, tournoi padel Vendôme" />
+  <meta name="author" content="Padel Arena Vendôme" />
+  <meta name="publisher" content="Padel Arena Vendôme" />
+
+  <!-- Géolocalisation (SEO local) -->
+  <meta name="geo.region" content="FR-41" />
+  <meta name="geo.placename" content="Saint-Ouen, Vendôme, Loir-et-Cher" />
+  <meta name="geo.position" content="47.8064071;1.0777732" />
+  <meta name="ICBM" content="47.8064071, 1.0777732" />
+  <meta name="theme-color" content="#0D0D10" />
+
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Padel Arena Vendôme" />
+  <meta property="og:locale" content="fr_FR" />
   <meta property="og:url" content="https://padelarenavendome.com/" />
-  <meta property="og:title" content="Padel Arena Vendôme - Club de Padel & Sports de Raquette" />
-  <meta property="og:description" content="Découvrez le plus grand complexe de sport de raquette à Vendôme. Padel, Badminton et Simulateur de Golf dans une ambiance premium." />
-  <meta property="og:image" content="https://padelarenavendome.com/IMAGES/newLogo.png" />
+  <meta property="og:title" content="Padel Arena Vendôme — Club de Padel, Badminton & Golf Indoor" />
+  <meta property="og:description" content="Le plus grand complexe de sport de raquette à Vendôme. Padel, badminton et simulateur de golf dans une ambiance premium. Réservez votre terrain 24h/24." />
+  <meta property="og:image" content="https://padelarenavendome.com/IMAGES/og-image.png" />
+  <meta property="og:image:secure_url" content="https://padelarenavendome.com/IMAGES/og-image.png" />
+  <meta property="og:image:type" content="image/png" />
+  <meta property="og:image:width" content="1472" />
+  <meta property="og:image:height" content="704" />
+  <meta property="og:image:alt" content="Padel Arena Vendôme — club de padel premium" />
 
   <!-- Twitter -->
-  <meta property="twitter:card" content="summary_large_image" />
-  <meta property="twitter:url" content="https://padelarenavendome.com/" />
-  <meta property="twitter:title" content="Padel Arena Vendôme - Club de Padel & Sports de Raquette" />
-  <meta property="twitter:description" content="Découvrez le plus grand complexe de sport de raquette à Vendôme. Padel, Badminton et Simulateur de Golf dans une ambiance premium." />
-  <meta property="twitter:image" content="https://padelarenavendome.com/IMAGES/newLogo.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:url" content="https://padelarenavendome.com/" />
+  <meta name="twitter:title" content="Padel Arena Vendôme — Club de Padel, Badminton & Golf Indoor" />
+  <meta name="twitter:description" content="Le plus grand complexe de sport de raquette à Vendôme. Padel, badminton et simulateur de golf dans une ambiance premium. Réservez votre terrain 24h/24." />
+  <meta name="twitter:image" content="https://padelarenavendome.com/IMAGES/og-image.png" />
+  <meta name="twitter:image:alt" content="Padel Arena Vendôme — club de padel premium" />
 
-  <link rel="apple-touch-icon" sizes="180x180" href="/IMAGES/newLogo_tr.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="/IMAGES/newLogo.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="/IMAGES/newLogo.png">
-  <link rel="manifest" href="/favicon_io/site.webmanifest">
+  <!-- Performance : connexions anticipées -->
+  <link rel="preconnect" href="https://padel-arena-backend.vercel.app" crossorigin />
+  <link rel="dns-prefetch" href="https://padel-arena-backend.vercel.app" />
+  <link rel="preconnect" href="https://padelarenavendome.villagepadel.fr" />
+  <link rel="dns-prefetch" href="https://padelarenavendome.villagepadel.fr" />
+
+  <!-- Favicons -->
+  <link rel="icon" href="/favicon_io/favicon.ico" sizes="any" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon_io/favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon_io/favicon-16x16.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/favicon_io/apple-touch-icon.png" />
+  <link rel="manifest" href="/favicon_io/site.webmanifest" />
+
+  <!-- Données structurées (always-present, lisibles sans exécution JS) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": ["SportsActivityLocation", "SportsClub", "LocalBusiness"],
+        "@id": "https://padelarenavendome.com/#organization",
+        "name": "Padel Arena Vendôme",
+        "alternateName": "Padel Arena",
+        "url": "https://padelarenavendome.com/",
+        "description": "Complexe sportif premium à Vendôme dédié au padel, au badminton et au simulateur de golf, avec club house. Réservation de terrains 24h/24, 7j/7.",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://padelarenavendome.com/IMAGES/newLogo.png"
+        },
+        "image": "https://padelarenavendome.com/IMAGES/og-image.png",
+        "telephone": "+33695590449",
+        "email": "contact@padelarenavendome.com",
+        "priceRange": "€€",
+        "currenciesAccepted": "EUR",
+        "paymentAccepted": "Carte bancaire, Espèces",
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": "16 Rue Auguste Comté",
+          "addressLocality": "Saint-Ouen",
+          "postalCode": "41100",
+          "addressRegion": "Centre-Val de Loire",
+          "addressCountry": "FR"
+        },
+        "geo": {
+          "@type": "GeoCoordinates",
+          "latitude": 47.8064071,
+          "longitude": 1.0777732
+        },
+        "hasMap": "https://www.google.com/maps/place/PADEL+ARENA+Vend%C3%B4me%2FSaint-Ouen,+16+Rue+Auguste+Comt%C3%A9,+41100+Saint-Ouen,+France",
+        "areaServed": [
+          { "@type": "City", "name": "Vendôme" },
+          { "@type": "City", "name": "Saint-Ouen" },
+          { "@type": "AdministrativeArea", "name": "Loir-et-Cher" }
+        ],
+        "sport": ["Padel", "Badminton", "Golf"],
+        "openingHoursSpecification": [
+          {
+            "@type": "OpeningHoursSpecification",
+            "name": "Terrains",
+            "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+            "opens": "00:00",
+            "closes": "23:59"
+          },
+          {
+            "@type": "OpeningHoursSpecification",
+            "name": "Club House",
+            "dayOfWeek": ["Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+            "opens": "11:00",
+            "closes": "21:00"
+          }
+        ],
+        "sameAs": [
+          "https://www.instagram.com/padelarenavendomois",
+          "https://www.facebook.com/share/1BzeKTr6t9/"
+        ]
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://padelarenavendome.com/#website",
+        "url": "https://padelarenavendome.com/",
+        "name": "Padel Arena Vendôme",
+        "inLanguage": "fr-FR",
+        "publisher": { "@id": "https://padelarenavendome.com/#organization" }
+      }
+    ]
+  }
+  </script>
 </head>
 
 <body>

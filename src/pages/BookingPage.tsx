@@ -1,6 +1,8 @@
 import React, { useEffect } from 'react';
 import { motion } from 'motion/react';
 import { Rocket, ArrowRight, ShieldCheck, Zap, Calendar } from 'lucide-react';
+import { Seo } from '../components/Seo';
+import { webPageJsonLd } from '../lib/seo';
 
 export const BookingPage = () => {
   useEffect(() => {
@@ -9,6 +11,21 @@ export const BookingPage = () => {
 
   return (
     <div className="min-h-screen bg-[#050505] pt-32 pb-20 px-6 relative overflow-hidden">
+      <Seo
+        title="Réserver un terrain de padel"
+        description="Réservez en ligne votre terrain de padel au Padel Arena Vendôme, 24h/24 et 7j/7. Réservation simple et rapide pour le padel, le badminton et le simulateur de golf à Vendôme."
+        path="/reservation"
+        breadcrumbs={[
+          { name: 'Accueil', path: '/' },
+          { name: 'Réservation', path: '/reservation' },
+        ]}
+        jsonLd={webPageJsonLd({
+          path: '/reservation',
+          name: 'Réserver un terrain — Padel Arena Vendôme',
+          description:
+            'Réservation en ligne de terrains de padel, badminton et golf à Vendôme, 24h/24.',
+        })}
+      />
       {/* Background Effects */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
         <div className="absolute top-[-10%] left-[20%] w-[50%] h-[50%] bg-padel-blue/10 rounded-full blur-[120px]" />

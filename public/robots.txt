@@ -1,0 +1,33 @@
+# Padel Arena Vendôme — robots.txt
+# https://padelarenavendome.com
+
+User-agent: *
+Allow: /
+
+# Espaces privés / fonctionnels : sans valeur pour la recherche
+Disallow: /auth
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /book
+Disallow: /my-reservations
+Disallow: /events
+Disallow: /subscription
+Disallow: /payments
+Disallow: /profile
+Disallow: /settings
+Disallow: /messages
+Disallow: /wallet
+Disallow: /booking-success
+Disallow: /succes
+Disallow: /echec
+
+# Les robots d'IA générative peuvent indexer le contenu public
+User-agent: GPTBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+Sitemap: https://padelarenavendome.com/sitemap.xml
