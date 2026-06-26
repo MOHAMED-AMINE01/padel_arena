@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { Database, Cookie, Settings } from 'lucide-react';
+import { Seo } from '../components/Seo';
 import { Link } from 'react-router-dom';
 
 const sections = [
@@ -50,6 +51,15 @@ export const CookiesPage = () => {
       transition={{ duration: 0.8 }}
       className="overflow-x-hidden"
     >
+      <Seo
+        title="Politique de cookies"
+        description="Politique de cookies du site Padel Arena Vendôme : types de cookies utilisés et gestion de votre consentement."
+        path="/cookies"
+        breadcrumbs={[
+          { name: 'Accueil', path: '/' },
+          { name: 'Cookies', path: '/cookies' },
+        ]}
+      />
       {/* Hero */}
       <section className="relative pt-40 md:pt-52 pb-10 md:pb-10 px-6 bg-[#050505] overflow-hidden">
         {/* Editorial Grid Lines */}

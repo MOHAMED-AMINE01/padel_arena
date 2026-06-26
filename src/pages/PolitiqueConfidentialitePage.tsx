@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { Database, Target, ShieldCheck, Scale, Mail } from 'lucide-react';
+import { Seo } from '../components/Seo';
 import { Link } from 'react-router-dom';
 
 const sections = [
@@ -56,6 +57,15 @@ export const PolitiqueConfidentialitePage = () => {
       transition={{ duration: 0.8 }}
       className="overflow-x-hidden"
     >
+      <Seo
+        title="Politique de confidentialité"
+        description="Politique de confidentialité de Padel Arena Vendôme : gestion et protection de vos données personnelles conformément au RGPD."
+        path="/politique-confidentialite"
+        breadcrumbs={[
+          { name: 'Accueil', path: '/' },
+          { name: 'Politique de confidentialité', path: '/politique-confidentialite' },
+        ]}
+      />
       {/* Hero */}
       <section className="relative pt-40 md:pt-52 pb-10 md:pb-10 px-6 bg-[#050505] overflow-hidden">
         {/* Editorial Grid Lines */}

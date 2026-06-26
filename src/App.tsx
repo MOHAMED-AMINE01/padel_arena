@@ -33,6 +33,7 @@ const BookingError = named(() => import('./pages/BookingError'), 'BookingError')
 const AuthPage = named(() => import('./pages/AuthPage'), 'AuthPage');
 const ForgotPasswordPage = named(() => import('./pages/ForgotPasswordPage'), 'ForgotPasswordPage');
 const ResetPasswordPage = named(() => import('./pages/ResetPasswordPage'), 'ResetPasswordPage');
+const NotFoundPage = named(() => import('./pages/NotFoundPage'), 'NotFoundPage');
 
 // BACKOFFICE ADMIN (chargé à la demande)
 const AdminLayout = named(() => import('./components/admin/AdminLayout'), 'AdminLayout');
@@ -191,6 +192,9 @@ export default function App() {
                       <Route path="/messages" element={<PlayerMessages />} />
                     </Route>
                   </Route>
+
+                  {/* 404 — page introuvable (noindex) */}
+                  <Route path="*" element={<NotFoundPage />} />
                 </Routes>
                 </Suspense>
 

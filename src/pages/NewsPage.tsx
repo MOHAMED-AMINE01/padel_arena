@@ -1,6 +1,8 @@
 import React, { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { motion } from 'motion/react';
+import { Seo } from '../components/Seo';
+import { webPageJsonLd } from '../lib/seo';
 import { NewsHero } from '../components/news/NewsHero';
 import { NewsGrid } from '../components/news/NewsGrid';
 
@@ -26,6 +28,21 @@ export const NewsPage = () => {
             transition={{ duration: 0.8 }}
             className="overflow-x-hidden"
         >
+            <Seo
+                title="Actualités du club"
+                description="Toute l'actualité du Padel Arena Vendôme : tournois, événements, nouveautés et vie du club. Restez informé de l'agenda padel à Vendôme."
+                path="/actualites"
+                breadcrumbs={[
+                    { name: 'Accueil', path: '/' },
+                    { name: 'Actualités', path: '/actualites' },
+                ]}
+                jsonLd={webPageJsonLd({
+                    path: '/actualites',
+                    name: 'Actualités — Padel Arena Vendôme',
+                    description:
+                        'Tournois, événements et nouveautés du Padel Arena Vendôme.',
+                })}
+            />
             <NewsHero />
             <NewsGrid />
 
